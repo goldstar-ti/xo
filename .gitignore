@@ -2,3 +2,8 @@
 __pycache__/
 *.pyc
 .pytest_cache/
+.scratch/
+backups/*
+tailwind/node_modules/
+tailwind/dist/
+static/tw.css
