@@ -1,0 +1,73 @@
+# Throwaway test stack. Its own project name, network and database, so the tests
+# can never reach the real xo-db. The API tests DROP every table in the database
+# they use. Run through `make test-api` and `make test-e2e`; both remove the
+# stack (and its data) afterwards.
+
+name: xo-test
+
+services:
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: xo_test
+      POSTGRES_USER: xo_test
+      POSTGRES_PASSWORD: xo_test
+    tmpfs:
+      - /var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U xo_test -d xo_test"]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+
+  # API tests (pytest). Code comes from the image; tests are mounted read-only.
+  pytest:
+    profiles: ["run"]
+    build:
+      context: .
+      target: test
+    image: xo-app:test
+    environment:
+      DATABASE_URL: postgresql+asyncpg://xo_test:xo_test@db:5432/xo_test
+    volumes:
+      - ./tests:/srv/xo/tests:ro
+    command: ["python", "-m", "pytest", "-q", "-p", "no:cacheprovider", "tests/test_api.py"]
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # A throwaway app instance on an empty database for the browser tests.
+  app:
+    build:
+      context: .
+      target: app
+    image: xo-app:test-run
+    environment:
+      DATABASE_URL: postgresql+asyncpg://xo_test:xo_test@db:5432/xo_test
+      SECRET_KEY: test-only
+      COOKIE_SECURE: "true"
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8000/api/health"]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+
+  # Browser tests. Shares the app container's network namespace, so the app is
+  # http://localhost:8000: a secure context, which WebCrypto, service workers
+  # and Secure cookies all need.
+  e2e:
+    profiles: ["run"]
+    image: mcr.microsoft.com/playwright/python:v1.60.0-noble
+    network_mode: "service:app"
+    shm_size: 1gb
+    working_dir: /work
+    environment:
+      XO_CHROME: ""
+    volumes:
+      - ./tests:/work/tests:ro
+    # The image carries the browsers but not the Python package; pin it to the image's version.
+    command: ["sh", "-c", "pip install -q --disable-pip-version-check --root-user-action=ignore playwright==1.60.0 && python tests/e2e.py http://localhost:8000 && python tests/e2e_look.py http://localhost:8000"]

@@ -2,6 +2,7 @@
 
     python tests/e2e.py [base_url] [screenshot_dir]
 """
+import os
 import sys
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -36,7 +37,7 @@ def fill_form(page, values, button="Save"):
 
 
 with sync_playwright() as p:
-    browser = p.chromium.launch(executable_path="/usr/bin/google-chrome", args=["--no-sandbox"])
+    browser = p.chromium.launch(executable_path=os.environ.get("XO_CHROME", "/usr/bin/google-chrome") or None, args=["--no-sandbox"])
     ctx = browser.new_context(viewport={"width": 412, "height": 915}, device_scale_factor=2, timezone_id=TZ, locale="en-AU")
     page = ctx.new_page()
     # A refused sign-in logs a 401 "Failed to load resource"; that one is expected below.

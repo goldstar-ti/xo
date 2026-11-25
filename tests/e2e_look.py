@@ -2,6 +2,7 @@
 
     python tests/e2e_look.py [base_url] [screenshot_dir]
 """
+import os
 import sys
 from pathlib import Path
 
@@ -12,7 +13,7 @@ SHOTS = Path(sys.argv[2] if len(sys.argv) > 2 else "/tmp/xo-shots")
 SHOTS.mkdir(parents=True, exist_ok=True)
 errs = []
 with sync_playwright() as p:
-    b = p.chromium.launch(executable_path="/usr/bin/google-chrome", args=["--no-sandbox"])
+    b = p.chromium.launch(executable_path=os.environ.get("XO_CHROME", "/usr/bin/google-chrome") or None, args=["--no-sandbox"])
     ctx = b.new_context(viewport={"width": 412, "height": 880}, device_scale_factor=2, timezone_id="Australia/Perth", locale="en-AU")
     pg = ctx.new_page()
     pg.on("console", lambda m: errs.append(m.text) if m.type == "error" and "401" not in m.text else None)
