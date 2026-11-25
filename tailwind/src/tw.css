@@ -1,0 +1,54 @@
+/* Tailwind for XO, compiled at image build time into static/tw.css (gitignored).
+
+   - Prefix "tw": utilities are written tw:flex, tw:bg-paper. No existing class
+     name in static/ can match one, and every Tailwind variable is --tw-*, so none
+     can collide with the appearance variables (--font-body, --radius and so on).
+   - No Preflight: static/app.css stays the base stylesheet.
+   - Utilities are unlayered and tw.css loads after app.css, so a utility wins
+     over an app.css rule of the same specificity.
+   - Every theme value points at a custom property that static/app.css defines
+     and static/js/boot.js sets at runtime, so every appearance dial reaches
+     Tailwind too. "inline" makes each utility read the variable on the element
+     itself, so .themed swatches and the dark scheme keep working.
+   - The default palette, shadows and fonts are cleared: there is no Tailwind
+     colour that is not an XO token. Never add a raw colour here. */
+
+@import "tailwindcss/theme.css" prefix(tw);
+@import "tailwindcss/utilities.css" prefix(tw) source("../../static");
+
+@theme inline {
+  --color-*: initial;
+  --color-paper: var(--paper);
+  --color-surface: var(--surface);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-leaf: var(--leaf);
+  --color-leaf-ink: var(--leaf-ink);
+  --color-leaf-soft: var(--leaf-soft);
+  --color-ochre: var(--ochre);
+  --color-ochre-soft: var(--ochre-soft);
+  --color-danger: var(--danger);
+
+  --shadow-*: initial;
+  --inset-shadow-*: initial;
+  --drop-shadow-*: initial;
+  --text-shadow-*: initial;
+
+  --font-*: initial;
+  --font-sans: var(--font-body);
+  --font-display: var(--font-head);
+  --font-figures: var(--font-num);
+
+  --radius-*: initial;
+  --radius-xo: var(--radius);
+  --radius-pill: var(--pill);
+
+  /* The density dial scales every spacing utility (tw:p-4, tw:gap-2, ...). */
+  --spacing: calc(0.25rem * var(--d));
+}
+
+/* Hairline width from the "rule" dial: tw:border-rule. */
+@utility border-rule {
+  border-width: var(--rule);
+}
