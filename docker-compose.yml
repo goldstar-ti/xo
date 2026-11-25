@@ -1,0 +1,9 @@
+# Runs on the host network so the app can reach PostgreSQL on localhost:5432
+# and cloudflared can reach the app on localhost:8010. Nothing is opened to the LAN.
+services:
+  xo:
+    build: .
+    container_name: xo
+    network_mode: host
+    env_file: .env
+    restart: unless-stopped
