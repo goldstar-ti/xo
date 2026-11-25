@@ -97,7 +97,7 @@ Both reference projects follow one pattern:
   `pg_restore --clean --if-exists -1`.
 - DR: `dr-backup.timer` (every 6 hours, `/usr/local/bin/dr-backup`) dumps the
   databases listed in `/etc/dr-backup/targets`, and tars all of
-  `/home/pj/projects` (so every project's `.env` and `./backups/` reach the DR
+  `~/projects` (so every project's `.env` and `./backups/` reach the DR
   disk). Its Postgres check fails any dump under 1 MiB, so a small new database
   cannot simply be added as a target.
 
@@ -167,8 +167,7 @@ service names that do not clash.
   `goldstar-ti` belongs to the `Goldstar-Transport` organisation.
 - No user or organisation called `goldstar-tixo` exists. `goldstar-ti/xo` does
   not exist yet.
-- Git identity: global `pj <donazea@gmail.com>` (BWS uses it); NOBBIE's repo
-  sets its own `PJ <pj9300@gmail.com>`.
+- Git identity: BWS uses the global identity; NOBBIE's repo sets its own.
 - NOBBIE commit rule: plain messages, no attribution lines, explicit pathspecs.
 
 ## Logging and restarts
@@ -192,7 +191,7 @@ service names that do not clash.
 | Tests use system Chrome at `/usr/bin/google-chrome` | Playwright in its official image | make the browser path configurable |
 | Test user name is the owner's initials | CLAUDE.md rule 5 | swap for made-up data |
 
-## Decisions taken (PJ, 2026-11-25)
+## Decisions taken (owner, 2026-11-25)
 
 1. XO gets its own hostname, `xo.tifunction.com`, instead of a path under
    `nobbie.tifunction.com`, so it has its own browser origin.
@@ -201,6 +200,6 @@ service names that do not clash.
 3. The XO server block goes into NOBBIE's `nginx/nginx.conf` and is committed in
    the NOBBIE repo on its current branch, that file only.
 4. GitHub repository: `goldstar-ti/xo`, private.
-5. Git identity for this repo: `PJ <pj9300@gmail.com>`, as NOBBIE.
+5. Git identity for this repo: the same as NOBBIE's.
 6. Test data uses a made-up sign-in name, not the owner's initials.
 7. `VAPID_SUBJECT` is XO's own https address, not an email address.

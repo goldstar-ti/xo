@@ -8,8 +8,8 @@ Installs as a PWA on Android and desktop. The name: the executive officer runs t
 ## Stack
 
 - Backend: FastAPI, SQLAlchemy 2.0 async, PostgreSQL (asyncpg), argon2, pywebpush. One uvicorn worker.
-- Front end: plain ES modules in `static/`, no framework, no build step. One classic script, `static/js/boot.js`, loads in `<head>`.
-- Deploy: Docker Compose on a Debian host, `network_mode: host`, behind a Cloudflare Tunnel. See `README.md`.
+- Front end: plain ES modules in `static/`, no framework, no JavaScript build step. One classic script, `static/js/boot.js`, loads in `<head>`. CSS: hand-written `static/app.css`, plus Tailwind v4 compiled at image build time into `static/tw.css`.
+- Deploy: gs-sv-008, Docker Compose project `xo` (`xo-app`, `xo-db`), app published only on `172.17.0.1:8010`, behind NOBBIE's nginx container and the gs-sv-008 Cloudflare tunnel at `https://xo.tifunction.com`. See `docs/RUNBOOK.md` and `docs/ARCHITECTURE-NOTES.md`.
 
 ## Rules that must not be broken
 
@@ -63,6 +63,12 @@ Conventions:
 - Respect the dials: `--radius`, `--pill`, `--rule`, `--d` (density multiplier), `--loud`, `--font-body`, `--font-head`, `--font-num`. New components should pick them up without extra work.
 - Layout variants are data attributes on `<html>`: `data-scheme`, `data-texture`, `data-hero`, `data-dayline`, `data-line`, `data-pop`.
 - A new appearance option needs: a default and a `CHOICES` entry (or a clamp) in `boot.js`, a line in `cleanLook()`, a slot in the look code (`encode`/`decode`, which changes its length), CSS, and a control in `views/appearance.js`.
+- Tailwind (`tailwind/src/tw.css`, v4.3.1 through Bun, built in the Dockerfile's `css` stage) is for new screens. Rules:
+  - Every utility carries the `tw:` prefix (`tw:flex`, `tw:bg-paper`), so no existing class name in `static/` can turn into a utility, and Tailwind's own variables are `--tw-*`.
+  - The theme maps only to the variables above: colours `tw:bg-paper`, `tw:text-ink`, `tw:border-line`, `tw:bg-leaf`, `tw:text-leaf-ink`, `tw:bg-leaf-soft`, `tw:text-ochre`, `tw:bg-ochre-soft`, `tw:text-danger`, `tw:bg-surface`, `tw:text-muted`; fonts `tw:font-sans` (body), `tw:font-display` (head), `tw:font-figures` (numbers); radius `tw:rounded-xo`, `tw:rounded-pill`; `tw:border-rule`; spacing scales with `--d`. The default palette, shadows and fonts are removed, so a raw Tailwind colour does not exist. Never add one.
+  - `@theme inline` keeps each utility reading the variable on its own element, so `.themed` swatches and the dark scheme work.
+  - No Preflight. Utilities are unlayered and `tw.css` loads after `app.css`, so a utility beats an `app.css` rule of the same specificity.
+  - Existing screens stay on `app.css` until the owner approves a conversion plan.
 - Tap targets at least 2.5rem. Keyboard focus must stay visible. Honour `prefers-reduced-motion`.
 
 ## Product principles
@@ -83,30 +89,32 @@ Buttons say what they do ("Save check-in"). Errors say what happened and what to
 
 ## Running it
 
-```bash
-pip install -r requirements-dev.txt
-export DATABASE_URL=postgresql+asyncpg://xo:xo@localhost:5432/xo
-COOKIE_SECURE=false uvicorn app.main:app --port 8010 --reload
-```
-
-Tests:
+Everything runs in containers (the host has no Python dependencies, Node or Bun). From the project folder:
 
 ```bash
-# API tests: DROP and recreate every table in the database they point at
-DATABASE_URL=postgresql+asyncpg://xo:xo@localhost:5432/xo_test pytest tests/test_api.py
-
-# Browser smoke test: needs the app running against an EMPTY database
-python tests/e2e.py http://localhost:8010
-python tests/e2e_look.py http://localhost:8010     # run straight after e2e.py, same database
+make up            # build (Tailwind included) and start xo-app and xo-db
+make logs          # follow the app
+make health        # /api/health directly and through nobbie-nginx
+make db-backup     # ./backups/xo-<timestamp>.dump
+make css           # local static/tw.css, only needed to run uvicorn outside Docker
 ```
 
-`tests/e2e.py` uses the system Chrome at `/usr/bin/google-chrome`; change `executable_path` or use `playwright install chromium`.
+Tests, each on a throwaway compose project (`xo-test`, `docker-compose.test.yml`) that cannot reach `xo-db`:
+
+```bash
+make test-api      # pytest; it DROPS and recreates every table in its database
+make test-e2e      # tests/e2e.py then tests/e2e_look.py, on a throwaway app and empty database
+```
+
+The browser tests run in `mcr.microsoft.com/playwright/python` sharing the test app's network, so the app is `http://localhost:8000` (a secure context).
+To run them elsewhere, `XO_CHROME` sets the browser path (empty means Playwright's own Chromium; unset means `/usr/bin/google-chrome`).
 Run both browser tests after any front-end change. They catch console errors and CSP violations.
 
-Rebuild the workbook data after the .docx changes:
+Never print or commit `.env`. The keys in it were generated once; new VAPID keys mean every device turns notifications on again.
+
+Rebuild the workbook data after the .docx changes (in a container with `python-docx`):
 
 ```bash
-pip install python-docx
 python scripts/build_workbook.py path/to/workbook.docx
 ```
 

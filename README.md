@@ -43,75 +43,19 @@ Three limits to know about:
 
 The app stores text only. There are no photo or file uploads.
 
-## Set up on GS-SV-008
+## How it is deployed
 
-You need Docker Compose and PostgreSQL on the server, and a Cloudflare Tunnel (`cloudflared`).
+XO runs on gs-sv-008 at `https://xo.tifunction.com`, the same way as the other stacks there:
 
-### 1. Create the database
+- Docker Compose project `xo`: `xo-app` (FastAPI, one uvicorn worker) and `xo-db` (PostgreSQL 16, its own database `xo_db` and role `xo_user`) on a private network.
+- The app port is published only on the Docker bridge address `172.17.0.1:8010`. NOBBIE's nginx container proxies `xo.tifunction.com` to it.
+- The Cloudflare tunnel on gs-sv-008 carries `xo.tifunction.com` to that nginx, and Cloudflare Access sits in front. HTTPS ends at Cloudflare.
+- Settings and keys live in `.env` (never committed). Tailwind is compiled into the image at build time.
 
-```bash
-sudo -u postgres psql
-```
+`docs/RUNBOOK.md` has the commands for start, stop, logs, update, backup and restore.
+`docs/ARCHITECTURE-NOTES.md` records the server conventions this follows.
 
-```sql
-CREATE ROLE xo LOGIN PASSWORD 'choose-a-long-password';
-CREATE DATABASE xo OWNER xo;
-\q
-```
-
-The app creates its own tables the first time it starts.
-
-### 2. Get the code onto the server
-
-Copy this folder to the server (git, scp, or VS Code Remote), then:
-
-```bash
-cd xo
-cp .env.example .env
-```
-
-Put the database password into `DATABASE_URL` in `.env`.
-If the password contains `@`, `:` or `/`, percent-encode those characters.
-
-### 3. Generate the keys
-
-```bash
-docker compose build
-docker compose run --rm xo python scripts/gen_keys.py         secret and notification keys
-scripts/build_workbook.py   workbook .docx to content/workbook.json
-content/workbook.json       the workbook's chapters and prompts
-docs/ROADMAP.md             specs for the next features
-```
-
-Paste the three lines it prints into `.env`, replacing the empty `SECRET_KEY`, `VAPID_PRIVATE_KEY` and `VAPID_PUBLIC_KEY` lines.
-Set `VAPID_SUBJECT` to `mailto:` followed by an email address of yours.
-
-Do this once. If the VAPID keys change later, every device has to turn notifications on again.
-
-### 4. Start it
-
-```bash
-docker compose up -d
-docker compose logs -f xo      # Ctrl+C to stop watching
-curl http://localhost:8010/api/health
-```
-
-The app listens on `127.0.0.1:8010` only. It is not reachable from the LAN.
-
-### 5. Publish it through Cloudflare
-
-In the Cloudflare Zero Trust dashboard, open your tunnel and add a public hostname:
-
-- Hostname: for example `xo.yourdomain.com`
-- Service: `http://localhost:8010`
-
-Notifications and installing to the home screen both require HTTPS, which the tunnel provides.
-
-Optional: put a Cloudflare Access policy in front (your email only). If you do, set the Access
-session to a long duration. When an Access session lapses, notification actions (Done, In 15 min)
-stop working until you open the app and sign in to Access again.
-
-### 6. Check the server can send notifications
+### The server must be able to send notifications
 
 Reminders are delivered through the browser makers' push services. The server needs outbound
 HTTPS (port 443) to:
@@ -122,28 +66,32 @@ HTTPS (port 443) to:
 
 If the firewall blocks outbound traffic, ask your network administrator to allow these.
 
-### 7. First run
+### First run
 
-1. Open the hostname in Chrome on your computer.
+1. Open `https://xo.tifunction.com` in Chrome on your computer and pass the Cloudflare Access sign-in.
 2. Choose a sign-in name and a passphrase. The first account created is the only account; registration then closes.
 3. Go to Settings, turn on notifications, and press "Send a test".
 4. On your Android phone, open the same address in Chrome, sign in with the same name and passphrase, then use Chrome's menu, "Add to Home screen" or "Install app". Open it from the home screen icon, go to Settings and turn on notifications there too.
 5. On Android, long-press the app icon, open App info, and check that notifications are allowed and battery use is not restricted. Restricted battery settings delay reminders.
+
+Cloudflare Access sessions expire. When one lapses, notification actions (Done, In 15 min)
+stop working until you open the app and pass the Access sign-in again, so set a long session
+duration on the Access application.
 
 ## Everyday care
 
 **Back up the database.** The dump contains ciphertext, so it is safe to store with your other backups:
 
 ```bash
-pg_dump -U xo -h localhost xo | gzip > xo-$(date +%F).sql.gz
+make db-backup        # ./backups/xo-<date>.dump
 ```
 
-A backup is only useful together with the passphrase.
+A backup is only useful together with the passphrase. `docs/RUNBOOK.md` covers restore.
 
 **Update the app** after changing code:
 
 ```bash
-docker compose up -d --build
+make test && make up
 ```
 
 **Read your own data outside the app:** Settings, "Download everything, unencrypted". That file is readable by anyone who opens it.
@@ -185,31 +133,32 @@ app/            FastAPI backend
   main.py       routes: sign-in, items, reminders, push
   models.py     tables (users, sessions, items, reminders, push_subs)
   push.py       reminder loop and Web Push delivery
-static/         the app itself (plain JavaScript, no build step)
+static/         the app itself (plain JavaScript modules, no JavaScript build step)
+  app.css       hand-written styles and the appearance tokens
+  tw.css        Tailwind output, built at image build time (gitignored)
   js/crypto.js  key derivation and encryption
   js/store.js   encrypt, save, load, and reminder times for each kind of entry
   js/boot.js    appearance engine, loaded before first paint
   js/views/     one file per screen
   sw.js         service worker: offline shell and notifications
+tailwind/                   Tailwind source (src/tw.css), package.json and bun.lock
 scripts/gen_keys.py         secret and notification keys
 scripts/build_workbook.py   workbook .docx to content/workbook.json
 content/workbook.json       the workbook's chapters and prompts
 docs/ROADMAP.md             specs for the next features
-tests/          API tests (pytest) and a browser smoke test (Playwright)
+docs/RUNBOOK.md             running it on gs-sv-008
+tests/          API tests (pytest) and browser smoke tests (Playwright)
+Dockerfile, docker-compose.yml, docker-compose.test.yml, Makefile
 ```
 
 ## Running the tests
 
 ```bash
-pip install -r requirements-dev.txt
-DATABASE_URL=postgresql+asyncpg://xo:xo@localhost:5432/xo_test pytest tests/test_api.py
-
-# browser test: start the app against an EMPTY database first
-COOKIE_SECURE=false uvicorn app.main:app --port 8010
-python tests/e2e.py http://localhost:8010
-python tests/e2e_look.py http://localhost:8010   # appearance; run straight after, same database
+make test-api     # API tests against a throwaway database in its own compose project
+make test-e2e     # tests/e2e.py then tests/e2e_look.py, on a throwaway app with an empty database
 ```
 
+Both build and remove their own stack (`docker-compose.test.yml`, project `xo-test`), which cannot reach the real database.
 The API tests drop and recreate every table in the database they are pointed at. Never point them at the real one.
 
 ## A note on what to write
