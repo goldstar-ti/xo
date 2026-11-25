@@ -46,7 +46,7 @@ with sync_playwright() as p:
 
     # --- create the account
     page.goto(BASE)
-    page.fill("#a-name", "pj")
+    page.fill("#a-name", "tester")
     page.fill("#a-pass", PASS)
     page.fill("#a-again", PASS)
     page.screenshot(path=SHOTS / "00-create.png")
@@ -162,7 +162,7 @@ with sync_playwright() as p:
 
     # --- sign out, wrong passphrase, right passphrase
     page.get_by_role("button", name="Sign out of this device").click()
-    page.fill("#a-name", "pj")
+    page.fill("#a-name", "tester")
     page.fill("#a-pass", "not the passphrase")
     page.get_by_role("button", name="Sign in").click()
     expect(page.locator(".form-error")).to_contain_text("do not match", timeout=20000)

@@ -32,7 +32,7 @@ async def client():
 
 
 async def register(c):
-    r = await c.post("/api/auth/register", json={"username": "pj", "salt": SALT, "auth_key": KEY}, headers=H)
+    r = await c.post("/api/auth/register", json={"username": "tester", "salt": SALT, "auth_key": KEY}, headers=H)
     assert r.status_code == 200, r.text
 
 
@@ -41,27 +41,27 @@ async def test_auth_flow(client):
     assert (await client.get("/api/auth/status")).json() == {"has_user": False, "signed_in": False}
     assert (await client.get("/api/me")).status_code == 401
     await register(client)
-    assert (await client.get("/api/me")).json()["username"] == "pj"
+    assert (await client.get("/api/me")).json()["username"] == "tester"
     assert (await client.get("/api/auth/status")).json() == {"has_user": True, "signed_in": True}
     # only one account
     r = await client.post("/api/auth/register", json={"username": "x2", "salt": SALT, "auth_key": KEY}, headers=H)
     assert r.status_code == 403
     # real salt for a real user, a stable fake for anyone else
-    assert (await client.get("/api/auth/salt?username=pj")).json()["salt"] == SALT
+    assert (await client.get("/api/auth/salt?username=tester")).json()["salt"] == SALT
     a = (await client.get("/api/auth/salt?username=nobody")).json()["salt"]
     assert a == (await client.get("/api/auth/salt?username=nobody")).json()["salt"] != SALT
     await client.post("/api/auth/logout", headers=H)
     assert (await client.get("/api/me")).status_code == 401
-    bad = await client.post("/api/auth/login", json={"username": "pj", "auth_key": "00" * 32}, headers=H)
+    bad = await client.post("/api/auth/login", json={"username": "tester", "auth_key": "00" * 32}, headers=H)
     assert bad.status_code == 401
-    good = await client.post("/api/auth/login", json={"username": "PJ ", "auth_key": KEY}, headers=H)
+    good = await client.post("/api/auth/login", json={"username": "Tester ", "auth_key": KEY}, headers=H)
     assert good.status_code == 200
     assert (await client.get("/api/me")).status_code == 200
 
 
 @pytest.mark.asyncio
 async def test_changes_need_header(client):
-    r = await client.post("/api/auth/register", json={"username": "pj", "salt": SALT, "auth_key": KEY})
+    r = await client.post("/api/auth/register", json={"username": "tester", "salt": SALT, "auth_key": KEY})
     assert r.status_code == 403
 
 

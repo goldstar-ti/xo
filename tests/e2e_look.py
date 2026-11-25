@@ -19,7 +19,7 @@ with sync_playwright() as p:
     pg.on("console", lambda m: errs.append(m.text) if m.type == "error" and "401" not in m.text else None)
     pg.on("pageerror", lambda e: errs.append(str(e)))
     pg.goto(BASE)
-    pg.fill("#a-name", "pj"); pg.fill("#a-pass", "orbit-walnut-ferry-linen-42"); pg.get_by_role("button", name="Sign in").click()
+    pg.fill("#a-name", "tester"); pg.fill("#a-pass", "orbit-walnut-ferry-linen-42"); pg.get_by_role("button", name="Sign in").click()
     pg.wait_for_selector(".dayline", timeout=20000)
     # quick panel
     pg.locator(".top .look-btn").click()
