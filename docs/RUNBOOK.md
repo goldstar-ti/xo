@@ -94,6 +94,13 @@ Restoring onto a new server: copy the project folder (with `.env`, because the
 VAPID keys must stay the same or every device has to turn notifications on
 again), run `make up`, then `make db-restore FILE=...`.
 
+## Editing text
+
+The wording is in `content/text/*.yaml`, bind-mounted read-only into `xo-app`. Edit a file on the host and
+reload the page; there is no rebuild and no restart. A file that does not parse is logged (file name only) and
+its last good version stays in use. `GET /api/text` shows what is being served. `make test-api` checks that
+every file parses.
+
 ## Tests
 
 ```bash

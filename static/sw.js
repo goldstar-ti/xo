@@ -1,9 +1,9 @@
 // Service worker: keeps the app shell available and shows reminders.
 // Classic script (no imports) so it works in every browser that supports push.
-const CACHE = 'xo-v4';
+const CACHE = 'xo-v5';
 const SHELL = [
   '/', '/app.css', '/tw.css', '/manifest.webmanifest', '/fonts/ahn-latin.woff2', '/icons/icon-192.png',
-  '/js/boot.js', '/js/app.js', '/js/store.js', '/js/util.js', '/js/content.js', '/js/forms.js',
+  '/js/boot.js', '/js/app.js', '/js/store.js', '/js/util.js', '/js/content.js', '/js/text.js', '/js/forms.js',
   '/js/views/today.js', '/js/views/lists.js', '/js/views/checkin.js', '/js/views/plan.js', '/js/views/settings.js', '/js/views/appearance.js',
 ];
 
@@ -17,10 +17,11 @@ self.addEventListener('activate', (event) => {
 });
 
 // App files: network first, so updates arrive straight away; the cache covers being offline.
-// API calls are never cached.
+// API calls are never cached, except /api/text (the editable wording): network first, so an
+// edit shows at once, with the last copy as the offline fallback.
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
-  if (event.request.method !== 'GET' || url.origin !== location.origin || url.pathname.startsWith('/api/')) return;
+  if (event.request.method !== 'GET' || url.origin !== location.origin || (url.pathname.startsWith('/api/') && url.pathname !== '/api/text')) return;
   event.respondWith(
     fetch(event.request)
       .then((res) => {

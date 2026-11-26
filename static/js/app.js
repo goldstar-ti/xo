@@ -1,6 +1,7 @@
 // Shell: sign-in, navigation, routing.
 import * as store from './store.js';
 import { DEFAULT_ROUTINES, DEFAULT_SETTINGS } from './content.js';
+import { loadText } from './text.js';
 import { dialogOpen, h, kvClear, kvSet, put, toast, uid } from './util.js';
 import * as todayView from './views/today.js';
 import * as checkinView from './views/checkin.js';
@@ -148,6 +149,7 @@ async function start() {
 }
 
 async function boot() {
+  await loadText(); // the wording comes first: every screen, the sign-in form included, reads it
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
   try {
     const status = await store.api('GET', '/api/auth/status');

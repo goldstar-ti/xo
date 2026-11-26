@@ -28,6 +28,9 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    volumes:
+      # Editable wording: a change on the host shows on the next page load, no rebuild or restart.
+      - ./content/text:/srv/xo/content/text:ro
     networks:
       - internal
     ports:

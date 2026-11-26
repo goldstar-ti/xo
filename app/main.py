@@ -25,6 +25,7 @@ from .db import engine, get_db
 from .logging_setup import setup_logging
 from .models import Base, Item, PushSub, Reminder, Session, User
 from .push import scheduler_loop, send_push
+from .text import load_text
 from .version import VERSION
 
 setup_logging(config.LOG_LEVEL)
@@ -62,7 +63,9 @@ async def security_headers(request: Request, call_next):
     # No CSP or other security headers: the owner handles security separately (2026-11-26).
     response.headers["X-Robots-Tag"] = "noindex, nofollow"
     path = request.url.path
-    if path.startswith("/api/"):
+    if path == "/api/text":
+        response.headers["Cache-Control"] = "no-cache"  # the service worker keeps a copy for offline use
+    elif path.startswith("/api/"):
         response.headers["Cache-Control"] = "no-store"
     elif path.startswith("/fonts/") or path.startswith("/icons/"):
         response.headers["Cache-Control"] = "public, max-age=2592000"
@@ -145,6 +148,12 @@ async def _start_session(db: AsyncSession, user: User, response: Response) -> No
 async def health():
     """Report that the app is up."""
     return {"ok": True}
+
+
+@app.get("/api/text")
+def text() -> dict:
+    """Return the editable wording from ``content/text`` (no sign-in: the sign-in screen needs it)."""
+    return load_text()
 
 
 @app.get("/api/auth/status")

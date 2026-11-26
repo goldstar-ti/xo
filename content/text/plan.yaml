@@ -1,0 +1,213 @@
+# My plan: the two plan versions, their sections and prompts, the plan card services and the box-filling order.
+#
+# How to edit this file
+# - Save the file and reload the page. There is no build and no restart.
+# - Change the words after a colon. Keep the keys (the words before a colon) as they are:
+#   the app looks the text up by key, and a missing key shows the key itself.
+# - Keep the indentation. It uses two spaces and never tabs.
+# - Put quote marks around any text that starts with a special character
+#   (" ' { [ * & ! % @ #) or that contains a colon followed by a space, and around times such as '09:00'.
+# - Write {name} where the app fills something in. Keep the same {name} in your wording.
+# - If a file has a mistake, the app keeps the last good version of that file and logs a note.
+#
+plan:
+  variants:
+    online: Plan with internet and device sections
+    contact: Plan with situational safety sections
+  sections:
+    online:
+    - n: 1
+      title: My good life
+      note: The short version, the part you carry.
+      boxes:
+      - k: good_matters
+        q: What matters most to me in the life I want?
+      - k: good_ways
+        q: What are healthy ways I can work towards those things?
+        eg: time with people I trust, steady work or study, keeping busy with things I enjoy.
+    - n: 2
+      title: My strengths and supports
+      boxes:
+      - k: strengths
+        q: What am I good at, and what helps me feel steady?
+      - k: lean
+        q: Who are the people I can lean on?
+    - n: 3
+      title: Understanding my offending
+      note: Write about the need you were trying to meet and how you were feeling, not the details of what happened.
+      guard: true
+      boxes:
+      - k: around
+        q: What was going on in my life around that time?
+      - k: feeling
+        q: What was I feeling, and what was I trying to find or get away from?
+      - k: online_part
+        q: What part did going online play for me?
+    - n: 4
+      title: My high-risk feelings and times
+      boxes:
+      - k: risk
+        q: Which feelings or situations make things harder for me?
+        eg: feeling low or alone, being bored, being stressed, being awake and alone online late at night, using a screen to switch off from everything.
+    - n: 5
+      title: My internet and device plan
+      boxes:
+      - k: device_plan
+        q: How will I set up my devices so they support me, and who helps me keep to this?
+        eg: agreed filters or monitoring, devices used in shared spaces, set times away from screens, someone I check in with.
+    - n: 6
+      title: My early warning signs
+      note: Small, specific and early. Write each one as something you could check.
+      boxes:
+      - k: signs
+        q: What are the first signs that I am drifting off track?
+        eg: pulling away from people, more time alone online, telling myself little lies about it, feeling flat.
+    - n: 7
+      title: What I do instead
+      note: Give a person’s name, not “someone”.
+      boxes:
+      - k: instead
+        q: When I notice those signs, what will I do, and who will I contact?
+    - n: 8
+      title: Remembering the harm
+      note: Keep this in your own words.
+      boxes:
+      - k: harm
+        q: Why does it matter to me that these images involve real children being harmed?
+    - n: 9
+      title: My support team
+      note: People around you who are not offending, and at least one adult you can be honest with. Put each person on their own line with their number.
+      boxes:
+      - k: team
+        q: Names and numbers of people I can call.
+    - n: 10
+      title: My conditions
+      boxes:
+      - k: conditions
+        q: What reporting or supervision conditions do I follow, and who is my contact?
+    - n: 11
+      title: If I have a slip
+      boxes:
+      - k: slip
+        q: What are my first three steps, and who do I tell straight away?
+    - n: 12
+      title: My online life
+      note: What a screen was doing for you, and what has taken its place since. Do not score yourself against how things used to be.
+      boxes:
+      - k: online_before
+        q: What did a typical week online look like for me before?
+      - k: online_now
+        q: What does a typical week look like for me now?
+      - k: online_gave
+        q: What was going online giving me that I was not getting anywhere else?
+      - k: online_avoid
+        q: What was it letting me avoid or switch off from?
+      - k: online_filled
+        q: What has filled that gap since?
+      - k: online_unfilled
+        q: What has not been filled yet?
+      - k: online_add
+        q: One thing I will add this month.
+        eg: joining a local group or class, a regular catch-up with a friend, a physical hobby with a fixed weekly time.
+    - n: 13
+      title: My commitment
+      note: This plan is mine. I will keep it close, use it, and update it at every review.
+      boxes:
+      - k: signed
+        q: Signed and dated
+    contact:
+    - n: 1
+      title: My good life
+      note: The short version, the part you carry.
+      boxes:
+      - k: good_matters
+        q: What matters most to me in the life I want?
+      - k: good_ways
+        q: What are healthy ways I can work towards those things?
+        eg: time with adults I trust, steady work or study, keeping busy with things I enjoy.
+    - n: 2
+      title: My strengths and supports
+      boxes:
+      - k: strengths
+        q: What am I good at, and what helps me feel steady?
+      - k: lean
+        q: Who are the people I can lean on?
+    - n: 3
+      title: Understanding my offending
+      note: Write about the need you were trying to meet and how you were feeling, not the details of what happened.
+      guard: true
+      boxes:
+      - k: around
+        q: What was going on in my life around that time?
+      - k: feeling
+        q: What was I feeling, and what need was I trying to meet in a harmful way?
+    - n: 4
+      title: My high-risk situations
+      boxes:
+      - k: risk
+        q: Which situations do I need to plan around to keep everyone safe?
+        eg: being alone with a child, unstructured time, times I feel low or rejected, alcohol or other substances.
+    - n: 5
+      title: My situational safety plan
+      boxes:
+      - k: safety_plan
+        q: How will I make sure I am not alone with a child, and who knows my plan?
+        eg: staying where other trusted adults are present, being open with the people around me, keeping away from roles that put me alone with children.
+    - n: 6
+      title: My early warning signs
+      note: Small, specific and early. Write each one as something you could check.
+      boxes:
+      - k: signs
+        q: What are the first signs that I am drifting off track?
+        eg: pulling away from people, dwelling on grievances, feeling low, keeping things secret.
+    - n: 7
+      title: What I do instead
+      note: Give a person’s name, not “someone”.
+      boxes:
+      - k: instead
+        q: When I notice those signs, what will I do, and who will I contact?
+    - n: 8
+      title: Remembering the harm
+      note: Keep this in your own words.
+      boxes:
+      - k: harm
+        q: Why does it matter to me to keep children safe from harm?
+    - n: 9
+      title: My support team
+      note: People around you who are not offending, and at least one adult you can be honest with. Put each person on their own line with their number.
+      boxes:
+      - k: team
+        q: Names and numbers of people I can call.
+    - n: 10
+      title: My conditions
+      boxes:
+      - k: conditions
+        q: What reporting or supervision conditions do I follow, and who is my contact?
+    - n: 11
+      title: Warning signs or a slip
+      boxes:
+      - k: slip
+        q: What are my first three steps, and who do I tell straight away?
+    - n: 13
+      title: My commitment
+      note: This plan is mine. I will keep it close, use it, and update it at every review.
+      boxes:
+      - k: signed
+        q: Signed and dated
+  first:
+  - good_matters
+  - good_ways
+  - strengths
+  - lean
+  - team
+  guard: For your protection, do not describe your offending behaviour or the child anywhere in this app. Write about needs, feelings and decisions.
+  services:
+  - name: Lifeline
+    number: 13 11 14
+    note: Crisis support, 24 hours
+  - name: Stop It Now! Australia
+    number: 1800 01 1800
+    note: Anonymous helpline. Hours are limited, so check their website
+  - name: Emergency
+    number: '000'
+    note: ''

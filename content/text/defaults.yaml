@@ -1,0 +1,41 @@
+# Defaults: the routine items and settings a new account starts with. Changing these does not change an existing account.
+#
+# How to edit this file
+# - Save the file and reload the page. There is no build and no restart.
+# - Change the words after a colon. Keep the keys (the words before a colon) as they are:
+#   the app looks the text up by key, and a missing key shows the key itself.
+# - Keep the indentation. It uses two spaces and never tabs.
+# - Put quote marks around any text that starts with a special character
+#   (" ' { [ * & ! % @ #) or that contains a colon followed by a space, and around times such as '09:00'.
+# - Write {name} where the app fills something in. Keep the same {name} in your wording.
+# - If a file has a mistake, the app keeps the last good version of that file and logs a note.
+#
+defaults:
+  routines:
+  - label: Breakfast
+    time: '08:30'
+    type: meal
+  - label: Water
+    time: '10:30'
+    type: water
+  - label: Lunch
+    time: '12:30'
+    type: meal
+  - label: Water
+    time: '15:00'
+    type: water
+  - label: Dinner
+    time: '18:30'
+    type: meal
+  - label: Wind down for sleep
+    time: '23:00'
+    type: sleep
+  settings:
+    morningAt: '09:00'
+    eveningAt: '21:30'
+    weeklyDay: 0
+    weeklyAt: '17:00'
+    details: false
+    logSigns: true
+    showGuard: true
+    lines: ''

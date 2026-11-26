@@ -13,7 +13,7 @@ import pytest
 import pytest_asyncio
 from sqlalchemy import select
 
-from app import push
+from app import push, text
 from app.db import SessionLocal, engine
 from app.logging_setup import _JsonFormatter
 from app.main import app
@@ -201,3 +201,35 @@ def test_json_log_line_has_extra_keys():
     assert out["msg"] == "saved item"
     assert out["level"] == "INFO"
     assert out["item_kind"] == "task"
+
+
+@pytest.mark.asyncio
+async def test_text_served_without_sign_in(client):
+    r = await client.get("/api/text")
+    assert r.status_code == 200
+    assert r.headers["cache-control"] == "no-cache"
+    body = r.json()
+    assert body["common"]["save"] == "Save"
+    assert isinstance(body["plan"]["sections"]["online"], list)
+
+
+def test_every_text_file_parses_and_is_keyed_by_its_name():
+    import yaml
+
+    files = sorted(text.TEXT_DIR.glob("*.yaml"))
+    assert files
+    for path in files:
+        data = yaml.safe_load(path.read_text(encoding="utf-8"))
+        assert isinstance(data, dict) and list(data) == [path.stem], path.name
+
+
+def test_broken_text_file_keeps_last_good_version(tmp_path):
+    f = tmp_path / "sample.yaml"
+    f.write_text("sample:\n  word: first\n", encoding="utf-8")
+    assert text.load_text(tmp_path)["sample"]["word"] == "first"
+    f.write_text("sample:\n  word: [unclosed\n", encoding="utf-8")
+    os.utime(f, ns=(1, 1))  # a different modification time, as an edit would give
+    assert text.load_text(tmp_path)["sample"]["word"] == "first"
+    f.write_text("sample:\n  word: second\n", encoding="utf-8")
+    os.utime(f, ns=(2, 2))
+    assert text.load_text(tmp_path)["sample"]["word"] == "second"

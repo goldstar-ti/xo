@@ -109,10 +109,12 @@ python scripts/build_workbook.py path/to/workbook.docx
 
 It contains the workbook's full text, so keep this repository private.
 
-## Changing the wording
+## Editing text
 
-All fixed text sits in `static/js/content.js`: plan prompts, check-in choices, daily lines,
-default routine, and the services on the plan card. Edit it and rebuild.
+The app's wording sits in YAML files in `content/text/` (`common.yaml`, `plan.yaml`, `checkin.yaml`,
+`today.yaml`, `defaults.yaml`). Each file starts with a note on how to edit it. Save the file and
+reload the page: no rebuild and no restart. A file with a mistake keeps its last good version.
+`make test-api` checks that every file parses.
 
 ## Project layout
 

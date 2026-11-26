@@ -1,0 +1,52 @@
+# Check-ins: the choices offered in the morning and evening check-ins and the five weekly review questions.
+#
+# How to edit this file
+# - Save the file and reload the page. There is no build and no restart.
+# - Change the words after a colon. Keep the keys (the words before a colon) as they are:
+#   the app looks the text up by key, and a missing key shows the key itself.
+# - Keep the indentation. It uses two spaces and never tabs.
+# - Put quote marks around any text that starts with a special character
+#   (" ' { [ * & ! % @ #) or that contains a colon followed by a space, and around times such as '09:00'.
+# - Write {name} where the app fills something in. Keep the same {name} in your wording.
+# - If a file has a mistake, the app keeps the last good version of that file and logs a note.
+#
+checkin:
+  body_chips:
+  - tired
+  - wired
+  - heavy
+  - tense
+  - restless
+  - hungry
+  - sore
+  - numb
+  - flat
+  - thoughts racing
+  - steady
+  - okay
+  sleep_chips:
+  - under 4 hours
+  - 4 to 5
+  - 6 to 7
+  - 8 or more
+  day_chips:
+  - spoke with someone in person or by phone
+  - went outside
+  - did something creative
+  - kept an appointment
+  - finished something
+  - was alone most of the day
+  - was online late with nothing to do
+  - skipped a meal
+  - cancelled or avoided something
+  weekly_questions:
+  - k: working
+    q: What has been working since last time.
+  - k: slipping
+    q: What has been slipping.
+  - k: changed
+    q: What has changed in my life that my plan does not cover yet.
+  - k: signs
+    q: Which warning signs turned up, and what I did about them.
+  - k: change
+    q: What is the one thing I am changing before the next review.

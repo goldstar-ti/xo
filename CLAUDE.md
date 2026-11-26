@@ -46,7 +46,8 @@ static/js/app.js           shell, sign-in, router, nav
 static/js/store.js         api(), save/load, ticks, reminder times
 static/js/util.js          h() element builder, put(), dates, toast, openDialog(), openForm(), IndexedDB flags for the service worker
 static/js/forms.js         add/edit dialogs per kind
-static/js/content.js       all fixed wording: plan prompts, check-in choices, daily lines, defaults
+static/js/text.js          loadText(), t(key, vars), text(key): the editable wording from /api/text
+static/js/content.js       thin module: reads plan, check-in, daily-line and default data through text()
 static/js/views/*.js       one module per screen; each exports render(root, ...params) and `live`
 static/sw.js               offline shell + notifications (classic script, no imports)
 static/app.css             all styles
@@ -58,6 +59,14 @@ Conventions:
 - A view with `live = true` is redrawn when the store changes. Views with free-text inputs set `live = false` and save with `{ silent: true }` so typing is never interrupted.
 - Routes are hash routes (`#/today`). Add a screen in three places in `app.js` (`NAV`, `VIEWS`, import) and in `SECTIONS` in `boot.js` plus `SECTION_NAMES` in `views/appearance.js` so it can sit on the bottom bar.
 - New files the app must work offline with go in `SHELL` in `static/sw.js`; bump `CACHE` when you change that list.
+
+## Text and prose
+
+- All user-facing wording lives in YAML files in `content/text/` (`common.yaml`, `plan.yaml`, `checkin.yaml`, `today.yaml`, `defaults.yaml`). The top-level key of a file is its name, so `plan.yaml` holds `plan:` and keys read `plan.guard`.
+- `app/text.py` loads every file with `yaml.safe_load`, caches each by modification time and keeps a file's last good version if an edit breaks it. `GET /api/text` serves the merged object, no sign-in. The folder is bind-mounted read-only into `xo-app`, so a saved edit shows on the next page load with no rebuild or restart.
+- In the browser, `static/js/text.js` loads it once at boot. `t('common.save')` returns a string; `t('x.y', { name })` fills `{name}` placeholders. `text('plan.services')` returns a list or map as written. A missing key returns the key and logs `missing text: <key>` to the console once, so the browser tests fail on it.
+- Rule, from now on: a user-facing string goes in YAML, never inline in a view or template. A new screen adds its keys to a file (or a new file named after its top-level key) in the same commit.
+- Each file opens with a comment on how to edit it. Quote times (`'09:00'`) and any text starting with a special character.
 
 ## Styling
 

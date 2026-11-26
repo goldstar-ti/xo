@@ -1,0 +1,36 @@
+# Today: the daily lines shown on the Today screen. One is picked for each day.
+#
+# How to edit this file
+# - Save the file and reload the page. There is no build and no restart.
+# - Change the words after a colon. Keep the keys (the words before a colon) as they are:
+#   the app looks the text up by key, and a missing key shows the key itself.
+# - Keep the indentation. It uses two spaces and never tabs.
+# - Put quote marks around any text that starts with a special character
+#   (" ' { [ * & ! % @ #) or that contains a colon followed by a space, and around times such as '09:00'.
+# - Write {name} where the app fills something in. Keep the same {name} in your wording.
+# - If a file has a mistake, the app keeps the last good version of that file and logs a note.
+#
+today:
+  lines:
+  - One thing at a time. The next thing is enough.
+  - You do not have to catch the first link. Catching any link early still steers you back.
+  - Eat something before you decide anything.
+  - Showing up to today’s appointments counts.
+  - Reaching out early is a strength.
+  - Finished and plain beats perfect and unfinished.
+  - Small and done is still done.
+  - You have kept going through harder days than this one.
+  - People are still in your corner. Let one of them hear from you today.
+  - Rest counts as doing something.
+  - The plan works when it is used, even badly.
+  - Noticing, then choice, then action. Noticing comes first.
+  - Late is still better than absent. Go anyway.
+  - Today only needs three things from you.
+  - Drink some water. Then look at the list.
+  - A rough hour is information. Check what your body needs first.
+  - A missed day is a reason to restart today, from here.
+  - You can do the first two minutes of almost anything.
+  - Honest and awkward beats smooth and hidden.
+  - A low number is information. It is not a verdict on you.
+  - Measure how quickly you notice, and how quickly you recover.
+  - Ask the question. The answer is usually kinder than the guess.
