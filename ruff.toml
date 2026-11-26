@@ -1,0 +1,15 @@
+# Ruff config matching the Code style section of CLAUDE.md.
+target-version = "py310"
+line-length = 120
+extend-exclude = ["static", "tailwind", "content", "backups", ".scratch"]
+
+[format]
+quote-style = "double"
+
+[lint]
+select = ["E", "F", "W", "I", "UP", "D"]
+# Not part of the house style: wrapping implicit string concatenation in tuples.
+ignore = ["ISC004"]
+
+[lint.pydocstyle]
+convention = "google"
