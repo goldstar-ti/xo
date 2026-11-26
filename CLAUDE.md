@@ -4,6 +4,7 @@ A private, single-user day planner with check-ins, a relapse prevention plan and
 Installs as a PWA on Android and desktop. The name: the executive officer runs the ship's day so the captain can think.
 
 `docs/ROADMAP.md` holds the specs for what is not built yet. Read it before starting a feature.
+`HANDOFF.md` has the current state and next steps. `docs/decisions.md` logs each decision with its reason (D-1, D-2, ...): add the next one when a choice is made.
 
 ## Stack
 
