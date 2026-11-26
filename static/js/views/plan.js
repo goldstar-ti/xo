@@ -1,5 +1,7 @@
 import * as store from '../store.js';
 import { GUARD_TEXT, PLAN, PLAN_FIRST, PLAN_VARIANTS, SERVICES } from '../content.js';
+import { button, field, textarea } from '../ui.js';
+import { t } from '../text.js';
 import { h, openDialog, toast, withPhoneLinks, put } from '../util.js';
 
 export const live = false;
@@ -8,14 +10,14 @@ let saveTimer;
 let saving = Promise.resolve();
 function queueSave(plan, status) {
   clearTimeout(saveTimer);
-  status.textContent = 'Not saved yet';
+  status.textContent = t('plan.status_unsaved');
   saveTimer = setTimeout(() => {
     saving = saving.then(async () => {
       try {
         await store.save('plan', 'plan', plan, { silent: true });
-        status.textContent = 'Saved';
+        status.textContent = t('plan.status_saved');
       } catch (err) {
-        status.textContent = 'Not saved';
+        status.textContent = t('plan.status_failed');
         toast(err.message, 'bad');
       }
     });
@@ -24,16 +26,16 @@ function queueSave(plan, status) {
 
 function chooser(root, plan) {
   put(root, 
-    h('header', { class: 'page-head' }, h('h1', {}, 'My plan')),
-    h('p', { class: 'note' }, 'The Relapse Prevention Plan comes in two versions. Choose the one you are working from. You can switch later and nothing you have written is lost.'),
+    h('header', { class: 'page-head' }, h('h1', {}, t('plan.title'))),
+    h('p', { class: 'note' }, t('plan.choose_intro')),
     h('div', { class: 'stack' }, Object.entries(PLAN_VARIANTS).map(([k, label]) =>
-      h('button', {
-        class: 'ghost big', type: 'button',
+      button(label, {
+        class: 'big',
         onclick: async () => {
           try { await store.save('plan', 'plan', { ...plan, variant: k }, { silent: true }); render(root); }
           catch (err) { toast(err.message, 'bad'); }
         },
-      }, label))),
+      }))),
   );
 }
 
@@ -45,30 +47,26 @@ export function render(root) {
   const boxes = sections.flatMap((s) => s.boxes);
   const status = h('span', { class: 'meta', role: 'status' }, '');
   const count = h('span', { class: 'meta' });
-  const recount = () => { count.textContent = `${boxes.filter((b) => (plan.answers[b.k] || '').trim()).length} of ${boxes.length} boxes written`; };
+  const recount = () => { count.textContent = t('plan.count', { done: boxes.filter((b) => (plan.answers[b.k] || '').trim()).length, total: boxes.length }); };
   recount();
   const next = [...PLAN_FIRST.map((k) => boxes.find((b) => b.k === k)).filter(Boolean), ...boxes].find((b) => !(plan.answers[b.k] || '').trim());
 
   put(root, 
-    h('header', { class: 'page-head' }, h('h1', {}, 'My plan'), h('div', { class: 'actions' }, status, h('button', { class: 'primary', type: 'button', onclick: openPlanCard }, 'Plan card'))),
-    h('p', { class: 'note' }, 'Fill in the good life and support sections before the risk sections. One box in a sitting is enough. ', count, '.'),
-    next && h('p', { class: 'nudge' }, 'Next box: ', h('a', { href: `#box-${next.k}`, onclick: (e) => { e.preventDefault(); const el = document.getElementById(`box-${next.k}`); el.scrollIntoView({ block: 'center' }); el.focus(); } }, next.q)),
+    h('header', { class: 'page-head' }, h('h1', {}, t('plan.title')), h('div', { class: 'actions' }, status, button(t('plan.card_button'), { variant: 'primary', onclick: openPlanCard }))),
+    h('p', { class: 'note' }, t('plan.fill_intro'), count, '.'),
+    next && h('p', { class: 'nudge' }, t('plan.next_box'), h('a', { href: `#box-${next.k}`, onclick: (e) => { e.preventDefault(); const el = document.getElementById(`box-${next.k}`); el.scrollIntoView({ block: 'center' }); el.focus(); } }, next.q)),
     sections.map((s) => h('section', { class: 'plan-sec' },
-      h('h2', {}, `${s.n}. ${s.title}`),
+      h('h2', {}, t('plan.section_heading', { n: s.n, title: s.title })),
       s.note && h('p', { class: 'hint' }, s.note),
       s.guard && store.settings().showGuard && h('p', { class: 'guard' }, GUARD_TEXT),
-      s.boxes.map((b) => h('div', { class: 'field' },
-        h('label', { for: `box-${b.k}` }, b.q),
-        h('textarea', {
-          id: `box-${b.k}`, rows: 4, value: plan.answers[b.k] || '',
-          oninput: (e) => { plan.answers[b.k] = e.target.value; recount(); queueSave(plan, status); },
-        }),
-        b.eg && h('small', {}, `Example: ${b.eg}`))))),
-    h('p', { class: 'note' }, 'Review and update it regularly, with your psychologist.'),
-    h('p', {}, h('button', {
-      class: 'ghost', type: 'button',
+      s.boxes.map((b) => field(b.q, textarea({
+        id: `box-${b.k}`, rows: 4, value: plan.answers[b.k] || '',
+        oninput: (e) => { plan.answers[b.k] = e.target.value; recount(); queueSave(plan, status); },
+      }), b.eg && t('plan.example', { eg: b.eg }))))),
+    h('p', { class: 'note' }, t('plan.review')),
+    h('p', {}, button(t('plan.switch'), {
       onclick: async () => { await store.save('plan', 'plan', { ...plan, variant: '' }, { silent: true }); render(root); },
-    }, 'Switch plan version')),
+    })),
   );
 }
 
@@ -79,17 +77,17 @@ export function openPlanCard() {
     h('h3', {}, title),
     (text || '').trim()
       ? h('p', { class: 'own' }, phones ? withPhoneLinks(text.trim()) : text.trim())
-      : h('p', { class: 'empty' }, 'Not written yet.'));
+      : h('p', { class: 'empty' }, t('plan.card.empty')));
   const body = h('div', { class: 'card-body' },
-    block('My early warning signs', a.signs),
-    block('What I do instead', a.instead),
-    block('People I can call', a.team, { phones: true }),
-    block('If I have a slip: my first three steps', a.slip),
-    block('What matters most to me', a.good_matters),
-    h('section', {}, h('h3', {}, 'Services'),
+    block(t('plan.card.signs'), a.signs),
+    block(t('plan.card.instead'), a.instead),
+    block(t('plan.card.team'), a.team, { phones: true }),
+    block(t('plan.card.slip'), a.slip),
+    block(t('plan.card.matters'), a.good_matters),
+    h('section', {}, h('h3', {}, t('plan.card.services')),
       h('ul', { class: 'services' }, SERVICES.map((s) => h('li', {},
         h('a', { href: `tel:${s.number.replace(/\s+/g, '')}` }, `${s.name} ${s.number}`), s.note && h('small', {}, s.note))))),
-    h('p', {}, h('a', { href: '#/plan', onclick: () => document.querySelector('dialog[open]')?.close() }, 'Edit my plan')),
+    h('p', {}, h('a', { href: '#/plan', onclick: () => document.querySelector('dialog[open]')?.close() }, t('plan.card.edit'))),
   );
-  openDialog('My plan card', body, { wide: true });
+  openDialog(t('plan.card.title'), body, { wide: true });
 }

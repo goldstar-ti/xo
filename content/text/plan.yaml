@@ -211,3 +211,26 @@ plan:
   - name: Emergency
     number: '000'
     note: ''
+  title: My plan
+  choose_intro: The Relapse Prevention Plan comes in two versions. Choose the one you are working from. You can switch later and nothing you have written is lost.
+  status_unsaved: Not saved yet
+  status_saved: Saved
+  status_failed: Not saved
+  card_button: Plan card
+  fill_intro: 'Fill in the good life and support sections before the risk sections. One box in a sitting is enough. '
+  count: '{done} of {total} boxes written'
+  next_box: 'Next box: '
+  section_heading: '{n}. {title}'
+  example: 'Example: {eg}'
+  review: Review and update it regularly, with your psychologist.
+  switch: Switch plan version
+  card:
+    title: My plan card
+    signs: My early warning signs
+    instead: What I do instead
+    team: People I can call
+    slip: 'If I have a slip: my first three steps'
+    matters: What matters most to me
+    services: Services
+    empty: Not written yet.
+    edit: Edit my plan

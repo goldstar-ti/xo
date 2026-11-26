@@ -169,10 +169,12 @@ with sync_playwright() as p:
     page.goto(f"{BASE}/#/plan")
     page.get_by_role("button", name="Plan with internet and device sections").click()
     expect(page.locator(".plan-sec")).to_have_count(13)
-    page.fill("#box-good_matters", "Being someone my family can rely on.")
-    page.fill("#box-signs", "Three nights in a row awake past 2 am.\nCancelling on a friend twice in one week.")
-    page.fill("#box-instead", "Message Sam the same day. Put the phone on charge in the lounge.")
-    page.fill("#box-team", "Sam 0400 000 000\nDr Lee 08 5550 0111")
+    set_control(page.locator("#box-good_matters"), "Being someone my family can rely on.")
+    set_control(
+        page.locator("#box-signs"), "Three nights in a row awake past 2 am.\nCancelling on a friend twice in one week."
+    )
+    set_control(page.locator("#box-instead"), "Message Sam the same day. Put the phone on charge in the lounge.")
+    set_control(page.locator("#box-team"), "Sam 0400 000 000\nDr Lee 08 5550 0111")
     expect(page.locator(".page-head [role=status]")).to_have_text("Saved", timeout=5000)
     page.screenshot(path=SHOTS / "06-plan.png")
     page.locator(".top .plan-btn").click()
@@ -195,7 +197,7 @@ with sync_playwright() as p:
     page.get_by_role("button", name="yes", exact=True).click()
     expect(page.locator(".reveal")).to_contain_text("Message Sam")
     page.screenshot(path=SHOTS / "08-evening.png", full_page=True)
-    page.locator(".reveal textarea").fill("Messaged Sam at 8 pm.")
+    set_control(page.locator(".reveal textarea, .reveal wa-textarea").first, "Messaged Sam at 8 pm.")
     page.get_by_role("button", name="Save check-in").click()
     expect(page.locator(".dayline .k-checkin.done")).to_have_count(2)
 

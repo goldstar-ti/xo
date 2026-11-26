@@ -50,3 +50,68 @@ checkin:
     q: Which warning signs turned up, and what I did about them.
   - k: change
     q: What is the one thing I am changing before the next review.
+  fuel_chips:
+  - both
+  - one of them
+  - neither yet
+  # The three answers to the warning signs question, in this order: none, yes, not sure.
+  # The second and third open the "what I do instead" block.
+  signs_chips:
+  - 'no'
+  - 'yes'
+  - not sure
+  title:
+    morning: Morning check-in
+    evening: Evening check-in
+    weekly: Weekly review
+  saved_suffix: ', already saved. You can change it.'
+  save: Save check-in
+  saved_toast: Check-in saved
+  numbered: '{n}. {text}'
+  morning:
+    sleep: About how much sleep did you get?
+    body: What is your body doing right now?
+    body_hint: Pick any that fit. No need to name a feeling.
+    fuel: Have you eaten or had water yet?
+    fuel_hint: If not, do that before the next thing.
+    goodlife: One thing I am doing today that belongs to the life I want
+    from_plan: 'From your plan: {text}'
+    picked: 'Today’s three: {n} chosen. '
+    none_picked: 'No tasks chosen for today yet. '
+    choose_tasks: Choose tasks
+  evening:
+    routine: 'Routine: {done} of {total} ticked'
+    three: 'Today’s three: {done} of {total} done'
+    did: Today I…
+    did_hint: Pick everything that happened. Plain facts, no scoring.
+    body: What is your body doing right now?
+    ok: One thing that went all right today
+    ok_hint: Small counts.
+    first: The first thing I will do tomorrow
+  signs:
+    heading: Early warning signs
+    not_written: 'Your early warning signs are not written yet. That is box 6 of your plan. '
+    open_plan: Open my plan
+    instead: What I do instead
+    instead_missing: Not written yet. That is box 7 of your plan.
+    people: People I can call
+    people_missing: Not written yet. That is box 9 of your plan.
+    open_card: Open my plan card
+    action: What I did, or will do, about it
+    question: Did any of your early warning signs turn up today?
+    hint: Noticing early is the point. A yes here is the plan working.
+  weekly:
+    summary: 'This week: {done} of 7 evening check-ins done. Warning signs noted on {flagged} {days}.'
+    day_one: day
+    day_other: days
+  landing:
+    heading: Check-ins
+    morning: Morning check-in
+    evening: Evening check-in
+    weekly: Weekly review
+    last_14: Last 14 days
+    day: Day
+    col_morning: Morning
+    col_evening: Evening
+    done: done
+    open: open
