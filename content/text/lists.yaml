@@ -24,7 +24,7 @@ lists:
   diary:
     heading: Diary
     add: Add appointment
-    empty: No appointments ahead. Add the next one as soon as it is booked, while you still have the details in front of you.
+    empty: No appointments ahead. Add the next one as soon as it is booked.
     past: 'Past appointments ({count})'
     to_calendar: To calendar
     calendar_tip: Opens Google Calendar with this entry filled in
@@ -32,7 +32,7 @@ lists:
     heading: Tasks
     add_placeholder: Add a task
     todays_three: Today’s three
-    pick_empty: Pick up to three. Three finished beats ten started.
+    pick_empty: Pick up to three.
     due_week: Due this week
     everything_else: Everything else
     none_open: No open tasks.
@@ -71,5 +71,5 @@ lists:
     every_weekday: 'Every {weekday}, {time}'
     reports_heading: Reporting record
     reports_add: Add record
-    reports_empty: 'A line for every time you report something: the date, what you reported, who you told.'
+    reports_empty: Nothing recorded yet. Add a line each time you report something.
     told: 'Told: {who}'

@@ -122,7 +122,7 @@ appearance:
     paste: Paste a look code
     apply: Apply code
     applied: Look applied
-    bad_code: That is not a complete look code. They start with XO1- and carry the whole look.
+    bad_code: That look code is incomplete. A full code starts with XO1-.
   colour:
     heading: Colour
     theme: Theme
@@ -135,7 +135,7 @@ appearance:
     accent_hue: Accent hue
     accent_vivid: Accent vividness
     attention_hue: Attention hue
-    attention_hint: Attention is the colour used for Now, overdue and leave-now. Lightness is fixed for every colour, so text stays readable wherever the sliders sit.
+    attention_hint: Attention is the colour used for Now, overdue and leave-now. Text stays readable wherever the sliders sit.
   type:
     heading: Type
     body: Body

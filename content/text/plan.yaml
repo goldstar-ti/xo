@@ -57,7 +57,7 @@ plan:
         eg: agreed filters or monitoring, devices used in shared spaces, set times away from screens, someone I check in with.
     - n: 6
       title: My early warning signs
-      note: Small, specific and early. Write each one as something you could check.
+      note: Write each one as something you could check.
       boxes:
       - k: signs
         q: What are the first signs that I am drifting off track?
@@ -155,7 +155,7 @@ plan:
         eg: staying where other trusted adults are present, being open with the people around me, keeping away from roles that put me alone with children.
     - n: 6
       title: My early warning signs
-      note: Small, specific and early. Write each one as something you could check.
+      note: Write each one as something you could check.
       boxes:
       - k: signs
         q: What are the first signs that I am drifting off track?
@@ -207,7 +207,7 @@ plan:
     note: Crisis support, 24 hours
   - name: Stop It Now! Australia
     number: 1800 01 1800
-    note: Anonymous helpline. Hours are limited, so check their website
+    note: Anonymous helpline with limited hours. Check their website.
   - name: Emergency
     number: '000'
     note: ''

@@ -107,7 +107,7 @@ forms:
   report:
     heading_edit: Edit record
     heading_add: Add to reporting record
-    note: Add a line every time you report something. Do not try to rebuild this later from memory.
+    note: Add a line every time you report something, while you remember it.
     labels:
       date: Date
       what: What I reported

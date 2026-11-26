@@ -45,7 +45,7 @@ today:
     all_tasks: All tasks
     empty_lead: Nothing chosen yet.
     choose: Choose up to three tasks
-    empty_tail: so today has an edge.
+    empty_tail: for today.
   day:
     heading: The day
     edit_routine: Edit routine
@@ -64,8 +64,8 @@ today:
   - Eat something before you decide anything.
   - Showing up to today’s appointments counts.
   - Reaching out early is a strength.
-  - Finished and plain beats perfect and unfinished.
-  - Small and done is still done.
+  - Finished is better than perfect.
+  - Do the small version.
   - You have kept going through harder days than this one.
   - People are still in your corner. Let one of them hear from you today.
   - Rest counts as doing something.
@@ -74,10 +74,10 @@ today:
   - Late is still better than absent. Go anyway.
   - Today only needs three things from you.
   - Drink some water. Then look at the list.
-  - A rough hour is information. Check what your body needs first.
+  - After a rough hour, check what your body needs first.
   - A missed day is a reason to restart today, from here.
   - You can do the first two minutes of almost anything.
-  - Honest and awkward beats smooth and hidden.
-  - A low number is information. It is not a verdict on you.
+  - Saying it awkwardly is better than not saying it.
+  - A low number is not a verdict on you.
   - Measure how quickly you notice, and how quickly you recover.
   - Ask the question. The answer is usually kinder than the guess.

@@ -83,10 +83,10 @@ checkin:
     routine: 'Routine: {done} of {total} ticked'
     three: 'Today’s three: {done} of {total} done'
     did: Today I…
-    did_hint: Pick everything that happened. Plain facts, no scoring.
+    did_hint: Pick everything that happened. No scoring.
     body: What is your body doing right now?
     ok: One thing that went all right today
-    ok_hint: Small counts.
+    ok_hint: A small thing is fine.
     first: The first thing I will do tomorrow
   signs:
     heading: Early warning signs
@@ -99,7 +99,7 @@ checkin:
     open_card: Open my plan card
     action: What I did, or will do, about it
     question: Did any of your early warning signs turn up today?
-    hint: Noticing early is the point. A yes here is the plan working.
+    hint: Answer yes if any turned up.
   weekly:
     summary: 'This week: {done} of 7 evening check-ins done. Warning signs noted on {flagged} {days}.'
     day_one: day
