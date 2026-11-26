@@ -87,6 +87,10 @@ Python (ruff config in `ruff.toml`; the lint and format pass is a later step):
 
 JavaScript keeps what is already there: single quotes, ES modules, `h()` and `put()` for DOM, no framework, no build step.
 
+## Versions
+
+`VERSION` in `app/version.py` is the one app version (passed to `FastAPI(version=...)`). Every shipped feature bumps the minor number and adds a row at the top of `docs/version-history.md`, committed with the work. A fix-only change bumps the patch number. Never bump the major number without the owner's say-so.
+
 ## Product principles
 
 - The app comes to the user: reminders and the Today screen do the prompting.

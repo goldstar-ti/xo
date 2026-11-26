@@ -24,6 +24,7 @@ from . import config
 from .db import engine, get_db
 from .models import Base, Item, PushSub, Reminder, Session, User
 from .push import scheduler_loop, send_push
+from .version import VERSION
 
 STATIC_DIR = Path(__file__).resolve().parent.parent / "static"
 WORKBOOK_FILE = Path(__file__).resolve().parent.parent / "content" / "workbook.json"
@@ -42,7 +43,7 @@ async def lifespan(app: FastAPI):
     await engine.dispose()
 
 
-app = FastAPI(title="XO", lifespan=lifespan, docs_url=None, redoc_url=None, openapi_url=None)
+app = FastAPI(title="XO", version=VERSION, lifespan=lifespan, docs_url=None, redoc_url=None, openapi_url=None)
 
 
 @app.middleware("http")
