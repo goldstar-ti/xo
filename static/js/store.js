@@ -111,8 +111,11 @@ const REMINDERS = {
     return out;
   },
   task(d) {
-    if (d.done || !d.due) return [];
-    return [at(toDate(addDays(d.due, -1), '17:00'), 'task_soon'), at(toDate(d.due, '10:00'), 'task_due')];
+    if (d.done || d.status === 'done' || d.archived) return [];
+    const out = [];
+    if (d.due) out.push(at(toDate(addDays(d.due, -1), '17:00'), 'task_soon'), at(toDate(d.due, '10:00'), 'task_due'));
+    if (d.today && d.at) out.push(at(toDate(d.today, d.at), 'task_block'));
+    return out;
   },
   routine(d) {
     return d.active === false || !d.time ? [] : [at(nextDaily(d.time), 'routine', 'daily')];

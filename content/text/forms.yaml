@@ -13,6 +13,7 @@
 forms:
   saved: Saved
   deleted: Deleted
+  more: More options
   weekdays:
     '1': Monday
     '2': Tuesday
@@ -46,12 +47,59 @@ forms:
       est: My guess, minutes
       due: Due
       project: Project
+      priority: Priority
+      tags: Categories
+      subtasks: Subtasks
+      energy: Focus it needs
+      places: Where it can be done
+      repeat: Repeats
+      repeat_n: Every how many
+      repeat_weekday: Day
+      repeat_nth: Which one
+      blocked_by: Waiting on
+      actual: Actual time, minutes
     hints:
       step: Small enough to start in two minutes.
       est: The app adds half again.
+      subtasks: Break it into small pieces and tick them off as you go.
+      repeat: When you mark it done, XO adds the next one.
+      blocked_by: The task stays out of Ready until these are done.
+      actual: Fill this in once it is done. XO learns your pacing from it.
     placeholders:
       project: Leave blank, or a name such as Court
+    priorities:
+      high: High
+      normal: Normal
+      low: Low
+    energies:
+      '': Any
+      low: Low focus
+      medium: Some focus
+      high: Full focus
+    repeats:
+      none: Does not repeat
+      after: A number of days after it is done
+      week: Every few weeks
+      month: Every month on the same date
+      month_nth: A set weekday each month, such as the first Monday
+      quarter_nth: A set weekday each quarter, such as the first Monday
+    nths:
+      '1': First
+      '2': Second
+      '3': Third
+      '4': Fourth
+      '-1': Last
+    subtask_add: Add subtask
+    subtask_placeholder: A small piece of this task
+    subtask_remove: 'Remove subtask: {title}'
+    blocked_add: Add
+    blocked_none: Not waiting on anything.
+    blocked_remove: 'Stop waiting on: {title}'
+    blocked_choose: Choose a task
     limit: Three is the limit for today. Finish or unpick one first.
+    limit_tomorrow: Three is the limit for tomorrow. Unpick one first.
+    next_added: 'Done. The next one is due {day}.'
+    now_ready: 'Ready now: {title}'
   routine:
     heading_edit: Edit routine item
     heading_add: Add routine item

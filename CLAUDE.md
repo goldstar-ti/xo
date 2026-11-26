@@ -28,7 +28,8 @@ Security is the owner's responsibility, handled outside this codebase (owner's d
 ## How the data works
 
 - One generic table, `items`: `(user_id, id, kind, day, payload, deleted)`. `payload` is a JSONB value (object, array, string or number; null for ticks).
-- Kinds in use: `appointment`, `task`, `routine`, `tick`, `bill`, `obligation`, `report`, `checkin`, `plan`, `settings`, `canvas`, `project`, `pm_item`, `tracker`.
+- Kinds in use: `appointment`, `task`, `routine`, `tick`, `bill`, `obligation`, `report`, `checkin`, `plan`, `settings`, `canvas`, `project`, `pm_item`, `tracker`, `taskmeta`.
+- Task payload fields are listed in `normaliseTask()` in `static/js/tasks.js`; every task write goes through `saveTask()` in `static/js/taskdata.js`.
 - The tracker (`static/js/tracker/model.js` documents its shapes): `project:<uuid>` holds a project and its own pick lists, `pm:<uuid>` an item with its comments, checklist, links and history. NOBBIE's tracker joins it read-only through `app/nobbie.py` (GET only, `NOBBIE_*` in `.env`).
 - Singletons use fixed ids: `plan`, `settings`. Ticks use `tick:<ref>:<YYYY-MM-DD>` with a null payload. Check-ins use `checkin:<type>:<day>`.
 - Reminders are rows (`fire_at`, `repeat`, `kind`, `item_id`). The browser computes them in `REMINDERS` in `static/js/store.js` and sends them with the item; the server replaces that item's reminders on every save.
@@ -49,6 +50,9 @@ static/js/util.js          h() element builder, put(), dates, toast, openDialog(
 static/js/ui.js             kit-aware controls: button, input, textarea, select, checkbox, chip, field, notice
 static/js/kit.js           loads Web Awesome (and static/kit-wa.css) on demand
 static/js/forms.js         add/edit dialogs per kind
+static/js/tasks.js         pure task logic: normalise, sort, repeats, blocking, pace, quick-add parsing
+static/js/taskdata.js      store-bound task actions: taskMeta, saveTask, setStatus, pickTask, quickTask
+static/js/taskfields.js    task form controls: chipSet, subtaskEditor, blockedEditor, repeatEditor
 static/js/text.js          loadText(), t(key, vars), text(key): the editable wording from /api/text
 static/js/content.js       thin module: reads plan, check-in, daily-line and default data through text()
 static/js/views/*.js       one module per screen; each exports render(root, ...params) and `live`

@@ -11,6 +11,8 @@
 # - If a file has a mistake, the app keeps the last good version of that file and logs a note.
 #
 defaults:
+  task_tags: [Home, Money, Health, Admin, People]
+  task_places: [Home, Out, Phone, Computer]
   routines:
   - label: Breakfast
     time: '08:30'
@@ -40,3 +42,5 @@ defaults:
     showGuard: true
     lines: ''
     groupHeadings: true
+    staleDays: 30
+    shutdown: true

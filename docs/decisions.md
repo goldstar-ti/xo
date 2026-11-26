@@ -73,3 +73,7 @@ Change history on entries, a nightly backup and export everything come before th
 ## D-18 (2026-11-27): Group order after GTD core
 
 After GTD core the order is: Health and mood; People and life admin; Legal and sessions; Goals and reviews; Money; Google Calendar; AI. This is a default and the owner may reorder it. Why: the earlier groups feed the later ones (people feed legal, goals feed reviews), and the two external services come last.
+
+## D-19 (2026-11-27): Task status, priority, categories and subtasks
+
+A task has a status (to do, doing, done) and a priority, and `done` stays in step with the status so Today, check-ins and reminders keep working. Subtasks are a checklist inside the task, not separate items, so Today's three and reminders stay one level deep. Categories and places live in one `taskmeta` item, seeded from `defaults.yaml` until first saved. Why: the owner wanted real task management (priority, categories, repeats, waiting on another task) without a second kind of item or a change to how Today picks work.

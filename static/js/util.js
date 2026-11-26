@@ -113,14 +113,21 @@ export const dialogOpen = () => !!document.querySelector('dialog[open]');
 
 /**
  * A form in a dialog.
- * fields: [{ name, label, type: text|textarea|date|time|number|select|checkbox, options, hint, required, placeholder }]
+ * fields: [{ name, label, type: text|textarea|date|time|number|select|checkbox|custom, options, hint, required, placeholder, half, more }]
+ * A custom field has build(value) returning { node, read }; read() gives its value on save, and filled(value) may say
+ * whether the value counts as set. A field with more: true sits under "More options", which opens when one is set.
  */
 export function openForm({ title, fields, values = {}, saveLabel = t('common.save'), onSave, onDelete, note }) {
   const inputs = {};
-  const rows = fields.map((f) => {
+  const rowOf = (f) => {
     const id = `f-${f.name}`;
     const v = values[f.name];
     let control;
+    if (f.type === 'custom') {
+      const built = f.build(v);
+      inputs[f.name] = built;
+      return h('fieldset', { class: ['field', f.half && 'half'].filter(Boolean).join(' ') }, h('legend', {}, f.label), built.node, f.hint && h('small', {}, f.hint));
+    }
     if (f.type === 'textarea') control = textarea({ id, rows: f.rows || 3, placeholder: f.placeholder, value: v ?? '' });
     else if (f.type === 'select') control = select(f.options, { id, value: v ?? f.options[0][0] });
     else if (f.type === 'checkbox') control = checkbox({ id, checked: !!v });
@@ -132,11 +139,20 @@ export function openForm({ title, fields, values = {}, saveLabel = t('common.sav
       });
     inputs[f.name] = control;
     return field(f.label, control, f.hint, { half: f.half });
-  });
+  };
+  const mainRows = fields.filter((f) => !f.more).map(rowOf);
+  const moreFields = fields.filter((f) => f.more);
+  const isSet = (f) => {
+    const v = values[f.name];
+    if (f.filled) return !!f.filled(v);
+    return Array.isArray(v) ? v.length > 0 : !!v;
+  };
+  const moreBlock = moreFields.length > 0 && h('details', { class: 'tw:mt-3', open: moreFields.some(isSet) },
+    h('summary', {}, t('forms.more')), h('div', { class: 'fields' }, moreFields.map(rowOf)));
   const error = h('p', { class: 'form-error', role: 'alert' });
   const del = onDelete && button(t('common.delete'), { variant: 'danger' });
   const save = button(saveLabel, { variant: 'primary', type: 'submit', class: 'tw:ml-auto' });
-  const form = h('form', { class: 'form' }, note && h('p', { class: 'note' }, note), h('div', { class: 'fields' }, rows), error,
+  const form = h('form', { class: 'form' }, note && h('p', { class: 'note' }, note), h('div', { class: 'fields' }, mainRows), moreBlock, error,
     h('div', { class: 'form-actions' }, del, save));
   const dlg = openDialog(title, form);
   if (del) {
@@ -152,7 +168,8 @@ export function openForm({ title, fields, values = {}, saveLabel = t('common.sav
     const out = {};
     for (const f of fields) {
       const el = inputs[f.name];
-      if (f.type === 'checkbox') out[f.name] = el.checked;
+      if (f.type === 'custom') out[f.name] = el.read();
+      else if (f.type === 'checkbox') out[f.name] = el.checked;
       else if (f.type === 'number') out[f.name] = el.value === '' ? 0 : Number(el.value);
       else out[f.name] = el.value.trim();
     }
@@ -167,7 +184,7 @@ export function openForm({ title, fields, values = {}, saveLabel = t('common.sav
       save.disabled = false;
     }
   });
-  const firstField = fields.find((f) => f.type !== 'checkbox' && f.type !== 'select');
+  const firstField = fields.find((f) => !f.more && !['checkbox', 'select', 'custom'].includes(f.type));
   if (firstField && !values[fields[0].name]) focusControl(inputs[firstField.name]);
   return dlg;
 }

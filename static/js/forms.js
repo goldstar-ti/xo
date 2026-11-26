@@ -1,5 +1,8 @@
 // Add and edit dialogs for each kind of item.
 import * as store from './store.js';
+import { saveTask, taskMeta } from './taskdata.js';
+import { blockedEditor, chipSet, repeatEditor, subtaskEditor } from './taskfields.js';
+import { normaliseTask } from './tasks.js';
 import { t, text } from './text.js';
 import { addDays, openForm, toast, today, toDate, uid } from './util.js';
 
@@ -38,44 +41,38 @@ export function editAppointment(item, preset = {}) {
 }
 
 export function editTask(item, preset = {}) {
-  const values = item ? item.data : { est: 30, ...preset };
+  const values = item ? normaliseTask(item.data) : normaliseTask({ est: 30, ...preset });
+  const meta = taskMeta();
+  const labelled = (list) => list.map((x) => [x.id, x.name]);
   openForm({
     title: t(item ? 'forms.task.heading_edit' : 'forms.task.heading_add'),
     values,
     fields: [
       fld('task', 'title', { required: true }),
       fld('task', 'step', { hint: true }),
+      fld('task', 'priority', { type: 'custom', build: (v) => chipSet(Object.entries(text('forms.task.priorities')), v) }),
       fld('task', 'est', { type: 'number', half: true, hint: true }),
       fld('task', 'due', { type: 'date', half: true }),
-      fld('task', 'project', { placeholder: t('forms.task.placeholders.project') }),
+      fld('task', 'tags', { type: 'custom', build: (v) => chipSet(labelled(meta.tags), v, { multi: true }) }),
+      fld('task', 'subtasks', { type: 'custom', hint: true, build: (v) => subtaskEditor(v) }),
+      fld('task', 'energy', { type: 'custom', more: true, build: (v) => chipSet(Object.entries(text('forms.task.energies')), v) }),
+      fld('task', 'places', { type: 'custom', more: true, build: (v) => chipSet(labelled(meta.places), v, { multi: true }) }),
+      fld('task', 'repeat', { type: 'custom', more: true, hint: true, filled: (v) => v.every !== 'none', build: (v) => repeatEditor(v) }),
+      { name: 'blockedBy', label: t('forms.task.labels.blocked_by'), hint: t('forms.task.hints.blocked_by'), type: 'custom', more: true, build: (v) => blockedEditor(v, item?.id) },
+      fld('task', 'project', { more: true, placeholder: t('forms.task.placeholders.project') }),
+      fld('task', 'actual', { type: 'number', more: true, half: true, hint: true }),
     ],
     async onSave(v) {
-      await store.save('task', item?.id || uid(), { ...values, ...v });
+      const data = { ...values, ...v };
+      if (data.repeat.every !== 'none' && !data.due) data.due = today();
+      await saveTask(item?.id || uid(), data);
       saved();
     },
     onDelete: item && (async () => { await store.remove(item.id); deleted(); }),
   });
 }
 
-export async function quickTask(title, extra = {}) {
-  title = title.trim();
-  if (!title) return;
-  await store.save('task', uid(), { title, step: '', est: 30, due: '', project: '', today: '', done: false, ...extra });
-}
-
-export async function toggleTask(item) {
-  const done = !item.data.done;
-  await store.save('task', item.id, { ...item.data, done, doneAt: done ? new Date().toISOString() : '' });
-}
-
-export async function pickTask(item) {
-  const picked = item.data.today === today();
-  if (!picked) {
-    const count = store.byKind('task').filter((t) => t.data.today === today() && !t.data.done).length;
-    if (count >= 3) { toast(t('forms.task.limit'), 'bad'); return; }
-  }
-  await store.save('task', item.id, { ...item.data, today: picked ? '' : today() });
-}
+export { pickTask, quickTask, toggleTask } from './taskdata.js';
 
 export function editRoutine(item) {
   openForm({
