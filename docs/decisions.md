@@ -77,3 +77,7 @@ After GTD core the order is: Health and mood; People and life admin; Legal and s
 ## D-19 (2026-11-27): Task status, priority, categories and subtasks
 
 A task has a status (to do, doing, done) and a priority, and `done` stays in step with the status so Today, check-ins and reminders keep working. Subtasks are a checklist inside the task, not separate items, so Today's three and reminders stay one level deep. Categories and places live in one `taskmeta` item, seeded from `defaults.yaml` until first saved. Why: the owner wanted real task management (priority, categories, repeats, waiting on another task) without a second kind of item or a change to how Today picks work.
+
+## D-20 (2026-11-27): Tasks board and views
+
+The Tasks screen shows tasks as a list, a To do, Doing, Done board or a table. Cards have no manual order: they sort by priority, due date and title, so a drag changes status only. The chosen view and the filters are kept per browser, and the board and table are also canvas widgets. Why: a manual order would be a second thing to maintain beside Today's three, and the filters decide what is worth looking at, not where it sits.

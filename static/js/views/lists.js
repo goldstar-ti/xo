@@ -1,12 +1,10 @@
-// The plain list screens: diary, tasks, routine, bills, obligations.
+// The plain list screens: diary, routine, bills, obligations. Tasks has its own screen (views/tasks.js).
 import * as store from '../store.js';
-import {
-  calendarLink, editAppointment, editBill, editObligation, editReport, editRoutine, editTask,
-  payBill, pickTask, quickTask, toggleTask,
-} from '../forms.js';
+import { calendarLink, editAppointment, editBill, editObligation, editReport, editRoutine, payBill } from '../forms.js';
 import { t, text } from '../text.js';
-import { button, checkbox, chip, input } from '../ui.js';
-import { addDays, daysBetween, fmtDay, fmtDuration, fmtLong, fmtMoney, fmtTime, h, relDay, toast, today, put } from '../util.js';
+import { button } from '../ui.js';
+import { quickAdd, taskRow } from './tasks.js';
+import { addDays, daysBetween, fmtDay, fmtLong, fmtMoney, fmtTime, h, relDay, toast, today, put } from '../util.js';
 
 const fail = (err) => toast(err.message, 'bad');
 const cap = (value) => value.charAt(0).toUpperCase() + value.slice(1);
@@ -49,61 +47,6 @@ export const diary = {
       head(t('lists.diary.heading'), addBtn(t('lists.diary.add'), () => editAppointment())),
       upcoming.length ? apptGroups(upcoming) : h('p', { class: 'empty' }, t('lists.diary.empty')),
       past.length > 0 && h('details', {}, h('summary', {}, t('lists.diary.past', { count: past.length })), apptGroups(past)),
-    );
-  },
-};
-
-function taskRow(task, { showPick = true } = {}) {
-  const d = task.data;
-  const picked = d.today === today();
-  const late = !d.done && d.due && d.due < today();
-  const meta = [];
-  if (d.project) meta.push(d.project);
-  if (d.due && !d.done) meta.push(late ? t('lists.shared.overdue_since', { day: fmtDay(d.due) }) : t('lists.tasks.due', { when: relDay(d.due) }));
-  if (d.est > 0 && !d.done) meta.push(t('lists.shared.allow', { duration: fmtDuration(d.est * 1.5) }));
-  return h('li', { class: `${d.done ? 'done' : ''}${late ? ' late' : ''}` },
-    checkbox({ checked: d.done, 'aria-label': t('lists.shared.done_aria', { title: d.title }), onchange: () => toggleTask(task).catch(fail) }),
-    rowMain([
-      h('span', {}, d.title),
-      !d.done && d.step && h('small', {}, t('lists.shared.start_with', { step: d.step })),
-      meta.length > 0 && h('small', {}, meta.join(', ')),
-    ], () => editTask(task)),
-    showPick && !d.done && chip(t(picked ? 'lists.tasks.today' : 'lists.tasks.pick'), { pressed: picked, class: 'small', onclick: () => pickTask(task).catch(fail) }));
-}
-
-function quickAdd(placeholder, extra, focusKey) {
-  const field = input({ type: 'text', placeholder, 'aria-label': placeholder, autocomplete: 'off', 'data-focus': focusKey });
-  return h('form', {
-    class: 'quick',
-    onsubmit: async (e) => {
-      e.preventDefault();
-      try {
-        sessionStorage.setItem('refocus', focusKey);
-        await quickTask(field.value, extra);
-      } catch (err) { fail(err); }
-    },
-  }, field, button(t('lists.shared.add'), { variant: 'primary', type: 'submit' }));
-}
-
-export const tasks = {
-  live: true,
-  render(root) {
-    const day = today();
-    const allTasks = store.byKind('task');
-    const open = allTasks.filter((task) => !task.data.done);
-    const picked = allTasks.filter((task) => task.data.today === day);
-    const soon = open.filter((task) => task.data.today !== day && task.data.due && task.data.due <= addDays(day, 7)).sort((a, b) => a.data.due.localeCompare(b.data.due));
-    const rest = open.filter((task) => task.data.today !== day && !soon.includes(task)).sort((a, b) => (a.data.project || '').localeCompare(b.data.project || '') || a.data.title.localeCompare(b.data.title));
-    const done = allTasks.filter((task) => task.data.done && task.data.today !== day).sort((a, b) => (b.data.doneAt || '').localeCompare(a.data.doneAt || '')).slice(0, 20);
-    const section = (title, list, empty) => h('section', {}, h('h2', {}, title),
-      list.length ? h('ul', { class: 'list' }, list.map((task) => taskRow(task))) : empty && h('p', { class: 'empty' }, empty));
-    put(root,
-      head(t('lists.tasks.heading')),
-      quickAdd(t('lists.tasks.add_placeholder'), {}, 'task'),
-      section(t('lists.tasks.todays_three'), picked, t('lists.tasks.pick_empty')),
-      soon.length > 0 && section(t('lists.tasks.due_week'), soon),
-      section(t('lists.tasks.everything_else'), rest, open.length ? null : t('lists.tasks.none_open')),
-      done.length > 0 && h('details', {}, h('summary', {}, t('lists.tasks.done', { count: done.length })), h('ul', { class: 'list' }, done.map((task) => taskRow(task)))),
     );
   },
 };
@@ -156,7 +99,7 @@ export const obligations = {
   render(root) {
     const day = today();
     const court = store.byKind('appointment').filter((a) => a.data.court && a.data.date >= day).sort(sortAppts);
-    const courtTasks = store.byKind('task').filter((task) => (task.data.project || '').toLowerCase() === 'court' && !task.data.done);
+    const courtTasks = store.byKind('task').filter((task) => (task.data.project || '').toLowerCase() === 'court' && !task.data.done && !task.data.archived);
     const conditions = store.byKind('obligation').sort((a, b) => a.data.title.localeCompare(b.data.title));
     const reports = store.byKind('report').sort((a, b) => b.data.date.localeCompare(a.data.date));
     const when = (d) => d.schedule === 'daily' ? t('lists.obligations.every_day', { time: fmtTime(d.time) })

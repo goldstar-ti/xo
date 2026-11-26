@@ -4,6 +4,7 @@
 
 | Version | Date | Change |
 |---|---|---|
+| 2.9.0 | 2026-11-27 | Tasks as a list, a To do, Doing, Done board or a table, with filters for categories, focus and place, a ready list, and a review of tasks left untouched. |
 | 2.8.0 | 2026-11-27 | Tasks have priority, categories, subtasks, focus, places, repeats and waiting on another task. Quick add reads dates, priority, categories and time. |
 | 2.7.0 | 2026-11-27 | Every Appearance slider has a reset button, - and + buttons and a number box, matching NOBBIE. |
 | 2.6.0 | 2026-11-27 | Check-in choices: more body and "Today I…" options, grouped as positive, neutral and negative. Settings has a Check-in choices table to edit, regroup, reorder, add and remove choices, with a way back to the original list and a switch for the group names. |

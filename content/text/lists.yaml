@@ -30,16 +30,78 @@ lists:
     calendar_tip: Opens Google Calendar with this entry filled in
   tasks:
     heading: Tasks
-    add_placeholder: Add a task
+    add_placeholder: 'Add a task. Try: Call the bank friday !high 20m'
     todays_three: Today’s three
     pick_empty: Pick up to three.
     due_week: Due this week
-    everything_else: Everything else
     none_open: No open tasks.
     done: 'Done ({count})'
     due: 'due {when}'
     pick: Pick
     today: Today
+    view_aria: Show tasks as
+    views:
+      list: List
+      board: Board
+      table: Table
+    columns:
+      todo: To do
+      doing: Doing
+      done: Done
+    move:
+      start: Start
+      finish: Done
+      back: Back to To do
+      reopen: Reopen
+    column_empty: Nothing here.
+    priority:
+      high: High priority
+      low: Low priority
+    subtasks: '{done} of {total} subtasks'
+    waiting: 'Waiting on {titles}'
+    tomorrow: Tomorrow
+    doing_heading: Doing
+    ready: Ready
+    waiting_heading: Waiting on another task
+    review: 'Time to review ({count})'
+    review_note: 'These have sat untouched for {days} days or more. Keep the ones that still matter and archive the rest.'
+    keep: Keep
+    archive: Archive
+    archived: 'Archived ({count})'
+    restore: Restore
+    preview: 'Reads as: {parts}'
+    filter:
+      tags: Categories
+      focus: Focus I have now
+      focus_any: Any
+      focus_low: Low
+      focus_medium: Some
+      focus_high: Full
+      places: Where I am
+      ready_only: Ready only
+      clear: Clear filters
+      hidden: '{count} hidden by the filters'
+    table:
+      done: Done
+      title: Task
+      priority: Priority
+      status: Status
+      due: Due
+      tags: Categories
+      energy: Focus
+      est: Guess
+      subtasks: Subtasks
+      sort: 'Sort by {column}'
+    manage: Categories and places
+    manage_tags: Categories
+    manage_places: Places
+    manage_add_tag: Add category
+    manage_add_place: Add place
+    manage_new: New name
+    manage_up: 'Move up: {name}'
+    manage_down: 'Move down: {name}'
+    manage_remove: 'Remove: {name}'
+    manage_note: Removing one takes its label off every task.
   routine:
     heading: Routine
     add: Add item

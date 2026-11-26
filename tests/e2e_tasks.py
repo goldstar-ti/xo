@@ -223,6 +223,60 @@ with sync_playwright() as p:
     set_control(pg.locator(".list li", has_text="First thing").locator("input[type=checkbox]").first, True)
     expect(pg.locator("#toast")).to_contain_text("Ready now: Second thing")
 
+    # 3. The Tasks screen: board, table, filters, review, canvas widget.
+    def view(name):
+        pg.locator('[role="group"][aria-label="Show tasks as"]').get_by_role("button", name=name, exact=True).click()
+
+    def column(status):
+        return pg.locator(f"section[data-status='{status}']")
+
+    view("Board")
+    expect(pg.locator("section[data-status] h2")).to_have_count(3)
+    expect(column("todo").locator("article", has_text="Second thing")).to_have_count(1)
+    column("todo").locator("article", has_text="Second thing").get_by_role("button", name="Start", exact=True).click()
+    expect(column("doing").locator("article", has_text="Second thing")).to_have_count(1)
+    column("doing").locator("article", has_text="Second thing").drag_to(column("done"))
+    expect(column("done").locator("article", has_text="Second thing")).to_have_count(1)
+
+    view("Table")
+    pg.get_by_role("button", name="Sort by Priority", exact=True).click()
+    expect(pg.locator("tbody tr").first).to_contain_text("High")
+
+    view("List")
+    quick_add("Third thing")
+    expect(pg.locator(".list li", has_text="Third thing")).to_have_count(1)
+    pg.get_by_role("group", name="Categories").get_by_role("button", name="Home", exact=True).click()
+    expect(pg.locator(".list li:not(.done)", has_text="Plan the week")).to_have_count(1)
+    expect(pg.locator(".list li", has_text="Third thing")).to_have_count(0)
+    expect(pg.get_by_text("hidden by the filters")).to_be_visible()
+    pg.get_by_role("button", name="Clear filters").click()
+    expect(pg.locator(".list li", has_text="Third thing")).to_have_count(1)
+
+    # A task left untouched for 40 days turns up in the review.
+    pg.evaluate(
+        """async () => {
+          const store = await import('/js/store.js');
+          const touched = new Date(Date.now() - 40 * 86400000).toISOString();
+          await store.save('task', 'e2e-old', { title: 'Old idea', est: 30, done: false, status: 'todo', touched });
+        }"""
+    )
+    pg.reload()
+    pg.wait_for_selector(".dayline, .page-head", timeout=20000)
+    pg.locator("summary", has_text="Time to review").click()
+    row = pg.locator(".list li", has_text="Old idea")
+    expect(row).to_have_count(1)
+    row.get_by_role("button", name="Archive", exact=True).click()
+    pg.locator("summary", has_text="Archived (1)").click()
+    expect(pg.locator(".list li", has_text="Old idea")).to_have_count(1)
+    pg.locator(".list li", has_text="Old idea").get_by_role("button", name="Restore", exact=True).click()
+    expect(pg.locator("summary", has_text="Archived")).to_have_count(0)
+
+    pg.goto(f"{BASE}/#/canvas")
+    pg.wait_for_selector(".xo-canvas .xo-board", timeout=20000)
+    pg.get_by_role("button", name="Add widget").click()
+    pg.locator("dialog[open]").get_by_role("button", name="Task board", exact=True).click()
+    expect(pg.locator(".xo-board [data-widget='tasks-board'] h2", has_text="To do").first).to_be_visible()
+
     b.close()
 
 assert not errors, errors

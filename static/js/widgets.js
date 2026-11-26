@@ -18,7 +18,8 @@ import * as checkinView from './views/checkin.js';
 import * as planView from './views/plan.js';
 import * as settingsView from './views/settings.js';
 import * as appearanceView from './views/appearance.js';
-import { bills, diary, obligations, routine, tasks } from './views/lists.js';
+import { bills, diary, obligations, routine } from './views/lists.js';
+import * as tasksView from './views/tasks.js';
 import * as trackerView from './views/tracker.js';
 import * as trackerWidgets from './tracker/widgets.js';
 
@@ -63,7 +64,9 @@ export function viewWidget(view, ...params) {
 const SCREENS = [
   ['today', todayView, [], 12, 24],
   ['diary', diary, [], 8, 16],
-  ['tasks', tasks, [], 8, 16],
+  ['tasks', tasksView, [], 8, 16],
+  ['tasks-board', tasksView, ['board'], 16, 16],
+  ['tasks-table', tasksView, ['table'], 16, 16],
   ['obligations', obligations, [], 8, 16],
   ['routine', routine, [], 8, 16],
   ['bills', bills, [], 8, 16],

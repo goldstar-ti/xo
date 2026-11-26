@@ -71,6 +71,8 @@ canvas:
     today: Today
     diary: Diary
     tasks: Tasks
+    tasks-board: Task board
+    tasks-table: Task table
     obligations: Obligations
     routine: Routine
     bills: Bills

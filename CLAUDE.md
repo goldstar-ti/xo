@@ -56,6 +56,7 @@ static/js/taskfields.js    task form controls: chipSet, subtaskEditor, blockedEd
 static/js/text.js          loadText(), t(key, vars), text(key): the editable wording from /api/text
 static/js/content.js       thin module: reads plan, check-in, daily-line and default data through text()
 static/js/views/*.js       one module per screen; each exports render(root, ...params) and `live`
+static/js/views/tasks.js   the Tasks screen: list, board, table, filters, stale review; exports render, live, taskRow, quickAdd
 static/sw.js               offline shell + notifications (classic script, no imports)
 static/app.css             all styles
 ```
