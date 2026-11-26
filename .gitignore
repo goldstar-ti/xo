@@ -8,3 +8,5 @@ tailwind/node_modules/
 tailwind/dist/
 static/tw.css
 static/vendor/
+.claude/settings.local.json
+.claude/handoffs/
