@@ -1,5 +1,6 @@
 import * as store from '../store.js';
-import { BODY_CHIPS, DAY_CHIPS, GUARD_TEXT, SLEEP_CHIPS, WEEKLY_QUESTIONS } from '../content.js';
+import { GUARD_TEXT, WEEKLY_QUESTIONS } from '../content.js';
+import * as lookups from '../lookups.js';
 import { addDays, fmtDay, fmtLong, h, toast, today, withPhoneLinks, put } from '../util.js';
 import { button, chip, textarea } from '../ui.js';
 import { t, text } from '../text.js';
@@ -34,6 +35,23 @@ function chips(options, state, name, { multi = true, onchange } = {}) {
   return wrap;
 }
 
+// Chips for an editable lookup list, under its group names when the list has groups and the
+// setting is on. A saved answer that is no longer in the list still shows, so it can be seen and cleared.
+function lookupChips(key, state, name, opts) {
+  const rows = lookups.rows(key);
+  const known = new Set(rows.map((r) => r.text));
+  const extra = [].concat(state[name] || []).filter((v) => v && !known.has(v));
+  if (!lookups.grouped(key)) return chips([...known, ...extra], state, name, opts);
+  const names = lookups.groupNames();
+  const sets = Object.entries(names).map(([g, label]) => [label, rows.filter((r) => r.group === g).map((r) => r.text)]);
+  const loose = rows.filter((r) => !(r.group in names)).map((r) => r.text);
+  if (loose.length) sets[sets.length - 1]?.[1].push(...loose);
+  if (extra.length) sets.push([t('checkin.earlier'), extra]);
+  if (!store.settings().groupHeadings) return chips(sets.flatMap(([, list]) => list), state, name, opts);
+  return h('div', { class: 'chip-groups' }, sets.filter(([, list]) => list.length).map(([label, list]) =>
+    h('div', { class: 'chip-group' }, h('h3', {}, label), chips(list, state, name, opts))));
+}
+
 function textBox(state, name, label, { rows = 3, placeholder = '' } = {}) {
   return textarea({ rows, placeholder, value: state[name] || '', 'aria-label': label, oninput: (e) => { state[name] = e.target.value; } });
 }
@@ -58,8 +76,8 @@ function morning(root, day, state) {
   const plan = store.plan();
   const picked = store.byKind('task').filter((task) => task.data.today === day).length;
   put(root, 
-    q(t('checkin.morning.sleep'), chips(SLEEP_CHIPS, state, 'sleep', { multi: false })),
-    q(t('checkin.morning.body'), chips(BODY_CHIPS, state, 'body'), t('checkin.morning.body_hint')),
+    q(t('checkin.morning.sleep'), lookupChips('sleep', state, 'sleep', { multi: false })),
+    q(t('checkin.morning.body'), lookupChips('body', state, 'body'), t('checkin.morning.body_hint')),
     q(t('checkin.morning.fuel'), chips(FUEL, state, 'fuel', { multi: false }), t('checkin.morning.fuel_hint')),
     q(t('checkin.morning.goodlife'), textBox(state, 'goodlife', t('checkin.morning.goodlife'), { rows: 2 }),
       plan.answers.good_ways ? t('checkin.morning.from_plan', { text: plan.answers.good_ways }) : ''),
@@ -105,8 +123,8 @@ function evening(root, day, state) {
   ].filter(Boolean).join('. ');
   put(root, 
     summary && h('p', { class: 'note' }, summary + '.'),
-    q(t('checkin.evening.did'), chips(DAY_CHIPS, state, 'did'), t('checkin.evening.did_hint')),
-    q(t('checkin.evening.body'), chips(BODY_CHIPS, state, 'body')),
+    q(t('checkin.evening.did'), lookupChips('did', state, 'did'), t('checkin.evening.did_hint')),
+    q(t('checkin.evening.body'), lookupChips('body', state, 'body')),
     store.settings().logSigns && signsBlock(state),
     q(t('checkin.evening.ok'), textBox(state, 'ok', t('checkin.evening.ok'), { rows: 2 }), t('checkin.evening.ok_hint')),
     q(t('checkin.evening.first'), textBox(state, 'first', t('checkin.evening.first'), { rows: 2 })),

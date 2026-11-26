@@ -300,6 +300,22 @@ dialog.sheet::backdrop { background: rgb(10 16 13 / 0.55); }
   min-height: 2.75rem; padding: 0.4rem 0.95rem;
   background: var(--surface); border: calc(var(--rule) + 0.5px) solid var(--line); border-radius: var(--pill); font-weight: 500;
 }
+.chip-group + .chip-group { margin-top: calc(0.9rem * var(--d)); }
+.chip-group h3 { font-size: 0.875rem; font-weight: 600; color: var(--muted); }
+.chip-group .chips { margin-top: 0.35rem; }
+.lookup-table { width: 100%; border-collapse: collapse; margin-top: 0.75rem; }
+.lookup-table th { text-align: left; font-size: 0.875rem; font-weight: 500; color: var(--muted); padding: 0 0.4rem 0.3rem 0; }
+.lookup-table td { padding: 0.25rem 0.4rem 0.25rem 0; border-top: var(--rule) solid var(--line); vertical-align: middle; }
+.lookup-table td.text { width: 100%; }
+.lookup-table td.text > * { width: 100%; min-width: 8rem; }
+.lookup-table td.tools { white-space: nowrap; }
+.lookup-table td.tools button { min-width: 2.5rem; min-height: 2.5rem; padding: 0 0.5rem; }
+@media (max-width: 30rem) {
+  .lookup-table thead { display: none; }
+  .lookup-table tr { display: grid; grid-template-columns: 1fr auto; gap: 0.35rem; padding: 0.4rem 0; border-top: var(--rule) solid var(--line); }
+  .lookup-table td { border: 0; padding: 0; }
+  .lookup-table td.text { grid-column: 1 / -1; }
+}
 .chip.on { background: var(--leaf); border-color: var(--leaf); color: var(--leaf-ink); font-weight: 600; }
 .reveal:not(:empty) { margin-top: 1rem; padding: 1rem; background: var(--leaf-soft); border-radius: var(--radius); }
 .reveal > * + * { margin-top: 0.6rem; }

@@ -233,6 +233,30 @@ with sync_playwright() as p:
     expect(page.locator("#s-showGuard")).to_have_js_property("checked", False)
     expect(page.locator("#view textarea, #view wa-textarea").first).to_have_js_property("value", "A line of my own")
 
+    # --- check-in choices: grouped chips, then an edited list reaches the check-in, then back to the original
+    def settings_saved():
+        return page.expect_response(lambda r: r.url.endswith("/api/items/settings") and r.request.method == "PUT")
+
+    page.goto(f"{BASE}/#/checkin/evening")
+    expect(page.locator(".chip-group h3", has_text="Negative").first).to_be_visible()
+    page.goto(f"{BASE}/#/settings")
+    rows = page.locator(".lookup-table tbody tr")
+    with settings_saved():
+        rows.first.locator(".lk-remove").click()
+    page.get_by_role("button", name="Add a choice").click()
+    with settings_saved():
+        set_control(rows.last.locator("input, wa-input").first, "fed the cat")
+        page.keyboard.press("Tab")
+    expect(page.locator("#view")).to_contain_text("You are using your own version of this list.")
+    page.goto(f"{BASE}/#/checkin/evening")
+    expect(page.get_by_role("button", name="fed the cat", exact=True)).to_have_count(1)
+    expect(page.get_by_role("button", name="moved my body or went for a walk", exact=True)).to_have_count(0)
+    page.goto(f"{BASE}/#/settings")
+    page.get_by_role("button", name="Go back to the original list").click()
+    with settings_saved():
+        page.get_by_role("button", name="Tap again to go back to the original list").click()
+    expect(page.locator("#view")).to_contain_text("You are using the original list.")
+
     # --- appearance: a chip, a choice, a text box, then the quick Look panel
     page.goto(f"{BASE}/#/appearance")
     expect(page.locator("h1")).to_have_text("Appearance")

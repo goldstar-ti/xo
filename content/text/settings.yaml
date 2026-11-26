@@ -45,6 +45,31 @@ settings:
     heading: Writing reminder
     show: Show the reminder about what not to write
     show_hint: The line that appears beside free-text boxes in the plan and check-ins. Switch it off once you no longer need it.
+  lookups:
+    heading: Check-in choices
+    hint: The chips offered in the check-ins. Edit the words, move a choice to another group, change the order or add your own. Changes save as you go.
+    list: List
+    lists:
+      did: Today I…
+      body: What is your body doing right now
+      sleep: About how much sleep
+    choice: Choice
+    group: Group
+    up: '↑'
+    down: '↓'
+    cross: '×'
+    move_up: Move up
+    move_down: Move down
+    remove: Remove
+    add: Add a choice
+    new_choice: New choice
+    reset: Go back to the original list
+    reset_confirm: Tap again to go back to the original list
+    reset_done: Back to the original list
+    own: You are using your own version of this list.
+    original: You are using the original list.
+    headings: Show the group names in the check-ins
+    headings_hint: 'Off: the choices show as one list, in the same order.'
   lines:
     heading: My own daily lines
     hint: One per line. They are mixed in with the built-in ones on the Today screen and come up twice as often.

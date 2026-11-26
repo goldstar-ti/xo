@@ -11,34 +11,113 @@
 # - If a file has a mistake, the app keeps the last good version of that file and logs a note.
 #
 checkin:
+  # The choice lists below are the starting versions. Settings, Check-in choices, lets you edit
+  # your own copy in the app; once you do, the app uses your copy for that list and this file
+  # only matters again after "Go back to the original list".
+  # Group names for the grouped lists. A list may use any of these keys; the order here is the order on screen.
+  groups:
+    positive: Positive
+    neutral: Neutral
+    negative: Negative
+  earlier: Chosen before, no longer in the list
   body_chips:
-  - tired
-  - wired
-  - heavy
-  - tense
-  - restless
-  - hungry
-  - sore
-  - numb
-  - flat
-  - thoughts racing
-  - steady
-  - okay
+    positive:
+    - calm
+    - rested
+    - loose
+    - warm
+    - clear headed
+    - light
+    - grounded
+    - energised
+    - settled
+    - comfortable
+    - steady
+    neutral:
+    - okay
+    - quiet
+    - slow
+    - sleepy
+    - tired
+    - hungry
+    - full
+    - thirsty
+    - cold
+    - hot
+    - buzzing
+    - unfocused
+    - foggy
+    negative:
+    - tight
+    - tense
+    - heavy
+    - jittery
+    - wired
+    - restless
+    - drained
+    - flat
+    - numb
+    - sore
+    - aching
+    - nauseous
+    - headache
+    - shallow breathing
+    - clenched jaw
+    - on edge
+    - wound up
+    - fidgety
+    - shaky
+    - thoughts racing
   sleep_chips:
   - under 4 hours
   - 4 to 5
   - 6 to 7
   - 8 or more
   day_chips:
-  - spoke with someone in person or by phone
-  - went outside
-  - did something creative
-  - kept an appointment
-  - finished something
-  - was alone most of the day
-  - was online late with nothing to do
-  - skipped a meal
-  - cancelled or avoided something
+    positive:
+    - moved my body or went for a walk
+    - went outside
+    - ate proper meals
+    - drank enough water
+    - got something off my list
+    - finished something
+    - kept an appointment
+    - spoke with someone in person or by phone
+    - helped someone out
+    - asked for help when I needed it
+    - took a break before burning out
+    - slept reasonably well last night
+    - spent time on a hobby
+    - did something creative
+    - tidied or organised my space
+    - laughed or enjoyed a moment
+    - stuck to a boundary
+    neutral:
+    - worked or studied
+    - ran errands or did chores
+    - stayed home all day
+    - was alone most of the day
+    - rested or napped
+    - watched something or read
+    - scrolled for a while
+    - had a quiet day
+    - went through the motions
+    - waited on someone or something
+    - changed plans
+    negative:
+    - slept poorly or stayed up too late
+    - was online late with nothing to do
+    - missed my medication
+    - forgot to drink water
+    - skipped a meal
+    - ate way too much or way too little
+    - sat in front of a screen all day
+    - put off something important
+    - cancelled or avoided something
+    - snapped at someone or had an argument
+    - felt overwhelmed and shut down
+    - spent too much time in my head
+    - ignored messages or calls
   weekly_questions:
   - k: working
     q: What has been working since last time.

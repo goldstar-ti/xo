@@ -13,7 +13,7 @@ Version 1 covers:
 - **Routine**: meals, water, sleep, medication, each with a daily reminder and a tick
 - **Bills**: due dates, repeats, a Paid button that sets the next one
 - **Obligations**: court dates, court tasks, conditions with recurring reminders, a reporting record
-- **Check-ins**: morning, evening, and a weekly review built from the five questions in Concept 17
+- **Check-ins**: morning, evening, and a weekly review built from the five questions in Concept 17. The body, "Today I…" and sleep choices are grouped and editable in Settings, Check-in choices
 - **My plan**: the Relapse Prevention Plan, one box at a time, and a plan card one tap from every screen
 - **Appearance**: ten themes, your own colours and saved themes, seven typefaces, shape, density, texture, layout variants, scheduled looks and look codes. A "Look" button in the header opens the quick panel on any screen
 

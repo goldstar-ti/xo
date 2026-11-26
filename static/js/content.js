@@ -12,10 +12,7 @@ export const PLAN_FIRST = text('plan.first');
 export const GUARD_TEXT = text('plan.guard');
 export const SERVICES = text('plan.services');
 
-// Concrete choices, because naming a feeling on the spot is hard.
-export const BODY_CHIPS = text('checkin.body_chips');
-export const SLEEP_CHIPS = text('checkin.sleep_chips');
-export const DAY_CHIPS = text('checkin.day_chips');
+// The check-in chip lists (body, sleep, today I) are editable lookups: see lookups.js.
 export const WEEKLY_QUESTIONS = text('checkin.weekly_questions');
 
 export const LINES = text('today.lines');

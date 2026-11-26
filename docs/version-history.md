@@ -4,6 +4,7 @@
 
 | Version | Date | Change |
 |---|---|---|
+| 2.6.0 | 2026-11-27 | Check-in choices: more body and "Today I…" options, grouped as positive, neutral and negative. Settings has a Check-in choices table to edit, regroup, reorder, add and remove choices, with a way back to the original list and a switch for the group names. |
 | 2.5.0 | 2026-11-26 | The Tracker screen: projects with their own pick lists, items with due dates, checklists, links, comments and history; list, board, needs test, handover, pivot, history and activity views; bulk changes and keys; due items on Today with reminders; tracker widgets; NOBBIE's tracker read-only. |
 | 2.4.0 | 2026-11-26 | The Canvas screen: every screen as a widget on canvas tabs, with roll up, zoom, focus, fit, reset, move between canvases, side tabs and undo. |
 | 2.3.4 | 2026-11-26 | Fixed doubled borders, unreadable primary buttons and run-together list rows in the daisyUI and Web Awesome kits. |

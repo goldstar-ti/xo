@@ -39,3 +39,4 @@ defaults:
     logSigns: true
     showGuard: true
     lines: ''
+    groupHeadings: true
