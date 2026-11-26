@@ -71,6 +71,21 @@ Conventions:
   - Existing screens stay on `app.css` until the owner approves a conversion plan.
 - Tap targets at least 2.5rem. Keyboard focus must stay visible. Honour `prefers-reduced-motion`.
 
+## Code style
+
+Python (ruff config in `ruff.toml`; the lint and format pass is a later step):
+
+- Docstrings: Google style (`Args:`, `Returns:`, `Raises:`) on every public module, class and function.
+- Types: Python 3.10+ (`X | Y`); `Mapped[T]` with `mapped_column()`; `collections.abc` over `typing`.
+- Strings use double quotes. Imports go stdlib, third-party, first-party, alphabetical (ruff `I`).
+- Comments are full, capitalised sentences. No `TODO` or `FIXME`: mark future work `# LATER:`.
+- Logging uses `%s` formatting and lowercase messages. Keys in `extra={}` must not be `LogRecord` attributes (`name`, `msg`, `args`, `module`, `message`, `filename`, `created`, ...): prefix them (`item_kind`). Never put user content in a log line (rule 1): ids and kinds only.
+- Exceptions: sentence case, no trailing full stop, an f-string for dynamic values.
+- Naming: `snake_case`, `PascalCase`, `UPPER_SNAKE_CASE`, `_single` for private.
+- Never use an em-dash (U+2014) or en-dash (U+2013) anywhere: code, comments, docs, UI copy, commit messages. Use a hyphen, comma, colon or a new sentence.
+
+JavaScript keeps what is already there: single quotes, ES modules, `h()` and `put()` for DOM, no framework, no build step.
+
 ## Product principles
 
 - The app comes to the user: reminders and the Today screen do the prompting.
