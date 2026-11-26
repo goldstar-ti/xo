@@ -54,7 +54,7 @@ test-api: ## API tests against the throwaway xo-test database (never the real on
 	$(TEST) --profile run build
 	$(TEST) run --rm pytest; s=$$?; $(TEST) down -v; exit $$s
 
-test-e2e: ## e2e.py then e2e_look.py against a throwaway instance with an empty database.
+test-e2e: ## e2e.py, e2e_look.py, then e2e_kits.py against a throwaway instance with an empty database.
 	$(TEST) --profile run build
 	$(TEST) up -d --wait app
 	$(TEST) run --rm e2e; s=$$?; $(TEST) down -v; exit $$s

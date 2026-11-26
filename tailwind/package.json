@@ -6,6 +6,11 @@
   },
   "devDependencies": {
     "@tailwindcss/cli": "4.3.1",
-    "tailwindcss": "4.3.1"
+    "tailwindcss": "4.3.1",
+    "daisyui": "5.7.50"
+  },
+  "dependencies": {
+    "@awesome.me/webawesome": "3.14.0",
+    "@fortawesome/fontawesome-free": "7.3.1"
   }
 }

@@ -155,7 +155,7 @@ Dockerfile, docker-compose.yml, docker-compose.test.yml, Makefile
 
 ```bash
 make test-api     # API tests against a throwaway database in its own compose project
-make test-e2e     # tests/e2e.py then tests/e2e_look.py, on a throwaway app with an empty database
+make test-e2e     # tests/e2e.py, tests/e2e_look.py, then tests/e2e_kits.py, on a throwaway app with an empty database
 ```
 
 Both build and remove their own stack (`docker-compose.test.yml`, project `xo-test`), which cannot reach the real database.

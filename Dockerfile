@@ -8,6 +8,16 @@ FROM oven/bun:1-debian AS css
 WORKDIR /tailwind
 COPY tailwind/package.json tailwind/bun.lock ./
 RUN bun install --frozen-lockfile
+# The two component kits, served from static/vendor/ (nothing loads from a CDN):
+# Web Awesome's browser build without its docs, types and framework wrappers,
+# and the Font Awesome Free SVGs its <wa-icon> reads through static/js/kit.js.
+RUN mkdir -p /vendor/webawesome /vendor/fontawesome \
+    && cd node_modules/@awesome.me/webawesome \
+    && cp -r dist-cdn/chunks dist-cdn/components dist-cdn/events dist-cdn/internal dist-cdn/styles \
+         dist-cdn/translations dist-cdn/utilities dist-cdn/webawesome.js dist-cdn/webawesome.loader.js \
+         LICENSE.md /vendor/webawesome/ \
+    && cd ../../@fortawesome/fontawesome-free \
+    && cp -r svgs LICENSE.txt /vendor/fontawesome/
 COPY tailwind/src ./src
 COPY static /static
 RUN bun run build
@@ -27,6 +37,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY app ./app
 COPY static ./static
 COPY --from=css /tailwind/dist/tw.css ./static/tw.css
+COPY --from=css /vendor ./static/vendor
 COPY scripts ./scripts
 COPY content ./content
 

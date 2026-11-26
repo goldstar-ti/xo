@@ -52,3 +52,44 @@
 @utility border-rule {
   border-width: var(--rule);
 }
+
+/* daisyUI 5, one of the two component kits (the other is Web Awesome, served
+   from static/vendor/webawesome). Its classes carry the same prefix: tw:btn,
+   tw:input. No built-in themes: the single "xo" theme points every daisyUI
+   colour at an XO token, so the appearance dials reach daisyUI components too.
+   daisyUI's base rules sit in @layer base, so the unlayered app.css wins. */
+@plugin "daisyui" {
+  themes: false;
+  logs: false;
+}
+
+@plugin "daisyui/theme" {
+  name: "xo";
+  default: true;
+  --color-base-100: var(--paper);
+  --color-base-200: var(--surface);
+  --color-base-300: var(--line);
+  --color-base-content: var(--ink);
+  --color-primary: var(--leaf);
+  --color-primary-content: var(--leaf-ink);
+  --color-secondary: var(--ochre);
+  --color-secondary-content: var(--ink);
+  --color-accent: var(--leaf-soft);
+  --color-accent-content: var(--ink);
+  --color-neutral: var(--ink);
+  --color-neutral-content: var(--paper);
+  --color-info: var(--leaf-soft);
+  --color-info-content: var(--ink);
+  --color-success: var(--leaf);
+  --color-success-content: var(--leaf-ink);
+  --color-warning: var(--ochre);
+  --color-warning-content: var(--ink);
+  --color-error: var(--danger);
+  --color-error-content: var(--leaf-ink);
+  --radius-box: var(--radius);
+  --radius-field: var(--radius);
+  --radius-selector: var(--pill);
+  --border: var(--rule);
+  --depth: 0;
+  --noise: 0;
+}

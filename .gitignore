@@ -7,3 +7,4 @@ backups/*
 tailwind/node_modules/
 tailwind/dist/
 static/tw.css
+static/vendor/

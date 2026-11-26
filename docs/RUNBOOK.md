@@ -100,7 +100,7 @@ again), run `make up`, then `make db-restore FILE=...`.
 
 ```bash
 make test-api     # pytest against the throwaway xo-test database
-make test-e2e     # tests/e2e.py, then tests/e2e_look.py, on a throwaway app and empty database
+make test-e2e     # tests/e2e.py, tests/e2e_look.py, then tests/e2e_kits.py, on a throwaway app and empty database
 make test         # both
 make test-down    # clean up if a run was interrupted
 ```
