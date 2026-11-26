@@ -5,7 +5,7 @@ description: Review recent conversations to find improvements for CLAUDE.md file
 
 # Review CLAUDE.md from conversation history
 
-Analyze recent conversations to improve both the global (`~/.claude/CLAUDE.md`) and XO's own (`/home/pj/projects/xo/CLAUDE.md`) files. Keep personal names and details out of anything you suggest for XO (rule 5).
+Analyse recent conversations to improve both the global (`~/.claude/CLAUDE.md`) and XO's own (`~/projects/xo/CLAUDE.md`) files. Keep personal names and details out of anything you suggest for XO (rule 5).
 
 ## Step 1: Find conversation history
 
@@ -45,7 +45,7 @@ ls -lhS "$SCRATCH"
 
 ## Step 3: Spin up subagents
 
-Launch parallel subagents to analyze conversations. Each agent should read:
+Launch parallel subagents to analyse conversations. Each agent should read:
 - Global CLAUDE.md: `~/.claude/CLAUDE.md`
 - XO CLAUDE.md: `./CLAUDE.md`
 - Batch of conversation files
@@ -58,7 +58,7 @@ Read:
 2. XO CLAUDE.md: [project]/CLAUDE.md
 3. Conversations: [list of files]
 
-Analyze the conversations against BOTH CLAUDE.md files. Find:
+Analyse the conversations against BOTH CLAUDE.md files. Find:
 1. Instructions that exist but were violated (need reinforcement or rewording)
 2. Patterns that should be added to XO's CLAUDE.md (project-specific)
 3. Patterns that should be added to GLOBAL CLAUDE.md (applies everywhere)
