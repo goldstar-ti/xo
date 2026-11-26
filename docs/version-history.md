@@ -4,6 +4,7 @@
 
 | Version | Date | Change |
 |---|---|---|
+| 2.3.3 | 2026-11-26 | Settings, Appearance, sign-in and the app shell follow the Kit choice; all wording is in content/text. |
 | 2.3.2 | 2026-11-26 | Check-ins and My plan follow the Kit choice; their wording is in content/text. |
 | 2.3.1 | 2026-11-26 | Today and the lists follow the Kit choice; their wording is in content/text. |
 | 2.3.0 | 2026-11-26 | Text and prose come from YAML files in content/text, live on reload. Appearance has a Kit choice: XO, daisyUI or Web Awesome (forms and dialogs follow it; screens move over next). |

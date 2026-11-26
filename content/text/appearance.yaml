@@ -18,3 +18,145 @@ appearance:
     xo: XO
     daisy: daisyUI
     wa: Web Awesome
+  quick:
+    surprise: Surprise me
+    undo: Undo
+    all_options: All appearance options
+  heading: Appearance
+  banner: 'Showing and editing: {name} ({from} to {to}). Changes below apply to this scheduled look only.'
+  stop_editing: Stop editing
+  device_only: Your look is kept on this device only. Each device has its own.
+  preview:
+    aria: Preview
+    next_head: Get ready in 40 min
+    next_title: Sample appointment
+    next_sub: '{time}, somewhere nearby'
+    breakfast: Breakfast
+    lunch: Lunch
+    done: Done
+    tick: Tick
+    now: Now
+    chosen: chosen
+    not_chosen: not chosen
+    button: Button
+    body: Body text looks like this.
+    link: A link looks like this
+    money: '0123456789 $612.50'
+  blocks:
+    line: Daily line
+    next: Next up
+    three: Today’s three
+    day: The day
+    coming: Coming up
+    plan: Plan progress
+  choices:
+    mode: {auto: Auto, light: Light, dark: Dark}
+    corners: {square: Square, soft: Soft, round: Round, pill: Pill}
+    density: {compact: Compact, regular: Regular, roomy: Roomy}
+    rule: {fine: Fine, medium: Medium, heavy: Heavy}
+    texture: {none: None, grid: Grid paper, dots: Dots, ruled: Ruled, diagonal: Diagonal}
+    hero: {plain: Plain, banner: Banner, boxed: Boxed}
+    dayline: {line: Line, cards: Cards, rows: Rows}
+    loud: {quiet: Quiet, regular: Regular, loud: Loud}
+    line: {plain: Plain, quote: Pull-quote, hidden: Hidden}
+  accent:
+    group: Accent colour
+    theme: Theme
+    hue: 'Accent hue {hue}'
+  my_themes:
+    heading: My themes
+    placeholder: Name for these colours
+    save: Save current colours
+    remove: Remove
+    need_name: Give the theme a name first.
+    saved: 'Saved “{name}”'
+  scheduled:
+    heading: Scheduled looks
+    note: A scheduled look takes over between two times each day, for example a dimmer one late at night. It starts as a copy of what is on screen now; then you change it.
+    placeholder: Night
+    default_name: Scheduled
+    line: '{name}, {from} to {to}'
+    showing: showing now
+    edit: Edit
+    remove: Remove
+    name: Name
+    from: From
+    until: Until
+    add: Add scheduled look
+    need_times: Set a start and an end time that differ.
+    added: Added. You are now editing it.
+  behaviour:
+    heading: Behaviour
+    clock: Clock
+    clock_12: 12-hour (2:30 pm)
+    clock_24: 24-hour (14:30)
+    tabs_heading: Phone bottom bar
+    tabs_hint: Four sections, left to right. Everything else sits under More.
+    position: 'Position {n}'
+    blocks_heading: Today blocks
+    blocks_hint: Reorder with the arrows. Untick to hide. The daily line is shown or hidden under Layout.
+    line_aria: 'Daily line: set under Layout'
+    show_aria: 'Show {block}'
+    up: Up
+    down: Down
+    up_aria: 'Move {block} up'
+    down_aria: 'Move {block} down'
+    title_heading: Title and greeting
+    header_title: Header title
+    call_me: What XO calls you
+    call_me_placeholder: Captain
+    call_me_hint: Blank for no greeting.
+    pop: A small pop when I tick something
+  presets:
+    heading: Presets
+    reset: Reset everything
+    reset_armed: Tap again to reset
+    reset_done: Back to the original look
+    hint: Surprise me changes theme, typefaces, shape and layout. It leaves text size, weight, spacing, density and mode alone. Your saved themes survive a reset.
+    code_heading: Look code
+    code_hint: This code is the look on screen now. Copy it to keep it, or to type it into another device.
+    code_aria: Look code
+    copy: Copy code
+    copied: Copied
+    copy_failed: Select the code and copy it by hand.
+    paste: Paste a look code
+    apply: Apply code
+    applied: Look applied
+    bad_code: That is not a complete look code. They start with XO1- and carry the whole look.
+  colour:
+    heading: Colour
+    theme: Theme
+    accent: Accent
+    theme_custom: Theme (custom colours showing)
+    strength: Colour strength
+    fine_tune: Fine-tune
+    paper_hue: Paper tint hue
+    paper_amount: Paper tint amount
+    accent_hue: Accent hue
+    accent_vivid: Accent vividness
+    attention_hue: Attention hue
+    attention_hint: Attention is the colour used for Now, overdue and leave-now. Lightness is fixed for every colour, so text stays readable wherever the sliders sit.
+  type:
+    heading: Type
+    body: Body
+    headings: Headings
+    numerals: Numerals
+    same: Same as body
+    numerals_hint: Numerals covers the time column, the clock and amounts.
+    size: Text size
+    weight: Weight
+    line_spacing: Line spacing
+    letter_spacing: Letter spacing
+  shape:
+    heading: Shape and space
+    corners: Corners
+    density: Density
+    rule: Line weight
+    texture: Background texture
+  layout:
+    heading: Layout
+    hero: Next-up block
+    dayline: Day line
+    loud: Heading loudness
+    line: Daily line
+  mode: Mode

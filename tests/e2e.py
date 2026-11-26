@@ -74,9 +74,9 @@ with sync_playwright() as p:
     assert page.evaluate("document.documentElement.dataset.kit") == KIT
 
     # --- create the account
-    page.fill("#a-name", "tester")
-    page.fill("#a-pass", PASS)
-    page.fill("#a-again", PASS)
+    set_control(page.locator("#a-name"), "tester")
+    set_control(page.locator("#a-pass"), PASS)
+    set_control(page.locator("#a-again"), PASS)
     page.screenshot(path=SHOTS / "00-create.png")
     page.get_by_role("button", name="Create and open").click()
     expect(page.locator("h1")).to_contain_text(now.strftime("%-d %B"), timeout=20000)
@@ -219,14 +219,46 @@ with sync_playwright() as p:
     exported = Path(dl.value.path()).read_text()
     assert "GP appointment" in exported and "Being someone my family can rely on." in exported
     page.screenshot(path=SHOTS / "09-settings.png", full_page=True)
+    # every kind of control on the screen: a time, a choice, a tick box and a text box
+    set_control(page.locator("#s-morningAt"), "07:30")
+    expect(page.locator("#toast")).to_contain_text("Saved")
+    set_control(page.locator("#s-weeklyDay"), "3")
+    set_control(page.locator("#s-showGuard"), False)
+    set_control(page.locator("#view textarea, #view wa-textarea").first, "A line of my own")
+    page.keyboard.press("Tab")  # a text box saves when it loses focus
+    expect(page.locator("#toast")).to_contain_text("Saved")
+    page.reload()
+    expect(page.locator("#s-weeklyDay")).to_have_js_property("value", "3", timeout=20000)
+    expect(page.locator("#s-morningAt")).to_have_js_property("value", "07:30")
+    expect(page.locator("#s-showGuard")).to_have_js_property("checked", False)
+    expect(page.locator("#view textarea, #view wa-textarea").first).to_have_js_property("value", "A line of my own")
+
+    # --- appearance: a chip, a choice, a text box, then the quick Look panel
+    page.goto(f"{BASE}/#/appearance")
+    expect(page.locator("h1")).to_have_text("Appearance")
+    page.get_by_role("button", name="Banner", exact=True).click()
+    assert page.evaluate("document.documentElement.dataset.hero") == "banner"
+    set_control(page.locator("#f-head"), "fraunces")
+    set_control(page.locator("#p-call"), "Captain")
+    set_control(page.locator("#sch-name"), "Evening")
+    page.get_by_role("button", name="Plain", exact=True).first.click()
+    assert page.evaluate("document.documentElement.dataset.hero") == "plain"
+    page.screenshot(path=SHOTS / "10-appearance.png", full_page=True)
+    page.locator(".top .look-btn").click()
+    look = page.locator("dialog[open]")
+    look.get_by_role("button", name="Surprise me").click()
+    look.get_by_role("button", name="Undo", exact=True).click()
+    look.get_by_role("button", name="Close").click()
+    expect(look).to_have_count(0)
+    page.goto(f"{BASE}/#/settings")
 
     # --- sign out, wrong password, right password
     page.get_by_role("button", name="Sign out of this device").click()
-    page.fill("#a-name", "tester")
-    page.fill("#a-pass", "not the password")
+    set_control(page.locator("#a-name"), "tester")
+    set_control(page.locator("#a-pass"), "not the password")
     page.get_by_role("button", name="Sign in").click()
     expect(page.locator(".form-error")).to_contain_text("do not match", timeout=20000)
-    page.fill("#a-pass", PASS)
+    set_control(page.locator("#a-pass"), PASS)
     page.get_by_role("button", name="Sign in").click()
     expect(page.locator(".dayline .entry.done", has_text="Breakfast")).to_have_count(1, timeout=20000)
 
