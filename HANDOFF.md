@@ -8,6 +8,7 @@
 - Both component kits are served locally from `static/vendor/` and `static/tw.css`: daisyUI 5 (Tailwind plugin, `tw:` prefix) and Web Awesome 3 (`static/js/kit.js`). Forms, dialogs and toasts follow the Kit choice in Appearance (`ui.js`); screens do not yet.
 - Canvas screen `#/canvas` (D-9, 2.4.0): `static/js/views/canvas.js` mounts `static/js/canvas.js` (`mountCanvas(root)`; widget management in the More menu and the canvas bar, side tabs, undo), `static/js/tabs.js` (`tabStrip`, `tabSet`), registry `static/js/widgets.js` (every screen is a widget; 24 columns of 28px rows), styles `static/canvas.css`, text `content/text/canvas.yaml`, GridStack in `static/vendor/gridstack`. Covered by `tests/e2e_canvas.py`.
 - Tracker screen `#/tracker` (D-10, 2.5.0): `static/js/views/tracker.js` and `static/js/tracker/` (model, list, detail, board, reports, projects, keys, widgets, nobbie). NOBBIE's tracker shows read-only once `NOBBIE_URL`, `NOBBIE_USER` and `NOBBIE_PASSWORD` are in `.env` (`app/nobbie.py`). Covered by `tests/e2e_tracker.py` and two API tests.
+- Tasks (2.8.0 to 2.11.0, D-19 to D-22): priority, categories, subtasks, repeats, dependencies, board and table views, filters, stale review, time blocks, pacing, close the day, command palette. Logic in `static/js/tasks.js`, data in `static/js/taskdata.js`, screen in `static/js/views/tasks.js`, palette in `static/js/palette.js`. Covered by `tests/e2e_tasks.py`.
 - Version 1 screens are built (Today, Diary, Tasks, Routine, Bills, Obligations, Check-ins, My plan, Appearance). Specs for the rest are in `docs/ROADMAP.md`.
 - House style brought in from the owner's other project: `ruff.toml`, `docs/voice.md`, the Code style section of `CLAUDE.md`, `.claude/` skills, commands and guides, and `docs/decisions.md`.
 
@@ -24,6 +25,7 @@
    6. Section 5 GTD core.
    7. Sections 6 to 12 in the D-18 order: Health and mood (6), People and life admin (7), Legal and sessions (8), Goals and reviews (9), Money (10), Google Calendar (11), AI (12).
 4. Canvas, parked: a resizable side pane, undo that survives a reload, and saved layout presets.
+5. Tasks, parked: manual card order on the board; subtasks as full tasks. Out of scope by the owner's decision: custom fields, Markdown backing, local-first sync, webhooks, voice capture and OS-wide hotkeys (rule 2; a PWA cannot register global hotkeys).
 
 ## Owner to-do
 
@@ -35,6 +37,10 @@
 4. Security is handled outside the codebase (decision D-6): the app sends no CSP or security headers.
 5. `content/workbook.json` now comes from glm branch `prose-revision-2026-11-20` (fe9f0dc6), `build/docx/relapse_prevention_workbook_complete.docx`. After the next glm change, rebuild with `python scripts/build_workbook.py --version "WORKBOOK / glm <sha> / <date>" <docx>`, then `make db-backup` and `docker compose up -d --build app`.
 6. Decide whether `plan.yaml`, `checkin.yaml` and `defaults.yaml` should follow the glm changes to `src/rp/03` to `06`. They were left as they were.
+7. Open `https://xo.tifunction.com/#/tasks`, switch to Board, drag a card, and press Ctrl+K. Nothing here was checked on a phone or by a person in a browser, only by the Playwright tests.
+8. Rename or replace the seed categories and places: Tasks, `Categories and places`.
+9. Decide whether to keep the evening `Close the day` step on: Settings, Tasks.
+10. `tests/e2e_tracker.py` is flaky: it failed twice out of five full runs on 2026-11-27 with `Checklist: N of 2 ticked` and passed on rerun. The cause is not diagnosed; fix the wait before relying on the suite as a gate.
 
 ## What worked
 
