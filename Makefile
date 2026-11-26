@@ -5,7 +5,7 @@ TEST := docker compose -f docker-compose.test.yml
 BACKUP_DIR := ./backups
 BUN := docker run --rm --user "$$(id -u):$$(id -g)" -e HOME=/tmp -v "$(CURDIR)":/x -w /x/tailwind oven/bun:1-debian
 
-.PHONY: help up down restart-app logs ps health db-backup db-restore confirm css test test-api test-e2e test-down lint format
+.PHONY: help up down restart-app logs ps health db-backup db-restore confirm css test test-api test-e2e test-down shots lint format
 RUFF := docker run --rm -w /srv/xo
 RUFF_PATHS := app scripts tests
 
@@ -72,6 +72,12 @@ test-e2e: ## e2e.py per kit (xo, daisy, wa), e2e_look.py, e2e_kits.py against a 
 	$(TEST) --profile run build
 	$(TEST) up -d --wait app
 	$(TEST) run --rm e2e; s=$$?; $(TEST) down -v; exit $$s
+
+shots: ## Screenshots of every screen in every kit and two widths into ./.scratch/shots (not a test).
+	mkdir -p .scratch/shots
+	$(TEST) --profile run build
+	$(TEST) up -d --wait app
+	$(TEST) run --rm shots; s=$$?; $(TEST) down -v; exit $$s
 
 test-down: ## Remove the throwaway test stack if a run was interrupted.
 	$(TEST) down -v

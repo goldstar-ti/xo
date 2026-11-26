@@ -138,6 +138,7 @@ Tests, each on a throwaway compose project (`xo-test`, `docker-compose.test.yml`
 ```bash
 make test-api      # pytest; it DROPS and recreates every table in its database
 make test-e2e      # tests/e2e.py once per kit (XO_KIT=xo, daisy, wa), then tests/e2e_look.py and tests/e2e_kits.py, on a throwaway app and empty database
+make shots         # screenshots of every screen in every kit at 1280 and 390 wide into ./.scratch/shots (not a test)
 make lint          # ruff check and format check (read-only)
 make format        # ruff format and auto-fix, in place
 ```
