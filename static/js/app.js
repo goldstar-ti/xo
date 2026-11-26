@@ -11,6 +11,7 @@ import * as planView from './views/plan.js';
 import * as settingsView from './views/settings.js';
 import * as appearanceView from './views/appearance.js';
 import * as canvasView from './views/canvas.js';
+import * as trackerView from './views/tracker.js';
 import { bills, diary, obligations, routine, tasks } from './views/lists.js';
 
 const NAV = Object.entries(text('app.nav')); // [key, label] in the order the sidebar lists them
@@ -24,7 +25,7 @@ const more = {
       h('ul', { class: 'list links' }, NAV.filter(([k]) => !tabs().includes(k)).map(([k, label]) => h('li', {}, h('a', { class: 'row-main', href: `#/${k}` }, label)))));
   },
 };
-const VIEWS = { today: todayView, diary, tasks, obligations, routine, bills, checkin: checkinView, plan: planView, settings: settingsView, appearance: appearanceView, canvas: canvasView, more };
+const VIEWS = { today: todayView, diary, tasks, obligations, routine, bills, checkin: checkinView, plan: planView, settings: settingsView, appearance: appearanceView, canvas: canvasView, tracker: trackerView, more };
 
 // Web Awesome is fetched only when the Kit choice is Web Awesome. Wait for it before any redraw.
 const ensureKit = () => (document.documentElement.dataset.kit === 'wa' ? loadWebAwesome().catch(() => {}) : Promise.resolve());

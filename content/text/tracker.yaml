@@ -1,0 +1,290 @@
+# The Tracker screen: projects, their items, the list, board and report views, and the tracker widgets.
+#
+# How to edit this file
+# - Save the file and reload the page. There is no build and no restart.
+# - Change the words after a colon. Keep the keys (the words before a colon) as they are:
+#   the app looks the text up by key, and a missing key shows the key itself.
+# - Keep the indentation. It uses two spaces and never tabs.
+# - Put quote marks around any text that starts with a special character
+#   (" ' { [ * & ! % @ #) or that contains a colon followed by a space, and around times such as '09:00'.
+# - Write {name} where the app fills something in. Keep the same {name} in your wording.
+# - If a file has a mistake, the app keeps the last good version of that file and logs a note.
+#
+tracker:
+  heading: Tracker
+  new_item: New item
+  new_project: New project
+  project_settings: Project settings
+  all_projects: All projects
+  projects_aria: Projects
+  views_aria: Views
+  detail_aria: Item details
+  no_projects: No projects yet. New project starts one.
+  untitled: (no title)
+  checklist_progress: '{done} of {all} ticked'
+
+  # The pick lists a new project starts with. Each project can change its own in Project settings.
+  # A status with "closed: true" closes an item. A link type's inverse is how the other item shows it.
+  default_lists:
+    status:
+      - v: new
+      - v: in progress
+      - v: needs test
+      - v: parked
+      - {v: built, closed: true}
+      - {v: verified, closed: true}
+      - {v: won't do, closed: true}
+    kind: [bug, feature, todo, doc, handover, knowledge]
+    priority: [high, medium, low]
+    area: [general]
+    owner: [me, unassigned]
+    link:
+      - {v: blocks, inverse: blocked by}
+      - {v: relates to, inverse: relates to}
+      - {v: duplicates, inverse: duplicated by}
+
+  tabs:
+    list: List
+    board: Board
+    needs-test: Needs test
+    handover: Handover
+    pivot: Pivot
+    history: History
+    activity: Activity
+
+  fields:
+    ref: Ref
+    title: Title
+    status: Status
+    kind: Kind
+    priority: Priority
+    area: Area
+    owner: Owner
+    due: Due
+    updated: Updated
+    labels: Labels
+    label: Label
+    project: Project
+    body: Description
+    test_steps: Test steps
+    checklist: Checklist
+    links: Links
+    resolution: Resolution
+
+  views:
+    open: Open items
+    all: Everything
+    open-high: Open, high priority
+    overdue: Overdue
+    due-week: Due this week
+    needs-test: Needs test
+    recent-closed: Closed in the last 14 days
+    parked: Parked
+    handover: Handover
+    knowledge: Knowledge base
+
+  list:
+    search: Search items
+    view: Saved view
+    custom_view: Custom filters
+    save_view: Save view
+    view_name: View name
+    view_name_needed: Give the view a name.
+    delete_view: Delete view
+    clear: Clear filters
+    open_only: Open only
+    any:
+      status: Any status
+      kind: Any kind
+      priority: Any priority
+      area: Any area
+      owner: Any owner
+      label: Any label
+      due: Any due date
+    due:
+      overdue: Overdue
+      week: Due this week
+      set: Has a due date
+    empty: No items match these filters.
+    count: '{n} items'
+    table_aria: Items
+    tick: Tick {ref}
+    tick_head: Tick
+
+  bulk:
+    aria: Change ticked items
+    count: '{n} ticked'
+    done: '{n} items changed.'
+    add_label: Add a label
+    close: Close them
+    select_all: Tick all shown
+    clear: Untick all
+    set:
+      status: Set status
+      kind: Set kind
+      priority: Set priority
+      area: Set area
+      owner: Set owner
+
+  detail:
+    back: Back to the list
+    labels_hint: Separate labels with commas
+    overdue: Overdue
+    checklist: Checklist
+    checklist_n: 'Checklist: {done} of {all} ticked'
+    check_add: Add a checklist step and press Enter
+    check_remove: Remove {name}
+    links: Links
+    link_type: Link type
+    link_target: Item reference, such as XO-3
+    link_add: Add link
+    link_remove: Remove the link to {ref}
+    link_unknown: No item has that reference.
+    state: Open or closed
+    close_as: Close as
+    resolution: Resolution (optional)
+    close: Close item
+    closed: Closed
+    closed_on: Closed {day}
+    reopen: Reopen
+    comments: Comments
+    comment_add: Add a comment (Ctrl+Enter saves)
+    comment_save: Add comment
+    history_n: History ({n} changes)
+    delete: Delete item
+
+  events:
+    created: Created.
+    reopened: Reopened.
+    closed: Closed.
+    closed_why: 'Closed: {why}'
+    changed: '{field} changed from {from} to {to}.'
+    edited: '{field} edited.'
+    comment: 'Comment: {text}'
+    blank: (blank)
+
+  board:
+    aria: Board
+    column: '{status}, {n} items'
+    due: Due {day}
+    hint: Drag a card to another column to change its status, or focus a card and press Alt with the left or right arrow.
+    no_status: 'This item''s project has no status called {status}.'
+
+  needs_test:
+    intro: Items waiting for a check. Follow the test steps, then mark each one passed or failed.
+    empty: Nothing is waiting for a test.
+    no_steps: No test steps written.
+    fail_note: What went wrong (optional, saved as a comment)
+    pass: Passed
+    fail: Failed
+
+  handover:
+    intro: Items of kind handover, open first.
+    empty: No handover items.
+    progress: '{done} of {all} done ({pct}%)'
+    bar: Handover progress
+    done_n: Done ({n})
+
+  pivot:
+    intro: Counts of items by one field down and another across. Choose a number to see those items in the List.
+    rows: Down
+    cols: Across
+    total: Total
+    none: (none)
+    no_due: No due date
+    overdue: Overdue
+    due_later: Due later
+    table_aria: Pivot
+
+  history:
+    intro: Every change to the items shown, newest first.
+    empty: No changes yet.
+
+  activity:
+    intro: Items opened and closed each week, the last twelve weeks.
+    open_now: '{n} open now, {overdue} overdue.'
+    week: Week of
+    opened: Opened
+    closed: Closed
+    bars: Bars
+    key: The upper bar is items opened; the lower bar is items closed.
+    table_aria: Activity by week
+
+  project:
+    new_title: New project
+    name: Project name
+    name_needed: Give the project a name.
+    key: Key
+    key_hint: Up to 8 letters and numbers, starting with a letter. Item references start with it, such as XO-12.
+    key_change_hint: Changing the key changes every item's reference.
+    key_bad: The key must be up to 8 letters and numbers, starting with a letter.
+    key_taken: Another project already uses that key.
+    create: Create project
+    archived: Archived
+    archived_hint: An archived project leaves the project tabs. Its items stay.
+    settings_title: '{name}: settings'
+
+  item:
+    new_title: New item in {project}
+    create: Create item
+    title_needed: Give the item a title.
+
+  lists:
+    heading: Pick lists
+    intro: Each project has its own lists. Renaming a value renames it on every item of this project. Removing one leaves items that use it as they are.
+    names:
+      status: Statuses
+      kind: Kinds
+      priority: Priorities
+      area: Areas
+      owner: Owners
+      link: Link types
+    value: '{list}, value {n}'
+    closes: Closes the item
+    inverse: Shown on the other item as
+    up: Move {name} up
+    down: Move {name} down
+    remove: Remove {name}
+    add: Add a value
+    empty_list: '{list} needs at least one value.'
+    status_rule: Statuses need at least one that closes an item and one that does not.
+
+  keys:
+    title: Tracker keys
+    new: New item
+    next: Next item
+    prev: Previous item
+    open: Open the first item
+    back: Back to the list
+    edit: Edit the title
+    comment: Write a comment
+    check: Add a checklist step
+    select: Tick or untick the open item
+    field_status: Set status
+    field_priority: Set priority
+    field_kind: Set kind
+    field_area: Set area
+    field_owner: Set owner
+    close: Close the open item
+    tab-prev: Previous view
+    tab-next: Next view
+    search: Search items
+    help: Show these keys
+
+  nobbie:
+    read_only: This item lives in NOBBIE's tracker. XO shows it but cannot change it.
+    open: Open in NOBBIE
+    source: Source
+    no_comments: No comments.
+    failed: 'NOBBIE''s tracker could not be loaded: {why}'
+    retry: Try again
+    fetched: Fetched from NOBBIE at {time}.
+    refresh: Fetch again
+
+  widgets:
+    due_empty: No open tracker items have a due date.
+    summary_aria: Tracker summary
+    open: Open
+    overdue: Overdue
+    needs_test: Needs test
+    closed_week: Closed this week

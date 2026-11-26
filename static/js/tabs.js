@@ -17,10 +17,21 @@ import { h } from './util.js';
 
 let seq = 0;
 
+// The strip's styles live in static/canvas.css; any screen with tabs loads it once.
+function styles() {
+  if (document.querySelector('link[data-canvas-styles]')) return;
+  const link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.href = '/canvas.css';
+  link.setAttribute('data-canvas-styles', '');
+  document.head.append(link);
+}
+
 // items: [{ key, label, closable, controls }] (controls: id of that tab's own panel). active: the selected key.
 // onSelect(key), onClose(key): called on a click or key press; the caller updates and calls set().
 // label: the strip's accessible name. panelId: id of the panel the tabs control, if one.
 export function tabStrip({ items = [], active = null, label, onSelect, onClose, panelId } = {}) {
+  styles();
   const base = `xt${++seq}`;
   const list = h('div', { class: 'xo-tablist', role: 'tablist', 'aria-label': label });
   const el = h('div', { class: 'xo-tabs' }, list);

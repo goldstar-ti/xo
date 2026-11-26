@@ -7,6 +7,9 @@ import { addDays, daysBetween, fmtDay, fmtDuration, fmtLong, fmtMoney, fmtTime, 
 
 export const live = true;
 
+// An item's reference (XO-12) from its project's key, without loading the tracker modules.
+const trackerRef = (it) => `${store.get(it.data.project)?.data?.key || '?'}-${it.data.num}`;
+
 function lineForToday() {
   const own = store.settings().lines.split('\n').map((s) => s.trim()).filter(Boolean);
   const matters = (store.plan().answers.good_matters || '').trim();
@@ -135,6 +138,9 @@ export function render(root) {
   for (const b of store.byKind('bill'))
     if (!b.data.finished && b.data.due <= horizon)
       coming.push({ day: b.data.due, text: `${b.data.name}${b.data.amount ? `, ${fmtMoney(b.data.amount)}` : ''}`, tag: t(b.data.autopay ? 'today.coming.bill_auto' : 'today.coming.bill'), open: () => editBill(b), pay: b.data.autopay ? null : () => payBill(b) });
+  for (const it of store.byKind('pm_item'))
+    if (it.data.due && !it.data.closed_at && it.data.due <= horizon)
+      coming.push({ day: it.data.due, text: it.data.title, tag: t('today.coming.tracker', { ref: trackerRef(it) }), open: () => { location.hash = `#/tracker/${trackerRef(it)}`; } });
   coming.sort((a, b) => a.day.localeCompare(b.day));
 
   const nudge = planNudge();

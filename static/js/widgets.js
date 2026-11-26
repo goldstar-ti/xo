@@ -19,6 +19,8 @@ import * as planView from './views/plan.js';
 import * as settingsView from './views/settings.js';
 import * as appearanceView from './views/appearance.js';
 import { bills, diary, obligations, routine, tasks } from './views/lists.js';
+import * as trackerView from './views/tracker.js';
+import * as trackerWidgets from './tracker/widgets.js';
 
 export const WIDGETS = {};
 
@@ -76,3 +78,14 @@ const SCREENS = [
 for (const [id, view, params, w, h] of SCREENS) {
   registerWidget(id, { title: `canvas.widgets.${id}`, w, h, render: viewWidget(view, ...params) });
 }
+
+// The Tracker screen as a widget (it redraws itself), then the tracker's own widgets.
+registerWidget('tracker', {
+  title: 'canvas.widgets.tracker',
+  w: 16,
+  h: 28,
+  render: (body) => trackerView.mount(body, null, { embedded: true }),
+});
+registerWidget('tracker-due', { title: 'canvas.widgets.tracker-due', w: 8, h: 12, render: trackerWidgets.due });
+registerWidget('tracker-summary', { title: 'canvas.widgets.tracker-summary', w: 8, h: 10, render: trackerWidgets.summary });
+registerWidget('tracker-board', { title: 'canvas.widgets.tracker-board', w: 16, h: 20, render: trackerWidgets.board });

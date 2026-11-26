@@ -56,6 +56,7 @@ today:
     court: Court
     appointment: Appointment
     task_due: Task due
+    tracker: 'Tracker {ref}'
     bill: Bill
     bill_auto: Bill, automatic
   lines:

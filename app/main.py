@@ -20,7 +20,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy import delete, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from . import config
+from . import config, nobbie
 from .db import engine, get_db
 from .logging_setup import setup_logging
 from .models import Base, Item, PushSub, Reminder, Session, User
@@ -434,6 +434,31 @@ async def workbook(user: User = Depends(current_user)):
     if not WORKBOOK_FILE.exists():
         raise HTTPException(404, "No workbook has been built yet. Run scripts/build_workbook.py.")
     return FileResponse(WORKBOOK_FILE, media_type="application/json")
+
+
+@app.get("/api/tracker/nobbie")
+async def nobbie_tracker(refresh: bool = False, user: User = Depends(current_user)):
+    """Return NOBBIE's tracker items and pick lists, read-only, or ``{"enabled": false}``.
+
+    A NOBBIE that cannot be reached answers 502 with the reason; the Tracker screen shows it.
+    """
+    if not nobbie.enabled():
+        return {"enabled": False}
+    try:
+        return {"enabled": True, **(await nobbie.reader().tracker(refresh=refresh))}
+    except nobbie.NobbieError as err:
+        raise HTTPException(502, str(err)) from err
+
+
+@app.get("/api/tracker/nobbie/items/{item_id}")
+async def nobbie_tracker_item(item_id: int, user: User = Depends(current_user)):
+    """Return one NOBBIE tracker item with its comments and history, read-only."""
+    if not nobbie.enabled():
+        raise HTTPException(404, "NOBBIE's tracker is not set up")
+    try:
+        return await nobbie.reader().item(item_id)
+    except nobbie.NobbieError as err:
+        raise HTTPException(502, str(err)) from err
 
 
 # Static files last, so /api routes win.

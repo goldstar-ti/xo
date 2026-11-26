@@ -28,7 +28,8 @@ Security is the owner's responsibility, handled outside this codebase (owner's d
 ## How the data works
 
 - One generic table, `items`: `(user_id, id, kind, day, payload, deleted)`. `payload` is a JSONB value (object, array, string or number; null for ticks).
-- Kinds in use: `appointment`, `task`, `routine`, `tick`, `bill`, `obligation`, `report`, `checkin`, `plan`, `settings`.
+- Kinds in use: `appointment`, `task`, `routine`, `tick`, `bill`, `obligation`, `report`, `checkin`, `plan`, `settings`, `canvas`, `project`, `pm_item`, `tracker`.
+- The tracker (`static/js/tracker/model.js` documents its shapes): `project:<uuid>` holds a project and its own pick lists, `pm:<uuid>` an item with its comments, checklist, links and history. NOBBIE's tracker joins it read-only through `app/nobbie.py` (GET only, `NOBBIE_*` in `.env`).
 - Singletons use fixed ids: `plan`, `settings`. Ticks use `tick:<ref>:<YYYY-MM-DD>` with a null payload. Check-ins use `checkin:<type>:<day>`.
 - Reminders are rows (`fire_at`, `repeat`, `kind`, `item_id`). The browser computes them in `REMINDERS` in `static/js/store.js` and sends them with the item; the server replaces that item's reminders on every save.
 - To add a kind: pick a name matching `^[a-z_]{1,20}$`, add a `REMINDERS` entry if it needs reminders, add wording for any new reminder kind to `NEUTRAL` and `detailed()` in `static/sw.js`.

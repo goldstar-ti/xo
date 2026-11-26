@@ -4,6 +4,7 @@
 
 | Version | Date | Change |
 |---|---|---|
+| 2.5.0 | 2026-11-26 | The Tracker screen: projects with their own pick lists, items with due dates, checklists, links, comments and history; list, board, needs test, handover, pivot, history and activity views; bulk changes and keys; due items on Today with reminders; tracker widgets; NOBBIE's tracker read-only. |
 | 2.4.0 | 2026-11-26 | The Canvas screen: every screen as a widget on canvas tabs, with roll up, zoom, focus, fit, reset, move between canvases, side tabs and undo. |
 | 2.3.4 | 2026-11-26 | Fixed doubled borders, unreadable primary buttons and run-together list rows in the daisyUI and Web Awesome kits. |
 | 2.3.3 | 2026-11-26 | Settings, Appearance, sign-in and the app shell follow the Kit choice; all wording is in content/text. |

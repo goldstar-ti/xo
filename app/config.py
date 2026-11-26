@@ -24,5 +24,13 @@ SCHEDULER_INTERVAL = int(os.environ.get("SCHEDULER_INTERVAL", "20"))
 # Set false in tests so the loop does not run in the background.
 SCHEDULER_ENABLED = _flag("SCHEDULER_ENABLED", "true")
 
+# NOBBIE's tracker, read-only (Tracker screen). Off unless all three are set. NOBBIE_URL includes
+# NOBBIE's prefix, such as https://nobbie.lan.tifunction.com/nobbie. The user is a NOBBIE account
+# that can open the tracker; XO only ever reads.
+NOBBIE_URL = os.environ.get("NOBBIE_URL", "")
+NOBBIE_USER = os.environ.get("NOBBIE_USER", "")
+NOBBIE_PASSWORD = os.environ.get("NOBBIE_PASSWORD", "")
+NOBBIE_CACHE_SECONDS = int(os.environ.get("NOBBIE_CACHE_SECONDS", "120"))
+
 # Root log level for the JSON logs: DEBUG, INFO, WARNING or ERROR.
 LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO")

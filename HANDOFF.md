@@ -7,6 +7,7 @@
 - Stack: Docker Compose project `xo` (`xo-app`, `xo-db`), app published on `172.17.0.1:8010` behind NOBBIE's nginx. See `docs/RUNBOOK.md`.
 - Both component kits are served locally from `static/vendor/` and `static/tw.css`: daisyUI 5 (Tailwind plugin, `tw:` prefix) and Web Awesome 3 (`static/js/kit.js`). Forms, dialogs and toasts follow the Kit choice in Appearance (`ui.js`); screens do not yet.
 - Canvas screen `#/canvas` (D-9, 2.4.0): `static/js/views/canvas.js` mounts `static/js/canvas.js` (`mountCanvas(root)`; widget management in the More menu and the canvas bar, side tabs, undo), `static/js/tabs.js` (`tabStrip`, `tabSet`), registry `static/js/widgets.js` (every screen is a widget; 24 columns of 28px rows), styles `static/canvas.css`, text `content/text/canvas.yaml`, GridStack in `static/vendor/gridstack`. Covered by `tests/e2e_canvas.py`.
+- Tracker screen `#/tracker` (D-10, 2.5.0): `static/js/views/tracker.js` and `static/js/tracker/` (model, list, detail, board, reports, projects, keys, widgets, nobbie). NOBBIE's tracker shows read-only once `NOBBIE_URL`, `NOBBIE_USER` and `NOBBIE_PASSWORD` are in `.env` (`app/nobbie.py`). Covered by `tests/e2e_tracker.py` and two API tests.
 - Version 1 screens are built (Today, Diary, Tasks, Routine, Bills, Obligations, Check-ins, My plan, Appearance). Specs for the rest are in `docs/ROADMAP.md`.
 - House style brought in from the owner's other project: `ruff.toml`, `docs/voice.md`, the Code style section of `CLAUDE.md`, `.claude/` skills, commands and guides, and `docs/decisions.md`.
 
@@ -18,6 +19,8 @@
 4. Canvas, parked: a resizable side pane, undo that survives a reload, and saved layout presets.
 
 ## Owner to-do
+
+0. To see NOBBIE's tracker in XO: create a NOBBIE reader account (`docker compose exec app python -m app.auth.cli create xo.reader@goldstartransport.com.au --role executive` in the NOBBIE folder, then set its password at first sign-in; executive and hseq are the roles that can open the tracker), add `NOBBIE_URL=https://nobbie.lan.tifunction.com/nobbie`, `NOBBIE_USER` and `NOBBIE_PASSWORD` to XO's `.env`, then `make up`.
 
 1. Create the XO account straight after the first sign-in at `https://xo.tifunction.com`. The first sign-in creates the only account, and sign in with a name and a password of at least 8 characters.
 2. Run `make db-backup` before every update. Nothing runs it on a schedule yet.

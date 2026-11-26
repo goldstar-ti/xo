@@ -1,12 +1,14 @@
 // Service worker: keeps the app shell available and shows reminders.
 // Classic script (no imports) so it works in every browser that supports push.
-const CACHE = 'xo-v8';
+const CACHE = 'xo-v9';
 const SHELL = [
   '/', '/app.css', '/tw.css', '/manifest.webmanifest', '/fonts/ahn-latin.woff2', '/icons/icon-192.png',
   '/js/boot.js', '/js/app.js', '/js/store.js', '/js/util.js', '/js/content.js', '/js/text.js', '/js/ui.js', '/js/kit.js', '/kit-wa.css', '/js/forms.js',
   '/js/views/today.js', '/js/views/lists.js', '/js/views/checkin.js', '/js/views/plan.js', '/js/views/settings.js', '/js/views/appearance.js',
   '/js/views/canvas.js', '/js/canvas.js', '/js/grid.js', '/js/tabs.js', '/js/widgets.js', '/canvas.css',
   '/vendor/gridstack/gridstack-all.js', '/vendor/gridstack/gridstack.min.css',
+  '/js/views/tracker.js', '/js/tracker/model.js', '/js/tracker/list.js', '/js/tracker/detail.js', '/js/tracker/board.js',
+  '/js/tracker/reports.js', '/js/tracker/projects.js', '/js/tracker/keys.js', '/js/tracker/widgets.js',
 ];
 
 self.addEventListener('install', (event) => {
@@ -70,6 +72,8 @@ const NEUTRAL = {
   appt_soon: ['Appointment in 15 minutes', '', '#/today'],
   task_soon: ['A task is due tomorrow', '', '#/tasks'],
   task_due: ['A task is due today', '', '#/tasks'],
+  pm_soon: ['A tracker item is due tomorrow', '', '#/tracker'],
+  pm_due: ['A tracker item is due today', '', '#/tracker'],
   bill_soon: ['A bill is due in 3 days', '', '#/bills'],
   bill_due: ['A bill is due today', '', '#/bills'],
   bill_auto: ['An automatic payment comes out tomorrow', 'Check the money is there.', '#/bills'],
@@ -91,6 +95,8 @@ function detailed(kind, d) {
     case 'appt_soon': return [`In 15 minutes: ${d.title}`, d.where || ''];
     case 'task_soon': return [`Due tomorrow: ${d.title}`, d.step ? `Start with: ${d.step}` : ''];
     case 'task_due': return [`Due today: ${d.title}`, d.step ? `Start with: ${d.step}` : ''];
+    case 'pm_soon': return [`Due tomorrow: ${d.title}`, ''];
+    case 'pm_due': return [`Due today: ${d.title}`, ''];
     case 'bill_soon': return [`Bill due in 3 days: ${d.name}`, ''];
     case 'bill_due': return [`Bill due today: ${d.name}`, ''];
     case 'bill_auto': return [`Automatic payment tomorrow: ${d.name}`, 'Check the money is there.'];

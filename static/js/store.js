@@ -117,6 +117,11 @@ const REMINDERS = {
   routine(d) {
     return d.active === false || !d.time ? [] : [at(nextDaily(d.time), 'routine', 'daily')];
   },
+  // Tracker items: the day before at 17:00 and on the day at 09:00, until the item is closed.
+  pm_item(d) {
+    if (!d.due || d.closed_at) return [];
+    return [at(toDate(addDays(d.due, -1), '17:00'), 'pm_soon'), at(toDate(d.due, '09:00'), 'pm_due')];
+  },
   bill(d) {
     if (d.finished || !d.due) return [];
     if (d.autopay) return [at(toDate(addDays(d.due, -1), '10:00'), 'bill_auto')];

@@ -233,3 +233,42 @@ def test_broken_text_file_keeps_last_good_version(tmp_path):
     f.write_text("sample:\n  word: second\n", encoding="utf-8")
     os.utime(f, ns=(2, 2))
     assert text.load_text(tmp_path)["sample"]["word"] == "second"
+
+
+async def test_nobbie_tracker_off_by_default(client):
+    """With no NOBBIE settings, the tracker view says it is off."""
+    await register(client)
+    r = await client.get("/api/tracker/nobbie")
+    assert r.status_code == 200
+    assert r.json() == {"enabled": False}
+
+
+async def test_nobbie_reader_signs_in_pages_and_only_reads():
+    """The reader signs in when NOBBIE sends the sign-in form, pages through items, and never writes."""
+    from app.nobbie import NobbieReader
+
+    seen = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen.append((request.method, request.url.path, dict(request.url.params)))
+        signed = "sid=abc" in request.headers.get("cookie", "")
+        if request.url.path == "/nobbie/login":
+            return httpx.Response(303, headers={"location": "/nobbie/", "set-cookie": "sid=abc; Path=/"})
+        if not signed:
+            return httpx.Response(200, text="<form>sign in</form>", headers={"content-type": "text/html"})
+        if request.url.path == "/nobbie/pm/vocab.json":
+            return httpx.Response(200, json={"status": [{"value": "new"}]})
+        if request.url.path == "/nobbie/pm/items.json":
+            page = int(request.url.params["page"])
+            return httpx.Response(200, json={"data": [{"id": page, "title": f"Item {page}"}], "last_page": 2})
+        return httpx.Response(404)
+
+    r = NobbieReader("https://nobbie.test/nobbie", "reader", "secret", transport=httpx.MockTransport(handler))
+    try:
+        doc = await r.tracker()
+    finally:
+        await r.aclose()
+    assert [i["id"] for i in doc["items"]] == [1, 2]
+    assert doc["vocab"] == {"status": [{"value": "new"}]}
+    methods = {(m, p) for m, p, _ in seen if m != "GET"}
+    assert methods == {("POST", "/nobbie/login")}, "only the sign-in is a POST"
