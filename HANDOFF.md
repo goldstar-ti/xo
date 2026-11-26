@@ -23,6 +23,8 @@
 2. Run `make db-backup` before every update. Nothing runs it on a schedule yet.
 3. Before production: reinstate CLAUDE.md rule 5 (no personal names or details) and remove every personal detail added while it was paused (decision D-8).
 4. Security is handled outside the codebase (decision D-6): the app sends no CSP or security headers.
+5. `content/workbook.json` now comes from glm branch `prose-revision-2026-11-20` (fe9f0dc6), `build/docx/relapse_prevention_workbook_complete.docx`. After the next glm change, rebuild with `python scripts/build_workbook.py --version "WORKBOOK / glm <sha> / <date>" <docx>`, then `make db-backup` and `docker compose up -d --build app`.
+6. Decide whether `plan.yaml`, `checkin.yaml` and `defaults.yaml` should follow the glm changes to `src/rp/03` to `06`. They were left as they were.
 
 ## What worked
 
