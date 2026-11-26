@@ -3,3 +3,4 @@ pytest
 pytest-asyncio
 httpx
 playwright
+ruff==0.17.4

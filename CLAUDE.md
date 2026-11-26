@@ -125,6 +125,8 @@ Tests, each on a throwaway compose project (`xo-test`, `docker-compose.test.yml`
 ```bash
 make test-api      # pytest; it DROPS and recreates every table in its database
 make test-e2e      # tests/e2e.py, tests/e2e_look.py, then tests/e2e_kits.py, on a throwaway app and empty database
+make lint          # ruff check and format check (read-only)
+make format        # ruff format and auto-fix, in place
 ```
 
 The browser tests run in `mcr.microsoft.com/playwright/python` sharing the test app's network, so the app is `http://localhost:8000` (a secure context).

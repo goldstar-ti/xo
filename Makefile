@@ -5,7 +5,9 @@ TEST := docker compose -f docker-compose.test.yml
 BACKUP_DIR := ./backups
 BUN := docker run --rm --user "$$(id -u):$$(id -g)" -e HOME=/tmp -v "$(CURDIR)":/x -w /x/tailwind oven/bun:1-debian
 
-.PHONY: help up down restart-app logs ps health db-backup db-restore confirm css test test-api test-e2e test-down
+.PHONY: help up down restart-app logs ps health db-backup db-restore confirm css test test-api test-e2e test-down lint format
+RUFF := docker run --rm -w /srv/xo
+RUFF_PATHS := app scripts tests
 
 help: ## List the targets.
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-12s %s\n", $$1, $$2}'
@@ -47,6 +49,14 @@ db-restore: confirm ## Restore the newest dump in ./backups/ (or FILE=path).
 css: ## Build static/tw.css locally (the image builds its own).
 	$(BUN) sh -c 'bun install --frozen-lockfile && bun run build'
 	cp tailwind/dist/tw.css static/tw.css
+
+lint: ## Check style with ruff (read-only; builds the test image first).
+	$(TEST) --profile run build pytest
+	$(RUFF) -u "$$(id -u):$$(id -g)" -v "$(CURDIR)":/srv/xo:ro xo-app:test sh -c 'ruff check --no-cache $(RUFF_PATHS) && ruff format --check --no-cache $(RUFF_PATHS)'
+
+format: ## Format and auto-fix with ruff, writing files as you.
+	$(TEST) --profile run build pytest
+	$(RUFF) -u "$$(id -u):$$(id -g)" -v "$(CURDIR)":/srv/xo xo-app:test sh -c 'ruff format --no-cache $(RUFF_PATHS); ruff check --fix --no-cache $(RUFF_PATHS)'
 
 test: test-api test-e2e ## API tests, then both browser tests, on a throwaway stack.
 
