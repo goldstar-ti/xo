@@ -1,7 +1,8 @@
 """Browser smoke test. Needs the app running (default http://localhost:8010) on an EMPTY database.
 
-    python tests/e2e.py [base_url] [screenshot_dir]
+python tests/e2e.py [base_url] [screenshot_dir]
 """
+
 import os
 import sys
 from datetime import datetime, timedelta
@@ -37,8 +38,12 @@ def fill_form(page, values, button="Save"):
 
 
 with sync_playwright() as p:
-    browser = p.chromium.launch(executable_path=os.environ.get("XO_CHROME", "/usr/bin/google-chrome") or None, args=["--no-sandbox"])
-    ctx = browser.new_context(viewport={"width": 412, "height": 915}, device_scale_factor=2, timezone_id=TZ, locale="en-AU")
+    browser = p.chromium.launch(
+        executable_path=os.environ.get("XO_CHROME", "/usr/bin/google-chrome") or None, args=["--no-sandbox"]
+    )
+    ctx = browser.new_context(
+        viewport={"width": 412, "height": 915}, device_scale_factor=2, timezone_id=TZ, locale="en-AU"
+    )
     page = ctx.new_page()
     # A refused sign-in logs a 401 "Failed to load resource"; that one is expected below.
     page.on("console", lambda m: errors.append(m.text) if m.type == "error" and "401" not in m.text else None)
@@ -58,11 +63,29 @@ with sync_playwright() as p:
     page.goto(f"{BASE}/#/diary")
     page.get_by_role("button", name="Add appointment").click()
     late_today = now.hour >= 21
-    fill_form(page, {"title": "GP appointment", "date": tomorrow if late_today else today, "time": "10:15" if late_today else soon,
-                     "where": "Medical centre", "travel": 25, "prep": 20})
+    fill_form(
+        page,
+        {
+            "title": "GP appointment",
+            "date": tomorrow if late_today else today,
+            "time": "10:15" if late_today else soon,
+            "where": "Medical centre",
+            "travel": 25,
+            "prep": 20,
+        },
+    )
     page.goto(f"{BASE}/#/obligations")
     page.get_by_role("button", name="Add court date").click()
-    fill_form(page, {"title": "Hearing", "date": tomorrow, "time": "09:30", "where": "Court, level 2", "notes": "Photo ID\nLetter from lawyer"})
+    fill_form(
+        page,
+        {
+            "title": "Hearing",
+            "date": tomorrow,
+            "time": "09:30",
+            "where": "Court, level 2",
+            "notes": "Photo ID\nLetter from lawyer",
+        },
+    )
     expect(page.locator(".tag")).to_have_text("Court")
     page.goto(f"{BASE}/#/diary")
     assert "false" not in page.locator("#view").inner_text() and "[object" not in page.locator("#view").inner_text()
@@ -74,7 +97,17 @@ with sync_playwright() as p:
     expect(page.locator(".list li", has_text="Send documents to lawyer")).to_have_count(1)
     expect(page.locator('[data-focus="court"]')).to_be_focused()
     page.get_by_role("button", name="Add condition").click()
-    fill_form(page, {"title": "Report in person", "detail": "Front counter", "contact": "Reporting officer 08 5550 0100", "schedule": "weekly", "weekday": str((now.weekday() + 1) % 7), "time": "10:00"})
+    fill_form(
+        page,
+        {
+            "title": "Report in person",
+            "detail": "Front counter",
+            "contact": "Reporting officer 08 5550 0100",
+            "schedule": "weekly",
+            "weekday": str((now.weekday() + 1) % 7),
+            "time": "10:00",
+        },
+    )
     page.get_by_role("button", name="Add record").click()
     fill_form(page, {"what": "New phone number", "who": "Reporting officer"})
     page.screenshot(path=SHOTS / "05-obligations.png", full_page=True)

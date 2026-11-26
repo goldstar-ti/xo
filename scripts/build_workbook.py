@@ -6,6 +6,7 @@ Run it again whenever the workbook changes. Answers are stored against each prom
 own number (B.13.1.1 and so on), so they survive a rebuild as long as the numbers do.
 Needs:  pip install python-docx
 """
+
 import json
 import re
 import sys
@@ -18,12 +19,32 @@ from docx.text.paragraph import Paragraph
 OUT = Path(__file__).resolve().parent.parent / "content" / "workbook.json"
 
 PARA = {
-    "Lead": "lead", "SectionTitle": "h", "SubHead": "sub", "MinorHead": "sub", "DeviceHead": "sub",
-    "ThreeWayHead": "sub", "TwoWayHead": "sub", "SideLabel": "sub", "GlossaryTerm": "sub",
-    "Body Text": "p", "ThreeWayBody": "p", "TwoWayBody": "p", "GlossaryDef": "p", "CompareWeak": "p",
-    "CompareStrong": "p", "Caption": "cap", "WordBank": "p", "ListBullet": "li", "ListNumber": "li",
-    "TestItem": "li", "CircleOne": "li", "KeyPoint": "li", "CheckItem": "check", "Stem": "stem",
-    "WarnInline": "warn", "Prompt": "prompt",
+    "Lead": "lead",
+    "SectionTitle": "h",
+    "SubHead": "sub",
+    "MinorHead": "sub",
+    "DeviceHead": "sub",
+    "ThreeWayHead": "sub",
+    "TwoWayHead": "sub",
+    "SideLabel": "sub",
+    "GlossaryTerm": "sub",
+    "Body Text": "p",
+    "ThreeWayBody": "p",
+    "TwoWayBody": "p",
+    "GlossaryDef": "p",
+    "CompareWeak": "p",
+    "CompareStrong": "p",
+    "Caption": "cap",
+    "WordBank": "p",
+    "ListBullet": "li",
+    "ListNumber": "li",
+    "TestItem": "li",
+    "CircleOne": "li",
+    "KeyPoint": "li",
+    "CheckItem": "check",
+    "Stem": "stem",
+    "WarnInline": "warn",
+    "Prompt": "prompt",
 }
 SKIP = {"TableGap", "AnswerEnd", "Normal", "EditionNote", "Title", "Subtitle"}
 PROMPT = re.compile(r"^([A-Z]\.\d+\.\d+\.\d+)\s+(.*)$", re.S)
@@ -32,31 +53,57 @@ REFERENCE_DOCS = {"Facilitator Guide", "Facilitator Brief", "Glossary"}
 
 
 def clean(text: str) -> str:
+    """Strip bullet markers and surrounding space from a paragraph."""
     text = text.replace(" ", " ").strip()
     return re.sub(r"^[•\-]\s*\t?\s*", "", text)
 
 
 def table_block(table: Table):
-    cells = [(p.style.name, clean(p.text)) for row in table.rows for cell in row.cells for p in cell.paragraphs if p.text.strip()]
+    """Turn a table into an example or call-out block, or None for an empty answer box."""
+    cells = [
+        (p.style.name, clean(p.text))
+        for row in table.rows
+        for cell in row.cells
+        for p in cell.paragraphs
+        if p.text.strip()
+    ]
     if not cells:
         return None  # an empty table is an answer box
     styles = {s for s, _ in cells}
-    text_of = lambda *names: "\n".join(t for s, t in cells if s in names)
+
+    def text_of(*names: str) -> str:
+        return "\n".join(t for s, t in cells if s in names)
+
     if styles & {"ExampleGood", "ExampleWeak"}:
         good = "ExampleGood" in styles
-        return {"t": "eg", "good": good, "label": text_of("ExampleGoodLabel", "ExampleWeakLabel"),
-                "x": text_of("ExampleGood", "ExampleWeak"), "why": text_of("ExampleFloor", "ExampleCritique")}
+        return {
+            "t": "eg",
+            "good": good,
+            "label": text_of("ExampleGoodLabel", "ExampleWeakLabel"),
+            "x": text_of("ExampleGood", "ExampleWeak"),
+            "why": text_of("ExampleFloor", "ExampleCritique"),
+        }
     head = text_of("TrapHead", "WarnHead", "SupportHead")
-    tone = "trap" if "TrapHead" in styles else "warn" if styles & {"WarnHead", "WarnBody"} else "do" if "Instruction" in styles else "note"
+    tone = (
+        "trap"
+        if "TrapHead" in styles
+        else "warn"
+        if styles & {"WarnHead", "WarnBody"}
+        else "do"
+        if "Instruction" in styles
+        else "note"
+    )
     body = "\n".join(t for s, t in cells if s not in ("TrapHead", "WarnHead", "SupportHead"))
     return {"t": "call", "tone": tone, "head": head, "x": body}
 
 
 def slug(text: str) -> str:
+    """Make a short lowercase id from a heading."""
     return re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-")[:40]
 
 
 def build(path: str) -> dict:
+    """Read the .docx and return the workbook data."""
     doc = docx.Document(path)
     version = next((clean(p.text) for p in doc.paragraphs if p.style.name == "Subtitle"), "")
     units, unit, part, section = [], None, "Front matter", "main"
@@ -137,7 +184,11 @@ def build(path: str) -> dict:
         if u["part"] == "Front matter":
             u["part"] = "Before you begin"
         u["kind"] = "worksheet" if prompts else "reading"
-        base = prompts[0].rsplit(".", 2)[0].replace(".", "") if prompts else "r-" + slug((u["number"] + " " + u["title"]).strip())
+        base = (
+            prompts[0].rsplit(".", 2)[0].replace(".", "")
+            if prompts
+            else "r-" + slug((u["number"] + " " + u["title"]).strip())
+        )
         seen_ids[base] = seen_ids.get(base, 0) + 1
         u["id"] = base if seen_ids[base] == 1 else f"{base}-{seen_ids[base]}"
         for key in ("checks", "examples"):

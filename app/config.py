@@ -1,4 +1,5 @@
 """Settings, read once from environment variables."""
+
 import os
 
 
@@ -6,9 +7,7 @@ def _flag(name: str, default: str) -> bool:
     return os.environ.get(name, default).strip().lower() in ("1", "true", "yes", "on")
 
 
-DATABASE_URL = os.environ.get(
-    "DATABASE_URL", "postgresql+asyncpg://xo:xo@localhost:5432/xo"
-)
+DATABASE_URL = os.environ.get("DATABASE_URL", "postgresql+asyncpg://xo:xo@localhost:5432/xo")
 # Random string. Used only to answer salt requests for unknown usernames
 # consistently, so the login form does not reveal which usernames exist.
 SECRET_KEY = os.environ.get("SECRET_KEY", "change-me")

@@ -1,8 +1,9 @@
 """XO: API and static file server."""
+
 import asyncio
+import base64
 import hashlib
 import hmac
-import base64
 import secrets
 import time
 from contextlib import asynccontextmanager
@@ -13,7 +14,8 @@ from zoneinfo import ZoneInfo, available_timezones
 
 from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError
-from fastapi import Cookie, Depends, FastAPI, HTTPException, Path as PathParam, Request, Response
+from fastapi import Cookie, Depends, FastAPI, HTTPException, Request, Response
+from fastapi import Path as PathParam
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
@@ -37,6 +39,7 @@ hasher = PasswordHasher()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    """Create the tables, run the reminder loop, and clean up on shutdown."""
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     task = asyncio.create_task(scheduler_loop()) if config.SCHEDULER_ENABLED else None
@@ -53,6 +56,7 @@ app = FastAPI(title="XO", version=VERSION, lifespan=lifespan, docs_url=None, red
 async def security_headers(request: Request, call_next):
     # Browsers attach cookies to cross-site form posts. Requiring a custom header on
     # every change blocks those, because another site cannot set it.
+    """Reject unmarked changes (CSRF guard) and add the security headers to every response."""
     if request.url.path.startswith("/api/") and request.method not in ("GET", "HEAD", "OPTIONS"):
         if request.headers.get("x-xo") != "1":
             return Response('{"detail":"Missing X-XO header"}', status_code=403, media_type="application/json")
@@ -93,6 +97,7 @@ def _hash_token(token: str) -> str:
 
 
 async def current_user(sid: str | None = Cookie(default=None), db: AsyncSession = Depends(get_db)) -> User:
+    """Return the signed-in user, or raise 401."""
     if not sid:
         raise HTTPException(401, "Not signed in")
     row = (
@@ -108,6 +113,8 @@ async def current_user(sid: str | None = Cookie(default=None), db: AsyncSession 
 
 
 class RegisterIn(BaseModel):
+    """Body of the register request."""
+
     username: str = Field(pattern=r"^[a-z0-9._-]{2,40}$")
     salt: str = Field(min_length=16, max_length=64)
     auth_key: str = Field(pattern=r"^[0-9a-f]{64}$")
@@ -115,6 +122,8 @@ class RegisterIn(BaseModel):
 
 
 class LoginIn(BaseModel):
+    """Body of the sign-in request."""
+
     username: str = Field(max_length=40)
     auth_key: str = Field(pattern=r"^[0-9a-f]{64}$")
 
@@ -143,13 +152,16 @@ async def _start_session(db: AsyncSession, user: User, response: Response) -> No
 
 @app.get("/api/health")
 async def health():
+    """Report that the app is up."""
     return {"ok": True}
 
 
 @app.get("/api/auth/status")
 async def auth_status(sid: str | None = Cookie(default=None), db: AsyncSession = Depends(get_db)):
-    """Tells the sign-in screen whether an account exists yet (this app holds one account)
-    and whether this browser is signed in."""
+    """Tell the sign-in screen whether an account exists and whether this browser is signed in.
+
+    This app holds one account.
+    """
     count = (await db.execute(select(func.count()).select_from(User))).scalar_one()
     signed_in = False
     if sid:
@@ -160,6 +172,7 @@ async def auth_status(sid: str | None = Cookie(default=None), db: AsyncSession =
 
 @app.get("/api/auth/salt")
 async def auth_salt(username: str, db: AsyncSession = Depends(get_db)):
+    """Return the key-derivation salt for a username (a stable fake one for unknown names)."""
     username = username.strip().lower()
     user = (await db.execute(select(User).where(User.username == username))).scalar_one_or_none()
     if user:
@@ -171,6 +184,7 @@ async def auth_salt(username: str, db: AsyncSession = Depends(get_db)):
 
 @app.post("/api/auth/register")
 async def register(body: RegisterIn, response: Response, db: AsyncSession = Depends(get_db)):
+    """Create the one account, then sign it in."""
     count = (await db.execute(select(func.count()).select_from(User))).scalar_one()
     if count > 0:
         raise HTTPException(403, "An account already exists. Sign in instead.")
@@ -184,6 +198,7 @@ async def register(body: RegisterIn, response: Response, db: AsyncSession = Depe
 
 @app.post("/api/auth/login")
 async def login(body: LoginIn, response: Response, db: AsyncSession = Depends(get_db)):
+    """Check the auth key and start a session."""
     username = body.username.strip().lower()
     if _too_many_failures(username):
         raise HTTPException(429, "Too many attempts. Wait 15 minutes and try again.")
@@ -204,6 +219,7 @@ async def login(body: LoginIn, response: Response, db: AsyncSession = Depends(ge
 
 @app.post("/api/auth/logout")
 async def logout(response: Response, sid: str | None = Cookie(default=None), db: AsyncSession = Depends(get_db)):
+    """End the current session."""
     if sid:
         await db.execute(delete(Session).where(Session.token_hash == _hash_token(sid)))
         await db.commit()
@@ -213,6 +229,7 @@ async def logout(response: Response, sid: str | None = Cookie(default=None), db:
 
 @app.get("/api/me")
 async def me(user: User = Depends(current_user)):
+    """Return the signed-in user's name and timezone."""
     return {"username": user.username, "tz": user.tz}
 
 
@@ -220,12 +237,16 @@ async def me(user: User = Depends(current_user)):
 
 
 class ReminderIn(BaseModel):
+    """One reminder sent with an item."""
+
     fire_at: datetime
     repeat: Literal["none", "daily", "weekly"] = "none"
     kind: str = Field(pattern=r"^[a-z_]{1,30}$")
 
 
 class ItemIn(BaseModel):
+    """Body of an item save: kind, day and ciphertext payload."""
+
     kind: str = Field(pattern=r"^[a-z_]{1,20}$")
     day: date | None = None
     payload: str | None = Field(default=None, max_length=400_000)
@@ -250,6 +271,7 @@ async def list_items(
     user: User = Depends(current_user),
     db: AsyncSession = Depends(get_db),
 ):
+    """List the user's items, optionally filtered by kind and start day."""
     query = select(Item).where(Item.user_id == user.id, Item.deleted.is_(False))
     if kinds:
         query = query.where(Item.kind.in_([k for k in kinds.split(",") if k]))
@@ -266,6 +288,7 @@ async def get_item(
     user: User = Depends(current_user),
     db: AsyncSession = Depends(get_db),
 ):
+    """Return one item."""
     item = await db.get(Item, (user.id, item_id))
     if item is None or item.deleted:
         raise HTTPException(404, "Not found")
@@ -279,6 +302,7 @@ async def put_item(
     user: User = Depends(current_user),
     db: AsyncSession = Depends(get_db),
 ):
+    """Create or replace an item and its reminders."""
     item = await db.get(Item, (user.id, item_id))
     if item is None:
         item = Item(user_id=user.id, id=item_id)
@@ -305,6 +329,7 @@ async def delete_item(
     user: User = Depends(current_user),
     db: AsyncSession = Depends(get_db),
 ):
+    """Mark an item deleted and drop its reminders."""
     item = await db.get(Item, (user.id, item_id))
     if item is not None:
         # Keep the row as a tombstone but drop the content.
@@ -319,6 +344,8 @@ async def delete_item(
 
 
 class SnoozeIn(BaseModel):
+    """Body of a snooze request."""
+
     minutes: int = Field(ge=5, le=180)
 
 
@@ -326,6 +353,7 @@ class SnoozeIn(BaseModel):
 async def snooze(
     reminder_id: int, body: SnoozeIn, user: User = Depends(current_user), db: AsyncSession = Depends(get_db)
 ):
+    """Add a one-off reminder for the same item, the chosen minutes from now."""
     rem = await db.get(Reminder, reminder_id)
     if rem is None or rem.user_id != user.id:
         raise HTTPException(404, "Not found")
@@ -342,26 +370,34 @@ async def snooze(
 
 
 class PushKeys(BaseModel):
+    """The browser's push encryption keys."""
+
     p256dh: str = Field(max_length=200)
     auth: str = Field(max_length=100)
 
 
 class PushSubIn(BaseModel):
+    """A push subscription from the browser."""
+
     endpoint: str = Field(pattern=r"^https://", max_length=2000)
     keys: PushKeys
 
 
 class EndpointIn(BaseModel):
+    """A push endpoint to remove."""
+
     endpoint: str = Field(max_length=2000)
 
 
 @app.get("/api/push/key")
 async def push_key(user: User = Depends(current_user)):
+    """Return the public VAPID key."""
     return {"key": config.VAPID_PUBLIC_KEY}
 
 
 @app.post("/api/push/subscribe")
 async def push_subscribe(body: PushSubIn, user: User = Depends(current_user), db: AsyncSession = Depends(get_db)):
+    """Store or update a push subscription for this user."""
     sub = (await db.execute(select(PushSub).where(PushSub.endpoint == body.endpoint))).scalar_one_or_none()
     if sub is None:
         sub = PushSub(endpoint=body.endpoint)
@@ -373,6 +409,7 @@ async def push_subscribe(body: PushSubIn, user: User = Depends(current_user), db
 
 @app.post("/api/push/unsubscribe")
 async def push_unsubscribe(body: EndpointIn, user: User = Depends(current_user), db: AsyncSession = Depends(get_db)):
+    """Remove one of this user's push subscriptions."""
     await db.execute(delete(PushSub).where(PushSub.user_id == user.id, PushSub.endpoint == body.endpoint))
     await db.commit()
     return {"ok": True}
@@ -380,6 +417,7 @@ async def push_unsubscribe(body: EndpointIn, user: User = Depends(current_user),
 
 @app.post("/api/push/test")
 async def push_test(user: User = Depends(current_user)):
+    """Send a neutral test notification to this user's devices."""
     if not config.VAPID_PUBLIC_KEY:
         raise HTTPException(503, "Notifications are not set up on the server yet (VAPID keys missing).")
     reached = await send_push(user.id, {"rid": None, "item": None, "kind": "test"})
@@ -388,6 +426,7 @@ async def push_test(user: User = Depends(current_user)):
 
 @app.post("/api/tz")
 async def set_tz(body: dict, user: User = Depends(current_user), db: AsyncSession = Depends(get_db)):
+    """Save the user's timezone."""
     tz = str(body.get("tz", ""))
     if tz not in available_timezones():
         raise HTTPException(422, "Unknown timezone")
@@ -400,8 +439,10 @@ async def set_tz(body: dict, user: User = Depends(current_user), db: AsyncSessio
 
 @app.get("/api/workbook")
 async def workbook(user: User = Depends(current_user)):
-    """The workbook's chapters and prompts (built by scripts/build_workbook.py).
-    Served only to a signed-in browser, because the text is unpublished material."""
+    """Return the workbook's chapters and prompts (built by scripts/build_workbook.py).
+
+    Served only to a signed-in browser, because the text is unpublished material.
+    """
     if not WORKBOOK_FILE.exists():
         raise HTTPException(404, "No workbook has been built yet. Run scripts/build_workbook.py.")
     return FileResponse(WORKBOOK_FILE, media_type="application/json")

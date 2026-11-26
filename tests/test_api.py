@@ -1,4 +1,5 @@
 """API tests. Need a real PostgreSQL: set DATABASE_URL before running pytest."""
+
 import json
 import logging
 import os
@@ -161,7 +162,9 @@ async def test_push_subscription(client):
     assert (await client.post("/api/push/subscribe", json=sub, headers=H)).status_code == 200  # same device twice
     bad = {"endpoint": "http://insecure", "keys": {"p256dh": "k", "auth": "a"}}
     assert (await client.post("/api/push/subscribe", json=bad, headers=H)).status_code == 422
-    assert (await client.post("/api/push/unsubscribe", json={"endpoint": sub["endpoint"]}, headers=H)).status_code == 200
+    assert (
+        await client.post("/api/push/unsubscribe", json={"endpoint": sub["endpoint"]}, headers=H)
+    ).status_code == 200
 
 
 @pytest.mark.asyncio

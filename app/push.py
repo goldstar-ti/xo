@@ -1,4 +1,5 @@
 """Web Push delivery and the reminder loop."""
+
 import asyncio
 import json
 import logging
@@ -111,6 +112,7 @@ async def process_due(now: datetime | None = None, sender=send_push) -> int:
 
 
 async def scheduler_loop():
+    """Check for due reminders forever, until cancelled."""
     while True:
         try:
             await process_due()

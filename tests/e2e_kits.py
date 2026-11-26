@@ -6,6 +6,7 @@ error (a CSP violation is one) and on any request that leaves the app's origin.
 
 Usage: python tests/e2e_kits.py http://localhost:8000
 """
+
 import os
 import sys
 from urllib.parse import urlparse
@@ -23,7 +24,14 @@ with sync_playwright() as p:
     page = browser.new_page()
     page.on("console", lambda m: errors.append(m.text) if m.type == "error" and "401" not in m.text else None)
     page.on("pageerror", lambda e: errors.append(str(e)))
-    page.on("request", lambda r: offsite.append(r.url) if urlparse(r.url).netloc not in (ORIGIN, "") and not r.url.startswith("data:") else None)
+    page.on(
+        "request",
+        lambda r: (
+            offsite.append(r.url)
+            if urlparse(r.url).netloc not in (ORIGIN, "") and not r.url.startswith("data:")
+            else None
+        ),
+    )
     page.goto(BASE)
     page.wait_for_load_state("load")
 

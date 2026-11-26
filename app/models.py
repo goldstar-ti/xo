@@ -5,6 +5,7 @@ What the server can read in plain text: usernames, the *kind* of each item
 Everything the user types (titles, notes, the plan, check-in answers) arrives
 already encrypted in the browser and is stored in Item.payload as ciphertext.
 """
+
 from datetime import date, datetime
 
 from sqlalchemy import Boolean, Date, DateTime, ForeignKey, Index, Integer, String, Text, func
@@ -12,10 +13,14 @@ from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
 class Base(DeclarativeBase):
+    """Declarative base for every table."""
+
     pass
 
 
 class User(Base):
+    """The account: username, key-derivation salt and the hash of the auth key."""
+
     __tablename__ = "users"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
@@ -29,6 +34,8 @@ class User(Base):
 
 
 class Session(Base):
+    """A signed-in browser, stored as a hash of its cookie token."""
+
     __tablename__ = "sessions"
 
     # SHA-256 of the cookie value, so a database reader cannot reuse a session.
@@ -38,6 +45,8 @@ class Session(Base):
 
 
 class Item(Base):
+    """One encrypted item, found by kind and day."""
+
     __tablename__ = "items"
 
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), primary_key=True)
@@ -54,6 +63,8 @@ class Item(Base):
 
 
 class Reminder(Base):
+    """A plaintext reminder time for an item."""
+
     __tablename__ = "reminders"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
@@ -68,6 +79,8 @@ class Reminder(Base):
 
 
 class PushSub(Base):
+    """A browser push subscription."""
+
     __tablename__ = "push_subs"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
