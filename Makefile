@@ -33,8 +33,12 @@ health: ## Ask the app for /api/health, directly and through nobbie-nginx.
 
 db-backup: ## Dump the database to ./backups/xo-<timestamp>.dump.
 	mkdir -p $(BACKUP_DIR)
-	docker exec xo-db sh -c 'pg_dump -U "$$POSTGRES_USER" -d "$$POSTGRES_DB" -F c' \
-		> $(BACKUP_DIR)/xo-$$(date +%Y%m%d_%H%M%S).dump
+	@# Dump to a .partial file and rename it only when pg_dump succeeds and wrote
+	@# something, so a failed run never leaves an empty file that looks like a backup.
+	f=$(BACKUP_DIR)/xo-$$(date +%Y%m%d_%H%M%S).dump; \
+	docker exec xo-db sh -c 'pg_dump -U "$$POSTGRES_USER" -d "$$POSTGRES_DB" -F c' > "$$f.partial" \
+		&& test -s "$$f.partial" && mv "$$f.partial" "$$f" \
+		|| { echo "db-backup failed: $$f.partial is not a backup" >&2; exit 1; }
 	@ls -lh $(BACKUP_DIR) | tail -3
 
 confirm:
