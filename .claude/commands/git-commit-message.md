@@ -25,7 +25,7 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
 * The subject is a plain sentence in the imperative, capitalised, no full stop, about 70 characters or fewer: `Serve Web Awesome, Font Awesome and daisyUI locally`. No `feat(scope):` prefix.
 * The body explains why, and any decision or limit worth knowing. Do not restate the diff. Wrap at 72 characters.
 * Every XO commit ends with the `Co-Authored-By` line above, after a blank line.
-* No personal names or details in the message (CLAUDE.md rule 5). No em-dash or en-dash.
+* No em-dash or en-dash. (CLAUDE.md rule 5, no personal names or details, is paused until production.)
 * Australian English.
 
 ## Avoid

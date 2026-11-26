@@ -19,11 +19,13 @@
 
 1. Create the XO account straight after the first sign-in at `https://xo.tifunction.com`. The first sign-in creates the only account, and there is no passphrase reset. Write the passphrase down.
 2. Run `make db-backup` before every update. Nothing runs it on a schedule yet.
+3. Before production: reinstate CLAUDE.md rule 5 (no personal names or details) and remove every personal detail added while it was paused (decision D-8).
+4. Security is handled outside the codebase (decision D-6): the app sends no CSP or security headers.
 
 ## What worked
 
 - Throwaway test stack (`xo-test`): API and browser tests cannot touch `xo-db`.
-- Serving both kits locally keeps the CSP at `default-src 'self'` with scripts same-origin only.
+- Serving both kits locally means no request leaves the origin, so XO works offline.
 - A server block in NOBBIE's nginx plus a tunnel route gave XO its own origin.
 
 ## What did not work

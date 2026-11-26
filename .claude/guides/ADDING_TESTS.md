@@ -39,7 +39,7 @@ Python Playwright scripts with plain `assert` (or `expect` from `playwright.sync
 
 ## Rules
 
-- **Made-up data only (CLAUDE.md rule 5).** Obviously fake sign-in names, titles and passphrases. No names of real people, clinicians, places or cases, and nothing from the owner's life.
+- **Made-up data by default.** CLAUDE.md rule 5 (no personal names or details) is paused until production, but test data stays obviously fake: sign-in names, titles and passwords.
 - Golden path plus one or two edge cases. Do not test the framework.
 - A bug fix adds the test that would have caught it. Show it fails without the fix.
 - Front-end changes run both browser scripts, and the screen is checked at 360 px and desktop width, in light and dark.

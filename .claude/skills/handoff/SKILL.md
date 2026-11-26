@@ -16,6 +16,6 @@ Steps:
    - **Next steps**: clear action items, in order.
    - **Owner to-do**: anything only the owner can do, as numbered copy-paste steps.
 4. A new decision goes in `docs/decisions.md` as the next `D-n`, not only in the handoff.
-5. Keep personal names and details out (CLAUDE.md rule 5): write "the owner".
+5. CLAUDE.md rule 5 (no personal names or details) is paused until production; note in the handoff any personal detail added while it is paused.
 
 Save as `HANDOFF.md` in the project root and tell the user the file path so they can start a fresh conversation with just that path.

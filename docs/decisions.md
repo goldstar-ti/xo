@@ -21,3 +21,15 @@ The Access application for `xo.tifunction.com` has one policy: the owner's email
 ## D-5 (2026-11-26): NOBBIE's front-end stack and settings table not adopted
 
 XO does not take NOBBIE's htmx, Alpine, Jinja or Vite stack, or its `app_settings` table. Why: XO's rule 3 (local assets, tight CSP), plain ES modules with no build step, and settings that are encrypted items or browser-side (`xo-look`) rather than a plaintext table. Only the code style, voice guide, Claude tooling and decisions habit were carried over.
+
+## D-6 (2026-11-26): Security handled outside the codebase
+
+The owner handles security separately and takes responsibility for it. The app sends no CSP or other security headers (`X-Content-Type-Options`, `Referrer-Policy` removed), and the CLAUDE.md rules about security are lifted. Kept: the `X-XO: 1` check on changes (it works and costs nothing), Cloudflare Access in front of the hostname, HSTS from nginx, and local copies of libraries and fonts (for offline use, not security). This supersedes D-1.
+
+## D-7 (2026-11-26): Browser encryption removed
+
+Items are stored as plain JSON and sign-in becomes a normal password checked on the server. Why: the owner put browser encryption out of scope. The database had no accounts, so the tables are recreated rather than migrated.
+
+## D-8 (2026-11-26): Rule 5 (no personal details) paused until production
+
+Personal names and details may appear in code, defaults, tests and commits while the rule is paused. The owner reinstates it before production, and every detail added meanwhile must be removed then. The repository stays private (rule 6).

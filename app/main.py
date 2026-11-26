@@ -56,18 +56,12 @@ app = FastAPI(title="XO", version=VERSION, lifespan=lifespan, docs_url=None, red
 async def security_headers(request: Request, call_next):
     # Browsers attach cookies to cross-site form posts. Requiring a custom header on
     # every change blocks those, because another site cannot set it.
-    """Reject unmarked changes (CSRF guard) and add the security headers to every response."""
+    """Reject unmarked changes (CSRF guard) and set robots and cache headers on every response."""
     if request.url.path.startswith("/api/") and request.method not in ("GET", "HEAD", "OPTIONS"):
         if request.headers.get("x-xo") != "1":
             return Response('{"detail":"Missing X-XO header"}', status_code=403, media_type="application/json")
     response = await call_next(request)
-    response.headers["Content-Security-Policy"] = (
-        "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; "
-        "connect-src 'self'; font-src 'self'; manifest-src 'self'; worker-src 'self'; "
-        "frame-ancestors 'none'; base-uri 'none'; form-action 'self'"
-    )
-    response.headers["X-Content-Type-Options"] = "nosniff"
-    response.headers["Referrer-Policy"] = "no-referrer"
+    # No CSP or other security headers: the owner handles security separately (2026-11-26).
     response.headers["X-Robots-Tag"] = "noindex, nofollow"
     path = request.url.path
     if path.startswith("/api/"):

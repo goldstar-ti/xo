@@ -12,16 +12,18 @@ Installs as a PWA on Android and desktop. The name: the executive officer runs t
 - Front end: plain ES modules in `static/`, no framework, no JavaScript build step. One classic script, `static/js/boot.js`, loads in `<head>`. CSS: hand-written `static/app.css`, plus Tailwind v4 compiled at image build time into `static/tw.css`.
 - Deploy: gs-sv-008, Docker Compose project `xo` (`xo-app`, `xo-db`), app published only on `172.17.0.1:8010`, behind NOBBIE's nginx container and the gs-sv-008 Cloudflare tunnel at `https://xo.tifunction.com`. See `docs/RUNBOOK.md` and `docs/ARCHITECTURE-NOTES.md`.
 
-## Rules that must not be broken
+## Rules
 
-1. **Encrypt in the browser.** Everything the user types goes through `store.save()`, which encrypts with AES-GCM before the request. The server may see only: item `kind`, item `day`, item ids, and reminder times. Never add a plaintext column for user content, and never send user text in a query string, a log line, or a push payload.
+Security is the owner's responsibility, handled outside this codebase (owner's decision, 2026-11-26). Agents do not add, enforce or propose security controls (CSP, security headers, encryption, CSRF schemes) unless the owner asks. The rules below that were about security are lifted; what still applies is listed.
+
+1. **No browser encryption (owner's decision, 2026-11-26).** Items are stored as plain JSON and sign-in is a normal password checked on the server. Do not reintroduce client-side encryption.
 2. **Text only.** No image, audio or file uploads, anywhere.
-3. **CSP: local first, inline styles allowed (owner's decision, 2026-11-26).** `default-src 'self'`. Inline styles are allowed (`style-src 'self' 'unsafe-inline'`), because Web Awesome and daisyUI components set them. Scripts stay `'self'` only: no inline scripts, no `eval`. Web Awesome (`ka-f.webawesome.com`) and Font Awesome (`ka-f.fontawesome.com`) may be loaded from their own hosts, but only when a local copy is not possible; today both are served from `static/vendor/` and neither host is in the header. Fonts are self-hosted in `static/fonts`. `frame-ancestors 'none'`, `base-uri 'none'` and `form-action 'self'` stay whatever else changes.
+3. **No CSP or security headers (owner's decision, 2026-11-26).** The app sends none. Still prefer local copies of libraries and fonts (`static/vendor/`, `static/fonts`) over CDNs, so XO works offline; `tests/e2e_kits.py` fails on any off-site request.
 4. **Appearance never leaves the device.** The look lives in `localStorage` under `xo-look`. Do not sync it.
-5. **No personal names or details in the code.** Names of people, clinicians, places or cases belong in encrypted items, never in source, defaults, tests, comments or commit messages. Tests use obviously made-up data.
+5. **Paused until production: no personal names or details in the code (owner's decision, 2026-11-26).** While paused, names and details may appear in source, defaults, tests, comments and commit messages. The owner reinstates this rule before production; at that point every personal detail added while it was paused must be removed. Original wording: names of people, clinicians, places or cases never in source, defaults, tests, comments or commit messages; tests use obviously made-up data.
 6. **`content/workbook.json` is unpublished material.** Keep the repository private. It is served only through `/api/workbook`, which requires a session. Do not move it into `static/`.
-7. **Notifications stay discreet.** Push payloads carry ids and a kind only. Wording is built in the service worker; neutral wording is the default (see `NEUTRAL` in `static/sw.js`).
-8. **Changes need the `X-XO: 1` header.** The middleware rejects any non-GET `/api/` request without it (CSRF guard). `store.api()` and the service worker add it.
+7. **Notification wording lives in the service worker** (`NEUTRAL` and `detailed()` in `static/sw.js`). Push payloads carry ids and a kind; the discreet-wording requirement is lifted with the other security rules.
+8. **Changes carry the `X-XO: 1` header.** The middleware still rejects a non-GET `/api/` request without it; `store.api()` and the service worker add it. Keep sending it until the owner says to remove the check.
 
 ## How the data works
 

@@ -177,17 +177,6 @@ async def test_workbook_needs_sign_in(client):
         assert r.json()["units"]
 
 
-@pytest.mark.asyncio
-async def test_csp_allows_inline_styles_but_not_scripts(client):
-    csp = (await client.get("/api/health")).headers["content-security-policy"]
-    parts = dict(p.strip().split(" ", 1) for p in csp.split(";"))
-    assert parts["script-src"] == "'self'"
-    assert parts["style-src"] == "'self' 'unsafe-inline'"
-    assert parts["default-src"] == "'self'"
-    for kept in ("frame-ancestors 'none'", "base-uri 'none'", "form-action 'self'"):
-        assert kept in csp
-
-
 def test_json_log_line_has_extra_keys():
     record = logging.LogRecord("xo.test", logging.INFO, __file__, 1, "saved %s", ("item",), None)
     record.item_kind = "task"
