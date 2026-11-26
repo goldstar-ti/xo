@@ -70,3 +70,21 @@
   --wa-color-neutral-on-normal: var(--ink);
   --wa-color-neutral-on-loud: var(--paper);
 }
+
+/* ---- Web Awesome buttons that also carry XO classes ----
+   XO's button classes (.tick, .look-btn, .plan-btn, .small, .primary, ...) draw a border and fill on
+   the host, and Web Awesome draws its own inside it. One border only: clear the host, then shape the
+   inner button through its parts, from the same tokens. */
+:root wa-button[class][class] { display: inline-block; min-width: 0; min-height: 0; padding: 0; background: none; border: 0; border-radius: 0; color: inherit; font-size: inherit; }
+wa-button.tick::part(base) { min-width: 4.25rem; min-height: 2.5rem; border-radius: var(--pill); font-size: 0.875rem; font-weight: 600; }
+wa-button.small::part(base) { min-height: 2.5rem; font-size: 0.875rem; }
+wa-button.big { display: block; width: 100%; }
+wa-button.big::part(base) { width: 100%; min-height: 3.4rem; font-size: 1.0625rem; }
+wa-button.look-btn::part(base) { min-height: 2.5rem; border-radius: var(--pill); border-color: var(--ink); color: var(--ink); background: transparent; font-weight: 600; font-size: 0.9375rem; }
+wa-button.plan-btn::part(base) { min-height: 2.5rem; border-radius: var(--pill); border-color: var(--ink); background: var(--ink); color: var(--paper); font-weight: 600; font-size: 0.9375rem; }
+
+/* A list row that acts as a button: the XO look, left aligned, title over subtitle, no chrome. */
+wa-button.row-main { display: block; flex: 1; min-width: 0; }
+wa-button.row-main::part(base) { width: 100%; min-height: 2.75rem; padding: 0.15rem 0; justify-content: flex-start; background: none; border: 0; border-radius: 0; color: inherit; font-weight: 500; text-align: left; height: auto; }
+wa-button.row-main::part(label) { display: flex; flex-direction: column; align-items: flex-start; text-align: left; white-space: normal; overflow-wrap: anywhere; }
+.list.links wa-button.row-main::part(base) { font-weight: 600; font-size: 1.0625rem; color: var(--leaf); min-height: 3.25rem; }

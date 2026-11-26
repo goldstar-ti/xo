@@ -27,8 +27,8 @@ export function button(label, { variant = 'ghost', type = 'button', ...attrs } =
   if (k === 'daisy') {
     const cls = {
       primary: 'tw:btn tw:btn-primary',
-      ghost: 'tw:btn tw:btn-ghost',
-      danger: 'tw:btn tw:btn-ghost tw:text-danger',
+      ghost: 'tw:btn tw:btn-outline',
+      danger: 'tw:btn tw:btn-outline tw:btn-error',
     }[variant];
     return h('button', { ...attrs, type, class: join(cls, attrs.class) }, label);
   }

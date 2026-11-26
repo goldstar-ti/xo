@@ -83,7 +83,9 @@ a { color: var(--leaf); text-underline-offset: 0.18em; }
 :focus-visible { outline: 3px solid var(--ochre); outline-offset: 2px; border-radius: 4px; }
 
 /* ---- controls ---- */
-button, input, select, textarea { font: inherit; color: inherit; }
+/* daisyUI buttons (.tw:btn) keep daisyUI's own colours and size; only they are left out of these two resets. */
+button:not(.tw\:btn), input, select, textarea { font: inherit; color: inherit; }
+button.tw\:btn { font-family: inherit; letter-spacing: inherit; }
 button, a.primary, a.ghost, a.tick { cursor: pointer; text-decoration: none; }
 input[type="text"], input[type="password"], input[type="date"], input[type="time"], input[type="number"], select, textarea {
   width: 100%;
@@ -97,17 +99,17 @@ textarea { resize: vertical; line-height: 1.45; field-sizing: content; min-heigh
 input:focus, select:focus, textarea:focus { border-color: var(--leaf); outline: none; box-shadow: 0 0 0 3px var(--leaf-soft); }
 input[type="checkbox"] { width: 1.5rem; height: 1.5rem; accent-color: var(--leaf); flex: none; margin: 0; }
 
-.primary, .ghost {
+.primary:not(.tw\:btn), .ghost:not(.tw\:btn) {
   display: inline-flex; align-items: center; justify-content: center;
   min-height: 2.75rem; padding: 0.5rem 1rem;
   border-radius: var(--radius); border: 1.5px solid var(--leaf);
   font-weight: 600; line-height: 1.2; text-align: center;
 }
-.primary { background: var(--leaf); color: var(--leaf-ink); }
-.ghost { background: transparent; color: var(--leaf); border-color: var(--line); }
-.ghost.on { background: var(--leaf-soft); border-color: var(--leaf); }
-.ghost.danger { color: var(--danger); }
-.small { min-height: 2.5rem; padding: 0.3rem 0.7rem; font-size: 0.875rem; }
+.primary:not(.tw\:btn) { background: var(--leaf); color: var(--leaf-ink); }
+.ghost:not(.tw\:btn) { background: transparent; color: var(--leaf); border-color: var(--line); }
+.ghost.on:not(.tw\:btn) { background: var(--leaf-soft); border-color: var(--leaf); }
+.ghost.danger:not(.tw\:btn) { color: var(--danger); }
+.small:not(.tw\:btn) { min-height: 2.5rem; padding: 0.3rem 0.7rem; font-size: 0.875rem; }
 .big { min-height: 3.4rem; font-size: 1.0625rem; width: 100%; }
 button:disabled { opacity: 0.55; cursor: default; }
 
@@ -122,7 +124,7 @@ button:disabled { opacity: 0.55; cursor: default; }
   padding: 0.6rem 1.25rem; padding-top: calc(0.6rem + env(safe-area-inset-top));
   background: var(--paper); border-bottom: var(--rule) solid var(--line);
 }
-.plan-btn {
+.plan-btn:not(.tw\:btn) {
   min-height: 2.5rem; padding: 0.35rem 0.9rem;
   background: var(--ink); color: var(--paper);
   border: 0; border-radius: var(--pill); font-weight: 600; font-size: 0.9375rem;
@@ -220,13 +222,13 @@ details > summary { cursor: pointer; padding: 0.6rem 0; color: var(--leaf); font
 }
 .dayline .now-rule::after { content: ""; flex: 1; height: 2px; background: var(--ochre); }
 
-.tick {
+.tick:not(.tw\:btn) {
   display: inline-flex; align-items: center; justify-content: center;
   min-width: 4.25rem; min-height: 2.5rem; padding: 0.3rem 0.8rem;
   border: 1.5px solid var(--leaf); border-radius: var(--pill);
   background: transparent; color: var(--leaf); font-weight: 600; font-size: 0.875rem;
 }
-.tick.on { background: var(--leaf); color: var(--leaf-ink); }
+.tick.on:not(.tw\:btn) { background: var(--leaf); color: var(--leaf-ink); }
 
 /* ---- lists ---- */
 .list li { display: flex; align-items: center; gap: 0.75rem; padding: calc(0.5rem * var(--d)) 0; border-top: var(--rule) solid var(--line); }
@@ -365,7 +367,7 @@ dialog.sheet::backdrop { background: rgb(10 16 13 / 0.55); }
 
 /* ---- the Look button, quick panel and Appearance screen ---- */
 .head-actions { display: flex; gap: 0.5rem; align-items: center; }
-.look-btn { min-height: 2.5rem; padding: 0.35rem 0.9rem; background: transparent; color: var(--ink); border: calc(var(--rule) + 0.5px) solid var(--ink); border-radius: var(--pill); font-weight: 600; font-size: 0.9375rem; }
+.look-btn:not(.tw\:btn) { min-height: 2.5rem; padding: 0.35rem 0.9rem; background: transparent; color: var(--ink); border: calc(var(--rule) + 0.5px) solid var(--ink); border-radius: var(--pill); font-weight: 600; font-size: 0.9375rem; }
 .side .look-btn { align-self: flex-start; }
 .side .head-actions { flex-direction: column; align-items: flex-start; }
 
@@ -404,3 +406,10 @@ input[type="range"] { width: 100%; min-height: 2.25rem; accent-color: var(--leaf
 .blocks li { display: flex; align-items: center; gap: 0.6rem; padding: 0.35rem 0; border-top: var(--rule) solid var(--line); }
 .blocks li span { flex: 1; font-weight: 500; }
 .panel > * + * { margin-top: 1.1rem; }
+
+/* ---- daisyUI kit: where an XO class rule would otherwise leak ---- */
+/* daisyUI's fieldset sets a small font size that its inputs inherit; fields use the body size. */
+html[data-kit="daisy"] .field.tw\:fieldset { font-size: inherit; }
+html[data-kit="daisy"] :is(.tw\:input, .tw\:textarea, .tw\:select) { font-size: inherit; font-family: inherit; }
+/* daisyUI's label does not wrap, which pushed long hints past a phone's width. */
+html[data-kit="daisy"] .field small.tw\:label { white-space: normal; }
