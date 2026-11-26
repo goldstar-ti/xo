@@ -80,3 +80,23 @@ services:
         && for kit in xo daisy wa; do python tests/reset_db.py && XO_KIT=$$kit python tests/e2e.py http://localhost:8000 || exit 1; done
         && python tests/e2e_look.py http://localhost:8000
         && python tests/e2e_kits.py http://localhost:8000
+
+  # Screenshots of every screen in every kit (make shots). Not part of the tests.
+  # Runs as root so pip can install, then makes the files readable by everyone.
+  shots:
+    profiles: ["run"]
+    image: mcr.microsoft.com/playwright/python:v1.60.0-noble
+    network_mode: "service:app"
+    shm_size: 1gb
+    working_dir: /work
+    environment:
+      XO_CHROME: ""
+    volumes:
+      - ./tests:/work/tests:ro
+      - ./.scratch/shots:/out
+    command:
+      - sh
+      - -c
+      - >-
+        pip install -q --disable-pip-version-check --root-user-action=ignore playwright==1.60.0
+        && python tests/e2e_shots.py http://localhost:8000 /out; s=$$?; chmod -R a+rX /out; exit $$s

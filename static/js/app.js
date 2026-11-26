@@ -3,8 +3,8 @@ import * as store from './store.js';
 import { DEFAULT_ROUTINES, DEFAULT_SETTINGS } from './content.js';
 import { loadWebAwesome } from './kit.js';
 import { openTab, paneElement, paneOn, redrawPages } from './pane.js';
-import { loadText, t } from './text.js';
-import { focusControl } from './ui.js';
+import { loadText, t, text } from './text.js';
+import { button, field, focusControl, input } from './ui.js';
 import { dialogOpen, h, kvClear, kvSet, put, toast, uid } from './util.js';
 import * as bridgeView from './views/bridge.js';
 import * as todayView from './views/today.js';
@@ -14,17 +14,14 @@ import * as settingsView from './views/settings.js';
 import * as appearanceView from './views/appearance.js';
 import { bills, diary, obligations, routine, tasks } from './views/lists.js';
 
-const NAV = [
-  ['bridge', 'Bridge'], ['today', 'Today'], ['diary', 'Diary'], ['tasks', 'Tasks'], ['obligations', 'Obligations'],
-  ['routine', 'Routine'], ['bills', 'Bills'], ['checkin', 'Check-ins'], ['plan', 'My plan'], ['appearance', 'Appearance'], ['settings', 'Settings'],
-];
+const NAV = Object.entries(text('app.nav')); // [key, label] in the order the sidebar lists them
 const L = window.XOLook;
 const tabs = () => L.prefs.tabs; // the four sections on the phone's bottom bar: chosen in Appearance
 
 const more = {
   live: false,
   render(root) {
-    put(root, h('header', { class: 'page-head' }, h('h1', {}, 'More')),
+    put(root, h('header', { class: 'page-head' }, h('h1', {}, t('app.more'))),
       h('ul', { class: 'list links' }, NAV.filter(([k]) => !tabs().includes(k)).map(([k, label]) => h('li', {}, h('a', { class: 'row-main', href: `#/${k}` }, label)))));
   },
 };
@@ -97,16 +94,16 @@ function markNav(name) {
 function shell() {
   const link = ([k, label]) => h('a', { href: `#/${k}`, 'data-nav': k }, label);
   const actions = () => h('div', { class: 'head-actions' },
-    h('button', { class: 'look-btn', type: 'button', onclick: appearanceView.openLookPanel }, 'Look'),
-    h('button', { class: 'plan-btn', type: 'button', onclick: planView.openPlanCard }, 'My plan card'));
+    button(t('app.look'), { class: 'look-btn', onclick: appearanceView.openLookPanel }),
+    button(t('app.plan_card'), { class: 'plan-btn', onclick: planView.openPlanCard }));
   const brand = () => h('p', { class: 'brand' }, L.prefs.title);
   app.replaceChildren(
-    h('aside', { class: 'side' }, brand(), h('nav', { 'aria-label': 'Sections' }, NAV.map(link)), actions()),
+    h('aside', { class: 'side' }, brand(), h('nav', { 'aria-label': t('app.sections_aria') }, NAV.map(link)), actions()),
     h('div', { class: 'main' },
       h('header', { class: 'top' }, brand(), actions()),
       h('main', { id: 'view', tabindex: '-1' })),
     paneElement(),
-    h('nav', { class: 'tabs', 'aria-label': 'Sections', 'data-tabs': tabs().join(',') }, tabs().map((k) => link(NAV.find(([n]) => n === k))), h('a', { href: '#/more', 'data-nav': 'more' }, 'More')),
+    h('nav', { class: 'tabs', 'aria-label': t('app.sections_aria'), 'data-tabs': tabs().join(',') }, tabs().map((k) => link(NAV.find(([n]) => n === k))), h('a', { href: '#/more', 'data-nav': 'more' }, t('app.more'))),
   );
   draw();
 }
@@ -119,7 +116,7 @@ window.addEventListener('xo:look', async (e) => {
   if (bar && bar.dataset.tabs !== tabs().join(',')) {
     const link = (k) => { const [, label] = NAV.find(([n]) => n === k); return h('a', { href: `#/${k}`, 'data-nav': k }, label); };
     bar.dataset.tabs = tabs().join(',');
-    bar.replaceChildren(...tabs().map(link), h('a', { href: '#/more', 'data-nav': 'more' }, 'More'));
+    bar.replaceChildren(...tabs().map(link), h('a', { href: '#/more', 'data-nav': 'more' }, t('app.more')));
   }
   if (e.detail.quiet) return;
   await ensureKit();
@@ -130,27 +127,26 @@ window.addEventListener('xo:look', async (e) => {
 // ---- sign-in ----
 function authScreen(hasUser, message = '') {
   const isNew = !hasUser;
-  const name = h('input', { id: 'a-name', type: 'text', autocomplete: 'username', autocapitalize: 'none', spellcheck: 'false', required: true, pattern: '[A-Za-z0-9._\\-]{2,40}' });
-  const pass = h('input', { id: 'a-pass', type: 'password', autocomplete: isNew ? 'new-password' : 'current-password', required: true, minlength: 8 });
-  const again = isNew && h('input', { id: 'a-again', type: 'password', autocomplete: 'new-password', required: true });
+  const name = input({ id: 'a-name', type: 'text', autocomplete: 'username', autocapitalize: 'none', spellcheck: 'false', required: true, pattern: '[A-Za-z0-9._\\-]{2,40}' });
+  const pass = input({ id: 'a-pass', type: 'password', autocomplete: isNew ? 'new-password' : 'current-password', required: true, minlength: 8 });
+  const again = isNew && input({ id: 'a-again', type: 'password', autocomplete: 'new-password', required: true });
   const error = h('p', { class: 'form-error', role: 'alert' }, message);
-  const btn = h('button', { class: 'primary big', type: 'submit' }, isNew ? 'Create and open' : 'Sign in');
+  const label = isNew ? t('common.create_and_open') : t('common.sign_in');
+  const btn = button(label, { variant: 'primary', type: 'submit', class: 'big' });
   const form = h('form', { class: 'form auth' },
-    h('h1', {}, 'XO'),
-    h('p', { class: 'note' }, isNew
-      ? 'Set a name and a password.'
-      : 'Sign in on this device.'),
-    h('div', { class: 'field' }, h('label', { for: 'a-name' }, 'Name'), name),
-    h('div', { class: 'field' }, h('label', { for: 'a-pass' }, 'Password'), pass, isNew && h('small', {}, 'At least 8 characters.')),
-    isNew && h('div', { class: 'field' }, h('label', { for: 'a-again' }, 'Password again'), again),
+    h('h1', {}, t('app.name')),
+    h('p', { class: 'note' }, isNew ? t('app.auth.intro_new') : t('app.auth.intro_existing')),
+    field(t('app.auth.name'), name),
+    field(t('app.auth.password'), pass, isNew ? t('app.auth.password_hint') : null),
+    isNew && field(t('app.auth.password_again'), again),
     error, btn);
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     error.textContent = '';
     const username = name.value.trim().toLowerCase();
-    if (isNew && pass.value !== again.value) { error.textContent = 'The two passwords do not match.'; return; }
+    if (isNew && pass.value !== again.value) { error.textContent = t('common.passwords_differ'); return; }
     btn.disabled = true;
-    btn.textContent = 'Working…';
+    btn.textContent = t('common.working');
     try {
       if (isNew) {
         const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'Australia/Perth';
@@ -165,11 +161,11 @@ function authScreen(hasUser, message = '') {
     } catch (err) {
       error.textContent = err.message;
       btn.disabled = false;
-      btn.textContent = isNew ? 'Create and open' : 'Sign in';
+      btn.textContent = label;
     }
   });
   app.replaceChildren(form);
-  name.focus();
+  focusControl(name);
 }
 
 async function seed() {
@@ -196,8 +192,8 @@ async function boot() {
     }
     authScreen(status.has_user);
   } catch {
-    app.replaceChildren(h('div', { class: 'form auth' }, h('h1', {}, 'XO'), h('p', { class: 'note' }, 'No connection to the server. Check your connection and reload.'),
-      h('button', { class: 'primary', type: 'button', onclick: () => location.reload() }, 'Reload')));
+    app.replaceChildren(h('div', { class: 'form auth' }, h('h1', {}, t('app.name')), h('p', { class: 'note' }, t('common.no_connection')),
+      button(t('common.reload'), { variant: 'primary', onclick: () => location.reload() })));
   }
 }
 
@@ -209,7 +205,7 @@ async function signOut() {
 
 window.addEventListener('hashchange', () => { if (document.getElementById('view')) draw(); });
 window.addEventListener('xo:sign-out', signOut);
-window.addEventListener('xo:signed-out', () => { if (document.getElementById('view')) authScreen(true, 'Your sign-in ran out. Sign in again.'); });
+window.addEventListener('xo:signed-out', () => { if (document.getElementById('view')) authScreen(true, t('common.signed_out')); });
 
 // Redraw list screens when something changes; wait if a dialog is open.
 store.onChange(() => {

@@ -53,4 +53,5 @@ make test-api
 make test-e2e
 make test        # both
 make test-down   # clean up an interrupted run
+make shots       # not a test: tests/e2e_shots.py saves a PNG of each screen per kit and width to ./.scratch/shots
 ```

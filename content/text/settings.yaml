@@ -1,0 +1,56 @@
+# Settings screen: wording for notifications, check-in times, switches and your data.
+#
+# How to edit this file
+# - Save the file and reload the page. There is no build and no restart.
+# - Change the words after a colon. Keep the keys (the words before a colon) as they are:
+#   the app looks the text up by key, and a missing key shows the key itself.
+# - Keep the indentation. It uses two spaces and never tabs.
+# - Put quote marks around any text that starts with a special character
+#   (" ' { [ * & ! % @ #) or that contains a colon followed by a space, and around times such as '09:00'.
+# - Write {name} where the app fills something in. Keep the same {name} in your wording.
+# - If a file has a mistake, the app keeps the last good version of that file and logs a note.
+#
+settings:
+  heading: Settings
+  appearance_link: Appearance
+  checking: Checking…
+  push:
+    turn_on: Turn on notifications on this device
+    turn_off: Turn off on this device
+    test: Send a test
+    'on': Notifications are on for this device.
+    'off': Notifications are off for this device. Reminders only reach devices where you turn them on.
+    denied: This browser has blocked notifications for the app. Allow them in the browser’s site settings, then come back.
+    unsupported: This browser cannot receive notifications. On Android use Chrome and install the app to your home screen. On desktop use Chrome or Edge.
+    not_allowed: Notifications were not allowed. Change this in your browser’s site settings.
+    no_keys: The server has no notification keys yet. See the README, step 3.
+    sent_one: Sent to 1 device
+    sent_many: 'Sent to {n} devices'
+    unreachable: The server could not reach any device.
+  notifications:
+    heading: Notifications
+    details: Show titles in notifications
+    details_hint: 'Off: appointment, task, bill and condition reminders use neutral wording on the lock screen. Routine reminders always show their own label. Check-in reminders are always neutral.'
+  times:
+    heading: Check-in times
+    morning: Morning check-in
+    evening: Evening check-in
+    weekly_day: Weekly review day
+    weekly_time: Weekly review time
+  evening:
+    heading: Evening check-in
+    log_signs: Ask about my early warning signs
+    log_signs_hint: Your answers are stored with your other entries. If you have a matter before a court, ask your lawyer what is safe to record before you leave this on.
+  guard:
+    heading: Writing reminder
+    show: Show the reminder about what not to write
+    show_hint: The line that appears beside free-text boxes in the plan and check-ins. Switch it off once you no longer need it.
+  lines:
+    heading: My own daily lines
+    hint: One per line. They are mixed in with the built-in ones on the Today screen and come up twice as often.
+  data:
+    heading: My data
+    note: Your entries are stored on the server and you sign in with your password.
+    download: Download everything
+    sign_out: Sign out of this device
+    hint: A JSON file with every entry you have saved.
