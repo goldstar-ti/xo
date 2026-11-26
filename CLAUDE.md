@@ -97,10 +97,11 @@ JavaScript keeps what is already there: single quotes, ES modules, `h()` and `pu
 
 ## Copy style for anything the user reads
 
-Australian English. Sentence case. Plain verbs. No emojis. No exclamation marks.
-Avoid "It's not X, it's Y" constructions, rhetorical questions, and hype words (powerful, seamless, robust).
-Avoid: delve, navigate, unlock, foster, elevate, harness, landscape, tapestry, journey, crucial, vital, nuance.
-Buttons say what they do ("Save check-in"). Errors say what happened and what to do next.
+Full guide: `docs/voice.md`. Read it before writing any text the user sees. The three rules to keep in mind:
+
+- Australian English, sentence case, no emojis, no exclamation marks, no em-dash or en-dash. Buttons say what they do ("Save check-in"). Errors say what happened and what to do next.
+- The app holds the user's own words. It never interprets, scores or praises them, and notifications stay neutral.
+- No hype or AI-sounding words (powerful, seamless, delve, navigate, unlock, journey, crucial, vital). No "It's not X, it's Y" and no rhetorical questions.
 
 ## Running it
 
