@@ -46,6 +46,9 @@ today:
     empty_lead: Nothing chosen yet.
     choose: Choose up to three tasks
     empty_tail: for today.
+    needs: 'Needs about {duration}'
+    over: 'That is more than the {duration} left before your evening check-in.'
+    block_aria: 'Time for {title}'
   day:
     heading: The day
     edit_routine: Edit routine

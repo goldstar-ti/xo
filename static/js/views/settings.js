@@ -3,6 +3,8 @@ import { h, kvSet, toast, today, put } from '../util.js';
 import { button, checkbox, field, input, select, textarea } from '../ui.js';
 import { t, text } from '../text.js';
 import * as lookups from '../lookups.js';
+import { allTasks } from '../taskdata.js';
+import { pace } from '../tasks.js';
 
 export const live = false;
 
@@ -119,6 +121,11 @@ function lookupEditor(s, saveSettings) {
     field(t('settings.lookups.headings'), checkbox({ id: 's-groupHeadings', checked: !!s.groupHeadings, onchange: (e) => saveSettings({ groupHeadings: e.target.checked }) }), t('settings.lookups.headings_hint')));
 }
 
+function paceLine() {
+  const p = pace(allTasks().map((i) => i.data));
+  return p.samples >= 5 ? t('settings.tasks.pace', { ratio: p.ratio, n: p.samples }) : t('settings.tasks.pace_none', { n: 5 });
+}
+
 export function render(root) {
   root.replaceChildren();
   const s = store.settings();
@@ -167,6 +174,10 @@ export function render(root) {
       h('div', { class: 'fields' }, time('morningAt', t('settings.times.morning')), time('eveningAt', t('settings.times.evening')),
         field(t('settings.times.weekly_day'), select(weekdays, { id: 's-weeklyDay', value: String(s.weeklyDay), onchange: (e) => saveSettings({ weeklyDay: Number(e.target.value) }) }), null, { half: true }),
         time('weeklyAt', t('settings.times.weekly_time')))),
+    h('section', {}, h('h2', {}, t('settings.tasks.heading')),
+      field(t('settings.tasks.stale_days'), input({ id: 's-staleDays', type: 'number', min: '0', value: String(s.staleDays ?? 30), onchange: (e) => saveSettings({ staleDays: Math.max(0, Math.floor(Number(e.target.value) || 0)) }) }), t('settings.tasks.stale_hint'), { half: true }),
+      toggle('shutdown', t('settings.tasks.shutdown'), t('settings.tasks.shutdown_hint')),
+      h('p', { class: 'note' }, paceLine())),
     h('section', {}, h('h2', {}, t('settings.evening.heading')),
       toggle('logSigns', t('settings.evening.log_signs'), t('settings.evening.log_signs_hint'))),
     lookupEditor(s, saveSettings),

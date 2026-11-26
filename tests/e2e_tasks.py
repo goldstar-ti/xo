@@ -277,6 +277,44 @@ with sync_playwright() as p:
     pg.locator("dialog[open]").get_by_role("button", name="Task board", exact=True).click()
     expect(pg.locator(".xo-board [data-widget='tasks-board'] h2", has_text="To do").first).to_be_visible()
 
+    # 4. Time blocks, the close-the-day step and pacing.
+    pg.goto(f"{BASE}/#/tasks")
+    pg.wait_for_selector(".list", timeout=20000)
+    plan = pg.locator(".list li:not(.done)", has_text="Plan the week")
+    plan.get_by_role("button", name="Pick", exact=True).click()
+    expect(plan.get_by_role("button", name="Today", exact=True)).to_be_visible()
+    pg.goto(f"{BASE}/#/today")
+    pg.wait_for_selector(".dayline", timeout=20000)
+    set_control(pg.locator('[aria-label="Time for Plan the week"]'), "23:58")
+    expect(pg.locator(".dayline li.k-task", has_text="Plan the week")).to_have_count(1)
+    expect(pg.get_by_text("Needs about")).to_be_visible()
+
+    pg.goto(f"{BASE}/#/checkin/evening")
+    expect(pg.get_by_role("heading", name="Close the day")).to_be_visible()
+    pg.get_by_role("button", name="Carry to tomorrow", exact=True).click()
+    pg.goto(f"{BASE}/#/tasks")
+    pg.wait_for_selector(".list", timeout=20000)
+    row = pg.locator(".list li:not(.done)", has_text="Plan the week")
+    expect(row.get_by_role("button", name="Tomorrow", exact=True)).to_be_visible()
+
+    pg.goto(f"{BASE}/#/checkin/evening")
+    expect(pg.get_by_role("heading", name="How long did these take?")).to_be_visible()
+    actual = pg.locator(".shutdown li", has_text="First thing")
+    expect(actual).to_have_count(1)
+    actual.get_by_role("button").first.click()
+    expect(pg.locator(".shutdown li", has_text="First thing")).to_have_count(0)
+    pg.goto(f"{BASE}/#/tasks")
+    pg.wait_for_selector(".list", timeout=20000)
+    pg.locator("summary", has_text="Done").first.click()
+    dlg = open_row("First thing")
+    dlg.locator("summary").click()
+    assert dlg.locator("#f-actual").evaluate("e => String(e.value || e.querySelector('input')?.value)") != "0"
+    dlg.get_by_role("button", name="Save").click()
+    expect(pg.locator("dialog[open]")).to_have_count(0)
+
+    pg.goto(f"{BASE}/#/settings")
+    expect(pg.get_by_text("XO allows 1.5 times your guess")).to_be_visible()
+
     b.close()
 
 assert not errors, errors

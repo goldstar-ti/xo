@@ -1,8 +1,9 @@
 import * as store from '../store.js';
 import { LINES, PLAN, PLAN_FIRST } from '../content.js';
-import { editAppointment, editBill, editTask, payBill, toggleTask } from '../forms.js';
+import { editAppointment, editBill, editTask, payBill } from '../forms.js';
+import { allTasks, currentPace, saveTask, toggleTask } from '../taskdata.js';
 import { t } from '../text.js';
-import { button, checkbox } from '../ui.js';
+import { button, checkbox, input } from '../ui.js';
 import { addDays, daysBetween, fmtDay, fmtDuration, fmtLong, fmtMoney, fmtTime, h, hm, relDay, toast, today, toDate, put } from '../util.js';
 
 export const live = true;
@@ -43,6 +44,12 @@ export function dayEntries(day = today()) {
     if (tm.ready < tm.leave) bits.push(t('lists.shared.get_ready', { time: fmtTime(tm.ready) }));
     if (tm.leave < tm.start) bits.push(t('lists.shared.leave', { time: fmtTime(tm.leave) }));
     out.push({ time: a.data.time, label: a.data.title, kind: 'appt', item: a, times: tm, sub: [bits.join(', ').replace(/^./, (c) => c.toUpperCase()), a.data.where].filter(Boolean).join('. ') });
+  }
+  const pace = currentPace();
+  for (const task of allTasks()) {
+    const d = task.data;
+    if (d.today !== day || !d.at || d.archived) continue;
+    out.push({ time: d.at, label: d.title, kind: 'task', item: task, done: d.done, sub: d.est > 0 ? t('lists.shared.allow', { duration: fmtDuration(d.est * pace) }) : '' });
   }
   out.push({ time: s.morningAt, label: t('today.entries.morning_checkin'), kind: 'checkin', type: 'morning', done: !!store.get(checkinId('morning', day)) });
   out.push({ time: s.eveningAt, label: t('today.entries.evening_checkin'), kind: 'checkin', type: 'evening', done: !!store.get(checkinId('evening', day)) });
@@ -108,6 +115,11 @@ export function render(root) {
     const missed = past && !e.done && e.kind !== 'appt';
     let action = null;
     if (e.kind === 'tick') action = tick(e);
+    else if (e.kind === 'task') action = button(t(e.done ? 'today.tick.done' : 'today.tick.tick'), {
+      variant: e.done ? 'primary' : 'ghost', class: `tick${e.done ? ' on' : ''}`, 'aria-pressed': String(e.done),
+      'aria-label': t(e.done ? 'today.tick.state_done' : 'today.tick.state_open', { label: e.label }),
+      onclick: () => toggleTask(e.item).catch((err) => toast(err.message, 'bad')),
+    });
     else if (e.kind === 'checkin') action = h('a', { class: `tick${e.done ? ' on' : ''}`, href: `#/checkin/${e.type}` }, t(e.done ? 'today.tick.done' : 'today.tick.start'));
     else action = button(t('today.tick.edit'), { class: 'small', onclick: () => editAppointment(e.item) });
     rows.push(h('li', { class: `entry k-${e.kind}${e.done ? ' done' : ''}${past ? ' past' : ''}${missed ? ' missed' : ''}${e.ref && e.ref === popped ? ' pop' : ''}` },
@@ -117,14 +129,23 @@ export function render(root) {
   }
   if (!nowPlaced) rows.push(nowRow());
 
-  const picked = store.byKind('task').filter((t) => t.data.today === day);
+  const pace = currentPace();
+  const picked = allTasks().filter((i) => i.data.today === day);
+  const setAt = (task, value) => saveTask(task.id, { ...task.data, at: value }).catch((err) => toast(err.message, 'bad'));
+  const needs = picked.filter((i) => !i.data.done && i.data.est > 0).reduce((sum, i) => sum + i.data.est * pace, 0);
+  const evening = store.settings().eveningAt || '';
+  const left = evening ? (Number(evening.slice(0, 2)) * 60 + Number(evening.slice(3, 5))) - (new Date().getHours() * 60 + new Date().getMinutes()) : 0;
   const three = picked.length
-    ? h('ul', { class: 'list' }, picked.map((task) => h('li', { class: task.data.done ? 'done' : '' },
-        checkbox({ checked: task.data.done, 'aria-label': t('lists.shared.done_aria', { title: task.data.title }), onchange: () => toggleTask(task).catch((err) => toast(err.message, 'bad')) }),
-        button([h('span', {}, task.data.title),
-          !task.data.done && task.data.step && h('small', {}, t('lists.shared.start_with', { step: task.data.step }))],
-        { variant: 'row', class: 'row-main', onclick: () => editTask(task) }),
-        task.data.est > 0 && !task.data.done && h('span', { class: 'meta' }, t('lists.shared.allow', { duration: fmtDuration(task.data.est * 1.5) })))))
+    ? h('div', {},
+        h('ul', { class: 'list' }, picked.map((task) => h('li', { class: task.data.done ? 'done' : '' },
+          checkbox({ checked: task.data.done, 'aria-label': t('lists.shared.done_aria', { title: task.data.title }), onchange: () => toggleTask(task).catch((err) => toast(err.message, 'bad')) }),
+          button([h('span', {}, task.data.title),
+            !task.data.done && task.data.step && h('small', {}, t('lists.shared.start_with', { step: task.data.step }))],
+          { variant: 'row', class: 'row-main', onclick: () => editTask(task) }),
+          task.data.est > 0 && !task.data.done && h('span', { class: 'meta' }, t('lists.shared.allow', { duration: fmtDuration(task.data.est * pace) })),
+          !task.data.done && input({ type: 'time', value: task.data.at, 'aria-label': t('today.three.block_aria', { title: task.data.title }), onchange: (e) => setAt(task, e.target.value) })))),
+        needs > 0 && h('p', { class: 'note' }, t('today.three.needs', { duration: fmtDuration(needs) })),
+        needs > 0 && left > 0 && needs > left && h('p', { class: 'note late' }, t('today.three.over', { duration: fmtDuration(left) })))
     : h('p', { class: 'empty' }, t('today.three.empty_lead'), ' ', h('a', { href: '#/tasks' }, t('today.three.choose')), ' ', t('today.three.empty_tail'));
 
   const horizon = addDays(day, 7);

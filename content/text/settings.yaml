@@ -37,6 +37,14 @@ settings:
     evening: Evening check-in
     weekly_day: Weekly review day
     weekly_time: Weekly review time
+  tasks:
+    heading: Tasks
+    stale_days: Days before an untouched task comes up for review
+    stale_hint: 0 turns the review off.
+    shutdown: Close the day in the evening check-in
+    shutdown_hint: Carry unfinished tasks forward, note how long finished ones took and pick tomorrow’s three.
+    pace_none: 'XO allows 1.5 times your guess until {n} finished tasks have an actual time.'
+    pace: 'Your finished tasks took about {ratio} times your guess, from {n} tasks. XO allows that much.'
   evening:
     heading: Evening check-in
     log_signs: Ask about my early warning signs

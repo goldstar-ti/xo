@@ -81,3 +81,7 @@ A task has a status (to do, doing, done) and a priority, and `done` stays in ste
 ## D-20 (2026-11-27): Tasks board and views
 
 The Tasks screen shows tasks as a list, a To do, Doing, Done board or a table. Cards have no manual order: they sort by priority, due date and title, so a drag changes status only. The chosen view and the filters are kept per browser, and the board and table are also canvas widgets. Why: a manual order would be a second thing to maintain beside Today's three, and the filters decide what is worth looking at, not where it sits.
+
+## D-21 (2026-11-27): Time blocks, pacing and closing the day
+
+Actual time is asked for in the evening check-in, not on each tick, so finishing a task never interrupts. The time XO allows on top of a guess is the median of actual over guess for the last 20 finished tasks, clamped to 0.5 to 4, and stays 1.5 until five tasks have an actual time. Overload on Today compares the unfinished picks with the time left before the evening check-in. Why: the owner wanted allowances from their own pace without being asked mid-task.

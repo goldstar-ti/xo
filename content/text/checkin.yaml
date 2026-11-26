@@ -167,6 +167,18 @@ checkin:
     ok: One thing that went all right today
     ok_hint: A small thing is fine.
     first: The first thing I will do tomorrow
+  shutdown:
+    heading: Close the day
+    carry_note: These were picked for today and are not done.
+    carry: Carry to tomorrow
+    drop: Back to the list
+    none_open: Everything picked for today is done.
+    actual_heading: How long did these take?
+    actual_hint: Tap the closest. XO uses it to set the time it allows for a task.
+    tomorrow_heading: Tomorrow’s three
+    tomorrow_note: 'Pick up to three for tomorrow. {n} picked so far.'
+    pick: Pick for tomorrow
+    picked: Picked
   signs:
     heading: Early warning signs
     not_written: 'Your early warning signs are not written yet. That is box 6 of your plan. '

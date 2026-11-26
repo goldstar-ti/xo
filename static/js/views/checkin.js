@@ -1,7 +1,8 @@
 import * as store from '../store.js';
 import { GUARD_TEXT, WEEKLY_QUESTIONS } from '../content.js';
 import * as lookups from '../lookups.js';
-import { addDays, fmtDay, fmtLong, h, toast, today, withPhoneLinks, put } from '../util.js';
+import { addDays, fmtDay, fmtDuration, fmtLong, h, toast, today, withPhoneLinks, ymd, put } from '../util.js';
+import { allTasks, pickTask, saveTask } from '../taskdata.js';
 import { button, chip, textarea } from '../ui.js';
 import { t, text } from '../text.js';
 import { checkinId, dayEntries } from './today.js';
@@ -113,6 +114,49 @@ function signsBlock(state) {
     t('checkin.signs.hint'));
 }
 
+// The close-the-day step of the evening check-in. Every tap saves at once and redraws this section only.
+function shutdown(day) {
+  const tomorrow = addDays(day, 1);
+  const wrap = h('section', { class: 'shutdown' });
+  const fail = (err) => toast(err.message, 'bad');
+  const redraw = () => draw();
+  const act = (promise) => promise.then(redraw).catch(fail);
+  const draw = () => {
+    const all = allTasks().filter((i) => !i.data.archived);
+    const open = all.filter((i) => i.data.today === day && !i.data.done);
+    const plannedTomorrow = all.filter((i) => i.data.today === tomorrow && !i.data.done);
+    const carry = (i) => {
+      if (plannedTomorrow.length >= 3) { toast(t('forms.task.limit_tomorrow'), 'bad'); return; }
+      act(saveTask(i.id, { ...i.data, today: tomorrow, at: '' }));
+    };
+    const needActual = all.filter((i) => i.data.done && i.data.doneAt && ymd(new Date(i.data.doneAt)) === day && i.data.est > 0 && !i.data.actual);
+    const options = (est) => [...new Set([0.5, 1, 1.5, 2, 3].map((f) => Math.max(5, Math.round((est * f) / 5) * 5)))];
+    const candidates = all.filter((i) => i.data.status === 'todo' && !i.data.today);
+    wrap.replaceChildren();
+    put(wrap,
+      q(t('checkin.shutdown.heading'),
+        open.length
+          ? h('ul', { class: 'list' }, open.map((i) => h('li', {},
+              h('span', { class: 'row-main' }, i.data.title),
+              chip(t('checkin.shutdown.carry'), { class: 'small', onclick: () => carry(i) }),
+              chip(t('checkin.shutdown.drop'), { class: 'small', onclick: () => act(saveTask(i.id, { ...i.data, today: '', at: '' })) }))))
+          : h('p', { class: 'note' }, t('checkin.shutdown.none_open')),
+        t('checkin.shutdown.carry_note')),
+      needActual.length > 0 && q(t('checkin.shutdown.actual_heading'),
+        h('ul', { class: 'list' }, needActual.map((i) => h('li', {},
+          h('span', { class: 'row-main' }, i.data.title),
+          options(i.data.est).map((mins) => chip(fmtDuration(mins), { class: 'small', onclick: () => act(saveTask(i.id, { ...i.data, actual: mins })) }))))),
+        t('checkin.shutdown.actual_hint')),
+      q(t('checkin.shutdown.tomorrow_heading'),
+        h('ul', { class: 'list' }, [...plannedTomorrow, ...candidates].map((i) => h('li', {},
+          h('span', { class: 'row-main' }, i.data.title),
+          chip(t(i.data.today === tomorrow ? 'checkin.shutdown.picked' : 'checkin.shutdown.pick'), { class: 'small', pressed: i.data.today === tomorrow, onclick: () => act(pickTask(i, tomorrow)) })))),
+        t('checkin.shutdown.tomorrow_note', { n: plannedTomorrow.length })));
+  };
+  draw();
+  return wrap;
+}
+
 function evening(root, day, state) {
   const entries = dayEntries(day).filter((e) => e.kind === 'tick');
   const ticked = entries.filter((e) => e.done).length;
@@ -123,6 +167,7 @@ function evening(root, day, state) {
   ].filter(Boolean).join('. ');
   put(root, 
     summary && h('p', { class: 'note' }, summary + '.'),
+    store.settings().shutdown && shutdown(day),
     q(t('checkin.evening.did'), lookupChips('did', state, 'did'), t('checkin.evening.did_hint')),
     q(t('checkin.evening.body'), lookupChips('body', state, 'body')),
     store.settings().logSigns && signsBlock(state),
