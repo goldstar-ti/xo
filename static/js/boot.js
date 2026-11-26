@@ -59,7 +59,7 @@
     corners: 'round', density: 'regular', rule: 'fine', texture: 'none',
     hero: 'plain', dayline: 'line', loud: 'regular', line: 'plain', kit: 'xo',
   };
-  const SECTIONS = ['today', 'diary', 'tasks', 'obligations', 'routine', 'bills', 'checkin', 'plan', 'settings', 'appearance'];
+  const SECTIONS = ['bridge', 'today', 'diary', 'tasks', 'obligations', 'routine', 'bills', 'checkin', 'plan', 'settings', 'appearance'];
   const BLOCKS = ['line', 'next', 'three', 'day', 'coming', 'plan'];
   const DEFAULT_PREFS = { clock24: false, tabs: ['today', 'diary', 'tasks', 'obligations'], blocks: BLOCKS.slice(), hidden: [], title: 'XO', callMe: '', pop: true };
 
@@ -150,7 +150,8 @@
     set('--font-body', body);
     set('--font-head', look.head === 'same' ? body : FONTS[look.head].stack);
     set('--font-num', look.num === 'same' ? body : FONTS[look.num].stack);
-    root.style.fontSize = (106.25 * look.size / 100).toFixed(2) + '%';
+    // The size dial multiplies the root size in app.css, which also grows with the window on desktop.
+    set('--size', (look.size / 100).toFixed(3));
     set('--weight', look.weight); set('--lh', look.lh); set('--ls', look.ls + 'em');
     set('--radius', CORNERS[look.corners][0]); set('--pill', CORNERS[look.corners][1]);
     set('--d', DENSITY[look.density]); set('--rule', RULE[look.rule]); set('--loud', LOUD[look.loud]);

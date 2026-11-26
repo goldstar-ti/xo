@@ -1,6 +1,7 @@
 // Small helpers: DOM building, dates, toasts, dialogs.
 import { button, checkbox, field, focusControl, input, notice, select, textarea } from './ui.js';
 import { t } from './text.js';
+import { openTab, paneOn } from './pane.js';
 
 export function h(tag, attrs, ...kids) {
   const el = document.createElement(tag);
@@ -96,7 +97,11 @@ export function toast(text, kind = '') {
 }
 
 // ---- dialogs ----
-export function openDialog(title, body, { wide = false } = {}) {
+// On a wide screen a "dialog" is a tab in the right split pane (pane.js); on a phone it is a sheet.
+// Either way the caller gets something with close() and addEventListener('close', fn).
+// key: reuse one tab for the same thing (for example the plan card) instead of opening another.
+export function openDialog(title, body, { wide = false, key = '' } = {}) {
+  if (paneOn()) return openTab({ key, title, kind: 'form', fill: (el) => el.append(body) });
   const dlg = h('dialog', { class: wide ? 'sheet wide' : 'sheet' });
   const close = () => dlg.close();
   dlg.append(

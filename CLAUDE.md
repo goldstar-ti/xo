@@ -19,7 +19,7 @@ Security is the owner's responsibility, handled outside this codebase (owner's d
 1. **No browser encryption (owner's decision, 2026-11-26).** Items are stored as plain JSON and sign-in is a normal password checked on the server. Do not reintroduce client-side encryption.
 2. **Text only.** No image, audio or file uploads, anywhere.
 3. **No CSP or security headers (owner's decision, 2026-11-26).** The app sends none. Still prefer local copies of libraries and fonts (`static/vendor/`, `static/fonts`) over CDNs, so XO works offline; `tests/e2e_kits.py` fails on any off-site request.
-4. **Appearance never leaves the device.** The look lives in `localStorage` under `xo-look`. Do not sync it.
+4. **Appearance never leaves the device.** The look lives in `localStorage` under `xo-look`, the Bridge board under `xo-board` and the side pane width under `xo-pane`. Do not sync them. Layout codes (`XB1-...`) carry a board between devices.
 5. **Paused until production: no personal names or details in the code (owner's decision, 2026-11-26).** While paused, names and details may appear in source, defaults, tests, comments and commit messages. The owner reinstates this rule before production; at that point every personal detail added while it was paused must be removed. Original wording: names of people, clinicians, places or cases never in source, defaults, tests, comments or commit messages; tests use obviously made-up data.
 6. **`content/workbook.json` is unpublished material.** Keep the repository private. It is served only through `/api/workbook`, which requires a session. Do not move it into `static/`.
 7. **Notification wording lives in the service worker** (`NEUTRAL` and `detailed()` in `static/sw.js`). Push payloads carry ids and a kind; the discreet-wording requirement is lifted with the other security rules.
@@ -50,6 +50,9 @@ static/js/kit.js           loads Web Awesome (and static/kit-wa.css) on demand
 static/js/forms.js         add/edit dialogs per kind
 static/js/text.js          loadText(), t(key, vars), text(key): the editable wording from /api/text
 static/js/content.js       thin module: reads plan, check-in, daily-line and default data through text()
+static/js/board.js         the Bridge: GridStack board, layout in xo-board, Arrange, catalogue, widget options, board dials, layout codes, phone order
+static/js/widgets.js       WIDGETS: the widget catalogue (one entry per widget), STARTER, cleanOpts()
+static/js/pane.js          the desktop side pane: openTab(), closeTabOf(), paneOn()
 static/js/views/*.js       one module per screen; each exports render(root, ...params) and `live`
 static/sw.js               offline shell + notifications (classic script, no imports)
 static/app.css             all styles
@@ -61,10 +64,12 @@ Conventions:
 - A view with `live = true` is redrawn when the store changes. Views with free-text inputs set `live = false` and save with `{ silent: true }` so typing is never interrupted.
 - Routes are hash routes (`#/today`). Add a screen in three places in `app.js` (`NAV`, `VIEWS`, import) and in `SECTIONS` in `boot.js` plus `SECTION_NAMES` in `views/appearance.js` so it can sit on the bottom bar.
 - New files the app must work offline with go in `SHELL` in `static/sw.js`; bump `CACHE` when you change that list.
+- On a window at least 60rem wide, `openDialog()` (and so `openForm()`) opens a tab in the side pane instead of a dialog; the handle has the same `close()` and `close` event. `#/settings`, `#/appearance` and `#/checkin/<type>[/<day>]` open as pane tabs and leave the main screen alone. Code that closes "the dialog" it sits in uses `closeTabOf(el)` first.
+- To add a Bridge widget: one entry in `WIDGETS` in `static/js/widgets.js` (group, size, span, opts, optional tick and tools, render), and its wording under `bridge.widgets.<type>` in `content/text/bridge.yaml` (name, about, opts, and a `bridge.choice.<opt>.<value>` label for each choice value). Reuse the screen builders (`todayBlocks()`, `taskParts()`, `obligationParts()` and the other `*Part()` exports) rather than copying markup. Add it to `STARTER` only if every new board should have it.
 
 ## Text and prose
 
-- All user-facing wording lives in YAML files in `content/text/` (`common.yaml`, `plan.yaml`, `checkin.yaml`, `today.yaml`, `lists.yaml`, `forms.yaml`, `defaults.yaml`). The top-level key of a file is its name, so `plan.yaml` holds `plan:` and keys read `plan.guard`.
+- All user-facing wording lives in YAML files in `content/text/` (`common.yaml`, `plan.yaml`, `checkin.yaml`, `today.yaml`, `lists.yaml`, `forms.yaml`, `bridge.yaml`, `pane.yaml`, `defaults.yaml`). The top-level key of a file is its name, so `plan.yaml` holds `plan:` and keys read `plan.guard`.
 - `app/text.py` loads every file with `yaml.safe_load`, caches each by modification time and keeps a file's last good version if an edit breaks it. `GET /api/text` serves the merged object, no sign-in. The folder is bind-mounted read-only into `xo-app`, so a saved edit shows on the next page load with no rebuild or restart.
 - In the browser, `static/js/text.js` loads it once at boot. `t('common.save')` returns a string; `t('x.y', { name })` fills `{name}` placeholders. `text('plan.services')` returns a list or map as written. A missing key returns the key and logs `missing text: <key>` to the console once, so the browser tests fail on it.
 - Rule, from now on: a user-facing string goes in YAML, never inline in a view or template. A new screen adds its keys to a file (or a new file named after its top-level key) in the same commit.
@@ -84,6 +89,7 @@ Conventions:
   - Existing screens stay on `app.css` until the owner approves a conversion plan.
 - Component kits: the Appearance option `kit` (`xo` default, `daisy`, `wa`) sets `data-kit` on `<html>`. Build buttons, fields and chips with `static/js/ui.js`, never with raw elements, so one switch restyles every screen. Write every daisyUI class in full in `ui.js` (Tailwind only compiles what it finds). Web Awesome's theme is mapped to the XO tokens in `static/kit-wa.css`. New screens use `ui.js` and `t()`; existing screens move over in batches.
 - Tap targets at least 2.5rem. Keyboard focus must stay visible. Honour `prefers-reduced-motion`.
+- Sizes are in rem. On desktop the root size grows with the window (decision D-9), so rem-based layouts scale from a 1080p laptop to a 5120-wide screen with no extra breakpoints; use container queries in rem (`@container main (...)`) for wide layouts.
 
 ## Code style
 
@@ -157,5 +163,5 @@ python scripts/build_workbook.py path/to/workbook.docx
 ## Before calling a change done
 
 - API tests and both browser tests pass.
-- The screen works at 360 px wide and at desktop width, in light and dark, in at least two themes.
+- The screen works at 360 px wide and at desktop width (1280, 1920 and 5120 wide), in light and dark, in at least two themes.
 - `README.md` and `docs/ROADMAP.md` still describe what exists.

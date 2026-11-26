@@ -1,0 +1,330 @@
+# Bridge: the widget board, its catalogue, its settings and every widget's wording.
+#
+# How to edit this file
+# - Save the file and reload the page. There is no build and no restart.
+# - Change the words after a colon. Keep the keys (the words before a colon) as they are:
+#   the app looks the text up by key, and a missing key shows the key itself.
+# - Keep the indentation. It uses two spaces and never tabs.
+# - Put quote marks around any text that starts with a special character
+#   (" ' { [ * & ! % @ #) or that contains a colon followed by a space, and around times such as '09:00'.
+# - Write {name} where the app fills something in. Keep the same {name} in your wording.
+# - If a file has a mistake, the app keeps the last good version of that file and logs a note.
+#
+bridge:
+  title: Bridge
+  add: Add widget
+  arrange: Arrange
+  done_arranging: Done arranging
+  locked_hint: Layout locked.
+  board_settings: Board settings
+  added: '{title} added at the bottom of the board.'
+  empty: The board is empty. Choose Add widget to put the first one on it.
+  grid_failed: The board layout did not load. Reload the page to try again.
+  widget_failed: This widget could not be drawn. Reload the page, or remove the widget in its options.
+
+  tool:
+    roll: Roll up
+    unroll: Roll down
+    options: 'Options for {title}'
+    move_up: Move up
+    move_down: Move down
+    hide: Hide on this phone
+    show: Show on this phone
+
+  groups:
+    today: Today
+    time: Time and dates
+    lists: Lists
+    money: Money
+    checkins: Check-ins
+    plan: Plan and shortcuts
+
+  catalogue:
+    title: Add a widget
+    intro: Every widget can go on the board more than once, each with its own options.
+    add: Add
+    add_named: 'Add {title}'
+    on_board: '{n} on the board'
+
+  options:
+    title: '{title} options'
+    name: Name on the title bar
+    name_hint: Leave it empty to use the standard name.
+    tint: Background
+    save: Save options
+
+  settings:
+    screen: Screen
+    start: Open on
+    start_hint: The screen XO shows when the address names none.
+    cols: Columns
+    cols_hint: More columns give finer steps when you resize. Widths are kept in proportion.
+    space: Space
+    row: Row height
+    gap: Gap between widgets
+    scale: Text size in widgets
+    look: Widget look
+    chrome: Frame
+    chrome_hint: How each widget's edge is drawn.
+    head: Title bar
+    head_hint: With no title bar, the bar shows while you arrange.
+    titleFont: Title typeface
+    titleFont_hint: Uses the typefaces chosen in Appearance.
+    inner: Headings inside widgets
+    inner_hint: The title bar already names the widget.
+    behaviour: Behaviour
+    lock: Lock the layout outside Arrange
+    lock_hint: Stops a click from moving a widget by mistake.
+    float: Leave gaps where widgets were
+    float_hint: When this is off, widgets move up to fill space.
+    animate: Animate moves
+    animate_hint: Movement stops anyway when the device asks for less motion.
+    code: Layout code
+    code_hint: This code is the whole board on this device. Copy it, then apply it on another device.
+    code_label: Layout code
+    copy: Copy code
+    copied: Copied
+    copy_failed: Select the code and copy it by hand.
+    paste_label: Paste a layout code
+    apply: Apply code
+    applied: Layout applied
+    bad_code: That is not a complete layout code. Layout codes start with XB1-.
+    start_again: Start again
+    reset_hint: Puts the starter widgets back, sized for this screen. Your entries are not touched.
+    reset: Reset the board
+    reset_confirm: Tap again to reset
+    reset_done: Starter board restored
+
+  choice:
+    tint:
+      none: Plain
+      soft: Accent tint
+      attention: Attention tint
+    start:
+      auto: Bridge on a wide screen, Today on a phone
+      bridge: Bridge
+      today: Today
+    cols:
+      '12': '12'
+      '16': '16'
+      '24': '24'
+      '32': '32'
+      '48': '48'
+    chrome:
+      card: Card
+      outline: Outline
+      flat: Flat
+      stripe: Accent stripe
+    head:
+      full: Full
+      slim: Slim
+      none: None
+    titleFont:
+      head: Headings
+      body: Body
+      num: Numerals
+    inner:
+      hide: Hide
+      show: Show
+    scale:
+      s: Small
+      m: Medium
+      l: Large
+      xl: Extra large
+    past:
+      show: Show as they are
+      fade: Fade
+      hide: Hide
+    ahead:
+      '0': Everything
+      '7': 7 days
+      '14': 14 days
+      '30': 30 days
+      '60': 60 days
+      '90': 90 days
+    from:
+      today: Today
+      monday: Monday
+    days:
+      '3': 3 days
+      '5': 5 days
+      '7': 7 days
+      '14': 14 days
+      '28': 28 days
+      '35': 35 days
+    weekStart:
+      monday: Monday
+      sunday: Sunday
+    detail:
+      dots: Dots
+      titles: Titles
+    count:
+      '3': '3'
+      '5': '5'
+      '10': '10'
+      '20': '20'
+    part:
+      all: All four sections
+      court: Court dates
+      courtTasks: Court tasks
+      conditions: Conditions
+      reports: Reports to the officer
+    type:
+      all: All check-ins
+      morning: Morning check-ins
+      evening: Evening check-ins
+      weekly: Weekly reviews
+    what:
+      court: Court dates
+      appointments: All appointments
+      bills: Bills
+      all: Appointments and bills
+
+  widgets:
+    clock:
+      name: Clock
+      about: The time and the date, large.
+      opts:
+        seconds: Show seconds
+        date: Show the date
+        greet: Show the greeting from Appearance
+        scale: Size
+    next:
+      name: Next up
+      about: The next thing on the day line, or when to get ready and leave.
+    dayline:
+      name: The day
+      about: Routines, conditions, appointments and check-ins in time order, with Now marked.
+      opts:
+        past: Entries that have passed
+    three:
+      name: Today’s three
+      about: The tasks you picked for today.
+    coming:
+      name: Coming up
+      about: Appointments, task due dates and bills ahead, soonest first.
+      opts:
+        ahead: How far ahead
+    line:
+      name: Daily line
+      about: One line for the day, from the built-in lines and your own.
+    nudge:
+      name: Plan progress
+      about: How many plan boxes are filled, and the next one to write.
+      complete: Every box in your plan has something in it.
+    week:
+      name: Week strip
+      about: Each day side by side with its appointments, bills and task due dates.
+      free: Nothing booked
+      opts:
+        from: Start on
+        days: Days shown
+    month:
+      name: Month calendar
+      about: A month grid with appointments, court dates, bills and task due dates.
+      previous: Previous
+      this_month: This month
+      next: Next
+      count: '{n} entries'
+      more: '{n} more'
+      weekdays: [Sun, Mon, Tue, Wed, Thu, Fri, Sat]
+      opts:
+        weekStart: Week starts on
+        detail: Show entries as
+    tasks:
+      name: Tasks
+      about: The task lists, with the add box. Choose which lists it shows.
+      opts:
+        quick: Add box
+        picked: Today’s three
+        soon: Due this week
+        rest: Everything else
+        done: Done
+    quick:
+      name: Add a task
+      about: The add box on its own.
+    diary:
+      name: Diary
+      about: Appointments by day, with travel and getting-ready times.
+      add: Add
+      opts:
+        ahead: How far ahead
+    routine:
+      name: Routine
+      about: Each routine with its time and the last seven days of ticks.
+      add: Add
+    bills:
+      name: Bills
+      about: Open bills, soonest first, with the total for the next 30 days.
+      add: Add
+      opts:
+        ahead: How far ahead
+    money:
+      name: Money
+      about: Totals for bills overdue, due this week and due this month, paid by hand or automatically.
+      bills: '{n} bills'
+      bills_one: 1 bill
+      overdue: Overdue
+      week: Due in 7 days
+      month: Due in 30 days
+      manual: To pay by hand, 30 days
+      autopay: Paid automatically, 30 days
+      opts:
+        count: Bills listed
+    obligations:
+      name: Obligations
+      about: Court dates, court tasks, conditions and reports. Choose one section or all four.
+      opts:
+        part: Section
+    checkins:
+      name: Check-ins
+      about: Start today’s check-ins and see which days have one saved.
+      done_today: '{title}, saved today'
+      opts:
+        days: Days in the table
+    history:
+      name: Check-in answers
+      about: Your saved check-in answers, as you wrote and picked them.
+      empty: No check-ins saved in this period.
+      fields:
+        sleep: Sleep
+        body: Body
+        fuel: Food and water
+        goodlife: For the life I want
+        did: Today I
+        ok: Went all right
+        first: First thing tomorrow
+        signs: Early warning signs
+        signsAction: What I did about it
+      opts:
+        type: Which check-ins
+        days: Period
+    body:
+      name: Body log
+      about: What you picked for your body in each check-in, day by day.
+      empty: No body answers saved in this period.
+      opts:
+        days: Period
+    countdown:
+      name: Days until
+      about: The number of days until each coming date, in order.
+      empty: No dates ahead.
+      day: day
+      days: days
+      opts:
+        what: Count down to
+    plancard:
+      name: Plan card
+      about: 'Your plan card: warning signs, what you do instead, people and services.'
+      open: Open
+    launcher:
+      name: Shortcuts
+      about: Buttons for every add form and check-in.
+      appointment: Add appointment
+      court: Add court date
+      task: Add task
+      routine: Add routine
+      bill: Add bill
+      condition: Add condition
+      report: Add report
+      plan_card: My plan card

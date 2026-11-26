@@ -114,6 +114,19 @@ with sync_playwright() as p:
             assert page.evaluate(PRIMARY_BG) != "rgba(0, 0, 0, 0)", "daisyUI classes did not compile into tw.css"
         page.evaluate("document.getElementById('kit-host').remove()")
         print("ui.js controls ok:", kit)
+
+    # GridStack for the Bridge, served from static/vendor/gridstack like the kits.
+    gridstack = page.evaluate(
+        """() => new Promise((resolve) => {
+          const s = document.createElement('script');
+          s.src = '/vendor/gridstack/gridstack-all.js';
+          s.onload = () => resolve(typeof (window.GridStack?.GridStack || window.GridStack)?.init === 'function');
+          s.onerror = () => resolve(false);
+          document.head.append(s);
+        })"""
+    )
+    print("gridstack loaded:", gridstack)
+    assert gridstack, "GridStack did not load from /vendor/gridstack"
     browser.close()
 
 print("kits:", result)

@@ -2,6 +2,7 @@ import * as store from '../store.js';
 import { GUARD_TEXT, PLAN, PLAN_FIRST, PLAN_VARIANTS, SERVICES } from '../content.js';
 import { button, field, textarea } from '../ui.js';
 import { t } from '../text.js';
+import { closeTabOf } from '../pane.js';
 import { h, openDialog, toast, withPhoneLinks, put } from '../util.js';
 
 export const live = false;
@@ -70,8 +71,8 @@ export function render(root) {
   );
 }
 
-// The part you carry: one tap from anywhere.
-export function openPlanCard() {
+// The plan card's content: what you wrote, plus the services list. The Bridge shows it in a widget.
+export function planCardBody() {
   const a = store.plan().answers;
   const block = (title, text, { phones = false } = {}) => h('section', {},
     h('h3', {}, title),
@@ -87,7 +88,12 @@ export function openPlanCard() {
     h('section', {}, h('h3', {}, t('plan.card.services')),
       h('ul', { class: 'services' }, SERVICES.map((s) => h('li', {},
         h('a', { href: `tel:${s.number.replace(/\s+/g, '')}` }, `${s.name} ${s.number}`), s.note && h('small', {}, s.note))))),
-    h('p', {}, h('a', { href: '#/plan', onclick: () => document.querySelector('dialog[open]')?.close() }, t('plan.card.edit'))),
+    h('p', {}, h('a', { href: '#/plan', onclick: (e) => { if (!closeTabOf(e.currentTarget)) document.querySelector('dialog[open]')?.close(); } }, t('plan.card.edit'))),
   );
-  openDialog(t('plan.card.title'), body, { wide: true });
+  return body;
+}
+
+// The part you carry: one tap from anywhere.
+export function openPlanCard() {
+  openDialog(t('plan.card.title'), planCardBody(), { wide: true, key: 'plan-card' });
 }

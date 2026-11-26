@@ -236,6 +236,46 @@ with sync_playwright() as p:
     page.screenshot(path=SHOTS / "02-today-desktop.png", full_page=True)
     page.emulate_media(color_scheme="dark")
     page.screenshot(path=SHOTS / "02-today-desktop-dark.png", full_page=True)
+    page.emulate_media(color_scheme="light")
+
+    # --- the Bridge on a wide screen: starter board, side pane tabs, catalogue, options, layout code
+    page.goto(f"{BASE}/#/bridge")
+    starter = page.evaluate("import('/js/widgets.js').then(m => m.STARTER.length)")
+    expect(page.locator(".grid-stack .bw")).to_have_count(starter, timeout=20000)
+    page.locator(".side a[data-nav='settings']").click()
+    expect(page.locator(".pane .pane-tab", has_text="Settings")).to_be_visible()
+    expect(page.locator(".grid-stack")).to_be_visible()  # the main screen stays on the Bridge
+    page.get_by_role("button", name="Add widget").click()
+    page.locator(".bw-catalogue [data-fk='add-body']").click()
+    expect(page.locator(".bw[data-type='body']")).to_have_count(1)
+    page.locator(".bw[data-type='clock'] [aria-label='Options for Clock']").first.click()
+    form = page.locator(".pane-body:not([hidden])")
+    set_control(form.locator("#f-title"), "Ship clock")
+    form.get_by_role("button", name="Save options").click()
+    expect(page.locator(".bw[data-type='clock'] .bw-title")).to_have_text("Ship clock")
+    page.locator(".bw[data-type='clock'] [aria-label='Roll up']").first.click()
+    expect(page.locator(".bw[data-type='clock'][data-rolled]")).to_have_count(1)
+    page.get_by_role("button", name="Board settings").click()
+    code = page.locator(".pane-body:not([hidden]) textarea.code").input_value()
+    assert code.startswith("XB1-"), code
+    page.screenshot(path=SHOTS / "03-bridge-desktop.png")
+    # an add form opens as a pane tab and closes itself when saved
+    page.locator(".bw[data-type='launcher']").get_by_role("button", name="Add task").click()
+    form = page.locator(".pane-body:not([hidden])")
+    set_control(form.locator("#f-title"), "Added on the Bridge")
+    form.get_by_role("button", name="Save").click()
+    expect(page.locator(".bw[data-type='tasks']", has_text="Added on the Bridge")).to_have_count(1)
+    expect(page.locator(".pane-tab", has_text="Add task")).to_have_count(0)
+
+    # --- the Bridge on a phone: one column, hide a widget for this phone only
+    page.set_viewport_size({"width": 412, "height": 915})
+    page.goto(f"{BASE}/#/bridge")
+    expect(page.locator(".bw-stack .bw")).to_have_count(starter + 1, timeout=20000)
+    page.get_by_role("button", name="Arrange", exact=True).click()
+    page.locator(".bw").first.locator("[aria-label='Hide on this phone']").click()
+    page.get_by_role("button", name="Done arranging").click()
+    expect(page.locator(".bw-stack .bw")).to_have_count(starter)
+    page.screenshot(path=SHOTS / "04-bridge-phone.png", full_page=True)
 
     sw = page.evaluate("navigator.serviceWorker.getRegistration().then(r => !!r)")
     browser.close()

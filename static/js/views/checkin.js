@@ -2,6 +2,7 @@ import * as store from '../store.js';
 import { BODY_CHIPS, DAY_CHIPS, GUARD_TEXT, SLEEP_CHIPS, WEEKLY_QUESTIONS } from '../content.js';
 import { addDays, fmtDay, fmtLong, h, toast, today, withPhoneLinks, put } from '../util.js';
 import { button, chip, textarea } from '../ui.js';
+import { closeTabOf } from '../pane.js';
 import { t, text } from '../text.js';
 import { checkinId, dayEntries } from './today.js';
 import { openPlanCard } from './plan.js';
@@ -47,7 +48,7 @@ function saveBar(type, day, state) {
     try {
       await store.save('checkin', checkinId(type, day), { ...state, type, at: new Date().toISOString() }, { day });
       toast(t('checkin.saved_toast'));
-      location.hash = '#/today';
+      if (!closeTabOf(btn)) location.hash = '#/today';
     } catch (err) { toast(err.message, 'bad'); btn.disabled = false; }
   });
   return h('div', { class: 'savebar' }, btn);

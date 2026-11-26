@@ -38,16 +38,22 @@ function apptGroups(list) {
     h('ul', { class: 'list timed' }, list.filter((a) => a.data.date === day).map(apptRow))));
 }
 
+// Upcoming appointments grouped by day. ahead: days to show (0 for all).
+export function diaryPart({ ahead = 0 } = {}) {
+  const day = today();
+  const appts = store.byKind('appointment').sort(sortAppts);
+  const upcoming = appts.filter((a) => a.data.date >= day && (!ahead || a.data.date <= addDays(day, ahead)));
+  return upcoming.length ? apptGroups(upcoming) : h('p', { class: 'empty' }, t('lists.diary.empty'));
+}
+
 export const diary = {
   live: true,
   render(root) {
     const day = today();
-    const appts = store.byKind('appointment').sort(sortAppts);
-    const upcoming = appts.filter((a) => a.data.date >= day);
-    const past = appts.filter((a) => a.data.date < day).reverse().slice(0, 15);
+    const past = store.byKind('appointment').sort(sortAppts).filter((a) => a.data.date < day).reverse().slice(0, 15);
     put(root,
       head(t('lists.diary.heading'), addBtn(t('lists.diary.add'), () => editAppointment())),
-      upcoming.length ? apptGroups(upcoming) : h('p', { class: 'empty' }, t('lists.diary.empty')),
+      diaryPart(),
       past.length > 0 && h('details', {}, h('summary', {}, t('lists.diary.past', { count: past.length })), apptGroups(past)),
     );
   },
@@ -85,103 +91,125 @@ function quickAdd(placeholder, extra, focusKey) {
   }, field, button(t('lists.shared.add'), { variant: 'primary', type: 'submit' }));
 }
 
+// The task lists as sections: quick (add box), picked (today's three), soon (due this week), rest, done.
+export function taskParts() {
+  const day = today();
+  const allTasks = store.byKind('task');
+  const open = allTasks.filter((task) => !task.data.done);
+  const picked = allTasks.filter((task) => task.data.today === day);
+  const soon = open.filter((task) => task.data.today !== day && task.data.due && task.data.due <= addDays(day, 7)).sort((a, b) => a.data.due.localeCompare(b.data.due));
+  const rest = open.filter((task) => task.data.today !== day && !soon.includes(task)).sort((a, b) => (a.data.project || '').localeCompare(b.data.project || '') || a.data.title.localeCompare(b.data.title));
+  const done = allTasks.filter((task) => task.data.done && task.data.today !== day).sort((a, b) => (b.data.doneAt || '').localeCompare(a.data.doneAt || '')).slice(0, 20);
+  const section = (title, list, empty) => h('section', {}, h('h2', {}, title),
+    list.length ? h('ul', { class: 'list' }, list.map((task) => taskRow(task))) : empty && h('p', { class: 'empty' }, empty));
+  return {
+    quick: quickAdd(t('lists.tasks.add_placeholder'), {}, 'task'),
+    picked: section(t('lists.tasks.todays_three'), picked, t('lists.tasks.pick_empty')),
+    soon: soon.length > 0 && section(t('lists.tasks.due_week'), soon),
+    rest: section(t('lists.tasks.everything_else'), rest, open.length ? null : t('lists.tasks.none_open')),
+    done: done.length > 0 && h('details', {}, h('summary', {}, t('lists.tasks.done', { count: done.length })), h('ul', { class: 'list' }, done.map((task) => taskRow(task)))),
+  };
+}
+
 export const tasks = {
   live: true,
   render(root) {
-    const day = today();
-    const allTasks = store.byKind('task');
-    const open = allTasks.filter((task) => !task.data.done);
-    const picked = allTasks.filter((task) => task.data.today === day);
-    const soon = open.filter((task) => task.data.today !== day && task.data.due && task.data.due <= addDays(day, 7)).sort((a, b) => a.data.due.localeCompare(b.data.due));
-    const rest = open.filter((task) => task.data.today !== day && !soon.includes(task)).sort((a, b) => (a.data.project || '').localeCompare(b.data.project || '') || a.data.title.localeCompare(b.data.title));
-    const done = allTasks.filter((task) => task.data.done && task.data.today !== day).sort((a, b) => (b.data.doneAt || '').localeCompare(a.data.doneAt || '')).slice(0, 20);
-    const section = (title, list, empty) => h('section', {}, h('h2', {}, title),
-      list.length ? h('ul', { class: 'list' }, list.map((task) => taskRow(task))) : empty && h('p', { class: 'empty' }, empty));
-    put(root,
-      head(t('lists.tasks.heading')),
-      quickAdd(t('lists.tasks.add_placeholder'), {}, 'task'),
-      section(t('lists.tasks.todays_three'), picked, t('lists.tasks.pick_empty')),
-      soon.length > 0 && section(t('lists.tasks.due_week'), soon),
-      section(t('lists.tasks.everything_else'), rest, open.length ? null : t('lists.tasks.none_open')),
-      done.length > 0 && h('details', {}, h('summary', {}, t('lists.tasks.done', { count: done.length })), h('ul', { class: 'list' }, done.map((task) => taskRow(task)))),
-    );
+    const p = taskParts();
+    put(root, head(t('lists.tasks.heading')), p.quick, p.picked, p.soon, p.rest, p.done);
   },
 };
+
+// The routine list with the last seven days of ticks.
+export function routinePart() {
+  const list = store.byKind('routine').sort((a, b) => a.data.time.localeCompare(b.data.time));
+  const days = [...Array(7)].map((_, i) => addDays(today(), i - 6));
+  return list.length ? h('ul', { class: 'list timed' }, list.map((r) => h('li', { class: r.data.active === false ? 'off' : '' },
+    h('span', { class: 't' }, fmtTime(r.data.time)),
+    rowMain([h('span', {}, r.data.label), r.data.active === false && h('small', {}, t('lists.routine.reminder_off'))], () => editRoutine(r)),
+    h('span', { class: 'dots', 'aria-label': t('lists.routine.ticked', { count: days.filter((d) => store.isTicked(r.id, d)).length }) },
+      days.map((d) => h('i', { class: store.isTicked(r.id, d) ? 'on' : '' }))))))
+    : h('p', { class: 'empty' }, t('lists.routine.empty'));
+}
 
 export const routine = {
   live: true,
   render(root) {
-    const list = store.byKind('routine').sort((a, b) => a.data.time.localeCompare(b.data.time));
-    const days = [...Array(7)].map((_, i) => addDays(today(), i - 6));
     put(root,
       head(t('lists.routine.heading'), addBtn(t('lists.routine.add'), () => editRoutine())),
       h('p', { class: 'note' }, t('lists.routine.note')),
-      list.length ? h('ul', { class: 'list timed' }, list.map((r) => h('li', { class: r.data.active === false ? 'off' : '' },
-        h('span', { class: 't' }, fmtTime(r.data.time)),
-        rowMain([h('span', {}, r.data.label), r.data.active === false && h('small', {}, t('lists.routine.reminder_off'))], () => editRoutine(r)),
-        h('span', { class: 'dots', 'aria-label': t('lists.routine.ticked', { count: days.filter((d) => store.isTicked(r.id, d)).length }) },
-          days.map((d) => h('i', { class: store.isTicked(r.id, d) ? 'on' : '' }))))))
-        : h('p', { class: 'empty' }, t('lists.routine.empty')),
+      routinePart(),
     );
   },
 };
+
+// Open bills, soonest first, with the total due in the next 30 days. ahead: days to list (0 for all).
+export function billsPart({ ahead = 0 } = {}) {
+  const day = today();
+  const open = store.byKind('bill').filter((b) => !b.data.finished && (!ahead || b.data.due <= addDays(day, ahead))).sort((a, b) => a.data.due.localeCompare(b.data.due));
+  const total = open.filter((b) => b.data.due <= addDays(day, 30)).reduce((sum, b) => sum + (Number(b.data.amount) || 0), 0);
+  return [
+    open.length > 0 && h('p', { class: 'figure' }, h('strong', {}, fmtMoney(total)), ' ', t('lists.bills.due_next_30')),
+    open.length ? h('ul', { class: 'list' }, open.map((b) => {
+      const d = b.data;
+      const late = d.due < day;
+      const due = t('lists.bills.due', { when: relDay(d.due) }) + (daysBetween(day, d.due) > 6 ? '' : `, ${fmtDay(d.due)}`);
+      return h('li', { class: late ? 'late' : '' },
+        rowMain([
+          h('span', {}, d.name, d.amount > 0 && h('span', { class: 'meta' }, fmtMoney(d.amount))),
+          h('small', {}, [late ? t('lists.bills.overdue_since', { day: fmtDay(d.due) }) : due,
+            d.autopay && t('lists.bills.paid_automatically'), d.repeat !== 'none' && d.repeat].filter(Boolean).join(', ')),
+        ], () => editBill(b)),
+        button(t('lists.shared.paid'), { class: 'small', onclick: () => payBill(b).catch(fail) }));
+    })) : h('p', { class: 'empty' }, t('lists.bills.empty')),
+  ];
+}
 
 export const bills = {
   live: true,
   render(root) {
-    const day = today();
-    const open = store.byKind('bill').filter((b) => !b.data.finished).sort((a, b) => a.data.due.localeCompare(b.data.due));
-    const total = open.filter((b) => b.data.due <= addDays(day, 30)).reduce((sum, b) => sum + (Number(b.data.amount) || 0), 0);
-    put(root,
-      head(t('lists.bills.heading'), addBtn(t('lists.bills.add'), () => editBill())),
-      open.length > 0 && h('p', { class: 'figure' }, h('strong', {}, fmtMoney(total)), ' ', t('lists.bills.due_next_30')),
-      open.length ? h('ul', { class: 'list' }, open.map((b) => {
-        const d = b.data;
-        const late = d.due < day;
-        const due = t('lists.bills.due', { when: relDay(d.due) }) + (daysBetween(day, d.due) > 6 ? '' : `, ${fmtDay(d.due)}`);
-        return h('li', { class: late ? 'late' : '' },
-          rowMain([
-            h('span', {}, d.name, d.amount > 0 && h('span', { class: 'meta' }, fmtMoney(d.amount))),
-            h('small', {}, [late ? t('lists.bills.overdue_since', { day: fmtDay(d.due) }) : due,
-              d.autopay && t('lists.bills.paid_automatically'), d.repeat !== 'none' && d.repeat].filter(Boolean).join(', ')),
-          ], () => editBill(b)),
-          button(t('lists.shared.paid'), { class: 'small', onclick: () => payBill(b).catch(fail) }));
-      })) : h('p', { class: 'empty' }, t('lists.bills.empty')),
-    );
+    put(root, head(t('lists.bills.heading'), addBtn(t('lists.bills.add'), () => editBill())), billsPart());
   },
 };
+
+// The obligations sections: court (dates), courtTasks, conditions, reports.
+export function obligationParts() {
+  const day = today();
+  const court = store.byKind('appointment').filter((a) => a.data.court && a.data.date >= day).sort(sortAppts);
+  const courtTasks = store.byKind('task').filter((task) => (task.data.project || '').toLowerCase() === 'court' && !task.data.done);
+  const conditions = store.byKind('obligation').sort((a, b) => a.data.title.localeCompare(b.data.title));
+  const reports = store.byKind('report').sort((a, b) => b.data.date.localeCompare(a.data.date));
+  const when = (d) => d.schedule === 'daily' ? t('lists.obligations.every_day', { time: fmtTime(d.time) })
+    : d.schedule === 'weekly' ? t('lists.obligations.every_weekday', { weekday: text('forms.weekdays')[String(Number(d.weekday))], time: fmtTime(d.time) }) : '';
+  return {
+    court: h('section', {}, h('div', { class: 'sec-head' }, h('h2', {}, t('lists.obligations.court_heading')), addBtn(t('lists.obligations.court_add'), () => editAppointment(null, { court: true, prep: 45, travel: 45 }))),
+      court.length ? apptGroups(court) : h('p', { class: 'empty' }, t('lists.obligations.court_empty'))),
+    courtTasks: h('section', {}, h('div', { class: 'sec-head' }, h('h2', {}, t('lists.obligations.tasks_heading'))),
+      quickAdd(t('lists.obligations.tasks_placeholder'), { project: 'Court' }, 'court'),
+      courtTasks.length ? h('ul', { class: 'list' }, courtTasks.map((task) => taskRow(task))) : h('p', { class: 'empty' }, t('lists.obligations.tasks_empty'))),
+    conditions: h('section', {}, h('div', { class: 'sec-head' }, h('h2', {}, t('lists.obligations.conditions_heading')), addBtn(t('lists.obligations.conditions_add'), () => editObligation())),
+      conditions.length ? h('ul', { class: 'list' }, conditions.map((o) => h('li', {},
+        rowMain([
+          h('span', {}, o.data.title),
+          o.data.detail && h('small', { class: 'pre' }, o.data.detail),
+          [when(o.data), o.data.contact].filter(Boolean).length > 0 && h('small', {}, [when(o.data), o.data.contact].filter(Boolean).join('. ')),
+        ], () => editObligation(o)))))
+        : h('p', { class: 'empty' }, t('lists.obligations.conditions_empty'))),
+    reports: h('section', {}, h('div', { class: 'sec-head' }, h('h2', {}, t('lists.obligations.reports_heading')), addBtn(t('lists.obligations.reports_add'), () => editReport())),
+      reports.length ? h('ul', { class: 'list timed' }, reports.map((r) => h('li', {},
+        h('span', { class: 't' }, fmtDay(r.data.date)),
+        rowMain([h('span', { class: 'pre' }, r.data.what), r.data.who && h('small', {}, t('lists.obligations.told', { who: r.data.who }))], () => editReport(r)))))
+        : h('p', { class: 'empty' }, t('lists.obligations.reports_empty'))),
+  };
+}
 
 export const obligations = {
   live: true,
   render(root) {
-    const day = today();
-    const court = store.byKind('appointment').filter((a) => a.data.court && a.data.date >= day).sort(sortAppts);
-    const courtTasks = store.byKind('task').filter((task) => (task.data.project || '').toLowerCase() === 'court' && !task.data.done);
-    const conditions = store.byKind('obligation').sort((a, b) => a.data.title.localeCompare(b.data.title));
-    const reports = store.byKind('report').sort((a, b) => b.data.date.localeCompare(a.data.date));
-    const when = (d) => d.schedule === 'daily' ? t('lists.obligations.every_day', { time: fmtTime(d.time) })
-      : d.schedule === 'weekly' ? t('lists.obligations.every_weekday', { weekday: text('forms.weekdays')[String(Number(d.weekday))], time: fmtTime(d.time) }) : '';
+    const p = obligationParts();
     put(root,
       head(t('lists.obligations.heading')),
       h('p', { class: 'note' }, t('lists.obligations.note')),
-      h('section', {}, h('div', { class: 'sec-head' }, h('h2', {}, t('lists.obligations.court_heading')), addBtn(t('lists.obligations.court_add'), () => editAppointment(null, { court: true, prep: 45, travel: 45 }))),
-        court.length ? apptGroups(court) : h('p', { class: 'empty' }, t('lists.obligations.court_empty'))),
-      h('section', {}, h('div', { class: 'sec-head' }, h('h2', {}, t('lists.obligations.tasks_heading'))),
-        quickAdd(t('lists.obligations.tasks_placeholder'), { project: 'Court' }, 'court'),
-        courtTasks.length ? h('ul', { class: 'list' }, courtTasks.map((task) => taskRow(task))) : h('p', { class: 'empty' }, t('lists.obligations.tasks_empty'))),
-      h('section', {}, h('div', { class: 'sec-head' }, h('h2', {}, t('lists.obligations.conditions_heading')), addBtn(t('lists.obligations.conditions_add'), () => editObligation())),
-        conditions.length ? h('ul', { class: 'list' }, conditions.map((o) => h('li', {},
-          rowMain([
-            h('span', {}, o.data.title),
-            o.data.detail && h('small', { class: 'pre' }, o.data.detail),
-            [when(o.data), o.data.contact].filter(Boolean).length > 0 && h('small', {}, [when(o.data), o.data.contact].filter(Boolean).join('. ')),
-          ], () => editObligation(o)))))
-          : h('p', { class: 'empty' }, t('lists.obligations.conditions_empty'))),
-      h('section', {}, h('div', { class: 'sec-head' }, h('h2', {}, t('lists.obligations.reports_heading')), addBtn(t('lists.obligations.reports_add'), () => editReport())),
-        reports.length ? h('ul', { class: 'list timed' }, reports.map((r) => h('li', {},
-          h('span', { class: 't' }, fmtDay(r.data.date)),
-          rowMain([h('span', { class: 'pre' }, r.data.what), r.data.who && h('small', {}, t('lists.obligations.told', { who: r.data.who }))], () => editReport(r)))))
-          : h('p', { class: 'empty' }, t('lists.obligations.reports_empty'))),
+      p.court, p.courtTasks, p.conditions, p.reports,
     );
   },
 };

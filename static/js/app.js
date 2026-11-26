@@ -2,9 +2,11 @@
 import * as store from './store.js';
 import { DEFAULT_ROUTINES, DEFAULT_SETTINGS } from './content.js';
 import { loadWebAwesome } from './kit.js';
-import { loadText } from './text.js';
+import { openTab, paneElement, paneOn, redrawPages } from './pane.js';
+import { loadText, t } from './text.js';
 import { focusControl } from './ui.js';
 import { dialogOpen, h, kvClear, kvSet, put, toast, uid } from './util.js';
+import * as bridgeView from './views/bridge.js';
 import * as todayView from './views/today.js';
 import * as checkinView from './views/checkin.js';
 import * as planView from './views/plan.js';
@@ -13,7 +15,7 @@ import * as appearanceView from './views/appearance.js';
 import { bills, diary, obligations, routine, tasks } from './views/lists.js';
 
 const NAV = [
-  ['today', 'Today'], ['diary', 'Diary'], ['tasks', 'Tasks'], ['obligations', 'Obligations'],
+  ['bridge', 'Bridge'], ['today', 'Today'], ['diary', 'Diary'], ['tasks', 'Tasks'], ['obligations', 'Obligations'],
   ['routine', 'Routine'], ['bills', 'Bills'], ['checkin', 'Check-ins'], ['plan', 'My plan'], ['appearance', 'Appearance'], ['settings', 'Settings'],
 ];
 const L = window.XOLook;
@@ -26,7 +28,7 @@ const more = {
       h('ul', { class: 'list links' }, NAV.filter(([k]) => !tabs().includes(k)).map(([k, label]) => h('li', {}, h('a', { class: 'row-main', href: `#/${k}` }, label)))));
   },
 };
-const VIEWS = { today: todayView, diary, tasks, obligations, routine, bills, checkin: checkinView, plan: planView, settings: settingsView, appearance: appearanceView, more };
+const VIEWS = { bridge: bridgeView, today: todayView, diary, tasks, obligations, routine, bills, checkin: checkinView, plan: planView, settings: settingsView, appearance: appearanceView, more };
 
 // Web Awesome is fetched only when the Kit choice is Web Awesome. Wait for it before any redraw.
 const ensureKit = () => (document.documentElement.dataset.kit === 'wa' ? loadWebAwesome().catch(() => {}) : Promise.resolve());
@@ -37,24 +39,42 @@ let pending = false;
 let loadedAt = 0;
 
 function route() {
-  const [name = 'today', ...params] = location.hash.replace(/^#\/?/, '').split('/');
-  return { name: VIEWS[name] ? name : 'today', params };
+  const start = bridgeView.startScreen();
+  const [name = start, ...params] = location.hash.replace(/^#\/?/, '').split('/');
+  return { name: VIEWS[name] ? name : start, params };
+}
+
+// On a wide screen Settings, Appearance and the check-in forms open as tabs in the right
+// split pane, and the main screen stays where it was.
+const inPane = (name, params) => paneOn() && (name === 'settings' || name === 'appearance' || (name === 'checkin' && params.length > 0));
+let mainHash = '';
+function pageTitle(name, params) {
+  if (name !== 'checkin') return NAV.find(([k]) => k === name)[1];
+  const known = ['morning', 'evening', 'weekly'].includes(params[0]);
+  return known ? `${t(`checkin.title.${params[0]}`)}${params[1] ? `, ${params[1]}` : ''}` : NAV.find(([k]) => k === 'checkin')[1];
+}
+function openPage(name, params) {
+  const v = VIEWS[name];
+  openTab({ key: `page:${[name, ...params].join('/')}`, title: pageTitle(name, params), kind: 'page', fill: (el) => v.render(el, ...params) });
 }
 
 function draw({ keepScroll = false, keepFocus = false } = {}) {
   const root = document.getElementById('view');
   if (!root) return;
   const focusKey = keepFocus && document.activeElement?.dataset?.fk;
-  const { name, params } = route();
+  let { name, params } = route();
+  if (inPane(name, params)) {
+    openPage(name, params);
+    history.replaceState(null, '', mainHash || '#/');
+    ({ name, params } = route());
+    if (view === VIEWS[name] && root.childElementCount) { markNav(name); pending = false; return; }
+  } else mainHash = location.hash;
   view = VIEWS[name];
   const y = window.scrollY;
   root.replaceChildren();
+  root.dataset.view = name;
   view.render(root, ...params);
-  document.querySelectorAll('[data-nav]').forEach((a) => {
-    const on = a.dataset.nav === name || (a.dataset.nav === 'more' && !tabs().includes(name));
-    a.classList.toggle('on', on);
-    on ? a.setAttribute('aria-current', 'page') : a.removeAttribute('aria-current');
-  });
+  markNav(name);
   if (keepScroll) window.scrollTo(0, y); else window.scrollTo(0, 0);
   const refocus = sessionStorage.getItem('refocus');
   if (refocus) {
@@ -64,6 +84,14 @@ function draw({ keepScroll = false, keepFocus = false } = {}) {
   }
   if (focusKey) document.querySelector(`[data-fk="${CSS.escape(focusKey)}"]`)?.focus({ preventScroll: true });
   pending = false;
+}
+
+function markNav(name) {
+  document.querySelectorAll('[data-nav]').forEach((a) => {
+    const on = a.dataset.nav === name || (a.dataset.nav === 'more' && !tabs().includes(name));
+    a.classList.toggle('on', on);
+    on ? a.setAttribute('aria-current', 'page') : a.removeAttribute('aria-current');
+  });
 }
 
 function shell() {
@@ -77,6 +105,7 @@ function shell() {
     h('div', { class: 'main' },
       h('header', { class: 'top' }, brand(), actions()),
       h('main', { id: 'view', tabindex: '-1' })),
+    paneElement(),
     h('nav', { class: 'tabs', 'aria-label': 'Sections', 'data-tabs': tabs().join(',') }, tabs().map((k) => link(NAV.find(([n]) => n === k))), h('a', { href: '#/more', 'data-nav': 'more' }, 'More')),
   );
   draw();
@@ -94,6 +123,7 @@ window.addEventListener('xo:look', async (e) => {
   }
   if (e.detail.quiet) return;
   await ensureKit();
+  redrawPages((tab) => tab.key.startsWith('page:appearance'));
   if (dialogOpen()) pending = true; else draw({ keepScroll: true, keepFocus: true });
 });
 

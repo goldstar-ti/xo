@@ -62,6 +62,7 @@ Build one at a time, with tests, and keep each first version small.
 - `#/workbook`: contents by part, each unit with boxes answered out of total, and a "Continue" button for the next sitting. Any unit can be opened directly.
 - `#/workbook/<unitId>/<n>`: one sitting. Breadcrumb (part, number, title, "sitting 2 of 3"), the blocks, autosaving text boxes, then "Done for today" and "Next sitting".
 - Today: a "Workbook" block showing the next sitting and its size, and a day-line entry at the workbook reminder time. Add `workbook` to `BLOCKS` in `boot.js` so it can be hidden and reordered.
+- Bridge: a `workbook` widget in `static/js/widgets.js` showing the next sitting, with a "Continue" button that opens it.
 - Reminder: daily at a time set in Settings (suggest 4:30 pm). Reminder kind `workbook`, neutral wording "Today's sitting is ready". Completing a sitting sets `tick:workbook:<day>`.
 - The writing reminder (`settings().showGuard`) shows once at the top of a worksheet sitting when switched on.
 

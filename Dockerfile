@@ -18,6 +18,11 @@ RUN mkdir -p /vendor/webawesome /vendor/fontawesome \
          LICENSE.md /vendor/webawesome/ \
     && cd ../../@fortawesome/fontawesome-free \
     && cp -r svgs LICENSE.txt /vendor/fontawesome/
+# GridStack for the Bridge board: the self-contained browser build (it sets window.GridStack),
+# its stylesheet, and the licence files. Loaded on first use by static/js/board.js.
+RUN mkdir -p /vendor/gridstack \
+    && cd node_modules/gridstack \
+    && cp dist/gridstack-all.js dist/gridstack-all.js.map dist/gridstack-all.js.LICENSE.txt dist/gridstack.min.css LICENSE /vendor/gridstack/
 COPY tailwind/src ./src
 COPY static /static
 RUN bun run build

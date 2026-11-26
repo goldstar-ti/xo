@@ -7,6 +7,7 @@ It runs as a web app that installs on Android and desktop.
 
 Version 1 covers:
 
+- **Bridge**: a board of widgets for a wide screen (and a one-column version for the phone). Every Today section, the lists, obligations, check-ins and the plan card, plus a clock, week strip, month calendar, money totals, check-in answers, a body log and a days-until countdown. Drag, resize, roll up, rename, set options per widget, and copy the whole board to another device with a layout code
 - **Today**: one screen with the next thing to do, today's three tasks, and the day in time order
 - **Diary**: appointments with get-ready and leave reminders
 - **Tasks**: first small step, time guess (the app allows half again), due dates, three picks a day
@@ -15,6 +16,7 @@ Version 1 covers:
 - **Obligations**: court dates, court tasks, conditions with recurring reminders, a reporting record
 - **Check-ins**: morning, evening, and a weekly review built from the five questions in Concept 17
 - **My plan**: the Relapse Prevention Plan, one box at a time, and a plan card one tap from every screen
+- **Side pane** (desktop): Settings, Appearance, check-ins, the plan card and every add or edit form open as tabs on the right, beside the screen you are on
 - **Appearance**: ten themes, your own colours and saved themes, seven typefaces, shape, density, texture, layout variants, scheduled looks and look codes. A "Look" button in the header opens the quick panel on any screen
 
 Not built yet, specced in `docs/ROADMAP.md`: the workbook in daily sittings, outputs for named readers, and the life story.
@@ -93,10 +95,12 @@ make test && make up
 - A reminder that comes due while the server is off is skipped if more than two hours late. Repeating reminders carry on from the next occurrence.
 - Appointments are not synced to Google Calendar. Each one has a "To calendar" link that opens Google Calendar with the entry filled in, if you want the phone's own alarm as a backup. Using it sends that entry's title and place to Google.
 
-## Appearance is per device
+## Appearance and the Bridge are per device
 
-Your look is stored in the browser on each device and is never sent to the server.
+Your look and your Bridge layout are stored in the browser on each device and are never sent to the server.
 To carry a look to another device, copy its look code from Appearance and type it in there.
+To carry a Bridge layout, copy the layout code from Board settings on the Bridge.
+On a desktop window the text grows with the window, so a 5120-wide screen at 100% scaling reads like a laptop; the Text size dial multiplies it.
 
 ## The workbook data
 
@@ -112,7 +116,7 @@ It contains the workbook's full text, so keep this repository private.
 ## Editing text
 
 The app's wording sits in YAML files in `content/text/` (`common.yaml`, `plan.yaml`, `checkin.yaml`,
-`today.yaml`, `defaults.yaml`). Each file starts with a note on how to edit it. Save the file and
+`today.yaml`, `lists.yaml`, `forms.yaml`, `bridge.yaml`, `pane.yaml`, `defaults.yaml`). Each file starts with a note on how to edit it. Save the file and
 reload the page: no rebuild and no restart. A file with a mistake keeps its last good version.
 `make test-api` checks that every file parses.
 
@@ -128,6 +132,9 @@ static/         the app itself (plain JavaScript modules, no JavaScript build st
   tw.css        Tailwind output, built at image build time (gitignored)
   js/store.js   save, load, and reminder times for each kind of entry
   js/boot.js    appearance engine, loaded before first paint
+  js/board.js   the Bridge board (GridStack, layout, dials, layout codes, phone order)
+  js/widgets.js the widget catalogue: one entry per widget
+  js/pane.js    the side pane with tabs on desktop
   js/views/     one file per screen
   sw.js         service worker: offline shell and notifications
 tailwind/                   Tailwind source (src/tw.css), package.json and bun.lock

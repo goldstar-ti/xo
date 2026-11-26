@@ -12,7 +12,7 @@ const setPrefs = (patch) => L.change((s) => Object.assign(s.prefs, patch));
 const redraw = () => window.dispatchEvent(new CustomEvent('xo:look', { detail: { quiet: false } }));
 const title = (text) => text.charAt(0).toUpperCase() + text.slice(1);
 
-const SECTION_NAMES = { today: 'Today', diary: 'Diary', tasks: 'Tasks', obligations: 'Obligations', routine: 'Routine', bills: 'Bills', checkin: 'Check-ins', plan: 'My plan', settings: 'Settings', appearance: 'Appearance' };
+const SECTION_NAMES = { bridge: 'Bridge', today: 'Today', diary: 'Diary', tasks: 'Tasks', obligations: 'Obligations', routine: 'Routine', bills: 'Bills', checkin: 'Check-ins', plan: 'My plan', settings: 'Settings', appearance: 'Appearance' };
 const BLOCK_NAMES = { line: 'Daily line', next: 'Next up', three: 'Today’s three', day: 'The day', coming: 'Coming up', plan: 'Plan progress' };
 const HUES = [25, 50, 80, 110, 140, 165, 195, 225, 255, 285, 315, 345];
 
@@ -85,7 +85,7 @@ export function openLookPanel() {
   };
   const onLook = (e) => { if (!e.detail.quiet) draw(); };
   window.addEventListener('xo:look', onLook);
-  const dlg = openDialog('Look', body, { wide: true });
+  const dlg = openDialog('Look', body, { wide: true, key: 'look' });
   dlg.addEventListener('close', () => window.removeEventListener('xo:look', onLook));
   draw();
 }

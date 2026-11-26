@@ -7,7 +7,7 @@ import { addDays, daysBetween, fmtDay, fmtDuration, fmtLong, fmtMoney, fmtTime, 
 
 export const live = true;
 
-function lineForToday() {
+export function lineForToday() {
   const own = store.settings().lines.split('\n').map((s) => s.trim()).filter(Boolean);
   const matters = (store.plan().answers.good_matters || '').trim();
   const pool = [...LINES, ...own, ...own]; // your own lines come up twice as often
@@ -81,8 +81,10 @@ function planNudge() {
   return { text: t('today.nudge.progress', { filled: filled.length, total: boxes.length, question: next.q }) };
 }
 
-export function render(root) {
-  const day = today();
+// The Today sections, each a finished element (or false when there is nothing to show).
+// The Today screen stacks them; the Bridge puts each in its own widget.
+//   horizon: days ahead that Coming up covers (court dates always get at least twice that).
+export function todayBlocks({ day = today(), horizon: ahead = 7 } = {}) {
   const entries = dayEntries(day);
   const line = lineForToday();
   const up = nextUp(entries);
@@ -124,10 +126,10 @@ export function render(root) {
         task.data.est > 0 && !task.data.done && h('span', { class: 'meta' }, t('lists.shared.allow', { duration: fmtDuration(task.data.est * 1.5) })))))
     : h('p', { class: 'empty' }, t('today.three.empty_lead'), ' ', h('a', { href: '#/tasks' }, t('today.three.choose')), ' ', t('today.three.empty_tail'));
 
-  const horizon = addDays(day, 7);
+  const horizon = addDays(day, ahead);
   const coming = [];
   for (const a of store.byKind('appointment'))
-    if (a.data.date > day && a.data.date <= addDays(day, a.data.court ? 14 : 7))
+    if (a.data.date > day && a.data.date <= addDays(day, a.data.court ? ahead * 2 : ahead))
       coming.push({ day: a.data.date, text: `${a.data.title}, ${fmtTime(a.data.time)}`, tag: t(a.data.court ? 'today.coming.court' : 'today.coming.appointment'), open: () => editAppointment(a) });
   for (const task of store.byKind('task'))
     if (!task.data.done && task.data.due && task.data.due <= horizon)
@@ -164,6 +166,12 @@ export function render(root) {
         : h('p', { class: 'empty' }, t('today.coming.empty'))),
     plan: nudge && h('section', {}, h('p', { class: 'nudge' }, nudge.text, ' ', h('a', { href: '#/plan' }, t('today.nudge.open')))),
   };
+  return { blocks, greeting, day };
+}
+
+export function render(root) {
+  const { blocks, greeting, day } = todayBlocks();
+  const prefs = window.XOLook.prefs;
   put(root,
     greeting && h('p', { class: 'greet' }, greeting),
     h('header', { class: 'page-head' }, h('h1', {}, fmtLong(day))),
