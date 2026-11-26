@@ -25,3 +25,6 @@ VAPID_SUBJECT = os.environ.get("VAPID_SUBJECT", "mailto:you@example.com")
 SCHEDULER_INTERVAL = int(os.environ.get("SCHEDULER_INTERVAL", "20"))
 # Set false in tests so the loop does not run in the background.
 SCHEDULER_ENABLED = _flag("SCHEDULER_ENABLED", "true")
+
+# Root log level for the JSON logs: DEBUG, INFO, WARNING or ERROR.
+LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO")

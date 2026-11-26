@@ -32,7 +32,7 @@ def _send_one(sub: dict, data: str) -> int:
         return 201
     except WebPushException as exc:
         status = exc.response.status_code if exc.response is not None else 0
-        log.warning("push failed (%s): %s", status, exc)
+        log.warning("push failed (%s)", status)
         return status
     except Exception:  # network trouble and the like must never kill the loop
         log.exception("push failed")
@@ -42,7 +42,7 @@ def _send_one(sub: dict, data: str) -> int:
 async def send_push(user_id: int, payload: dict) -> int:
     """Send one notification to every device the user has subscribed. Returns devices reached."""
     if not (config.VAPID_PRIVATE_KEY and config.VAPID_PUBLIC_KEY):
-        log.warning("VAPID keys not set; notification not sent")
+        log.warning("vapid keys not set; notification not sent")
         return 0
     async with SessionLocal() as db:
         subs = (await db.execute(select(PushSub).where(PushSub.user_id == user_id))).scalars().all()

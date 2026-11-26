@@ -1,4 +1,6 @@
 """API tests. Need a real PostgreSQL: set DATABASE_URL before running pytest."""
+import json
+import logging
 import os
 from datetime import datetime, timedelta, timezone
 
@@ -12,6 +14,7 @@ from sqlalchemy import select
 
 from app import push
 from app.db import SessionLocal, engine
+from app.logging_setup import _JsonFormatter
 from app.main import app
 from app.models import Base, Reminder
 
@@ -180,3 +183,12 @@ async def test_csp_allows_inline_styles_but_not_scripts(client):
     assert parts["default-src"] == "'self'"
     for kept in ("frame-ancestors 'none'", "base-uri 'none'", "form-action 'self'"):
         assert kept in csp
+
+
+def test_json_log_line_has_extra_keys():
+    record = logging.LogRecord("xo.test", logging.INFO, __file__, 1, "saved %s", ("item",), None)
+    record.item_kind = "task"
+    out = json.loads(_JsonFormatter().format(record))
+    assert out["msg"] == "saved item"
+    assert out["level"] == "INFO"
+    assert out["item_kind"] == "task"

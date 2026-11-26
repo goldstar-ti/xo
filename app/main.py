@@ -22,9 +22,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from . import config
 from .db import engine, get_db
+from .logging_setup import setup_logging
 from .models import Base, Item, PushSub, Reminder, Session, User
 from .push import scheduler_loop, send_push
 from .version import VERSION
+
+setup_logging(config.LOG_LEVEL)
 
 STATIC_DIR = Path(__file__).resolve().parent.parent / "static"
 WORKBOOK_FILE = Path(__file__).resolve().parent.parent / "content" / "workbook.json"
