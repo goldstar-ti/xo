@@ -33,3 +33,7 @@ Items are stored as plain JSON and sign-in becomes a normal password checked on 
 ## D-8 (2026-11-26): Rule 5 (no personal details) paused until production
 
 Personal names and details may appear in code, defaults, tests and commits while the rule is paused. The owner reinstates it before production, and every detail added meanwhile must be removed then. The repository stays private (rule 6).
+
+## D-9 (2026-11-26): NOBBIE's widget canvas and tabs, built but not yet on a screen
+
+XO takes NOBBIE's canvas model: tabs of canvases, each a GridStack board of widgets from one registry (`static/js/widgets.js`), with roll up, take off and Add widget, plus a generic tab set for a pane of open things (`static/js/tabs.js`). GridStack 14.1.0 is served from `static/vendor/gridstack` (its one-file browser build, since its ES modules need a bundler). Each canvas is an item of kind `canvas`, so layouts sync between devices; a phone shows the widgets as a list and never saves geometry. Nothing mounts it yet. Why: the owner wants the system in place before deciding which screens become widgets. Not adopted from NOBBIE: per-role layouts, wide-screen layouts, fit to content, zoom, focus and undo.

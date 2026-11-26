@@ -18,6 +18,12 @@ RUN mkdir -p /vendor/webawesome /vendor/fontawesome \
          LICENSE.md /vendor/webawesome/ \
     && cd ../../@fortawesome/fontawesome-free \
     && cp -r svgs LICENSE.txt /vendor/fontawesome/
+# GridStack for the widget canvas (static/js/grid.js): the one-file browser build,
+# which sets window.GridStack, and its stylesheet. Its ES module files import
+# without file extensions, so a browser cannot load them without a bundler.
+RUN mkdir -p /vendor/gridstack \
+    && cd node_modules/gridstack \
+    && cp dist/gridstack-all.js dist/gridstack.min.css LICENSE /vendor/gridstack/
 COPY tailwind/src ./src
 COPY static /static
 RUN bun run build

@@ -1,0 +1,38 @@
+# The widget canvas and tabs: canvas names, the canvas buttons, widget title bars and widget names.
+# Not on any screen yet.
+#
+# How to edit this file
+# - Save the file and reload the page. There is no build and no restart.
+# - Change the words after a colon. Keep the keys (the words before a colon) as they are:
+#   the app looks the text up by key, and a missing key shows the key itself.
+# - Keep the indentation. It uses two spaces and never tabs.
+# - Put quote marks around any text that starts with a special character
+#   (" ' { [ * & ! % @ #) or that contains a colon followed by a space, and around times such as '09:00'.
+# - Write {name} where the app fills something in. Keep the same {name} in your wording.
+# - If a file has a mistake, the app keeps the last good version of that file and logs a note.
+#
+canvas:
+  first_title: Main
+  untitled: Untitled canvas
+  tabs_aria: Canvases
+  board_aria: Widgets
+  empty: Nothing on this canvas yet. Add widget puts one here.
+  add_widget: Add widget
+  add_title: Add a widget
+  add_none: Every widget is already on this canvas.
+  new: New canvas
+  new_title: New canvas
+  new_save: Create canvas
+  rename: Rename canvas
+  rename_title: Rename canvas
+  name_label: Canvas name
+  name_needed: Give the canvas a name.
+  tab_close: Close {name}
+  tabs_empty: No tabs are open.
+  w_move: 'Move or resize {name}: Alt and the arrow keys move it, add Shift to resize'
+  w_roll: Roll up
+  w_unroll: Roll down
+  w_close: Take {name} off this canvas
+  w_closed: '{name} is off the canvas. Add widget brings it back.'
+  w_failed: This widget could not be shown.
+  widgets: {}

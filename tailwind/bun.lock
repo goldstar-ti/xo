@@ -7,6 +7,7 @@
       "dependencies": {
         "@awesome.me/webawesome": "3.14.0",
         "@fortawesome/fontawesome-free": "7.3.1",
+        "gridstack": "14.1.0",
       },
       "devDependencies": {
         "@tailwindcss/cli": "4.3.1",
@@ -143,6 +144,8 @@
     "formdata-polyfill": ["formdata-polyfill@4.0.10", "", { "dependencies": { "fetch-blob": "^3.1.2" } }, "sha512-buewHzMvYL29jdeQTVILecSaZKnt/RJWjoZCF5OW60Z67/GmSLBkOFM7qh1PI3zFNtJbaZL5eQu1vLfazOwj4g=="],
 
     "graceful-fs": ["graceful-fs@4.2.12", "", {}, "sha512-iuyGF2E4oafQfPsRrG2wtY2ILupMhvtdrhzrxB+0VcjsPpSPttpfYdjnGFGsTi5MaJFjI1jOKHPQ6UTbTj9TAw=="],
+
+    "gridstack": ["gridstack@14.1.0", "", {}, "sha512-nF6asbGVnIJH7N9pa+DCaSBGAoEvTNS7jYHUJfcNN+5bTD3a4pLEKvGia7W/6NbjiJWms9e3Zih1YuU4coT3QA=="],
 
     "is-extglob": ["is-extglob@2.1.1", "", {}, "sha512-SbKbANkN603Vi4jEZv49LeVJMn4yGwsbzZworEoyEiutsN3nJYdbO36zfhGJ6QEDpOZIFkDtnq5JRxmvl3jsoQ=="],
 
