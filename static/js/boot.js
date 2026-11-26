@@ -233,7 +233,7 @@
   }
 
   window.XOLook = {
-    THEMES, FONTS, CHOICES, SECTIONS, BLOCKS, COLOUR_RANGE,
+    THEMES, FONTS, CHOICES, SECTIONS, BLOCKS, COLOUR_RANGE, DEFAULT_LOOK,
     get state() { return state; },
     get prefs() { return state.prefs; },
     get canUndo() { return undoStack.length > 0; },

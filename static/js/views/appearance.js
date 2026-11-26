@@ -21,20 +21,41 @@ function seg(label, key, labels = text(`appearance.choices.${key}`)) {
       chip(labels[opt], { pressed: current === opt, 'data-fk': `${key}:${opt}`, onclick: () => setLook({ [key]: opt }) }))));
 }
 
-// A slider. Dragging applies quietly (no screen rebuild); letting go counts as one undo step.
-function dial(label, { id, min, max, step, value, fmt = (v) => v, apply }) {
+// A slider with a reset button, - and + buttons and a number box, like NOBBIE's Appearance sliders.
+// `scale` and `unit` turn the stored value into what the number box shows (for example 0.05 -> 100%).
+// Dragging applies quietly (no screen rebuild); letting go, a button or the box counts as one undo step.
+function dial(label, { id, min, max, step, value, def, scale = 1, unit = '', apply }) {
   let dragging = false;
-  const out = h('output', { for: id }, fmt(value));
-  const range = h('input', {
-    id, type: 'range', min, max, step, value, 'data-fk': id,
-    oninput: (e) => { const v = Number(e.target.value); out.textContent = fmt(v); apply(v, { quiet: true, sameStep: dragging }); dragging = true; },
-    onchange: () => { dragging = false; redraw(); },
-  });
-  return h('div', { class: 'dial' }, h('label', { for: id }, label), range, out);
+  const dec = scale === 1 && step < 1 ? 2 : 0;
+  const show = (v) => String(Number((v * scale).toFixed(dec)));
+  const snap = (v) => Number(Math.min(max, Math.max(min, v)).toFixed(6));
+  const box = h('input', { type: 'number', class: 'dial-num', min: Number((min * scale).toFixed(dec)), max: Number((max * scale).toFixed(dec)), step: scale >= 100 ? 1 : Number((step * scale).toFixed(4)), inputmode: 'decimal', 'aria-label': `${label} value`, 'data-fk': `${id}-num`, value: show(value) });
+  const range = h('input', { id, type: 'range', min, max, step, value, 'data-fk': id });
+  const reset = h('button', { type: 'button', class: 'dial-btn', title: t('appearance.slider.reset'), 'aria-label': t('appearance.slider.reset_label', { label }), 'data-fk': `${id}-reset` }, '\u21BA');
+  const less = h('button', { type: 'button', class: 'dial-btn', title: t('appearance.slider.less'), 'aria-label': t('appearance.slider.less_label', { label }), 'data-fk': `${id}-less` }, '-');
+  const more = h('button', { type: 'button', class: 'dial-btn', title: t('appearance.slider.more'), 'aria-label': t('appearance.slider.more_label', { label }), 'data-fk': `${id}-more` }, '+');
+  const sync = (v) => {
+    range.value = String(v);
+    box.value = show(v);
+    reset.hidden = Math.abs(v - def) < 1e-9;
+    less.disabled = v <= min;
+    more.disabled = v >= max;
+  };
+  const commit = (v) => { v = snap(v); sync(v); dragging = false; apply(v, {}); redraw(); };
+  range.oninput = (e) => { const v = Number(e.target.value); sync(v); apply(v, { quiet: true, sameStep: dragging }); dragging = true; };
+  range.onchange = () => { dragging = false; redraw(); };
+  box.onchange = () => { const n = Number(box.value); if (box.value === '' || Number.isNaN(n)) sync(Number(range.value)); else commit(n / scale); };
+  reset.onclick = () => commit(def);
+  less.onclick = () => commit(Number(range.value) - step);
+  more.onclick = () => commit(Number(range.value) + step);
+  sync(value);
+  return h('div', { class: 'dial' }, h('label', { for: id }, label), range,
+    h('span', { class: 'dial-ctl' }, reset, less, more, h('span', { class: 'dial-numwrap' }, box, unit && h('span', { class: 'dial-unit' }, unit))));
 }
-const colourDial = (label, key, fmt) => {
+const colourDial = (label, key, scale, unit) => {
   const [min, max] = L.COLOUR_RANGE[key];
-  return dial(label, { id: `c-${key}`, min, max, step: max > 1 ? 1 : 0.001, value: look().c[key], fmt,
+  const def = (L.THEMES[look().theme] || L.THEMES.foliage)[key];
+  return dial(label, { id: `c-${key}`, min, max, step: max > 1 ? 1 : 0.001, value: look().c[key], def, scale, unit,
     apply: (v, opts) => L.change((s, lk) => { lk.c[key] = v; lk.theme = 'custom'; }, opts) });
 };
 
@@ -62,7 +83,7 @@ function accentRow() {
       return el;
     }));
 }
-const sizeDial = () => dial(t('appearance.type.size'), { id: 'd-size', min: 85, max: 135, step: 1, value: look().size, fmt: (v) => `${v}%`, apply: (v, o) => setLook({ size: v }, o) });
+const sizeDial = () => dial(t('appearance.type.size'), { id: 'd-size', min: 85, max: 135, step: 1, value: look().size, def: L.DEFAULT_LOOK.size, unit: '%', apply: (v, o) => setLook({ size: v }, o) });
 const modeSeg = () => seg(t('appearance.mode'), 'mode');
 
 // ---- quick panel ----
@@ -232,22 +253,22 @@ export function render(root) {
       modeSeg(),
       h('div', { class: 'opt' }, h('span', {}, lk.theme === 'custom' ? t('appearance.colour.theme_custom') : t('appearance.colour.theme')), themeSwatches()),
       h('div', { class: 'opt' }, h('span', {}, t('appearance.colour.accent')), accentRow()),
-      dial(t('appearance.colour.strength'), { id: 'd-strength', min: 0.3, max: 1.7, step: 0.05, value: lk.strength, fmt: pct, apply: (v, o) => setLook({ strength: v }, o) }),
+      dial(t('appearance.colour.strength'), { id: 'd-strength', min: 0.3, max: 1.7, step: 0.05, value: lk.strength, def: L.DEFAULT_LOOK.strength, scale: 100, unit: '%', apply: (v, o) => setLook({ strength: v }, o) }),
       h('h3', {}, t('appearance.colour.fine_tune')),
-      colourDial(t('appearance.colour.paper_hue'), 'nh', (v) => `${v}°`),
-      colourDial(t('appearance.colour.paper_amount'), 'nc', (v) => pct(v / 0.05)),
-      colourDial(t('appearance.colour.accent_hue'), 'ah', (v) => `${v}°`),
-      colourDial(t('appearance.colour.accent_vivid'), 'ac', (v) => pct(v / 0.22)),
-      colourDial(t('appearance.colour.attention_hue'), 'wh', (v) => `${v}°`),
+      colourDial(t('appearance.colour.paper_hue'), 'nh', 1, '°'),
+      colourDial(t('appearance.colour.paper_amount'), 'nc', 1 / 0.05 * 100, '%'),
+      colourDial(t('appearance.colour.accent_hue'), 'ah', 1, '°'),
+      colourDial(t('appearance.colour.accent_vivid'), 'ac', 100 / 0.22, '%'),
+      colourDial(t('appearance.colour.attention_hue'), 'wh', 1, '°'),
       h('p', { class: 'hint' }, t('appearance.colour.attention_hint')),
       myThemes()),
     h('section', { class: 'look-sec' }, h('h2', {}, t('appearance.type.heading')),
       h('div', { class: 'fields' }, fontSelect(t('appearance.type.body'), 'body', false), fontSelect(t('appearance.type.headings'), 'head', true), fontSelect(t('appearance.type.numerals'), 'num', true)),
       h('p', { class: 'hint' }, t('appearance.type.numerals_hint')),
       sizeDial(),
-      dial(t('appearance.type.weight'), { id: 'd-weight', min: 300, max: 550, step: 10, value: lk.weight, apply: (v, o) => setLook({ weight: v }, o) }),
-      dial(t('appearance.type.line_spacing'), { id: 'd-lh', min: 1.25, max: 1.9, step: 0.05, value: lk.lh, fmt: (v) => v.toFixed(2), apply: (v, o) => setLook({ lh: v }, o) }),
-      dial(t('appearance.type.letter_spacing'), { id: 'd-ls', min: -0.02, max: 0.08, step: 0.005, value: lk.ls, fmt: (v) => `${Math.round(v * 1000)}`, apply: (v, o) => setLook({ ls: v }, o) })),
+      dial(t('appearance.type.weight'), { id: 'd-weight', min: 300, max: 550, step: 10, value: lk.weight, def: L.DEFAULT_LOOK.weight, apply: (v, o) => setLook({ weight: v }, o) }),
+      dial(t('appearance.type.line_spacing'), { id: 'd-lh', min: 1.25, max: 1.9, step: 0.05, value: lk.lh, def: L.DEFAULT_LOOK.lh, apply: (v, o) => setLook({ lh: v }, o) }),
+      dial(t('appearance.type.letter_spacing'), { id: 'd-ls', min: -0.02, max: 0.08, step: 0.005, value: lk.ls, def: L.DEFAULT_LOOK.ls, scale: 1000, apply: (v, o) => setLook({ ls: v }, o) })),
     h('section', { class: 'look-sec' }, h('h2', {}, t('appearance.shape.heading')),
       seg(t('appearance.shape.corners'), 'corners'), seg(t('appearance.shape.density'), 'density'), seg(t('appearance.shape.rule'), 'rule'),
       seg(t('appearance.shape.texture'), 'texture')),

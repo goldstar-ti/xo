@@ -57,6 +57,16 @@ with sync_playwright() as p:
         and st["prefs"]["callMe"] == "Captain"
         and st["base"]["size"] == 110
     ), st
+    # slider controls: - and + buttons, number box, reset (size is 110 here)
+    pg.locator('[data-fk="d-size-more"]').click()
+    assert pg.evaluate("JSON.parse(localStorage.getItem('xo-look'))")["base"]["size"] == 111
+    pg.locator('[data-fk="d-size-num"]').fill("120")
+    pg.locator('[data-fk="d-size-num"]').dispatch_event("change")
+    assert pg.evaluate("JSON.parse(localStorage.getItem('xo-look'))")["base"]["size"] == 120
+    pg.locator('[data-fk="d-size-reset"]').click()
+    assert pg.evaluate("JSON.parse(localStorage.getItem('xo-look'))")["base"]["size"] == 100
+    pg.locator("#d-size").fill("110")
+    pg.locator("#d-size").dispatch_event("change")
     # my theme + look code round trip
     pg.locator("#c-ah").fill("200")
     pg.locator("#c-ah").dispatch_event("change")
@@ -72,7 +82,7 @@ with sync_playwright() as p:
     assert pg.evaluate("JSON.parse(localStorage.getItem('xo-look')).base.c.ah") == 200
     pg.fill('[data-fk="paste"]', "XO1-nope")
     pg.get_by_role("button", name="Apply code").click()
-    expect(pg.locator("#toast")).to_contain_text("not a complete look code")
+    expect(pg.locator("#toast")).to_contain_text("look code is incomplete")
     # tabs: put Bills in position 2 (swaps with wherever it was)
     pg.select_option("#tab-1", "bills")
     assert pg.locator(".tabs a").nth(1).inner_text() == "Bills"

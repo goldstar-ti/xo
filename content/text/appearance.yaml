@@ -136,6 +136,13 @@ appearance:
     accent_vivid: Accent vividness
     attention_hue: Attention hue
     attention_hint: Attention is the colour used for Now, overdue and leave-now. Text stays readable wherever the sliders sit.
+  slider:
+    reset: Back to default
+    reset_label: Reset {label}
+    less: Decrease
+    less_label: Decrease {label}
+    more: Increase
+    more_label: Increase {label}
   type:
     heading: Type
     body: Body
