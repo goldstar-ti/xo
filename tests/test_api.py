@@ -169,3 +169,14 @@ async def test_workbook_needs_sign_in(client):
     assert r.status_code in (200, 404)  # 404 only if content/workbook.json has not been built
     if r.status_code == 200:
         assert r.json()["units"]
+
+
+@pytest.mark.asyncio
+async def test_csp_allows_inline_styles_but_not_scripts(client):
+    csp = (await client.get("/api/health")).headers["content-security-policy"]
+    parts = dict(p.strip().split(" ", 1) for p in csp.split(";"))
+    assert parts["script-src"] == "'self'"
+    assert parts["style-src"] == "'self' 'unsafe-inline'"
+    assert parts["default-src"] == "'self'"
+    for kept in ("frame-ancestors 'none'", "base-uri 'none'", "form-action 'self'"):
+        assert kept in csp

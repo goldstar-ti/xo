@@ -54,7 +54,7 @@ async def security_headers(request: Request, call_next):
             return Response('{"detail":"Missing X-XO header"}', status_code=403, media_type="application/json")
     response = await call_next(request)
     response.headers["Content-Security-Policy"] = (
-        "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; "
+        "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; "
         "connect-src 'self'; font-src 'self'; manifest-src 'self'; worker-src 'self'; "
         "frame-ancestors 'none'; base-uri 'none'; form-action 'self'"
     )
