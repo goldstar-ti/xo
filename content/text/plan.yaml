@@ -21,7 +21,7 @@ plan:
       note: The short version, the part you carry.
       boxes:
       - k: good_matters
-        q: What matters most to me in the life I want?
+        q: What is most important to me in the life I want?
       - k: good_ways
         q: What are healthy ways I can work towards those things?
         eg: time with people I trust, steady work or study, keeping busy with things I enjoy.
@@ -121,7 +121,7 @@ plan:
       note: The short version, the part you carry.
       boxes:
       - k: good_matters
-        q: What matters most to me in the life I want?
+        q: What is most important to me in the life I want?
       - k: good_ways
         q: What are healthy ways I can work towards those things?
         eg: time with adults I trust, steady work or study, keeping busy with things I enjoy.
