@@ -59,7 +59,7 @@
     corners: 'round', density: 'regular', rule: 'fine', texture: 'none',
     hero: 'plain', dayline: 'line', loud: 'regular', line: 'plain', kit: 'xo',
   };
-  const SECTIONS = ['today', 'diary', 'tasks', 'obligations', 'routine', 'bills', 'checkin', 'plan', 'settings', 'appearance'];
+  const SECTIONS = ['today', 'diary', 'tasks', 'obligations', 'routine', 'bills', 'checkin', 'plan', 'settings', 'appearance', 'canvas'];
   const BLOCKS = ['line', 'next', 'three', 'day', 'coming', 'plan'];
   const DEFAULT_PREFS = { clock24: false, tabs: ['today', 'diary', 'tasks', 'obligations'], blocks: BLOCKS.slice(), hidden: [], title: 'XO', callMe: '', pop: true };
 

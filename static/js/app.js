@@ -10,6 +10,7 @@ import * as checkinView from './views/checkin.js';
 import * as planView from './views/plan.js';
 import * as settingsView from './views/settings.js';
 import * as appearanceView from './views/appearance.js';
+import * as canvasView from './views/canvas.js';
 import { bills, diary, obligations, routine, tasks } from './views/lists.js';
 
 const NAV = Object.entries(text('app.nav')); // [key, label] in the order the sidebar lists them
@@ -23,7 +24,7 @@ const more = {
       h('ul', { class: 'list links' }, NAV.filter(([k]) => !tabs().includes(k)).map(([k, label]) => h('li', {}, h('a', { class: 'row-main', href: `#/${k}` }, label)))));
   },
 };
-const VIEWS = { today: todayView, diary, tasks, obligations, routine, bills, checkin: checkinView, plan: planView, settings: settingsView, appearance: appearanceView, more };
+const VIEWS = { today: todayView, diary, tasks, obligations, routine, bills, checkin: checkinView, plan: planView, settings: settingsView, appearance: appearanceView, canvas: canvasView, more };
 
 // Web Awesome is fetched only when the Kit choice is Web Awesome. Wait for it before any redraw.
 const ensureKit = () => (document.documentElement.dataset.kit === 'wa' ? loadWebAwesome().catch(() => {}) : Promise.resolve());
@@ -43,6 +44,7 @@ function draw({ keepScroll = false, keepFocus = false } = {}) {
   if (!root) return;
   const focusKey = keepFocus && document.activeElement?.dataset?.fk;
   const { name, params } = route();
+  view?.leave?.(); // A screen that holds resources (the canvas) lets them go.
   view = VIEWS[name];
   const y = window.scrollY;
   root.replaceChildren();
@@ -96,6 +98,8 @@ window.addEventListener('xo:look', async (e) => {
 
 // ---- sign-in ----
 function authScreen(hasUser, message = '') {
+  view?.leave?.();
+  view = null;
   const isNew = !hasUser;
   const name = input({ id: 'a-name', type: 'text', autocomplete: 'username', autocapitalize: 'none', spellcheck: 'false', required: true, pattern: '[A-Za-z0-9._\\-]{2,40}' });
   const pass = input({ id: 'a-pass', type: 'password', autocomplete: isNew ? 'new-password' : 'current-password', required: true, minlength: 8 });

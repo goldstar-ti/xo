@@ -47,7 +47,8 @@ function saveBar(type, day, state) {
     try {
       await store.save('checkin', checkinId(type, day), { ...state, type, at: new Date().toISOString() }, { day });
       toast(t('checkin.saved_toast'));
-      location.hash = '#/today';
+      // On its own screen the check-in hands over to Today; as a canvas widget it stays put.
+      if (location.hash.startsWith('#/checkin')) location.hash = '#/today';
     } catch (err) { toast(err.message, 'bad'); btn.disabled = false; }
   });
   return h('div', { class: 'savebar' }, btn);

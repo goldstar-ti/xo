@@ -1,5 +1,5 @@
 # The widget canvas and tabs: canvas names, the canvas buttons, widget title bars and widget names.
-# Each screen of the app is also a widget; the names under widgets are their title bars. Not on any screen yet.
+# Each screen of the app is also a widget; the names under widgets are their title bars. Shown on the Canvas screen.
 #
 # How to edit this file
 # - Save the file and reload the page. There is no build and no restart.
@@ -35,6 +35,38 @@ canvas:
   w_close: Take {name} off this canvas
   w_closed: '{name} is off the canvas. Add widget brings it back.'
   w_failed: This widget could not be shown.
+  failed: The canvas could not be loaded. Reload the page to try again.
+  w_more: More for {name}
+  w_moved: '{name} is now on {canvas}.'
+  m_refresh: Refresh
+  m_zoom: 'Zoom: this widget only'
+  m_focus: 'Focus: roll up the others'
+  m_fit: Fit to content
+  m_reset_size: Reset size
+  m_to_pane: Open in side tab
+  m_move_to: Move to canvas
+  leave_zoom: Leave zoom
+  leave_focus: Leave focus
+  fit_all: Fit all
+  reset_layout: Reset layout
+  undo: Undo
+  undone: 'Undone: {what}.'
+  pane_aria: Side tabs
+  p_to_canvas: Put back on canvas
+  change:
+    move: moving a widget
+    resize: resizing a widget
+    add: adding a widget
+    close: taking a widget off
+    roll: rolling a widget up
+    unroll: rolling a widget down
+    fit: fitting a widget
+    fit_all: fitting all widgets
+    reset_size: resetting a widget's size
+    reset_layout: resetting the layout
+    focus: focus
+    move_canvas: moving a widget to another canvas
+    to_pane: opening a widget in a side tab
   widgets:
     today: Today
     diary: Diary

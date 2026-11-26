@@ -27,6 +27,7 @@ app:
     plan: My plan
     appearance: Appearance
     settings: Settings
+    canvas: Canvas
   auth:
     intro_new: Set a name and a password.
     intro_existing: Sign in on this device.
