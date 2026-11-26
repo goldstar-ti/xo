@@ -1,0 +1,136 @@
+# Reporting rules: one entry per category on the WA ROportal.
+#
+# These are the owner's notes from the public ROportal FAQ, read on 2026-11-26. They are not legal advice.
+# The Act, the Registry and the owner's lawyer are the authority. Check a deadline there before relying on it.
+#
+# How to edit this file
+# - Save the file and reload the page. There is no build and no restart.
+# - Each entry starts with a dash. Keep the keys (the words before a colon) as they are:
+#   the app looks the rule up by key.
+# - deadline: hours or days after the anchor. Travel uses before_departure_days and after_return_days instead.
+# - anchor: what starts the clock. One of contact, third_day, change, departure or return.
+# - fields: the details the app asks for in that category.
+# - confirm: true means the FAQ gives no deadline. The app uses 7 days and asks the owner to confirm it.
+# - Keep the indentation. It uses two spaces and never tabs.
+# - Put quote marks around any text that contains a colon followed by a space.
+# - If the file has a mistake, the app keeps the last good version and logs a note.
+#
+- key: child_contact
+  label: Reportable contact with children
+  deadline: {hours: 24}
+  anchor: contact
+  fields: [names, ages, address, description, guardian]
+  source: ROportal FAQ, read 2026-11-26
+- key: employment
+  label: Employment, volunteer work or practical training
+  deadline: {days: 3}
+  anchor: third_day
+  fields: [employer, role, address, start_date]
+  source: ROportal FAQ, read 2026-11-26
+- key: address
+  label: Address
+  deadline: {days: 3}
+  anchor: third_day
+  fields: [address, locality, kind, start_date]
+  source: ROportal FAQ, read 2026-11-26
+- key: bank
+  label: Bank or financial institution
+  deadline: {days: 7}
+  anchor: change
+  fields: [institution, account_kind]
+  source: ROportal FAQ, read 2026-11-26
+- key: club
+  label: Club or organisation
+  deadline: {days: 7}
+  anchor: change
+  fields: [name, kind, address, child_activity]
+  source: ROportal FAQ, read 2026-11-26
+- key: device
+  label: Device and login or access
+  deadline: {days: 7}
+  anchor: change
+  fields: [device, make_model, login, password]
+  source: ROportal FAQ, read 2026-11-26
+- key: foreign_citizenship
+  label: Foreign citizenship
+  deadline: {days: 7}
+  anchor: change
+  fields: [country, details]
+  source: ROportal FAQ, read 2026-11-26
+- key: isp
+  label: Internet service provider
+  deadline: {days: 7}
+  anchor: change
+  fields: [provider, username, password]
+  source: ROportal FAQ, read 2026-11-26
+- key: internet_account
+  label: Internet account (including apps)
+  deadline: {days: 7}
+  anchor: change
+  fields: [name, username, url, password]
+  source: ROportal FAQ, read 2026-11-26
+- key: email
+  label: Email address
+  deadline: {days: 7}
+  anchor: change
+  fields: [address, password]
+  source: ROportal FAQ, read 2026-11-26
+- key: scar
+  label: Scar or mark
+  deadline: {days: 7}
+  anchor: change
+  fields: [description, location]
+  confirm: true
+  source: ROportal FAQ, read 2026-11-26
+- key: tattoo
+  label: Tattoo
+  deadline: {days: 7}
+  anchor: change
+  fields: [description, location]
+  confirm: true
+  source: ROportal FAQ, read 2026-11-26
+- key: travel
+  label: Travel
+  deadline: {before_departure_days: 7, after_return_days: 7}
+  anchor: departure
+  fields: [depart, return, addresses, outside_wa, outside_australia, approval]
+  source: ROportal FAQ, read 2026-11-26
+- key: foreign_guilty
+  label: Found guilty in a foreign jurisdiction
+  deadline: {days: 7}
+  anchor: change
+  fields: [country, offence, date]
+  source: ROportal FAQ, read 2026-11-26
+- key: custody
+  label: Government custody for 14 days or more
+  deadline: {days: 7}
+  anchor: change
+  fields: [place, from_date, to_date]
+  source: ROportal FAQ, read 2026-11-26
+- key: vehicle
+  label: Vehicle
+  deadline: {days: 3}
+  anchor: third_day
+  fields: [make, model, colour, rego]
+  source: ROportal FAQ, read 2026-11-26
+- key: passport
+  label: Passport
+  deadline: {days: 7}
+  anchor: change
+  fields: [country, number, expiry]
+  confirm: true
+  source: ROportal FAQ, read 2026-11-26
+- key: telephone
+  label: Telephone number
+  deadline: {days: 7}
+  anchor: change
+  fields: [number, provider]
+  confirm: true
+  source: ROportal FAQ, read 2026-11-26
+- key: name_details
+  label: Name, date of birth, sex or gender
+  deadline: {days: 7}
+  anchor: change
+  fields: [name, date_of_birth, sex_or_gender]
+  confirm: true
+  source: ROportal FAQ, read 2026-11-26

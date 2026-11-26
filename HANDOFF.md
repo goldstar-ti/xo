@@ -15,7 +15,14 @@
 
 1. Logging, `app/version.py` with `docs/version-history.md`, and a ruff lint and format pass (no behaviour change). Add `make lint` when ruff is in the image.
 2. Convert the screens to `static/js/ui.js` controls and `t()` text, in three batches: (a) Today and the lists (diary, tasks, obligations, routine, bills); (b) check-ins and My plan; (c) settings, appearance and the app shell with sign-in. Each batch moves its inline strings into `content/text/*.yaml` and runs the browser flow under all three kits. Existing screens stay on `app.css` until the owner approves each conversion.
-3. Build items from `docs/ROADMAP.md` in the order the owner picks.
+3. Build from `docs/ROADMAP.md` in this order (D-12, D-17, D-18). Each section gets its own plan session before building.
+   1. R Records: change history, nightly backup, export everything.
+   2. Section 1 Workbook sittings.
+   3. Section 2 Outputs.
+   4. Section 3 Life story.
+   5. Section 4 Reporting register.
+   6. Section 5 GTD core.
+   7. Sections 6 to 12 in the D-18 order: Health and mood (6), People and life admin (7), Legal and sessions (8), Goals and reviews (9), Money (10), Google Calendar (11), AI (12).
 4. Canvas, parked: a resizable side pane, undo that survives a reload, and saved layout presets.
 
 ## Owner to-do

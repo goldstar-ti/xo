@@ -45,3 +45,31 @@ The owner chose: XO's generic `items` table (kinds `project`, `pm_item`, `tracke
 ## D-11 (2026-11-27): Check-in choices are an editable lookup, kept in the settings item
 
 The body, "Today I…" and sleep chips start from `content/text/checkin.yaml`, now grouped as positive, neutral and negative (the owner's list from a Gemini session, merged with the existing chips so saved check-ins still match). The owner edits them in Settings, Check-in choices; an edited list is stored as `[{ text, group }]` rows under `lookups.<key>` in the `settings` item, so it syncs and needs no new kind. Lists are registered once in `LOOKUPS` (`static/js/lookups.js`). A saved answer that is later removed from the list still shows on that check-in under "Chosen before". Why: the owner asked to customise the lists without editing YAML, and the YAML stays the starting point and the reset target.
+
+## D-12 (2026-11-27): Reporting register built after roadmap 1 to 3
+
+The owner chose to build Workbook sittings, Outputs and Life story first, then the Reporting register, then GTD core. The register stores the password itself for each login reported, as plain JSON like every item (D-7). The 3-day rule is counted by a daily prompt in the evening check-in. Deadlines live in `content/rules/ro.yaml`, not in code, so a rule change is a file edit. Why: the owner reports to the Registry and wants the deadlines and receipts in one place, and the FAQ wording may change.
+
+## D-13 (2026-11-27): One `person` kind
+
+People, Life story, the plan card team and the register's child-contact reports all read one `person` kind, with the alias and the private "who" held on it. Why: a person entered once should appear everywhere, and Life story's aliases-only rule then applies the same way to every output.
+
+## D-14 (2026-11-27): Google Calendar two-way for every entry with a time
+
+XO's server holds the OAuth refresh token. Writing to Google stays off until the owner switches it on in Settings. Pulled edits and new events go into the Diary, and the last edit wins. Why: the owner wants one calendar across phone and XO, and nothing should leave XO until the owner says so.
+
+## D-15 (2026-11-27): Claude API for capture, SMART coaching and review summaries
+
+Each use has its own switch in Settings, off by default, and the text to be sent is shown in a dialog before sending. Why: the owner wants help with parsing and summaries but wants to see and control what leaves XO. Rule-based dates cover GTD capture first, so nothing depends on the API.
+
+## D-16 (2026-11-27): Reminder wording chosen per reminder kind
+
+Settings holds a choice of discreet or detailed wording for each reminder kind. Discreet stays the default (voice guide rule 4). Why: some reminders are safe to detail on the owner's own phone and others are not, and the owner knows which.
+
+## D-17 (2026-11-27): Records built first
+
+Change history on entries, a nightly backup and export everything come before the register. Why: the register may be used as evidence, so its history, backups and exports have to exist before the first entry.
+
+## D-18 (2026-11-27): Group order after GTD core
+
+After GTD core the order is: Health and mood; People and life admin; Legal and sessions; Goals and reviews; Money; Google Calendar; AI. This is a default and the owner may reorder it. Why: the earlier groups feed the later ones (people feed legal, goals feed reviews), and the two external services come last.

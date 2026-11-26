@@ -1,10 +1,10 @@
 # Roadmap
 
 What exists: Today, Diary, Tasks, Routine, Bills, Obligations, Check-ins, My plan and plan card,
-Settings, and the full Appearance system (quick Look panel plus the Appearance screen).
+Settings, Canvas, Tracker, and the full Appearance system (quick Look panel plus the Appearance screen).
 
-What follows are the next three features, in build order. Each is specced from decisions already made.
-Build one at a time, with tests, and keep each first version small.
+What follows are the next features, in build order: Records (the first smaller items), sections 1 to 3, then the Reporting register (4), GTD core (5), and sections 6 to 12 in the order set by D-18. Each is specced from decisions already made.
+Build one at a time, with tests, and keep each first version small. Each section gets its own plan session before building.
 
 ---
 
@@ -120,15 +120,15 @@ Build one at a time, with tests, and keep each first version small.
 - One item per entry: kind `life`, payload
   `{ title, body, year, month, age, whenText, place, people: [aliasId], tags: [tag], updated }`.
   `year`, `month`, `age` and `whenText` are all optional. Sort by `year` (+ `month`); if only `age` is given, use `birthYear + age`; entries with neither go under "Undated".
-- One singleton `lifemeta`: `{ birthYear, people: [ { id, alias, who, relation } ], tags: [custom tag] }`.
-  `who` is the private real identity. `alias` and `relation` are what other readers see.
+- One singleton `lifemeta`: `{ birthYear, tags: [custom tag] }`. People come from the `person` kind (section 7), not from `lifemeta`.
+  A person's `who` is the private real identity. `alias` and `relation` are what other readers see.
 - Starting tags: family, home and moves, school, work, friends, health, good times, loss, trauma. The user can add tags.
 
 **Screens**
 
 - `#/life`: the timeline, grouped by year (decade headers when long), each entry showing when, place, title and tags. Filter chips by tag and by person. A plain "Add entry" button.
 - Entry editor (a dialog or its own route; the body needs room): when fields, place, people as chips chosen from the alias list with "add a new person" inline, tags as chips, title, body.
-- `#/life/people`: the alias list. Each row: alias, relation, and the private "who" field.
+- `#/life/people`: the alias list, read from the `person` kind. Each row: alias, relation, and the private "who" field.
 - Optional setting, off unless the user turns it on: after saving an entry tagged trauma or loss, show a short pause note with a button to the plan card.
 
 **Outputs.** Life story feeds the Outputs screen (see above). With "aliases only", print `alias (relation)` and never `who`.
@@ -139,8 +139,192 @@ Build one at a time, with tests, and keep each first version small.
 
 ---
 
+## 4. Reporting register
+
+**Goal.** Track every detail reported to the Registry, what is due next, and each monthly reporting visit. The owner's notes from the public FAQ drive the deadlines (`content/rules/ro.yaml`); the Act, the Registry and the owner's lawyer are the authority (D-12).
+
+**Data**
+
+- `rdetail`: one per reported detail. `category`, `fields{}`, `status` (current or ended), `since`, `until`, `password`, `notes`, `held` (the last accepted values). The password is stored as reported, as plain JSON like every item (D-7).
+- `rchange`: `category`, `detailId`, `change` (add, update or end), `happened`, `due` (worked out from `ro.yaml`), `reported`, `method` (portal, in person or phone), `receipt` (`APP...`), `status` (to report, reported, accepted or queried), `notes`.
+- `rday`: id `rday:<subject>:<date>`; the subject is a vehicle rego, an address or a workplace. Used for the 3-day count.
+- `visit`: monthly visit. `date`, `time`, `place`, `officer`, `prep[]`, `topics[]`, `actions[]` (each with owner and due date), `feeling` 1 to 5, `minutes`, `confirmed[]` (rdetail ids).
+- `trip`: dates, each address, outside WA or outside Australia, and whether approval was needed and got.
+
+**Screens**
+
+- `#/register`: "Due now" (overdue first, with a countdown), "What police hold" by category, and "History" (every `rchange`, newest first, with receipt numbers). Old `report` rows show as "Earlier notes" in History.
+- Quick actions: "I changed a password", "Contact with a child" (the 24-hour form), "New vehicle, address or workplace", "Plan a trip".
+- `#/visits`: schedule (monthly repeat), prep list, after-visit form, and actions carried to the next visit.
+- The 3-day prompt is a daily question in the evening check-in: "Any other vehicle, address or workplace today?" Each yes adds an `rday`. The second day in 12 months warns; the third creates an `rchange` due in 3 days.
+- Cross-links: the People child flag opens the 24-hour form. Life admin vehicle, ID and subscription (internet account) entries offer "Add to register". Trips feed the Diary.
+- Today: a `register` block in `BLOCKS` (due items and the next visit).
+
+**Reminders.** When a change is created, 1 day before it is due, and on the morning it is due. Wording follows the per-kind setting (D-16).
+
+**Outputs.** A reader "Reporting visit": the details currently held, and the changes since the last visit.
+
+**Tests.** Unit test for the due-date maths from `ro.yaml`. Browser test: log a password change, mark it reported with a receipt, then confirm the history shows it and it has left "Due now".
+
+---
+
+## 5. GTD core
+
+**Goal.** Capture anything in a few seconds, then sort it later into the right place. Covers inbox and capture, contexts and energy, waiting for, someday, tickler, and areas > goals > projects.
+
+**Data**
+
+- `inbox`: a captured line of text, saved with its time.
+- Tasks gain `context` (@phone, @home, @computer, @out, @work), `energy` (low, medium, high), `waiting` (who, since, chase date), `someday`, and `deferUntil` (the tickler).
+- Areas come from My plan's good-life goals plus Work. Work tasks live in XO as a Work area with its own projects, contexts and next actions. The chain is area > goal > project > task.
+
+**Screens**
+
+- A capture box in the header of every screen. Ways in: the `Ctrl+K` or `/` shortcut, an Android share target (`share_target` in the manifest, a POST to `/share` that saves an inbox row), and manifest `shortcuts` (Capture, Log mood, Register, Today).
+- Rule-based natural-language dates: today, tomorrow, weekday names, "12 Dec", "3pm". No AI is needed here (section 12 adds it later).
+- Process view: one entry at a time, sent to a task, appointment, project, note, someday, waiting for, register change or the bin.
+- Daily plan (morning): inbox count, pick 3, time-block them onto the day line. Shutdown (evening): close open loops and set tomorrow's first step.
+- Weekly review: folded into the weekly check-in as a checklist. It flags projects with no next action.
+
+**Reminders.** Daily plan and shutdown at times set in Settings. A tickler task appears on its `deferUntil` date.
+
+**Tests.** Unit test for the date parser. Browser test: capture a line, process it into a task with a context, and confirm it shows under that context.
+
+---
+
+## 6. Health and mood
+
+**Goal.** A daily record of mood, sleep and urges, and a log of high-risk situations, kept in the owner's own words.
+
+**Data**
+
+- `mood`, one per day: mood and energy 1 to 5, activity tags, sleep (bed, wake, quality), exercise (kind, minutes), optional weight and steps, and urges (0 to 10, trigger, what I did instead).
+- `risk`, the high-risk situation log: when, where, who, feeling, warning sign (chosen from My plan `signs`), what I did (from `instead`), outcome.
+
+**Screens**
+
+- A daily mood form, one tap from Today.
+- Charts: mood by activity, sleep against mood, urges by time of day.
+- The plan card is one tap away from the mood form and the risk log.
+
+**Reminders.** A daily mood prompt at a time set in Settings.
+
+**Tests.** Browser test: log a mood entry and a risk entry, then confirm both appear and the warning sign list matches My plan.
+
+---
+
+## 7. People and life admin
+
+**Goal.** One list of people, and the ID, vehicle, subscription and home paperwork that has dates attached.
+
+**Data**
+
+- `person`: name, alias, private "who", relation, role tags (support team, lawyer, psychologist, work, family), phone, has-child flag and exemption note, birthday and dates, keep-in-touch interval, catch-up notes. People, Life story, the plan card team and the register's child-contact reports all read this one kind (D-13).
+- Life admin `asset` kinds: ID or licence (expiry), vehicle (rego, insurance, service by date or km), subscription (cost, renewal, cancel-by; feeds spending), and home (lease end, inspections, bond, utilities, jobs).
+
+**Screens**
+
+- A People list with keep-in-touch and birthdays.
+- A Life admin list by asset kind, each with its dates.
+- Register links as in section 4.
+
+**Reminders.** Each dated field reminds ahead of its date. Keep-in-touch reminds when the interval has passed.
+
+**Tests.** Browser test: add a person with a birthday and an ID with an expiry date, then confirm both reminders are scheduled.
+
+---
+
+## 8. Legal and sessions
+
+**Goal.** Keep a legal matter, each psychologist's sessions and the owner's compliance evidence in one place.
+
+**Data**
+
+- `matter`: timeline (hearings, outcomes, orders, conditions linked to Obligations), an "ask my lawyer" list, costs and payments, and a documents list (what, where kept, date).
+- `session`, one per psychologist visit: prep list ("raise at session"), notes, homework as tasks, fees.
+- `compliance`, the evidence log: condition, date, time, place, who saw it. It feeds Outputs.
+
+**Screens**
+
+- A matter page with its timeline and lists.
+- A session page with prep, notes and homework.
+- A compliance log filtered by condition.
+
+**Reminders.** Hearing dates and session times remind ahead of the day.
+
+**Tests.** Browser test: add a matter with a hearing, a session with homework and a compliance entry, then confirm the homework appears as a task.
+
+---
+
+## 9. Goals and reviews
+
+**Goal.** Set goals in the style that suits, and look back each month and year.
+
+**Data**
+
+- `goal` with a style: SMART (five prompts), free (a rule-based SMART check lists what is missing), or OKR (2 to 4 key results scored 0 to 100). Each has an area, measure, target, date and linked projects.
+- Reviews: a daily plan and shutdown (section 5), the GTD weekly review (section 5), a monthly review (goals, spending, mood trends, register health, visit actions) and a year in review (highlights and stats, which feed Life story).
+
+**Screens**
+
+- A goals list by area, with the style shown on each.
+- A monthly review form that pulls in the figures. A year in review page.
+
+**Reminders.** Monthly review on the first of the month. Year in review in December.
+
+**Tests.** Unit test for the SMART check. Browser test: add one goal in each style and complete a monthly review.
+
+---
+
+## 10. Money
+
+**Goal.** A simple spending log, nothing more for now.
+
+**Data.** `spend`: amount, category, note, date. Subscriptions and fees from section 7 feed it.
+
+**Screens.** A log with weekly and monthly totals, and an entry form.
+
+**Reminders.** None by default.
+
+**Tests.** Browser test: add two spends and confirm the weekly total.
+
+---
+
+## 11. Google Calendar two-way
+
+**Goal.** Every entry with a time appears in Google Calendar, and edits there come back to the Diary (D-14).
+
+**Data.** The server holds the OAuth refresh token in `.env`. XO keeps one calendar in Google. Each timed entry stores its Google event id.
+
+**Screens.** A Google Calendar section in Settings with the on and off switch for writing to Google. It is off until the owner switches it on.
+
+**Behaviour.** Push every timed entry. Pull edits and new events into the Diary. The last edit wins, and the change shows in the entry's history.
+
+**Reminders.** None of its own.
+
+**Tests.** Unit test for the last-edit-wins merge. Browser test with a stubbed Google API: push an appointment and pull an edit back.
+
+---
+
+## 12. AI
+
+**Goal.** Help with capture parsing, SMART coaching and review drafts, only when the owner turns each use on (D-15).
+
+**Data.** The Claude API (`claude-sonnet-5-5`), with the key in `.env`. One switch per use in Settings, all off by default.
+
+**Screens.** Before anything is sent, a dialog shows the exact text. The owner sends or cancels.
+
+**Reminders.** None.
+
+**Tests.** Unit test that nothing is sent while a switch is off. Browser test with a stubbed API: the dialog shows the text and cancel sends nothing.
+
+---
+
 ## Smaller items
 
+- **Change history** (build before section 4): a table `item_versions (user_id, item_id, kind, payload, saved_at)`, written by the server on every save of kinds `rdetail`, `rchange`, `visit`, `compliance`, `matter` and `report`. Shown as "History" on those entries. Created by `create_all`.
+- **Nightly backup** (build before section 4): a host cron job or systemd timer runs `make db-backup` at 02:30 and keeps 30 days.
+- **Export everything** (build before section 4): a Settings button that downloads all items as JSON plus a readable HTML file.
 - Password change (one request that replaces the password hash).
 - Offline edits with a queue.
 - A re-nudge when a routine item is still unticked 20 minutes after its reminder.
