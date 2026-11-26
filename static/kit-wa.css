@@ -70,3 +70,24 @@
   --wa-color-neutral-on-normal: var(--ink);
   --wa-color-neutral-on-loud: var(--paper);
 }
+
+/* XO's button classes (.tick, .look-btn, .plan-btn, .small) style a plain <button>. On a
+   <wa-button> host they drew a second frame around Web Awesome's own, so the host keeps
+   only its size and Web Awesome draws the button. */
+wa-button:is(.tick, .look-btn, .plan-btn, .small, .bw-tool) {
+  padding: 0; border: 0; background: none; min-height: 0; min-width: 0; box-shadow: none;
+}
+
+/* A list row that acts as a button (.row-main): title and detail on their own lines,
+   left-aligned, full width, wrapping like the XO rows. */
+wa-button.row-main { flex: 1; min-width: 0; width: 100%; }
+wa-button.row-main::part(base) {
+  justify-content: flex-start; height: auto; min-height: 2.75rem;
+  padding: 0.15rem 0; white-space: normal; text-align: left; line-height: inherit;
+}
+wa-button.row-main::part(label) {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 0.1rem;
+  min-width: 0; font-weight: 500; color: var(--ink);
+}
+wa-button.row-main small { display: block; color: var(--muted); font-weight: 400; }
+.bw-ev wa-button.row-main::part(label), .bw-count wa-button.row-main::part(label) { flex-direction: row; flex-wrap: wrap; gap: 0 0.4rem; }

@@ -25,7 +25,7 @@
   --radius: 10px; --pill: 999px;
   --d: 1; --rule: 1px; --loud: 1;
   --gap: calc(1.25rem * var(--d));
-  --time-col: 5.25rem;
+  --time-col: calc(5.25rem + 9 * var(--ls, 0em)); /* "10:30 am" stays on one line at any letter spacing */
 }
 /* Every colour comes from the numbers above at a fixed lightness, so any theme stays readable.
    .themed lets a swatch carry its own numbers and derive its own colours. */
@@ -260,7 +260,10 @@ details > summary { cursor: pointer; padding: 0.6rem 0; color: var(--leaf); font
 .dayline .entry.done .what, .dayline .entry.past.k-appt .what { color: var(--muted); }
 .dayline .entry.missed .what::before { border-color: var(--ochre); }
 .dayline .entry.missed .t { color: var(--ochre); font-weight: 600; }
-.dayline li > button, .dayline li > a.tick { align-self: center; }
+/* The action sits in the middle of its row with a little air above and below, so two
+   buttons on neighbouring rows never touch, in every kit. */
+.dayline li > :is(button, a.tick, wa-button) { align-self: center; margin-block: 0.25rem; }
+.dayline .t { white-space: nowrap; }
 .dayline .now .t { color: var(--ochre); font-weight: 700; padding-top: 0.35rem; padding-bottom: 0.35rem; }
 .dayline .now-rule {
   grid-column: 2 / 4; display: flex; align-items: center; gap: 0.6rem;

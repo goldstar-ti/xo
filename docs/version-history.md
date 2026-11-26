@@ -4,6 +4,7 @@
 
 | Version | Date | Change |
 |---|---|---|
+| 2.4.1 | 2026-11-26 | Web Awesome: list rows show their title and detail on separate lines, and buttons lose the doubled frame. Day line buttons keep a gap between rows in every kit, and times stay on one line at any letter spacing. |
 | 2.4.0 | 2026-11-26 | The Bridge: a widget board with 22 widgets, drag and resize, per-widget options, board dials, layout codes and a phone layout. On desktop, Settings, Appearance, check-ins and forms open as tabs in a side pane. Desktop text grows with the window (about 26px at 5120 wide); Today, Diary, Tasks and Obligations flow into columns on wide screens. |
 | 2.3.3 | 2026-11-26 | Settings, Appearance, sign-in and the app shell follow the Kit choice; all wording is in content/text. |
 | 2.3.2 | 2026-11-26 | Check-ins and My plan follow the Kit choice; their wording is in content/text. |
