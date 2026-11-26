@@ -58,6 +58,10 @@
 .xo-w-rolled .xo-w-body { display: none; }
 .xo-w-rolled .xo-w-head { border-bottom: 0; }
 
+/* A screen inside a widget: its page heading drops to the widget's scale. */
+.xo-w-body .page-head { margin-bottom: calc(0.75rem * var(--d)); }
+.xo-w-body .page-head h1 { font-size: 1.125rem; }
+
 /* GridStack's resize handles sit inside the widget's rounded corner. */
 .xo-board > .grid-stack-item > .ui-resizable-se { right: 4px; bottom: 4px; }
 

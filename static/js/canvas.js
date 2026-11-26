@@ -13,7 +13,7 @@
 // Widgets come from WIDGETS (static/js/widgets.js). An id no longer in the registry is kept in
 // the saved canvas and simply not shown.
 //
-// Desktop: 12 columns, drag a widget by its title bar, resize from its edges. With the keyboard,
+// Desktop: 24 columns of 28px rows, drag a widget by its title bar, resize from its edges. With the keyboard,
 // the grip button moves a widget with Alt+Arrow and resizes it with Alt+Shift+Arrow.
 // Phone (under 40rem): the widgets are a plain list in reading order, nothing is dragged and no
 // geometry is saved, so the phone never rewrites the desktop layout.
@@ -27,10 +27,10 @@ import { button } from './ui.js';
 import { h, openDialog, openForm, put, toast, uid } from './util.js';
 import { WIDGETS } from './widgets.js';
 
-const COLUMNS = 12;
-const CELL_PX = 56; // One row: room for a 2.5rem title bar once the margins are taken off.
-const MARGIN_PX = 6;
-const ROLLED_H = 1;
+const COLUMNS = 24;
+const CELL_PX = 28; // Two rows hold a 2.5rem title bar once the margins are taken off.
+const MARGIN_PX = 3;
+const ROLLED_H = 2;
 const SAVE_MS = 500;
 const ACTIVE_KEY = 'xo-canvas';
 const PHONE = '(max-width: 39.99rem)';

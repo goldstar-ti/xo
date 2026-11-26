@@ -1,5 +1,5 @@
 # The widget canvas and tabs: canvas names, the canvas buttons, widget title bars and widget names.
-# Not on any screen yet.
+# Each screen of the app is also a widget; the names under widgets are their title bars. Not on any screen yet.
 #
 # How to edit this file
 # - Save the file and reload the page. There is no build and no restart.
@@ -35,4 +35,17 @@ canvas:
   w_close: Take {name} off this canvas
   w_closed: '{name} is off the canvas. Add widget brings it back.'
   w_failed: This widget could not be shown.
-  widgets: {}
+  widgets:
+    today: Today
+    diary: Diary
+    tasks: Tasks
+    obligations: Obligations
+    routine: Routine
+    bills: Bills
+    checkin: Check-ins
+    checkin-morning: Morning check-in
+    checkin-evening: Evening check-in
+    checkin-weekly: Weekly review
+    plan: My plan
+    settings: Settings
+    appearance: Appearance

@@ -1,8 +1,9 @@
 """Browser test for the widget canvas and tabs (static/js/canvas.js, static/js/tabs.js).
 
-The canvas is on no screen yet, so the test mounts it into the page itself with two widgets it
-registers for the run. Run after tests/e2e.py, against the same database (it signs in to the
-account that test created). Fails on any console error and on any request that leaves the origin.
+The canvas is on no screen yet, so the test mounts it into the page itself and uses the screen
+widgets from static/js/widgets.js, then puts every registered widget on one canvas. Run after
+tests/e2e.py, against the same database (it signs in to the account that test created).
+Fails on any console error and on any request that leaves the origin.
 
 python tests/e2e_canvas.py [base_url] [screenshot_dir]
 """
@@ -22,17 +23,11 @@ ORIGIN = urlparse(BASE).netloc
 errors = []
 offsite = []
 
-# Registers two widgets (titles reuse existing text keys) and mounts the canvas under the view.
+# Mounts the canvas outside #view: Today is a live view and would redraw over it when the store changes.
 MOUNT = """async () => {
-  const { registerWidget } = await import('/js/widgets.js');
-  registerWidget('e2e-one', { title: 'app.nav.tasks', w: 4, h: 3,
-    render: (body) => { body.textContent = 'Widget one body'; } });
-  registerWidget('e2e-two', { title: 'app.nav.bills', w: 3, h: 3,
-    render: (body) => { body.textContent = 'Widget two body'; } });
   const { mountCanvas } = await import('/js/canvas.js');
   const host = document.createElement('div');
   host.id = 'canvas-host';
-  // Outside #view: Today is a live view and would redraw over it when the store changes.
   document.body.append(host);
   window.__canvas = await mountCanvas(host);
 }"""
@@ -78,38 +73,38 @@ with sync_playwright() as p:
     assert pg.evaluate("typeof window.GridStack") == "function"
 
     # Add both widgets from the Add widget list.
-    for name, wid in (("Tasks", "e2e-one"), ("Bills", "e2e-two")):
+    for name, wid in (("Tasks", "tasks"), ("Bills", "bills")):
         pg.get_by_role("button", name="Add widget").click()
-        pg.locator("dialog[open]").get_by_role("button", name=name).click()
-        expect(pg.locator(f"[data-widget='{wid}'] .xo-w-body")).to_contain_text("body")
+        pg.locator("dialog[open]").get_by_role("button", name=name, exact=True).click()
+        expect(pg.locator(f"[data-widget='{wid}'] .xo-w-body .page-head h1")).to_have_text(name)
     expect(pg.locator(".xo-canvas-empty")).to_be_hidden()
-    assert node(pg, "e2e-one")["w"] == 4
+    assert node(pg, "tasks")["w"] == 8
 
     # Roll the first up: one row high, body hidden.
-    pg.locator("[data-widget='e2e-one']").get_by_role("button", name="Roll up").click()
-    expect(pg.locator("[data-widget='e2e-one'] .xo-w-body")).to_be_hidden()
-    assert node(pg, "e2e-one")["h"] == 1
+    pg.locator("[data-widget='tasks']").get_by_role("button", name="Roll up").click()
+    expect(pg.locator("[data-widget='tasks'] .xo-w-body")).to_be_hidden()
+    assert node(pg, "tasks")["h"] == 2
 
     # Keyboard: Alt+Shift+Right widens the second widget from its grip, Alt+Down moves it down.
-    grip = pg.locator("[data-widget='e2e-two'] .xo-w-grip")
+    grip = pg.locator("[data-widget='bills'] .xo-w-grip")
     grip.focus()
-    before = node(pg, "e2e-two")
+    before = node(pg, "bills")
     pg.keyboard.press("Alt+Shift+ArrowRight")
     pg.keyboard.press("Alt+ArrowDown")
-    after = node(pg, "e2e-two")
+    after = node(pg, "bills")
     assert after["w"] == before["w"] + 1, (before, after)
     assert after["y"] >= before["y"], (before, after)
     expect(grip).to_be_focused()
     pg.screenshot(path=SHOTS / "canvas-desktop.png")
 
     # Take the second off; it is offered again, at its size.
-    pg.locator("[data-widget='e2e-two']").get_by_role("button", name="Take Bills off this canvas").click()
-    expect(pg.locator("[data-widget='e2e-two']")).to_have_count(0)
+    pg.locator("[data-widget='bills']").get_by_role("button", name="Take Bills off this canvas").click()
+    expect(pg.locator("[data-widget='bills']")).to_have_count(0)
     expect(pg.locator("#toast")).to_contain_text("Add widget brings it back")
     pg.get_by_role("button", name="Add widget").click()
     dlg = pg.locator("dialog[open]")
-    expect(dlg.get_by_role("button", name="Bills")).to_be_visible()
-    expect(dlg.get_by_role("button", name="Tasks")).to_have_count(0)
+    expect(dlg.get_by_role("button", name="Bills", exact=True)).to_be_visible()
+    expect(dlg.get_by_role("button", name="Tasks", exact=True)).to_have_count(0)
     dlg.get_by_role("button", name="Close").click()
 
     # A second canvas: created, selected and empty; the arrow keys switch back.
@@ -123,7 +118,7 @@ with sync_playwright() as p:
     pg.keyboard.press("ArrowLeft")
     expect(tabs.get_by_role("tab", name="Main")).to_have_attribute("aria-selected", "true")
     expect(tabs.get_by_role("tab", name="Main")).to_be_focused()
-    expect(pg.locator("[data-widget='e2e-one']")).to_have_count(1)
+    expect(pg.locator("[data-widget='tasks']")).to_have_count(1)
 
     # Rename Main, then let the save land and reload: both canvases and the rolled widget come back.
     pg.get_by_role("button", name="Rename canvas").click()
@@ -136,10 +131,10 @@ with sync_playwright() as p:
     pg.evaluate(MOUNT)
     expect(tabs.get_by_role("tab")).to_have_count(2)
     expect(tabs.get_by_role("tab", name="Home base")).to_have_attribute("aria-selected", "true")
-    expect(pg.locator("[data-widget='e2e-one']")).to_have_class(re.compile(r"\bxo-w-rolled\b"))
-    assert node(pg, "e2e-one")["h"] == 1
-    pg.locator("[data-widget='e2e-one']").get_by_role("button", name="Roll down").click()
-    assert node(pg, "e2e-one")["h"] == 3
+    expect(pg.locator("[data-widget='tasks']")).to_have_class(re.compile(r"\bxo-w-rolled\b"))
+    assert node(pg, "tasks")["h"] == 2
+    pg.locator("[data-widget='tasks']").get_by_role("button", name="Roll down").click()
+    assert node(pg, "tasks")["h"] == 16
 
     # Delete the second canvas through Rename: two presses on Delete.
     tabs.get_by_role("tab", name="Second").click()
@@ -149,12 +144,26 @@ with sync_playwright() as p:
     dlg.get_by_role("button", name="Tap again to delete").click()
     expect(tabs.get_by_role("tab")).to_have_count(1)
 
+    # Every widget in the registry renders on one canvas without an error.
+    pg.get_by_role("button", name="New canvas").click()
+    pg.locator("dialog[open] #f-title").fill("Everything")
+    pg.locator("dialog[open]").get_by_role("button", name="Create canvas").click()
+    ids = pg.evaluate("async () => Object.keys((await import('/js/widgets.js')).WIDGETS)")
+    assert len(ids) >= 13, ids
+    for wid in ids:
+        pg.get_by_role("button", name="Add widget").click()
+        pg.locator(f"dialog[open] [data-widget='{wid}']").click()
+        expect(pg.locator(f".xo-board [data-widget='{wid}'] .xo-w-body > *").first).to_be_attached()
+    expect(pg.locator(".xo-w-body .empty", has_text="could not be shown")).to_have_count(0)
+    pg.screenshot(path=SHOTS / "canvas-everything.png", full_page=True)
+    tabs.get_by_role("tab", name="Home base").click()
+
     # Phone width: a plain list, nothing to drag, no Add widget.
     pg.set_viewport_size({"width": 390, "height": 860})
     expect(pg.locator(".xo-board")).to_have_class(re.compile(r"\bxo-board-list\b"))
-    expect(pg.locator("[data-widget='e2e-one'] .xo-w-body")).to_contain_text("Widget one body")
+    expect(pg.locator("[data-widget='tasks'] .xo-w-body .page-head h1")).to_have_text("Tasks")
     expect(pg.get_by_role("button", name="Add widget")).to_be_hidden()
-    expect(pg.locator("[data-widget='e2e-one'] .xo-w-grip")).to_have_count(0)
+    expect(pg.locator("[data-widget='tasks'] .xo-w-grip")).to_have_count(0)
     pg.screenshot(path=SHOTS / "canvas-phone.png")
     pg.set_viewport_size({"width": 1280, "height": 900})
     expect(pg.locator(".xo-board.grid-stack")).to_have_count(1)
