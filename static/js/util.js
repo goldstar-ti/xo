@@ -62,11 +62,11 @@ export function fmtTime(time) {
 }
 export function relDay(day) {
   const n = daysBetween(today(), day);
-  if (n === 0) return 'today';
-  if (n === 1) return 'tomorrow';
-  if (n === -1) return 'yesterday';
-  if (n > 1 && n < 7) return `in ${n} days`;
-  if (n < 0) return `${-n} days ago`;
+  if (n === 0) return t('common.rel.today');
+  if (n === 1) return t('common.rel.tomorrow');
+  if (n === -1) return t('common.rel.yesterday');
+  if (n > 1 && n < 7) return t('common.rel.in_days', { n });
+  if (n < 0) return t('common.rel.days_ago', { n: -n });
   return fmtDay(day);
 }
 export function fmtDuration(mins) {

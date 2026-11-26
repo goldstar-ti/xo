@@ -3,6 +3,7 @@ import * as store from './store.js';
 import { DEFAULT_ROUTINES, DEFAULT_SETTINGS } from './content.js';
 import { loadWebAwesome } from './kit.js';
 import { loadText } from './text.js';
+import { focusControl } from './ui.js';
 import { dialogOpen, h, kvClear, kvSet, put, toast, uid } from './util.js';
 import * as todayView from './views/today.js';
 import * as checkinView from './views/checkin.js';
@@ -58,7 +59,8 @@ function draw({ keepScroll = false, keepFocus = false } = {}) {
   const refocus = sessionStorage.getItem('refocus');
   if (refocus) {
     sessionStorage.removeItem('refocus');
-    document.querySelector(`[data-focus="${refocus}"]`)?.focus();
+    const target = document.querySelector(`[data-focus="${refocus}"]`);
+    if (target) focusControl(target);
   }
   if (focusKey) document.querySelector(`[data-fk="${CSS.escape(focusKey)}"]`)?.focus({ preventScroll: true });
   pending = false;

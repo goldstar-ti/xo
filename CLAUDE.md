@@ -64,7 +64,7 @@ Conventions:
 
 ## Text and prose
 
-- All user-facing wording lives in YAML files in `content/text/` (`common.yaml`, `plan.yaml`, `checkin.yaml`, `today.yaml`, `defaults.yaml`). The top-level key of a file is its name, so `plan.yaml` holds `plan:` and keys read `plan.guard`.
+- All user-facing wording lives in YAML files in `content/text/` (`common.yaml`, `plan.yaml`, `checkin.yaml`, `today.yaml`, `lists.yaml`, `forms.yaml`, `defaults.yaml`). The top-level key of a file is its name, so `plan.yaml` holds `plan:` and keys read `plan.guard`.
 - `app/text.py` loads every file with `yaml.safe_load`, caches each by modification time and keeps a file's last good version if an edit breaks it. `GET /api/text` serves the merged object, no sign-in. The folder is bind-mounted read-only into `xo-app`, so a saved edit shows on the next page load with no rebuild or restart.
 - In the browser, `static/js/text.js` loads it once at boot. `t('common.save')` returns a string; `t('x.y', { name })` fills `{name}` placeholders. `text('plan.services')` returns a list or map as written. A missing key returns the key and logs `missing text: <key>` to the console once, so the browser tests fail on it.
 - Rule, from now on: a user-facing string goes in YAML, never inline in a view or template. A new screen adds its keys to a file (or a new file named after its top-level key) in the same commit.

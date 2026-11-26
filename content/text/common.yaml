@@ -25,3 +25,9 @@ common:
   sign_in: Sign in
   create_and_open: Create and open
   passwords_differ: The two passwords do not match.
+  rel:
+    today: today
+    tomorrow: tomorrow
+    yesterday: yesterday
+    in_days: 'in {n} days'
+    days_ago: '{n} days ago'

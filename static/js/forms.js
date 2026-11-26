@@ -1,49 +1,59 @@
 // Add and edit dialogs for each kind of item.
 import * as store from './store.js';
+import { t, text } from './text.js';
 import { addDays, openForm, toast, today, toDate, uid } from './util.js';
 
-const WEEKDAYS = [['1', 'Monday'], ['2', 'Tuesday'], ['3', 'Wednesday'], ['4', 'Thursday'], ['5', 'Friday'], ['6', 'Saturday'], ['0', 'Sunday']];
+// A field spec whose label (and, with hint: true, its hint) comes from forms.<form>.labels / .hints.
+const fld = (form, name, { hint, ...props } = {}) => ({
+  name,
+  label: t(`forms.${form}.labels.${name}`),
+  ...(hint ? { hint: t(`forms.${form}.hints.${name}`) } : {}),
+  ...props,
+});
+const choices = (key) => Object.entries(text(key));
+const saved = () => toast(t('forms.saved'));
+const deleted = () => toast(t('forms.deleted'));
 
 export function editAppointment(item, preset = {}) {
   const values = item ? item.data : { date: today(), travel: 30, prep: 30, ...preset };
   openForm({
-    title: item ? 'Edit appointment' : values.court ? 'Add court date' : 'Add appointment',
+    title: t(item ? 'forms.appointment.heading_edit' : values.court ? 'forms.appointment.heading_court' : 'forms.appointment.heading_add'),
     values,
     fields: [
-      { name: 'title', label: 'What', required: true },
-      { name: 'date', label: 'Date', type: 'date', required: true, half: true },
-      { name: 'time', label: 'Start time', type: 'time', required: true, half: true },
-      { name: 'where', label: 'Where' },
-      { name: 'travel', label: 'Travel, minutes', type: 'number', half: true },
-      { name: 'prep', label: 'Getting ready, minutes', type: 'number', half: true, hint: 'Be generous. These set your get-ready and leave reminders.' },
-      { name: 'notes', label: 'What to bring, who to ask for', type: 'textarea' },
-      { name: 'court', label: 'This is a court date', type: 'checkbox', hint: 'Adds a reminder one week before.' },
+      fld('appointment', 'title', { required: true }),
+      fld('appointment', 'date', { type: 'date', required: true, half: true }),
+      fld('appointment', 'time', { type: 'time', required: true, half: true }),
+      fld('appointment', 'where'),
+      fld('appointment', 'travel', { type: 'number', half: true }),
+      fld('appointment', 'prep', { type: 'number', half: true, hint: true }),
+      fld('appointment', 'notes', { type: 'textarea' }),
+      fld('appointment', 'court', { type: 'checkbox', hint: true }),
     ],
     async onSave(v) {
       await store.save('appointment', item?.id || uid(), v, { day: v.date });
-      toast('Saved');
+      saved();
     },
-    onDelete: item && (async () => { await store.remove(item.id); toast('Deleted'); }),
+    onDelete: item && (async () => { await store.remove(item.id); deleted(); }),
   });
 }
 
 export function editTask(item, preset = {}) {
   const values = item ? item.data : { est: 30, ...preset };
   openForm({
-    title: item ? 'Edit task' : 'Add task',
+    title: t(item ? 'forms.task.heading_edit' : 'forms.task.heading_add'),
     values,
     fields: [
-      { name: 'title', label: 'Task', required: true },
-      { name: 'step', label: 'First small step', hint: 'Small enough to start in two minutes.' },
-      { name: 'est', label: 'My guess, minutes', type: 'number', half: true, hint: 'The app adds half again.' },
-      { name: 'due', label: 'Due', type: 'date', half: true },
-      { name: 'project', label: 'Project', placeholder: 'Leave blank, or a name such as Court' },
+      fld('task', 'title', { required: true }),
+      fld('task', 'step', { hint: true }),
+      fld('task', 'est', { type: 'number', half: true, hint: true }),
+      fld('task', 'due', { type: 'date', half: true }),
+      fld('task', 'project', { placeholder: t('forms.task.placeholders.project') }),
     ],
     async onSave(v) {
       await store.save('task', item?.id || uid(), { ...values, ...v });
-      toast('Saved');
+      saved();
     },
-    onDelete: item && (async () => { await store.remove(item.id); toast('Deleted'); }),
+    onDelete: item && (async () => { await store.remove(item.id); deleted(); }),
   });
 }
 
@@ -62,40 +72,40 @@ export async function pickTask(item) {
   const picked = item.data.today === today();
   if (!picked) {
     const count = store.byKind('task').filter((t) => t.data.today === today() && !t.data.done).length;
-    if (count >= 3) { toast('Three is the limit for today. Finish or unpick one first.', 'bad'); return; }
+    if (count >= 3) { toast(t('forms.task.limit'), 'bad'); return; }
   }
   await store.save('task', item.id, { ...item.data, today: picked ? '' : today() });
 }
 
 export function editRoutine(item) {
   openForm({
-    title: item ? 'Edit routine item' : 'Add routine item',
+    title: t(item ? 'forms.routine.heading_edit' : 'forms.routine.heading_add'),
     values: item ? item.data : { time: '12:00', type: 'other', active: true },
     fields: [
-      { name: 'label', label: 'What', required: true, hint: 'This wording appears in the reminder on your lock screen.' },
-      { name: 'time', label: 'Time', type: 'time', required: true, half: true },
-      { name: 'type', label: 'Type', type: 'select', half: true, options: [['meal', 'Meal'], ['water', 'Water'], ['meds', 'Medication'], ['sleep', 'Sleep'], ['other', 'Other']] },
-      { name: 'active', label: 'Remind me every day', type: 'checkbox' },
+      fld('routine', 'label', { required: true, hint: true }),
+      fld('routine', 'time', { type: 'time', required: true, half: true }),
+      fld('routine', 'type', { type: 'select', half: true, options: choices('forms.routine.types') }),
+      fld('routine', 'active', { type: 'checkbox' }),
     ],
-    async onSave(v) { await store.save('routine', item?.id || uid(), v); toast('Saved'); },
-    onDelete: item && (async () => { await store.remove(item.id); toast('Deleted'); }),
+    async onSave(v) { await store.save('routine', item?.id || uid(), v); saved(); },
+    onDelete: item && (async () => { await store.remove(item.id); deleted(); }),
   });
 }
 
 export function editBill(item) {
   openForm({
-    title: item ? 'Edit bill' : 'Add bill',
+    title: t(item ? 'forms.bill.heading_edit' : 'forms.bill.heading_add'),
     values: item ? item.data : { due: today(), repeat: 'monthly' },
     fields: [
-      { name: 'name', label: 'Bill', required: true },
-      { name: 'amount', label: 'Amount, dollars', type: 'number', step: '0.01', half: true },
-      { name: 'due', label: 'Next due', type: 'date', required: true, half: true },
-      { name: 'repeat', label: 'Repeats', type: 'select', options: [['none', 'Does not repeat'], ['weekly', 'Weekly'], ['fortnightly', 'Fortnightly'], ['monthly', 'Monthly'], ['quarterly', 'Every 3 months'], ['yearly', 'Yearly']] },
-      { name: 'autopay', label: 'Paid automatically', type: 'checkbox', hint: 'You get one reminder the day before, to check the money is there.' },
-      { name: 'notes', label: 'Notes', type: 'textarea', rows: 2 },
+      fld('bill', 'name', { required: true }),
+      fld('bill', 'amount', { type: 'number', step: '0.01', half: true }),
+      fld('bill', 'due', { type: 'date', required: true, half: true }),
+      fld('bill', 'repeat', { type: 'select', options: choices('forms.bill.repeats') }),
+      fld('bill', 'autopay', { type: 'checkbox', hint: true }),
+      fld('bill', 'notes', { type: 'textarea', rows: 2 }),
     ],
-    async onSave(v) { await store.save('bill', item?.id || uid(), { ...(item?.data || {}), ...v, finished: false }); toast('Saved'); },
-    onDelete: item && (async () => { await store.remove(item.id); toast('Deleted'); }),
+    async onSave(v) { await store.save('bill', item?.id || uid(), { ...(item?.data || {}), ...v, finished: false }); saved(); },
+    onDelete: item && (async () => { await store.remove(item.id); deleted(); }),
   });
 }
 
@@ -117,39 +127,39 @@ export async function payBill(item) {
   await store.save('bill', item.id, next
     ? { ...d, due: next, lastPaid: today() }
     : { ...d, finished: true, lastPaid: today() });
-  toast(next ? 'Paid. Next one is set.' : 'Paid');
+  toast(t(next ? 'forms.bill.paid_next' : 'forms.bill.paid'));
 }
 
 export function editObligation(item) {
   openForm({
-    title: item ? 'Edit condition' : 'Add condition',
-    note: 'Write it in your own words. Your bail undertaking and your lawyer are the authority on what applies.',
+    title: t(item ? 'forms.obligation.heading_edit' : 'forms.obligation.heading_add'),
+    note: t('forms.obligation.note'),
     values: item ? item.data : { schedule: 'none', weekday: '1', time: '09:00' },
     fields: [
-      { name: 'title', label: 'Condition', required: true },
-      { name: 'detail', label: 'What it means day to day', type: 'textarea' },
-      { name: 'contact', label: 'Who I check with, and their number' },
-      { name: 'schedule', label: 'Remind me', type: 'select', options: [['none', 'No reminder'], ['daily', 'Every day'], ['weekly', 'Every week']] },
-      { name: 'weekday', label: 'Day, for weekly', type: 'select', half: true, options: WEEKDAYS },
-      { name: 'time', label: 'Time', type: 'time', half: true },
+      fld('obligation', 'title', { required: true }),
+      fld('obligation', 'detail', { type: 'textarea' }),
+      fld('obligation', 'contact'),
+      fld('obligation', 'schedule', { type: 'select', options: choices('forms.obligation.schedules') }),
+      fld('obligation', 'weekday', { type: 'select', half: true, options: choices('forms.weekdays') }),
+      fld('obligation', 'time', { type: 'time', half: true }),
     ],
-    async onSave(v) { await store.save('obligation', item?.id || uid(), v); toast('Saved'); },
-    onDelete: item && (async () => { await store.remove(item.id); toast('Deleted'); }),
+    async onSave(v) { await store.save('obligation', item?.id || uid(), v); saved(); },
+    onDelete: item && (async () => { await store.remove(item.id); deleted(); }),
   });
 }
 
 export function editReport(item) {
   openForm({
-    title: item ? 'Edit record' : 'Add to reporting record',
-    note: 'Add a line every time you report something. Do not try to rebuild this later from memory.',
+    title: t(item ? 'forms.report.heading_edit' : 'forms.report.heading_add'),
+    note: t('forms.report.note'),
     values: item ? item.data : { date: today() },
     fields: [
-      { name: 'date', label: 'Date', type: 'date', required: true },
-      { name: 'what', label: 'What I reported', type: 'textarea', required: true },
-      { name: 'who', label: 'Who I told' },
+      fld('report', 'date', { type: 'date', required: true }),
+      fld('report', 'what', { type: 'textarea', required: true }),
+      fld('report', 'who'),
     ],
-    async onSave(v) { await store.save('report', item?.id || uid(), v); toast('Saved'); },
-    onDelete: item && (async () => { await store.remove(item.id); toast('Deleted'); }),
+    async onSave(v) { await store.save('report', item?.id || uid(), v); saved(); },
+    onDelete: item && (async () => { await store.remove(item.id); deleted(); }),
   });
 }
 

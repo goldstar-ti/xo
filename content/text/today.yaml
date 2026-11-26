@@ -1,4 +1,4 @@
-# Today: the daily lines shown on the Today screen. One is picked for each day.
+# Today: the Today screen, including the daily lines (one is picked for each day).
 #
 # How to edit this file
 # - Save the file and reload the page. There is no build and no restart.
@@ -11,6 +11,53 @@
 # - If a file has a mistake, the app keeps the last good version of that file and logs a note.
 #
 today:
+  matters_label: What matters most to me
+  next_up: Next up
+  greeting:
+    morning: 'Morning, {name}.'
+    afternoon: 'Afternoon, {name}.'
+    evening: 'Evening, {name}.'
+  entries:
+    morning_checkin: Morning check-in
+    evening_checkin: Evening check-in
+    weekly_review: Weekly review
+  next:
+    leave_now: Leave now
+    leave_in: 'Leave in {duration}'
+    starts_in: 'Starts in {duration}'
+    get_ready_in: 'Get ready in {duration}'
+    at: 'at {time}'
+    nothing_timed: Nothing else timed today
+    next_appt: 'Next: {title}'
+  nudge:
+    not_started: Your plan is not started yet. Begin with one box.
+    progress: 'My plan: {filled} of {total} boxes written. Next box: “{question}”'
+    open: Open my plan
+  tick:
+    done: Done
+    tick: Tick
+    start: Start
+    edit: Edit
+    state_done: '{label}: done'
+    state_open: '{label}: not done'
+  three:
+    heading: Today’s three
+    all_tasks: All tasks
+    empty_lead: Nothing chosen yet.
+    choose: Choose up to three tasks
+    empty_tail: so today has an edge.
+  day:
+    heading: The day
+    edit_routine: Edit routine
+    now: Now
+  coming:
+    heading: Coming up
+    empty: Nothing due in the next week.
+    court: Court
+    appointment: Appointment
+    task_due: Task due
+    bill: Bill
+    bill_auto: Bill, automatic
   lines:
   - One thing at a time. The next thing is enough.
   - You do not have to catch the first link. Catching any link early still steers you back.

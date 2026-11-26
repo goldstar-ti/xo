@@ -1,0 +1,114 @@
+# Forms: the add and edit dialogs for appointments, tasks, routine items, bills, conditions and reports.
+#
+# How to edit this file
+# - Save the file and reload the page. There is no build and no restart.
+# - Change the words after a colon. Keep the keys (the words before a colon) as they are:
+#   the app looks the text up by key, and a missing key shows the key itself.
+# - Keep the indentation. It uses two spaces and never tabs.
+# - Put quote marks around any text that starts with a special character
+#   (" ' { [ * & ! % @ #) or that contains a colon followed by a space, and around times such as '09:00'.
+# - Write {name} where the app fills something in. Keep the same {name} in your wording.
+# - If a file has a mistake, the app keeps the last good version of that file and logs a note.
+#
+forms:
+  saved: Saved
+  deleted: Deleted
+  weekdays:
+    '1': Monday
+    '2': Tuesday
+    '3': Wednesday
+    '4': Thursday
+    '5': Friday
+    '6': Saturday
+    '0': Sunday
+  appointment:
+    heading_edit: Edit appointment
+    heading_add: Add appointment
+    heading_court: Add court date
+    labels:
+      title: What
+      date: Date
+      time: Start time
+      where: Where
+      travel: Travel, minutes
+      prep: Getting ready, minutes
+      notes: What to bring, who to ask for
+      court: This is a court date
+    hints:
+      prep: Be generous. These set your get-ready and leave reminders.
+      court: Adds a reminder one week before.
+  task:
+    heading_edit: Edit task
+    heading_add: Add task
+    labels:
+      title: Task
+      step: First small step
+      est: My guess, minutes
+      due: Due
+      project: Project
+    hints:
+      step: Small enough to start in two minutes.
+      est: The app adds half again.
+    placeholders:
+      project: Leave blank, or a name such as Court
+    limit: Three is the limit for today. Finish or unpick one first.
+  routine:
+    heading_edit: Edit routine item
+    heading_add: Add routine item
+    labels:
+      label: What
+      time: Time
+      type: Type
+      active: Remind me every day
+    hints:
+      label: This wording appears in the reminder on your lock screen.
+    types:
+      meal: Meal
+      water: Water
+      meds: Medication
+      sleep: Sleep
+      other: Other
+  bill:
+    heading_edit: Edit bill
+    heading_add: Add bill
+    labels:
+      name: Bill
+      amount: Amount, dollars
+      due: Next due
+      repeat: Repeats
+      autopay: Paid automatically
+      notes: Notes
+    hints:
+      autopay: You get one reminder the day before, to check the money is there.
+    repeats:
+      none: Does not repeat
+      weekly: Weekly
+      fortnightly: Fortnightly
+      monthly: Monthly
+      quarterly: Every 3 months
+      yearly: Yearly
+    paid_next: Paid. Next one is set.
+    paid: Paid
+  obligation:
+    heading_edit: Edit condition
+    heading_add: Add condition
+    note: Write it in your own words. Your bail undertaking and your lawyer are the authority on what applies.
+    labels:
+      title: Condition
+      detail: What it means day to day
+      contact: Who I check with, and their number
+      schedule: Remind me
+      weekday: Day, for weekly
+      time: Time
+    schedules:
+      none: No reminder
+      daily: Every day
+      weekly: Every week
+  report:
+    heading_edit: Edit record
+    heading_add: Add to reporting record
+    note: Add a line every time you report something. Do not try to rebuild this later from memory.
+    labels:
+      date: Date
+      what: What I reported
+      who: Who I told

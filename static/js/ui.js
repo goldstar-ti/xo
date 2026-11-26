@@ -11,9 +11,15 @@ export const kit = () => document.documentElement.dataset.kit || 'xo';
 
 const join = (...parts) => parts.filter(Boolean).join(' ');
 
-// variant: 'primary' | 'ghost' (default) | 'danger'. attrs: type (default 'button'), onclick, class, anything else.
+// variant: 'primary' | 'ghost' (default) | 'danger' | 'row'. attrs: type (default 'button'), onclick, class, anything else.
+// 'row' is a whole list row that acts as a button: no button look in XO or daisyUI (app.css styles .row-main),
+// a plain Web Awesome button in wa. label may be a node or a list of nodes.
 export function button(label, { variant = 'ghost', type = 'button', ...attrs } = {}) {
   const k = kit();
+  if (variant === 'row') {
+    if (k === 'wa') return h('wa-button', { ...attrs, type, variant: 'neutral', appearance: 'plain' }, label);
+    return h('button', { ...attrs, type }, label);
+  }
   if (k === 'wa') {
     const wa = { primary: ['brand', 'accent'], ghost: ['neutral', 'outlined'], danger: ['danger', 'outlined'] }[variant];
     return h('wa-button', { ...attrs, type, variant: wa[0], appearance: wa[1] }, label);

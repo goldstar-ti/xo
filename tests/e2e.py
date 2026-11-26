@@ -115,7 +115,7 @@ with sync_playwright() as p:
     page.goto(f"{BASE}/#/obligations")
 
     # --- court task, condition, reporting record
-    page.fill('[data-focus="court"]', "Send documents to lawyer")
+    set_control(page.locator('[data-focus="court"]'), "Send documents to lawyer")
     page.keyboard.press("Enter")
     expect(page.locator(".list li", has_text="Send documents to lawyer")).to_have_count(1)
     expect(page.locator('[data-focus="court"]')).to_be_focused()
@@ -138,7 +138,7 @@ with sync_playwright() as p:
     # --- tasks
     page.goto(f"{BASE}/#/tasks")
     for title in ["Reply to accountant", "Book dentist", "Renew car registration", "Tidy desk"]:
-        page.fill('[data-focus="task"]', title)
+        set_control(page.locator('[data-focus="task"]'), title)
         page.keyboard.press("Enter")
         expect(page.locator(".list li", has_text=title)).to_have_count(1)
     page.locator(".list li", has_text="Reply to accountant").locator(".row-main").click()
@@ -148,7 +148,9 @@ with sync_playwright() as p:
         expect(page.locator(".list li", has_text=title).get_by_role("button", name="Today")).to_have_count(1)
     page.locator(".list li", has_text="Tidy desk").get_by_role("button", name="Pick").click()  # fourth: refused
     expect(page.locator("#toast")).to_contain_text("Three is the limit")
-    page.locator(".list li", has_text="Book dentist").locator("input[type=checkbox]").check()
+    set_control(
+        page.locator(".list li", has_text="Book dentist").locator("wa-checkbox, input[type=checkbox]").first, True
+    )
     expect(page.locator(".list li.done", has_text="Book dentist")).to_have_count(1)
     page.screenshot(path=SHOTS / "03-tasks.png", full_page=True)
 

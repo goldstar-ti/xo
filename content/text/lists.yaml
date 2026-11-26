@@ -1,0 +1,75 @@
+# Lists: the Diary, Tasks, Routine, Bills and Obligations screens.
+#
+# How to edit this file
+# - Save the file and reload the page. There is no build and no restart.
+# - Change the words after a colon. Keep the keys (the words before a colon) as they are:
+#   the app looks the text up by key, and a missing key shows the key itself.
+# - Keep the indentation. It uses two spaces and never tabs.
+# - Put quote marks around any text that starts with a special character
+#   (" ' { [ * & ! % @ #) or that contains a colon followed by a space, and around times such as '09:00'.
+# - Write {name} where the app fills something in. Keep the same {name} in your wording.
+# - If a file has a mistake, the app keeps the last good version of that file and logs a note.
+#
+lists:
+  shared:
+    add: Add
+    paid: Paid
+    court: Court
+    get_ready: 'get ready {time}'
+    leave: 'leave {time}'
+    start_with: 'Start with: {step}'
+    allow: 'allow {duration}'
+    done_aria: 'Done: {title}'
+    overdue_since: 'overdue since {day}'
+  diary:
+    heading: Diary
+    add: Add appointment
+    empty: No appointments ahead. Add the next one as soon as it is booked, while you still have the details in front of you.
+    past: 'Past appointments ({count})'
+    to_calendar: To calendar
+    calendar_tip: Opens Google Calendar with this entry filled in
+  tasks:
+    heading: Tasks
+    add_placeholder: Add a task
+    todays_three: Today’s three
+    pick_empty: Pick up to three. Three finished beats ten started.
+    due_week: Due this week
+    everything_else: Everything else
+    none_open: No open tasks.
+    done: 'Done ({count})'
+    due: 'due {when}'
+    pick: Pick
+    today: Today
+  routine:
+    heading: Routine
+    add: Add item
+    note: Each item reminds you at its time and waits on the Today screen for a tick. The dots show the last seven days.
+    reminder_off: Reminder off
+    ticked: 'Ticked {count} of the last 7 days'
+    empty: No routine yet. Add meals first.
+  bills:
+    heading: Bills
+    add: Add bill
+    due_next_30: due in the next 30 days
+    overdue_since: 'Overdue since {day}'
+    due: 'Due {when}'
+    paid_automatically: paid automatically
+    empty: No bills yet. Add the next one that arrives, with its due date.
+  obligations:
+    heading: Obligations
+    note: These are your own notes. Your bail undertaking, your reporting contact and your lawyer are the authority on what applies. When unsure, ask before you act.
+    court_heading: Court dates
+    court_add: Add court date
+    court_empty: No court dates entered. Add the next one with the court, the time and what to bring.
+    tasks_heading: To do for court
+    tasks_placeholder: Add a court task
+    tasks_empty: Nothing outstanding. Add anything your lawyer asks you for the moment they ask.
+    conditions_heading: My conditions
+    conditions_add: Add condition
+    conditions_empty: Copy each condition from your paperwork, one per entry, in words you would use yourself.
+    every_day: 'Every day, {time}'
+    every_weekday: 'Every {weekday}, {time}'
+    reports_heading: Reporting record
+    reports_add: Add record
+    reports_empty: 'A line for every time you report something: the date, what you reported, who you told.'
+    told: 'Told: {who}'
