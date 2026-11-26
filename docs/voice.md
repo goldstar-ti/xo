@@ -80,7 +80,7 @@ Terse tells go too: dropped articles, noun piles (`Failed save: cell reversion`)
 | Empty state | Title says what is missing (`No tasks today`). One sentence says what to do. |
 | Toast, success | What happened, 8 words or fewer: `Check-in saved.` |
 | Toast or error, failure | What did not happen, the reason if known, the next step: `The reminder was not saved. Try again.` |
-| Validation error | The rule with the exact value, using **must**: `The passphrase must be at least 12 characters. This one is 9.` |
+| Validation error | The rule with the exact value, using **must**: `The password must be at least 8 characters. This one is 5.` |
 | Confirm dialog | Title is the question naming the thing (`Delete this appointment?`). Body says what happens and whether it can be undone. The button is the verb (**Delete**). |
 | Check-in prompt | One question, plain words, chips before free text. No interpretation of the answer. |
 | Notification | Neutral by default: a kind and a time. No names, places or content. Detailed wording only when the owner turns it on. |
@@ -96,5 +96,5 @@ Terse tells go too: dropped articles, noun piles (`Failed save: cell reversion`)
 | Toast | `Success!` | `Check-in saved.` |
 | Button | `Submit` | `Save check-in` |
 | Confirm | `Are you sure?` | `Delete this bill?` / `This cannot be undone.` / **Delete** |
-| Validation | `Invalid passphrase` | `The passphrase must be at least 12 characters. This one is 9.` |
+| Validation | `Invalid password` | `The password must be at least 8 characters. This one is 5.` |
 | Help | `Leverage routines to stay on top of your day.` | `Routines repeat every day. Tick one when it is done.` |

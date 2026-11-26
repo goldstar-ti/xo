@@ -39,7 +39,7 @@ Build one at a time, with tests, and keep each first version small.
 
 **Storage**
 
-- One encrypted item per unit: id `wb:<unitId>`, kind `wb`, payload
+- One item per unit: id `wb:<unitId>`, kind `wb`, payload
   `{ answers: { "<promptId>": text }, at: { "<promptId>": ISO time of last edit }, read: [blockIndex of each section heading read], checks: [index], skipped: [promptId] }`.
 - Track progress at block level, never by sitting number, so changing the sitting size keeps progress intact.
 - **The plan boxes are shared.** Units `D3` and `D4` are the two versions of "My Plan", and the My plan screen already stores those answers in the `plan` item under named keys.
@@ -65,7 +65,7 @@ Build one at a time, with tests, and keep each first version small.
 - Reminder: daily at a time set in Settings (suggest 4:30 pm). Reminder kind `workbook`, neutral wording "Today's sitting is ready". Completing a sitting sets `tick:workbook:<day>`.
 - The writing reminder (`settings().showGuard`) shows once at the top of a worksheet sitting when switched on.
 
-**Tests.** A unit test for the sitting splitter (pure function). Browser test: open the first sitting, answer, finish, reload, confirm the answer and progress survived and the payload is ciphertext.
+**Tests.** A unit test for the sitting splitter (pure function). Browser test: open the first sitting, answer, finish, reload, confirm the answer and progress survived and the payload is stored as JSON.
 
 ---
 
@@ -75,7 +75,7 @@ Build one at a time, with tests, and keep each first version small.
 
 **Readers**
 
-- Stored in an encrypted item (`outputs`, kind `outputs`): `{ readers: [ { id, name, role, title, note, include: {...} } ] }`.
+- Stored in an item (`outputs`, kind `outputs`): `{ readers: [ { id, name, role, title, note, include: {...} } ] }`.
 - Seed four on first open with generic names: "Me", "My lawyer", "Psychologist 1", "Psychologist 2". The user renames them. Real names stay out of the code.
 - Readers can be added, renamed, duplicated and removed.
 
@@ -101,7 +101,7 @@ Build one at a time, with tests, and keep each first version small.
 
 **Building the document**
 
-- All in the browser, because only the browser can decrypt.
+- All in the browser, from the loaded items.
 - `#/outputs`: the reader list. `#/outputs/<readerId>`: that reader's choices with a live count ("14 units, 96 answers").
 - "Build" renders a clean print view (`#/print/<readerId>`) with its own print stylesheet: title, reader, date, contents, then sections. Buttons: "Print or save as PDF" (`window.print()`), "Download as HTML" (self-contained file, styles in a `<style>` tag inside the downloaded file only), "Download as text" (Markdown).
 - Every page footer: the date built and "Built by the owner from their own notes".
@@ -117,10 +117,10 @@ Build one at a time, with tests, and keep each first version small.
 
 **Data**
 
-- One encrypted item per entry: kind `life`, payload
+- One item per entry: kind `life`, payload
   `{ title, body, year, month, age, whenText, place, people: [aliasId], tags: [tag], updated }`.
   `year`, `month`, `age` and `whenText` are all optional. Sort by `year` (+ `month`); if only `age` is given, use `birthYear + age`; entries with neither go under "Undated".
-- One encrypted singleton `lifemeta`: `{ birthYear, people: [ { id, alias, who, relation } ], tags: [custom tag] }`.
+- One singleton `lifemeta`: `{ birthYear, people: [ { id, alias, who, relation } ], tags: [custom tag] }`.
   `who` is the private real identity. `alias` and `relation` are what other readers see.
 - Starting tags: family, home and moves, school, work, friends, health, good times, loss, trauma. The user can add tags.
 
@@ -141,7 +141,7 @@ Build one at a time, with tests, and keep each first version small.
 
 ## Smaller items
 
-- Passphrase change (re-encrypt every item in the browser, then swap the auth key in one request).
+- Password change (one request that replaces the password hash).
 - Offline edits with a queue.
 - A re-nudge when a routine item is still unticked 20 minutes after its reminder.
 - Alembic, before the first schema change.

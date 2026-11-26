@@ -1,14 +1,15 @@
 """Database tables.
 
-What the server can read in plain text: usernames, the *kind* of each item
-(appointment, task, ...), the day an item belongs to, and reminder times.
-Everything the user types (titles, notes, the plan, check-in answers) arrives
-already encrypted in the browser and is stored in Item.payload as ciphertext.
+Usernames, password hashes, the *kind* of each item (appointment, task, ...),
+the day it belongs to and reminder times are plain columns. Everything the user
+types (titles, notes, the plan, check-in answers) is stored as JSON in Item.payload.
 """
 
 from datetime import date, datetime
+from typing import Any
 
 from sqlalchemy import Boolean, Date, DateTime, ForeignKey, Index, Integer, String, Text, func
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
@@ -19,16 +20,14 @@ class Base(DeclarativeBase):
 
 
 class User(Base):
-    """The account: username, key-derivation salt and the hash of the auth key."""
+    """The account: username and the argon2 hash of the password."""
 
     __tablename__ = "users"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     username: Mapped[str] = mapped_column(String(40), unique=True)
-    # Argon2 hash of the browser-derived authentication key (never the passphrase).
-    auth_hash: Mapped[str] = mapped_column(String(200))
-    # Salt the browser uses to derive its keys from the passphrase.
-    kdf_salt: Mapped[str] = mapped_column(String(64))
+    # Argon2 hash of the password.
+    password_hash: Mapped[str] = mapped_column(String(200))
     tz: Mapped[str] = mapped_column(String(64), default="Australia/Perth")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
@@ -45,7 +44,7 @@ class Session(Base):
 
 
 class Item(Base):
-    """One encrypted item, found by kind and day."""
+    """One item, found by kind and day."""
 
     __tablename__ = "items"
 
@@ -53,7 +52,7 @@ class Item(Base):
     id: Mapped[str] = mapped_column(String(90), primary_key=True)
     kind: Mapped[str] = mapped_column(String(20))
     day: Mapped[date | None] = mapped_column(Date, nullable=True)
-    payload: Mapped[str | None] = mapped_column(Text, nullable=True)
+    payload: Mapped[Any] = mapped_column(JSONB(none_as_null=True), nullable=True)
     deleted: Mapped[bool] = mapped_column(Boolean, default=False)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
@@ -63,7 +62,7 @@ class Item(Base):
 
 
 class Reminder(Base):
-    """A plaintext reminder time for an item."""
+    """A reminder time for an item."""
 
     __tablename__ = "reminders"
 

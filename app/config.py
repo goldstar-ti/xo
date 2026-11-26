@@ -8,8 +8,7 @@ def _flag(name: str, default: str) -> bool:
 
 
 DATABASE_URL = os.environ.get("DATABASE_URL", "postgresql+asyncpg://xo:xo@localhost:5432/xo")
-# Random string. Used only to answer salt requests for unknown usernames
-# consistently, so the login form does not reveal which usernames exist.
+# Random string. Currently unused; kept so existing .env files stay valid.
 SECRET_KEY = os.environ.get("SECRET_KEY", "change-me")
 # Leave true in production (HTTPS through Cloudflare). Set false for local http testing.
 COOKIE_SECURE = _flag("COOKIE_SECURE", "true")

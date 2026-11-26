@@ -27,25 +27,24 @@ Security is the owner's responsibility, handled outside this codebase (owner's d
 
 ## How the data works
 
-- One generic table, `items`: `(user_id, id, kind, day, payload, deleted)`. `payload` is ciphertext (`v1.` + base64 of IV + AES-GCM output).
+- One generic table, `items`: `(user_id, id, kind, day, payload, deleted)`. `payload` is a JSONB value (object, array, string or number; null for ticks).
 - Kinds in use: `appointment`, `task`, `routine`, `tick`, `bill`, `obligation`, `report`, `checkin`, `plan`, `settings`.
 - Singletons use fixed ids: `plan`, `settings`. Ticks use `tick:<ref>:<YYYY-MM-DD>` with a null payload. Check-ins use `checkin:<type>:<day>`.
-- Reminders are plaintext rows (`fire_at`, `repeat`, `kind`, `item_id`). The browser computes them in `REMINDERS` in `static/js/store.js` and sends them with the item; the server replaces that item's reminders on every save.
+- Reminders are rows (`fire_at`, `repeat`, `kind`, `item_id`). The browser computes them in `REMINDERS` in `static/js/store.js` and sends them with the item; the server replaces that item's reminders on every save.
 - To add a kind: pick a name matching `^[a-z_]{1,20}$`, add a `REMINDERS` entry if it needs reminders, add wording for any new reminder kind to `NEUTRAL` and `detailed()` in `static/sw.js`.
 - Tables are created with `create_all` on startup. There is no migration tool yet; adding a column to an existing table needs a manual `ALTER TABLE` or Alembic.
 
-## Key derivation
+## Sign-in
 
-`passphrase -> PBKDF2-SHA256 (600k, per-user salt) -> 64 bytes`. First half is the AES key (non-extractable `CryptoKey`, kept in IndexedDB `xo/kv`). Second half is the auth key sent at sign-in; the server stores its argon2 hash. There is no passphrase reset or change yet.
+Username and password (at least 8 characters). The server stores an argon2 hash of the password in `users.password_hash` and starts a cookie session (`sid`, 30 days). One account only; sign-in is throttled after 8 failures in 15 minutes. A password change is a single request away from being built: nothing else depends on the password.
 
 ## Front end layout
 
 ```
 static/js/boot.js          appearance engine (themes, fonts, look state, undo, look codes, schedules)
 static/js/app.js           shell, sign-in, router, nav
-static/js/store.js         api(), encrypt/save/load, ticks, reminder times
-static/js/crypto.js        key derivation, AES-GCM, IndexedDB key-value
-static/js/util.js          h() element builder, put(), dates, toast, openDialog(), openForm()
+static/js/store.js         api(), save/load, ticks, reminder times
+static/js/util.js          h() element builder, put(), dates, toast, openDialog(), openForm(), IndexedDB flags for the service worker
 static/js/forms.js         add/edit dialogs per kind
 static/js/content.js       all fixed wording: plan prompts, check-in choices, daily lines, defaults
 static/js/views/*.js       one module per screen; each exports render(root, ...params) and `live`
@@ -146,6 +145,5 @@ python scripts/build_workbook.py path/to/workbook.docx
 ## Before calling a change done
 
 - API tests and both browser tests pass.
-- No user text reaches the server unencrypted (check the request body in the Network tab).
 - The screen works at 360 px wide and at desktop width, in light and dark, in at least two themes.
 - `README.md` and `docs/ROADMAP.md` still describe what exists.

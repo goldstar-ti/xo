@@ -186,3 +186,23 @@ export function withPhoneLinks(text) {
   if (last < text.length) out.push(text.slice(last));
   return out;
 }
+
+// ---- a tiny key-value store in IndexedDB: two flags the service worker reads (`details`, `clock24`) ----
+function kvDb() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open('xo', 1);
+    req.onupgradeneeded = () => req.result.createObjectStore('kv');
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+async function kvTx(mode, fn) {
+  const d = await kvDb();
+  return new Promise((resolve, reject) => {
+    const req = fn(d.transaction('kv', mode).objectStore('kv'));
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+export const kvSet = (k, v) => kvTx('readwrite', (s) => s.put(v, k));
+export const kvClear = () => kvTx('readwrite', (s) => s.clear());

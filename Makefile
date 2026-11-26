@@ -31,7 +31,7 @@ health: ## Ask the app for /api/health, directly and through nobbie-nginx.
 	curl -fsS http://172.17.0.1:8010/api/health; echo
 	curl -fsS -H 'Host: xo.tifunction.com' http://127.0.0.1/api/health; echo
 
-db-backup: ## Dump the database to ./backups/xo-<timestamp>.dump (ciphertext only).
+db-backup: ## Dump the database to ./backups/xo-<timestamp>.dump.
 	mkdir -p $(BACKUP_DIR)
 	docker exec xo-db sh -c 'pg_dump -U "$$POSTGRES_USER" -d "$$POSTGRES_DB" -F c' \
 		> $(BACKUP_DIR)/xo-$$(date +%Y%m%d_%H%M%S).dump

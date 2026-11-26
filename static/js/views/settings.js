@@ -1,6 +1,5 @@
 import * as store from '../store.js';
-import { decryptJSON, kvGet, kvSet } from '../crypto.js';
-import { h, toast, today, put } from '../util.js';
+import { h, kvSet, toast, today, put } from '../util.js';
 
 export const live = false;
 
@@ -39,14 +38,8 @@ async function disablePush() {
 }
 
 async function exportAll() {
-  const key = await kvGet('key');
   const rows = await store.api('GET', '/api/items');
-  const out = [];
-  for (const row of rows) {
-    let data = null;
-    try { data = await decryptJSON(key, row.payload); } catch { data = { unreadable: true }; }
-    out.push({ id: row.id, kind: row.kind, day: row.day, updated_at: row.updated_at, data });
-  }
+  const out = rows.map((row) => ({ id: row.id, kind: row.kind, day: row.day, updated_at: row.updated_at, data: row.payload }));
   const blob = new Blob([JSON.stringify({ exported: new Date().toISOString(), items: out }, null, 2)], { type: 'application/json' });
   const link = h('a', { href: URL.createObjectURL(blob), download: `xo-export-${today()}.json` });
   document.body.append(link);
@@ -113,17 +106,17 @@ export function render(root) {
             WEEKDAYS.map((d, i) => h('option', { value: String(i) }, d)))),
         time('weeklyAt', 'Weekly review time'))),
     h('section', {}, h('h2', {}, 'Evening check-in'),
-      toggle('logSigns', 'Ask about my early warning signs', 'Your answers are stored encrypted, but anything stored can be seized with a device or under an order. If you have a matter before a court, ask your lawyer what is safe to record before you leave this on.')),
+      toggle('logSigns', 'Ask about my early warning signs', 'Your answers are stored with your other entries. If you have a matter before a court, ask your lawyer what is safe to record before you leave this on.')),
     h('section', {}, h('h2', {}, 'Writing reminder'),
       toggle('showGuard', 'Show the reminder about what not to write', 'The line that appears beside free-text boxes in the plan and check-ins. Switch it off once you no longer need it.')),
     h('section', {}, h('h2', {}, 'My own daily lines'),
       h('p', { class: 'hint' }, 'One per line. They are mixed in with the built-in ones on the Today screen and come up twice as often.'),
       h('textarea', { rows: 4, value: s.lines, 'aria-label': 'My own daily lines', onchange: (e) => saveSettings({ lines: e.target.value }) })),
     h('section', {}, h('h2', {}, 'My data'),
-      h('p', { class: 'note' }, 'Everything you type is encrypted on this device before it is sent. The server stores the kind of each entry, its date and its reminder times in readable form, and nothing else. There is no passphrase reset: if the passphrase is lost, the contents cannot be recovered.'),
+      h('p', { class: 'note' }, 'Your entries are stored on the server and you sign in with your password.'),
       h('div', { class: 'row' },
-        h('button', { class: 'ghost', type: 'button', onclick: () => exportAll().catch((err) => toast(err.message, 'bad')) }, 'Download everything, unencrypted'),
+        h('button', { class: 'ghost', type: 'button', onclick: () => exportAll().catch((err) => toast(err.message, 'bad')) }, 'Download everything'),
         h('button', { class: 'ghost', type: 'button', onclick: () => window.dispatchEvent(new Event('xo:sign-out')) }, 'Sign out of this device')),
-      h('p', { class: 'hint' }, 'The download is a readable file. Keep it somewhere private, or delete it once you have used it.')),
+      h('p', { class: 'hint' }, 'A JSON file with every entry you have saved.')),
   );
 }

@@ -17,7 +17,7 @@
 
 ## Owner to-do
 
-1. Create the XO account straight after the first sign-in at `https://xo.tifunction.com`. The first sign-in creates the only account, and there is no passphrase reset. Write the passphrase down.
+1. Create the XO account straight after the first sign-in at `https://xo.tifunction.com`. The first sign-in creates the only account, and sign in with a name and a password of at least 8 characters.
 2. Run `make db-backup` before every update. Nothing runs it on a schedule yet.
 3. Before production: reinstate CLAUDE.md rule 5 (no personal names or details) and remove every personal detail added while it was paused (decision D-8).
 4. Security is handled outside the codebase (decision D-6): the app sends no CSP or security headers.

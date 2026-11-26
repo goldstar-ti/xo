@@ -1,7 +1,6 @@
 // Appearance: the quick "Look" panel and the full Appearance screen.
 // All of it is stored on this device only (see boot.js).
-import { kvSet } from '../crypto.js';
-import { fmtTime, h, openDialog, put, toast, uid } from '../util.js';
+import { fmtTime, h, kvSet, openDialog, put, toast, uid } from '../util.js';
 
 export const live = false;
 const L = window.XOLook;

@@ -1,9 +1,9 @@
 // Service worker: keeps the app shell available and shows reminders.
 // Classic script (no imports) so it works in every browser that supports push.
-const CACHE = 'xo-v3';
+const CACHE = 'xo-v4';
 const SHELL = [
   '/', '/app.css', '/tw.css', '/manifest.webmanifest', '/fonts/ahn-latin.woff2', '/icons/icon-192.png',
-  '/js/boot.js', '/js/app.js', '/js/store.js', '/js/crypto.js', '/js/util.js', '/js/content.js', '/js/forms.js',
+  '/js/boot.js', '/js/app.js', '/js/store.js', '/js/util.js', '/js/content.js', '/js/forms.js',
   '/js/views/today.js', '/js/views/lists.js', '/js/views/checkin.js', '/js/views/plan.js', '/js/views/settings.js', '/js/views/appearance.js',
 ];
 
@@ -31,7 +31,7 @@ self.addEventListener('fetch', (event) => {
   );
 });
 
-// ---- reading the key and one item, to word a reminder ----
+// ---- reading one item, to word a reminder ----
 function kvGet(name) {
   return new Promise((resolve) => {
     const req = indexedDB.open('xo', 1);
@@ -45,15 +45,10 @@ function kvGet(name) {
   });
 }
 async function readItem(id) {
-  const key = await kvGet('key');
-  if (!key || !id) return null;
+  if (!id) return null;
   const res = await fetch(`/api/items/${encodeURIComponent(id)}`, { credentials: 'same-origin' });
   if (!res.ok) return null;
-  const row = await res.json();
-  if (!row.payload) return null;
-  const all = Uint8Array.from(atob(row.payload.slice(3)), (c) => c.charCodeAt(0));
-  const plain = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: all.slice(0, 12) }, key, all.slice(12));
-  return JSON.parse(new TextDecoder().decode(plain));
+  return (await res.json()).payload || null;
 }
 let clock24 = false;
 function clock(time) {

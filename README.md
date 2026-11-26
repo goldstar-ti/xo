@@ -20,26 +20,14 @@ Version 1 covers:
 Not built yet, specced in `docs/ROADMAP.md`: the workbook in daily sittings, outputs for named readers, and the life story.
 `CLAUDE.md` is the guide for working on the code with Claude Code.
 
-## How privacy works here
+## Sign-in and data
 
-Everything you type is encrypted in the browser, with a key made from your passphrase,
-before it leaves the device. The passphrase and the key never reach the server.
+You sign in with a name and a password (at least 8 characters). The server stores an argon2 hash of the password and keeps your entries as JSON in the database. Security is handled outside the app (see `CLAUDE.md`).
 
-| The server can read | The server cannot read |
-| --- | --- |
-| Your sign-in name | Titles, notes, places, amounts |
-| The kind of each entry (appointment, task, tick, check-in ...) | Your plan |
-| The date an entry belongs to | Check-in answers |
-| Reminder times | Conditions and the reporting record |
+Two things to know:
 
-So an administrator of the server or the database sees that an appointment exists on a date,
-with reminders at certain times, and a block of ciphertext. They do not see what it is.
-
-Three limits to know about:
-
-1. **There is no passphrase reset.** Lose the passphrase and the contents are gone. Write it down and store it somewhere safe.
-2. **A device that is signed in can read everything.** Lock your phone and computer. Use "Sign out of this device" on any machine you stop using.
-3. **Whoever controls the server controls the app's code.** Encryption protects stored data from being read. It does not protect against someone deliberately changing the app files on the server.
+1. **A device that is signed in can read everything.** Lock your phone and computer. Use "Sign out of this device" on any machine you stop using.
+2. **Backups hold your entries in readable form.** Store dumps somewhere private.
 
 The app stores text only. There are no photo or file uploads.
 
@@ -69,9 +57,9 @@ If the firewall blocks outbound traffic, ask your network administrator to allow
 ### First run
 
 1. Open `https://xo.tifunction.com` in Chrome on your computer and pass the Cloudflare Access sign-in.
-2. Choose a sign-in name and a passphrase. The first account created is the only account; registration then closes.
+2. Choose a sign-in name and a password. The first account created is the only account; registration then closes.
 3. Go to Settings, turn on notifications, and press "Send a test".
-4. On your Android phone, open the same address in Chrome, sign in with the same name and passphrase, then use Chrome's menu, "Add to Home screen" or "Install app". Open it from the home screen icon, go to Settings and turn on notifications there too.
+4. On your Android phone, open the same address in Chrome, sign in with the same name and password, then use Chrome's menu, "Add to Home screen" or "Install app". Open it from the home screen icon, go to Settings and turn on notifications there too.
 5. On Android, long-press the app icon, open App info, and check that notifications are allowed and battery use is not restricted. Restricted battery settings delay reminders.
 
 Cloudflare Access sessions expire. When one lapses, notification actions (Done, In 15 min)
@@ -80,13 +68,13 @@ duration on the Access application.
 
 ## Everyday care
 
-**Back up the database.** The dump contains ciphertext, so it is safe to store with your other backups:
+**Back up the database.** The dump contains your entries in readable form, so keep it somewhere private:
 
 ```bash
 make db-backup        # ./backups/xo-<date>.dump
 ```
 
-A backup is only useful together with the passphrase. `docs/RUNBOOK.md` covers restore.
+`docs/RUNBOOK.md` covers restore.
 
 **Update the app** after changing code:
 
@@ -94,12 +82,12 @@ A backup is only useful together with the passphrase. `docs/RUNBOOK.md` covers r
 make test && make up
 ```
 
-**Read your own data outside the app:** Settings, "Download everything, unencrypted". That file is readable by anyone who opens it.
+**Read your own data outside the app:** Settings, "Download everything".
 
 ## What is deliberately missing from version 1
 
 - No offline editing. The app opens offline, but saving needs a connection.
-- No passphrase change (it needs every entry re-encrypted).
+- No password change screen yet.
 - No second account.
 - If you edit the same entry on two devices at the same moment, the later save wins.
 - A reminder that comes due while the server is off is skipped if more than two hours late. Repeating reminders carry on from the next occurrence.
@@ -136,8 +124,7 @@ app/            FastAPI backend
 static/         the app itself (plain JavaScript modules, no JavaScript build step)
   app.css       hand-written styles and the appearance tokens
   tw.css        Tailwind output, built at image build time (gitignored)
-  js/crypto.js  key derivation and encryption
-  js/store.js   encrypt, save, load, and reminder times for each kind of entry
+  js/store.js   save, load, and reminder times for each kind of entry
   js/boot.js    appearance engine, loaded before first paint
   js/views/     one file per screen
   sw.js         service worker: offline shell and notifications

@@ -180,23 +180,23 @@ with sync_playwright() as p:
     expect(page.locator(".next-head")).not_to_be_empty()
     page.screenshot(path=SHOTS / "01-today-phone.png", full_page=True)
 
-    # --- reload: still signed in, key still on the device
+    # --- reload: still signed in, session still valid
     page.reload()
     expect(page.locator(".dayline .entry.done", has_text="Breakfast")).to_have_count(1, timeout=20000)
 
-    # --- settings render, export decrypts
+    # --- settings render, export is readable
     page.goto(f"{BASE}/#/settings")
     expect(page.locator("h1")).to_have_text("Settings")
     with page.expect_download() as dl:
-        page.get_by_role("button", name="Download everything, unencrypted").click()
+        page.get_by_role("button", name="Download everything").click()
     exported = Path(dl.value.path()).read_text()
     assert "GP appointment" in exported and "Being someone my family can rely on." in exported
     page.screenshot(path=SHOTS / "09-settings.png", full_page=True)
 
-    # --- sign out, wrong passphrase, right passphrase
+    # --- sign out, wrong password, right password
     page.get_by_role("button", name="Sign out of this device").click()
     page.fill("#a-name", "tester")
-    page.fill("#a-pass", "not the passphrase")
+    page.fill("#a-pass", "not the password")
     page.get_by_role("button", name="Sign in").click()
     expect(page.locator(".form-error")).to_contain_text("do not match", timeout=20000)
     page.fill("#a-pass", PASS)

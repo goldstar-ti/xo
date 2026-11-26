@@ -1,8 +1,7 @@
 // Shell: sign-in, navigation, routing.
 import * as store from './store.js';
-import { deriveKeys, kvClear, kvGet, kvSet, newSalt } from './crypto.js';
 import { DEFAULT_ROUTINES, DEFAULT_SETTINGS } from './content.js';
-import { dialogOpen, h, put, toast, uid } from './util.js';
+import { dialogOpen, h, kvClear, kvSet, put, toast, uid } from './util.js';
 import * as todayView from './views/today.js';
 import * as checkinView from './views/checkin.js';
 import * as planView from './views/plan.js';
@@ -94,39 +93,34 @@ window.addEventListener('xo:look', (e) => {
 function authScreen(hasUser, message = '') {
   const isNew = !hasUser;
   const name = h('input', { id: 'a-name', type: 'text', autocomplete: 'username', autocapitalize: 'none', spellcheck: 'false', required: true, pattern: '[A-Za-z0-9._\\-]{2,40}' });
-  const pass = h('input', { id: 'a-pass', type: 'password', autocomplete: isNew ? 'new-password' : 'current-password', required: true, minlength: isNew ? 12 : 1 });
+  const pass = h('input', { id: 'a-pass', type: 'password', autocomplete: isNew ? 'new-password' : 'current-password', required: true, minlength: 8 });
   const again = isNew && h('input', { id: 'a-again', type: 'password', autocomplete: 'new-password', required: true });
   const error = h('p', { class: 'form-error', role: 'alert' }, message);
   const btn = h('button', { class: 'primary big', type: 'submit' }, isNew ? 'Create and open' : 'Sign in');
   const form = h('form', { class: 'form auth' },
     h('h1', {}, 'XO'),
     h('p', { class: 'note' }, isNew
-      ? 'Set a name and a passphrase. The passphrase encrypts everything you write, on this device, before it is stored.'
+      ? 'Set a name and a password.'
       : 'Sign in on this device.'),
     h('div', { class: 'field' }, h('label', { for: 'a-name' }, 'Name'), name),
-    h('div', { class: 'field' }, h('label', { for: 'a-pass' }, 'Passphrase'), pass, isNew && h('small', {}, 'At least 12 characters. Four or five unrelated words work well.')),
-    isNew && h('div', { class: 'field' }, h('label', { for: 'a-again' }, 'Passphrase again'), again),
-    isNew && h('p', { class: 'guard' }, 'There is no reset. If you forget the passphrase, what you have written cannot be recovered by anyone. Write it down and keep it somewhere safe.'),
+    h('div', { class: 'field' }, h('label', { for: 'a-pass' }, 'Password'), pass, isNew && h('small', {}, 'At least 8 characters.')),
+    isNew && h('div', { class: 'field' }, h('label', { for: 'a-again' }, 'Password again'), again),
     error, btn);
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     error.textContent = '';
     const username = name.value.trim().toLowerCase();
-    if (isNew && pass.value !== again.value) { error.textContent = 'The two passphrases do not match.'; return; }
+    if (isNew && pass.value !== again.value) { error.textContent = 'The two passwords do not match.'; return; }
     btn.disabled = true;
     btn.textContent = 'Working…';
     try {
-      const salt = isNew ? newSalt() : (await store.api('GET', `/api/auth/salt?username=${encodeURIComponent(username)}`)).salt;
-      const { key, authKey } = await deriveKeys(pass.value, salt);
       if (isNew) {
         const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'Australia/Perth';
-        await store.api('POST', '/api/auth/register', { username, salt, auth_key: authKey, tz });
+        await store.api('POST', '/api/auth/register', { username, password: pass.value, tz });
       } else {
-        await store.api('POST', '/api/auth/login', { username, auth_key: authKey });
+        await store.api('POST', '/api/auth/login', { username, password: pass.value });
       }
-      await kvSet('key', key);
       await kvSet('details', false);
-      store.setKey(key);
       if (isNew) await seed();
       history.replaceState(null, '', '#/today');
       await start();
@@ -157,9 +151,7 @@ async function boot() {
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
   try {
     const status = await store.api('GET', '/api/auth/status');
-    const key = await kvGet('key').catch(() => null);
-    if (status.signed_in && key) {
-      store.setKey(key);
+    if (status.signed_in) {
       try { await start(); return; } catch (err) { toast(err.message, 'bad'); }
     }
     authScreen(status.has_user);
@@ -172,7 +164,6 @@ async function boot() {
 async function signOut() {
   try { await store.api('POST', '/api/auth/logout'); } catch { /* still clear this device */ }
   await kvClear().catch(() => {});
-  store.setKey(null);
   authScreen(true);
 }
 

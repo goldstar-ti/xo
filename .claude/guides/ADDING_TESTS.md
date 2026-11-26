@@ -25,7 +25,7 @@ async def test_thing(client):
     assert r.status_code == 200
 ```
 
-Test that the server stores and returns ciphertext only. Never assert on plaintext user content, because the server never has it.
+Payloads are plain JSON: a test can assert that a payload round-trips unchanged.
 
 ## Browser tests
 

@@ -1,10 +1,7 @@
-// Talks to the server, encrypts on the way out, decrypts on the way in,
-// and works out reminder times for each kind of item.
-import { decryptJSON, encryptJSON } from './crypto.js';
+// Talks to the server and works out reminder times for each kind of item.
 import { DEFAULT_SETTINGS } from './content.js';
 import { addDays, addMinutes, toDate, today } from './util.js';
 
-let key = null;
 const items = new Map(); // id -> { id, kind, day, data }
 const listeners = new Set();
 
@@ -29,7 +26,6 @@ export async function api(method, path, body) {
   return data;
 }
 
-export const setKey = (k) => { key = k; };
 export const onChange = (fn) => { listeners.add(fn); return () => listeners.delete(fn); };
 const emit = () => listeners.forEach((fn) => fn());
 
@@ -37,11 +33,7 @@ export async function load() {
   items.clear();
   // Ticks and check-ins older than five weeks are left on the server.
   const rows = await api('GET', `/api/items?from_day=${addDays(today(), -35)}`);
-  await Promise.all(rows.map(async (row) => {
-    let data = {};
-    try { data = (await decryptJSON(key, row.payload)) || {}; } catch { data = { _unreadable: true }; }
-    items.set(row.id, { id: row.id, kind: row.kind, day: row.day, data });
-  }));
+  for (const row of rows) items.set(row.id, { id: row.id, kind: row.kind, day: row.day, data: row.payload || {} });
 }
 
 export const get = (id) => items.get(id);
@@ -50,7 +42,7 @@ export const all = () => [...items.values()];
 
 export async function save(kind, id, data, { day = null, silent = false } = {}) {
   const builder = REMINDERS[kind];
-  const body = { kind, day, payload: await encryptJSON(key, data) };
+  const body = { kind, day, payload: data };
   if (builder) body.reminders = builder(data).filter((r) => r.repeat !== 'none' || new Date(r.fire_at) > new Date());
   await api('PUT', `/api/items/${encodeURIComponent(id)}`, body);
   items.set(id, { id, kind, day, data });

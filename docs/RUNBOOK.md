@@ -18,7 +18,7 @@ browser --https--> Cloudflare edge (Access) --tunnel--> cloudflared on gs-sv-008
 | Containers | `xo-app` (image `xo-app`), `xo-db` (`postgres:16-alpine`), compose project `xo` |
 | Network | `xo_internal` (bridge, XO only) |
 | App port | `172.17.0.1:8010` (docker0 address only; not on any LAN address) |
-| Data | Docker volume `xo_postgres_data` (ciphertext and reminder times only) |
+| Data | Docker volume `xo_postgres_data` (entries as JSON, plus reminder times) |
 | Settings and secrets | `.env` (mode 600, gitignored): `POSTGRES_*`, `SECRET_KEY`, `VAPID_*`, `COOKIE_SECURE=true`, `TZ` |
 | nginx | server block in `~/projects/GS-AUTO-043_NOBBIE/nginx/nginx.conf`, container `nobbie-nginx` |
 | Tunnel route | `xo.tifunction.com` on the gs-sv-008 tunnel, pushed with `ops/cloudflared-sync-ingress.sh` in the BWS repo |
@@ -50,9 +50,8 @@ docker logs nobbie-nginx 2>&1 | grep xo.tifunction.com   # nginx access lines fo
 ```
 
 The app logs one line per request (method, path, status). Request bodies are
-never logged, and no user text is ever in a path or query string. Sign-in looks
-up the sign-in name in a query string (`/api/auth/salt?username=...`), so that
-name appears in the app and nginx access logs.
+never logged, and no user text is ever in a path or query string. Sign-in sends the name and password in the request body, so neither
+appears in the logs.
 
 ## Update after a code change
 
@@ -72,8 +71,7 @@ Changing anything in `static/` that the app needs offline: add it to `SHELL` in
 make db-backup           # writes ./backups/xo-<YYYYmmdd_HHMMSS>.dump (pg_dump custom format)
 ```
 
-- The dump holds ciphertext and reminder times only. It is useless without the
-  passphrase, and the passphrase cannot be reset.
+- The dump holds entries in readable form, plus reminder times.
 - `./backups/` is gitignored. The server's DR job (`dr-backup.timer`, every 6
   hours) archives all of `~/projects`, so dumps in `./backups/` reach the DR
   disk at `/mnt/backup/gs-sv-008/projects/` on its next run. That archive also

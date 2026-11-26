@@ -20,8 +20,7 @@ from app.main import app
 from app.models import Base, Reminder
 
 H = {"X-XO": "1"}
-KEY = "ab" * 32
-SALT = "c2FsdHNhbHRzYWx0c2FsdA=="
+PASSWORD = "correct horse battery"
 
 
 @pytest_asyncio.fixture
@@ -36,7 +35,7 @@ async def client():
 
 
 async def register(c):
-    r = await c.post("/api/auth/register", json={"username": "tester", "salt": SALT, "auth_key": KEY}, headers=H)
+    r = await c.post("/api/auth/register", json={"username": "tester", "password": PASSWORD}, headers=H)
     assert r.status_code == 200, r.text
 
 
@@ -48,24 +47,38 @@ async def test_auth_flow(client):
     assert (await client.get("/api/me")).json()["username"] == "tester"
     assert (await client.get("/api/auth/status")).json() == {"has_user": True, "signed_in": True}
     # only one account
-    r = await client.post("/api/auth/register", json={"username": "x2", "salt": SALT, "auth_key": KEY}, headers=H)
+    r = await client.post("/api/auth/register", json={"username": "x2", "password": PASSWORD}, headers=H)
     assert r.status_code == 403
-    # real salt for a real user, a stable fake for anyone else
-    assert (await client.get("/api/auth/salt?username=tester")).json()["salt"] == SALT
-    a = (await client.get("/api/auth/salt?username=nobody")).json()["salt"]
-    assert a == (await client.get("/api/auth/salt?username=nobody")).json()["salt"] != SALT
+    assert (await client.get("/api/auth/salt?username=tester")).status_code == 404
     await client.post("/api/auth/logout", headers=H)
     assert (await client.get("/api/me")).status_code == 401
-    bad = await client.post("/api/auth/login", json={"username": "tester", "auth_key": "00" * 32}, headers=H)
+    bad = await client.post("/api/auth/login", json={"username": "tester", "password": "wrong password"}, headers=H)
     assert bad.status_code == 401
-    good = await client.post("/api/auth/login", json={"username": "Tester ", "auth_key": KEY}, headers=H)
+    good = await client.post("/api/auth/login", json={"username": "Tester ", "password": PASSWORD}, headers=H)
     assert good.status_code == 200
     assert (await client.get("/api/me")).status_code == 200
 
 
 @pytest.mark.asyncio
+async def test_short_password_refused(client):
+    r = await client.post("/api/auth/register", json={"username": "tester", "password": "short"}, headers=H)
+    assert r.status_code == 422
+
+
+@pytest.mark.asyncio
+async def test_payload_round_trips_as_json(client):
+    await register(client)
+    for i, value in enumerate([{"title": "GP", "n": 3, "tags": ["a", "b"]}, ["x", 1], "text", 42]):
+        r = await client.put(f"/api/items/p{i}", json={"kind": "task", "payload": value}, headers=H)
+        assert r.status_code == 200 and r.json()["payload"] == value
+        assert (await client.get(f"/api/items/p{i}")).json()["payload"] == value
+    await client.put("/api/items/p9", json={"kind": "tick"}, headers=H)
+    assert (await client.get("/api/items/p9")).json()["payload"] is None
+
+
+@pytest.mark.asyncio
 async def test_changes_need_header(client):
-    r = await client.post("/api/auth/register", json={"username": "tester", "salt": SALT, "auth_key": KEY})
+    r = await client.post("/api/auth/register", json={"username": "tester", "password": PASSWORD})
     assert r.status_code == 403
 
 
@@ -77,30 +90,32 @@ async def test_items_and_reminders(client):
     body = {
         "kind": "appointment",
         "day": "2026-11-26",
-        "payload": "v1.abc",
+        "payload": {"title": "GP"},
         "reminders": [
             {"fire_at": soon.isoformat(), "kind": "appt_leave"},
             {"fire_at": past.isoformat(), "kind": "appt_eve"},  # in the past: dropped
         ],
     }
     r = await client.put("/api/items/a1", json=body, headers=H)
-    assert r.status_code == 200 and r.json()["payload"] == "v1.abc"
+    assert r.status_code == 200 and r.json()["payload"] == {"title": "GP"}
     async with SessionLocal() as db:
         rems = (await db.execute(select(Reminder))).scalars().all()
     assert [x.kind for x in rems] == ["appt_leave"]
 
     # saving again without "reminders" leaves them alone; with a list replaces them
-    await client.put("/api/items/a1", json={"kind": "appointment", "payload": "v1.def"}, headers=H)
+    await client.put("/api/items/a1", json={"kind": "appointment", "payload": {"title": "GP 2"}}, headers=H)
     async with SessionLocal() as db:
         assert len((await db.execute(select(Reminder))).scalars().all()) == 1
-    await client.put("/api/items/a1", json={"kind": "appointment", "payload": "v1.def", "reminders": []}, headers=H)
+    await client.put(
+        "/api/items/a1", json={"kind": "appointment", "payload": {"title": "GP 2"}, "reminders": []}, headers=H
+    )
     async with SessionLocal() as db:
         assert len((await db.execute(select(Reminder))).scalars().all()) == 0
 
     # dated filter: old tick is left out, undated items stay
     await client.put("/api/items/tick:r1:2026-01-01", json={"kind": "tick", "day": "2026-01-01"}, headers=H)
     await client.put("/api/items/tick:r1:2026-11-25", json={"kind": "tick", "day": "2026-11-25"}, headers=H)
-    await client.put("/api/items/plan", json={"kind": "plan", "payload": "v1.p"}, headers=H)
+    await client.put("/api/items/plan", json={"kind": "plan", "payload": {"answers": {}}}, headers=H)
     ids = {i["id"] for i in (await client.get("/api/items?from_day=2026-11-01")).json()}
     assert ids == {"a1", "tick:r1:2026-11-25", "plan"}
     assert {i["id"] for i in (await client.get("/api/items?kinds=plan")).json()} == {"plan"}
@@ -109,7 +124,9 @@ async def test_items_and_reminders(client):
     await client.delete("/api/items/a1", headers=H)
     assert (await client.get("/api/items/a1")).status_code == 404
     # a deleted id can be reused
-    assert (await client.put("/api/items/a1", json={"kind": "task", "payload": "v1.x"}, headers=H)).status_code == 200
+    assert (
+        await client.put("/api/items/a1", json={"kind": "task", "payload": {"title": "x"}}, headers=H)
+    ).status_code == 200
 
 
 @pytest.mark.asyncio
@@ -118,7 +135,7 @@ async def test_scheduler_sends_and_repeats(client):
     now = datetime.now(timezone.utc)
     body = {
         "kind": "routine",
-        "payload": "v1.r",
+        "payload": {"label": "r"},
         "reminders": [
             {"fire_at": (now + timedelta(seconds=1)).isoformat(), "kind": "routine", "repeat": "daily"},
             {"fire_at": (now + timedelta(seconds=1)).isoformat(), "kind": "task_due"},

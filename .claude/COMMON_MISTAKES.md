@@ -30,4 +30,4 @@ Load this file when debugging or investigating any issue (loaded by `/debug`). A
 
 ## Privacy
 
-**No user text in a log line, a query string or a push payload** (CLAUDE.md rule 1). Sign-in names appear in `/api/auth/salt?username=` access lines, which is a known limit. Do not add more.
+**No user text in a log line, a query string or a push payload** (CLAUDE.md rule 1).

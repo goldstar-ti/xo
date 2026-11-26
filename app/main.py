@@ -1,15 +1,13 @@
 """XO: API and static file server."""
 
 import asyncio
-import base64
 import hashlib
-import hmac
 import secrets
 import time
 from contextlib import asynccontextmanager
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
-from typing import Literal
+from typing import Any, Literal
 from zoneinfo import ZoneInfo, available_timezones
 
 from argon2 import PasswordHasher
@@ -110,8 +108,7 @@ class RegisterIn(BaseModel):
     """Body of the register request."""
 
     username: str = Field(pattern=r"^[a-z0-9._-]{2,40}$")
-    salt: str = Field(min_length=16, max_length=64)
-    auth_key: str = Field(pattern=r"^[0-9a-f]{64}$")
+    password: str = Field(min_length=8, max_length=200)
     tz: str = "Australia/Perth"
 
 
@@ -119,7 +116,7 @@ class LoginIn(BaseModel):
     """Body of the sign-in request."""
 
     username: str = Field(max_length=40)
-    auth_key: str = Field(pattern=r"^[0-9a-f]{64}$")
+    password: str = Field(min_length=8, max_length=200)
 
 
 async def _start_session(db: AsyncSession, user: User, response: Response) -> None:
@@ -164,18 +161,6 @@ async def auth_status(sid: str | None = Cookie(default=None), db: AsyncSession =
     return {"has_user": count > 0, "signed_in": signed_in}
 
 
-@app.get("/api/auth/salt")
-async def auth_salt(username: str, db: AsyncSession = Depends(get_db)):
-    """Return the key-derivation salt for a username (a stable fake one for unknown names)."""
-    username = username.strip().lower()
-    user = (await db.execute(select(User).where(User.username == username))).scalar_one_or_none()
-    if user:
-        return {"salt": user.kdf_salt}
-    # Unknown name: return a stable made-up salt so the reply looks the same either way.
-    fake = hmac.new(config.SECRET_KEY.encode(), username.encode(), hashlib.sha256).digest()[:16]
-    return {"salt": base64.b64encode(fake).decode()}
-
-
 @app.post("/api/auth/register")
 async def register(body: RegisterIn, response: Response, db: AsyncSession = Depends(get_db)):
     """Create the one account, then sign it in."""
@@ -183,7 +168,7 @@ async def register(body: RegisterIn, response: Response, db: AsyncSession = Depe
     if count > 0:
         raise HTTPException(403, "An account already exists. Sign in instead.")
     tz = body.tz if body.tz in available_timezones() else "Australia/Perth"
-    user = User(username=body.username, auth_hash=hasher.hash(body.auth_key), kdf_salt=body.salt, tz=tz)
+    user = User(username=body.username, password_hash=hasher.hash(body.password), tz=tz)
     db.add(user)
     await db.flush()
     await _start_session(db, user, response)
@@ -192,7 +177,7 @@ async def register(body: RegisterIn, response: Response, db: AsyncSession = Depe
 
 @app.post("/api/auth/login")
 async def login(body: LoginIn, response: Response, db: AsyncSession = Depends(get_db)):
-    """Check the auth key and start a session."""
+    """Check the password and start a session."""
     username = body.username.strip().lower()
     if _too_many_failures(username):
         raise HTTPException(429, "Too many attempts. Wait 15 minutes and try again.")
@@ -200,12 +185,12 @@ async def login(body: LoginIn, response: Response, db: AsyncSession = Depends(ge
     ok = False
     if user:
         try:
-            ok = hasher.verify(user.auth_hash, body.auth_key)
+            ok = hasher.verify(user.password_hash, body.password)
         except VerifyMismatchError:
             ok = False
     if not ok:
         _failures.setdefault(username, []).append(time.time())
-        raise HTTPException(401, "That name and passphrase do not match.")
+        raise HTTPException(401, "That name and password do not match.")
     _failures.pop(username, None)
     await _start_session(db, user, response)
     return {"username": user.username, "tz": user.tz}
@@ -239,11 +224,11 @@ class ReminderIn(BaseModel):
 
 
 class ItemIn(BaseModel):
-    """Body of an item save: kind, day and ciphertext payload."""
+    """Body of an item save: kind, day and a JSON payload."""
 
     kind: str = Field(pattern=r"^[a-z_]{1,20}$")
     day: date | None = None
-    payload: str | None = Field(default=None, max_length=400_000)
+    payload: Any = None
     # None leaves existing reminders alone; a list (even empty) replaces them.
     reminders: list[ReminderIn] | None = Field(default=None, max_length=30)
 
