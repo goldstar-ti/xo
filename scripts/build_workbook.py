@@ -1,15 +1,16 @@
 """Turn the workbook .docx into content/workbook.json for the app.
 
-    python scripts/build_workbook.py path/to/relapse_prevention_workbook.docx
+    python scripts/build_workbook.py [--version LABEL] path/to/relapse_prevention_workbook.docx
 
 Run it again whenever the workbook changes. Answers are stored against each prompt's
-own number (B.13.1.1 and so on), so they survive a rebuild as long as the numbers do.
+own number (B.13.1.1 and so on), so they survive a rebuild as long as the numbers do. A docx with no subtitle needs
+--version, which sets the label the app shows for the workbook.
 Needs:  pip install python-docx
 """
 
+import argparse
 import json
 import re
-import sys
 from pathlib import Path
 
 import docx
@@ -199,9 +200,13 @@ def build(path: str) -> dict:
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        sys.exit(__doc__)
-    book = build(sys.argv[1])
+    parser = argparse.ArgumentParser(description="Build content/workbook.json from the workbook .docx.")
+    parser.add_argument("docx", help="path to the workbook .docx")
+    parser.add_argument("--version", default=None, help="label stored as the workbook version")
+    args = parser.parse_args()
+    book = build(args.docx)
+    if args.version:
+        book["version"] = args.version
     OUT.parent.mkdir(exist_ok=True)
     OUT.write_text(json.dumps(book, ensure_ascii=False, separators=(",", ":")))
     boxes = sum(1 for u in book["units"] for b in u["blocks"] if b["t"] == "prompt")
