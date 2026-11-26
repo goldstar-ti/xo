@@ -1,6 +1,8 @@
 """Browser smoke test. Needs the app running (default http://localhost:8010) on an EMPTY database.
 
 python tests/e2e.py [base_url] [screenshot_dir]
+
+XO_KIT (xo, daisy or wa; default xo) picks the component kit the whole flow runs in.
 """
 
 import os
@@ -20,19 +22,34 @@ now = datetime.now(ZoneInfo(TZ))
 today = now.strftime("%Y-%m-%d")
 tomorrow = (now + timedelta(days=1)).strftime("%Y-%m-%d")
 soon = (now + timedelta(hours=2)).strftime("%H:%M")
+KIT = os.environ.get("XO_KIT", "xo")
 errors = []
+
+
+def set_control(el, value):
+    """Fill one form control, whichever kit built it (Web Awesome controls are custom elements)."""
+    tag = el.evaluate("e => e.tagName")
+    if tag.startswith("WA-"):
+        if tag == "WA-CHECKBOX":
+            el.evaluate("(e, v) => { e.checked = v; e.dispatchEvent(new Event('change', { bubbles: true })); }", value)
+        elif tag == "WA-SELECT":
+            el.evaluate(
+                "(e, v) => { e.value = v; e.dispatchEvent(new Event('change', { bubbles: true })); }", str(value)
+            )
+        else:
+            el.locator("input, textarea").fill(str(value))
+    elif isinstance(value, bool):
+        el.set_checked(value)
+    elif tag == "SELECT":
+        el.select_option(value)
+    else:
+        el.fill(str(value))
 
 
 def fill_form(page, values, button="Save"):
     dlg = page.locator("dialog[open]")
     for name, value in values.items():
-        el = dlg.locator(f"#f-{name}")
-        if isinstance(value, bool):
-            el.set_checked(value)
-        elif el.evaluate("e => e.tagName") == "SELECT":
-            el.select_option(value)
-        else:
-            el.fill(str(value))
+        set_control(dlg.locator(f"#f-{name}"), value)
     dlg.get_by_role("button", name=button).click()
     expect(dlg).to_have_count(0)
 
@@ -49,8 +66,14 @@ with sync_playwright() as p:
     page.on("console", lambda m: errors.append(m.text) if m.type == "error" and "401" not in m.text else None)
     page.on("pageerror", lambda e: errors.append(str(e)))
 
-    # --- create the account
+    # --- pick the kit before anything is drawn, then reload so it applies from the start
     page.goto(BASE)
+    expect(page.locator("#a-name")).to_be_visible()  # the app has booted, so the reload below cuts nothing short
+    page.evaluate("k => window.XOLook.change((s, look) => { look.kit = k; })", KIT)
+    page.reload()
+    assert page.evaluate("document.documentElement.dataset.kit") == KIT
+
+    # --- create the account
     page.fill("#a-name", "tester")
     page.fill("#a-pass", PASS)
     page.fill("#a-again", PASS)
@@ -213,6 +236,7 @@ with sync_playwright() as p:
     sw = page.evaluate("navigator.serviceWorker.getRegistration().then(r => !!r)")
     browser.close()
 
+print("kit:", KIT)
 print("service worker registered:", sw)
 print("console errors:", errors or "none")
 assert not errors

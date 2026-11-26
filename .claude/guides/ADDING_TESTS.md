@@ -7,9 +7,9 @@
 | What | File | Run with |
 | --- | --- | --- |
 | API behaviour (auth, items, reminders, CSP header, CSRF guard) | `tests/test_api.py` (pytest) | `make test-api` |
-| A screen or flow in a real browser | `tests/e2e.py` | `make test-e2e` |
+| A screen or flow in a real browser (runs once per kit: `XO_KIT` xo, daisy, wa) | `tests/e2e.py` | `make test-e2e` |
 | Appearance: themes, look codes, schedules | `tests/e2e_look.py` | `make test-e2e` |
-| Component kits (Web Awesome, daisyUI) under the CSP | `tests/e2e_kits.py` | `make test-e2e` |
+| Component kits and the `ui.js` controls | `tests/e2e_kits.py` | `make test-e2e` |
 
 Add to the file for the area you touched. A new area gets a new script.
 

@@ -1,5 +1,6 @@
 // Appearance: the quick "Look" panel and the full Appearance screen.
 // All of it is stored on this device only (see boot.js).
+import { t } from '../text.js';
 import { fmtTime, h, kvSet, openDialog, put, toast, uid } from '../util.js';
 
 export const live = false;
@@ -198,7 +199,7 @@ function presets() {
   const paste = h('input', { type: 'text', placeholder: 'Paste a look code', 'aria-label': 'Paste a look code', 'data-fk': 'paste' });
   const applyCode = () => {
     const parsed = L.decode(paste.value);
-    if (!parsed) { toast('That is not a complete look code. They start with XO1- and have 26 parts.', 'bad'); return; }
+    if (!parsed) { toast('That is not a complete look code. They start with XO1- and carry the whole look.', 'bad'); return; }
     L.change((s, lk) => { Object.assign(lk, parsed); });
     toast('Look applied');
   };
@@ -259,6 +260,9 @@ export function render(root) {
     h('section', { class: 'look-sec' }, h('h2', {}, 'Layout'),
       seg('Next-up block', 'hero'), seg('Day line', 'dayline'), seg('Heading loudness', 'loud'),
       seg('Daily line', 'line', { quote: 'Pull-quote' })),
+    h('section', { class: 'look-sec' }, h('h2', {}, t('appearance.kit.title')),
+      seg(t('appearance.kit.label'), 'kit', { xo: t('appearance.kit.xo'), daisy: t('appearance.kit.daisy'), wa: t('appearance.kit.wa') }),
+      h('p', { class: 'hint' }, t('appearance.kit.hint'))),
     behaviour(),
     scheduled(),
   );

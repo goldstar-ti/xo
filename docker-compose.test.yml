@@ -67,7 +67,16 @@ services:
     working_dir: /work
     environment:
       XO_CHROME: ""
+      DATABASE_URL: postgresql://xo_test:xo_test@db:5432/xo_test
     volumes:
       - ./tests:/work/tests:ro
     # The image carries the browsers but not the Python package; pin it to the image's version.
-    command: ["sh", "-c", "pip install -q --disable-pip-version-check --root-user-action=ignore playwright==1.60.0 && python tests/e2e.py http://localhost:8000 && python tests/e2e_look.py http://localhost:8000 && python tests/e2e_kits.py http://localhost:8000"]
+    # Each e2e.py run creates the one account, so the database is emptied before each kit's run.
+    command:
+      - sh
+      - -c
+      - >-
+        pip install -q --disable-pip-version-check --root-user-action=ignore playwright==1.60.0 asyncpg
+        && for kit in xo daisy wa; do python tests/reset_db.py && XO_KIT=$$kit python tests/e2e.py http://localhost:8000 || exit 1; done
+        && python tests/e2e_look.py http://localhost:8000
+        && python tests/e2e_kits.py http://localhost:8000

@@ -144,7 +144,7 @@ Dockerfile, docker-compose.yml, docker-compose.test.yml, Makefile
 
 ```bash
 make test-api     # API tests against a throwaway database in its own compose project
-make test-e2e     # tests/e2e.py, tests/e2e_look.py, then tests/e2e_kits.py, on a throwaway app with an empty database
+make test-e2e     # tests/e2e.py once per kit (XO_KIT=xo, daisy, wa), then tests/e2e_look.py and tests/e2e_kits.py, on a throwaway app with an empty database
 make lint         # ruff check and format check
 make format       # ruff format and auto-fix
 ```

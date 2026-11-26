@@ -320,6 +320,8 @@ dialog.sheet::backdrop { background: rgb(10 16 13 / 0.55); }
 }
 #toast.show { opacity: 1; transform: translate(-50%, 0); }
 #toast.bad { background: var(--danger); color: #fff; }
+/* The other kits draw their own message box inside the toast. */
+:root:not([data-kit="xo"]) #toast, :root:not([data-kit="xo"]) #toast.bad { padding: 0; background: none; color: inherit; }
 @media (prefers-reduced-motion: reduce) { #toast { transition: none; } }
 
 /* ================= appearance variants (set by boot.js as data attributes) ================= */

@@ -44,6 +44,7 @@
     dayline: ['line', 'cards', 'rows'],
     loud: ['quiet', 'regular', 'loud'],
     line: ['plain', 'quote', 'hidden'],
+    kit: ['xo', 'daisy', 'wa'],
   };
   const CORNERS = { square: ['0px', '0px'], soft: ['6px', '8px'], round: ['10px', '999px'], pill: ['20px', '999px'] };
   const DENSITY = { compact: 0.7, regular: 1, roomy: 1.4 };
@@ -56,7 +57,7 @@
     mode: 'auto', theme: 'foliage', c: colourOf('foliage'), strength: 1,
     body: 'atkinson', head: 'same', num: 'same', size: 100, weight: 400, lh: 1.5, ls: 0,
     corners: 'round', density: 'regular', rule: 'fine', texture: 'none',
-    hero: 'plain', dayline: 'line', loud: 'regular', line: 'plain',
+    hero: 'plain', dayline: 'line', loud: 'regular', line: 'plain', kit: 'xo',
   };
   const SECTIONS = ['today', 'diary', 'tasks', 'obligations', 'routine', 'bills', 'checkin', 'plan', 'settings', 'appearance'];
   const BLOCKS = ['line', 'next', 'three', 'day', 'coming', 'plan'];
@@ -159,6 +160,7 @@
     root.dataset.hero = look.hero;
     root.dataset.dayline = look.dayline;
     root.dataset.line = look.line;
+    root.dataset.kit = look.kit;
     root.dataset.pop = state.prefs.pop ? 'on' : 'off';
     lastKey = (item ? item.id : 'base') + '|' + root.dataset.scheme;
   }
@@ -189,7 +191,8 @@
   // A look as a short code you can copy, keep, or type into another device:
   // XO1- followed by the settings as numbers separated by dots.
   const FONT_IDS = Object.keys(FONTS).concat('same');
-  const ENUMS = ['mode', 'corners', 'density', 'rule', 'texture', 'hero', 'dayline', 'loud', 'line'];
+  // New options go on the end, so codes made before them still decode (the missing ones take their default).
+  const ENUMS = ['mode', 'corners', 'density', 'rule', 'texture', 'hero', 'dayline', 'loud', 'line', 'kit'];
   function encode(look) {
     const l = cleanLook(look), c = l.c;
     const theme = THEMES[l.theme] ? l.theme : 'custom'; // saved themes are per device, so only their colours travel
@@ -199,7 +202,7 @@
     return 'XO1-' + parts.map((v) => (typeof v === 'number' ? Math.round(v) : v)).join('.');
   }
   function decode(code) {
-    const m = /^\s*XO1-([a-z]+)((?:\.\d{1,4}){25})\s*$/i.exec(code || '');
+    const m = /^\s*XO1-([a-z]+)((?:\.\d{1,4}){25,26})\s*$/i.exec(code || '');
     if (!m) return null;
     const n = m[2].slice(1).split('.').map(Number);
     const raw = {

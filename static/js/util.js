@@ -1,4 +1,6 @@
 // Small helpers: DOM building, dates, toasts, dialogs.
+import { button, checkbox, field, focusControl, input, notice, select, textarea } from './ui.js';
+import { t } from './text.js';
 
 export function h(tag, attrs, ...kids) {
   const el = document.createElement(tag);
@@ -87,7 +89,7 @@ export function toast(text, kind = '') {
     el = h('div', { id: 'toast', role: 'status', 'aria-live': 'polite' });
     document.body.append(el);
   }
-  el.textContent = text;
+  el.replaceChildren(notice(text, kind));
   el.className = `show ${kind}`;
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => (el.className = ''), kind === 'bad' ? 6000 : 2600);
@@ -98,7 +100,7 @@ export function openDialog(title, body, { wide = false } = {}) {
   const dlg = h('dialog', { class: wide ? 'sheet wide' : 'sheet' });
   const close = () => dlg.close();
   dlg.append(
-    h('div', { class: 'sheet-head' }, h('h2', {}, title), h('button', { class: 'ghost', type: 'button', onclick: close }, 'Close')),
+    h('div', { class: 'sheet-head' }, h('h2', {}, title), button(t('common.close'), { onclick: close })),
     body,
   );
   dlg.addEventListener('close', () => dlg.remove());
@@ -113,37 +115,34 @@ export const dialogOpen = () => !!document.querySelector('dialog[open]');
  * A form in a dialog.
  * fields: [{ name, label, type: text|textarea|date|time|number|select|checkbox, options, hint, required, placeholder }]
  */
-export function openForm({ title, fields, values = {}, saveLabel = 'Save', onSave, onDelete, note }) {
+export function openForm({ title, fields, values = {}, saveLabel = t('common.save'), onSave, onDelete, note }) {
   const inputs = {};
   const rows = fields.map((f) => {
     const id = `f-${f.name}`;
     const v = values[f.name];
-    let input;
-    if (f.type === 'textarea') input = h('textarea', { id, rows: f.rows || 3, placeholder: f.placeholder, value: v ?? '' });
-    else if (f.type === 'select')
-      input = h('select', { id, value: v ?? f.options[0][0] }, f.options.map(([val, label]) => h('option', { value: val }, label)));
-    else if (f.type === 'checkbox') input = h('input', { id, type: 'checkbox', checked: !!v });
+    let control;
+    if (f.type === 'textarea') control = textarea({ id, rows: f.rows || 3, placeholder: f.placeholder, value: v ?? '' });
+    else if (f.type === 'select') control = select(f.options, { id, value: v ?? f.options[0][0] });
+    else if (f.type === 'checkbox') control = checkbox({ id, checked: !!v });
     else
-      input = h('input', {
+      control = input({
         id, type: f.type || 'text', value: v ?? '', placeholder: f.placeholder, required: f.required,
         min: f.type === 'number' ? 0 : null, step: f.step, inputmode: f.type === 'number' ? 'decimal' : null,
         autocomplete: 'off',
       });
-    inputs[f.name] = input;
-    if (f.type === 'checkbox')
-      return h('label', { class: 'field check' }, input, h('span', {}, f.label), f.hint && h('small', {}, f.hint));
-    return h('div', { class: `field${f.half ? ' half' : ''}` }, h('label', { for: id }, f.label), input, f.hint && h('small', {}, f.hint));
+    inputs[f.name] = control;
+    return field(f.label, control, f.hint, { half: f.half });
   });
   const error = h('p', { class: 'form-error', role: 'alert' });
-  const del = onDelete && h('button', { type: 'button', class: 'ghost danger' }, 'Delete');
-  const save = h('button', { type: 'submit', class: 'primary' }, saveLabel);
+  const del = onDelete && button(t('common.delete'), { variant: 'danger' });
+  const save = button(saveLabel, { variant: 'primary', type: 'submit', class: 'tw:ml-auto' });
   const form = h('form', { class: 'form' }, note && h('p', { class: 'note' }, note), h('div', { class: 'fields' }, rows), error,
     h('div', { class: 'form-actions' }, del, save));
   const dlg = openDialog(title, form);
   if (del) {
     let armed = false;
     del.addEventListener('click', async () => {
-      if (!armed) { armed = true; del.textContent = 'Tap again to delete'; return; }
+      if (!armed) { armed = true; del.textContent = t('common.delete_confirm'); return; }
       await onDelete();
       dlg.close();
     });
@@ -163,13 +162,13 @@ export function openForm({ title, fields, values = {}, saveLabel = 'Save', onSav
       if (typeof problem === 'string') { error.textContent = problem; return; }
       dlg.close();
     } catch (err) {
-      error.textContent = err.message || 'Not saved.';
+      error.textContent = err.message || t('common.not_saved');
     } finally {
       save.disabled = false;
     }
   });
-  const first = form.querySelector('input:not([type=checkbox]), textarea');
-  if (first && !values[fields[0].name]) first.focus();
+  const firstField = fields.find((f) => f.type !== 'checkbox' && f.type !== 'select');
+  if (firstField && !values[fields[0].name]) focusControl(inputs[firstField.name]);
   return dlg;
 }
 

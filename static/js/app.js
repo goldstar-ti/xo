@@ -1,6 +1,7 @@
 // Shell: sign-in, navigation, routing.
 import * as store from './store.js';
 import { DEFAULT_ROUTINES, DEFAULT_SETTINGS } from './content.js';
+import { loadWebAwesome } from './kit.js';
 import { loadText } from './text.js';
 import { dialogOpen, h, kvClear, kvSet, put, toast, uid } from './util.js';
 import * as todayView from './views/today.js';
@@ -25,6 +26,9 @@ const more = {
   },
 };
 const VIEWS = { today: todayView, diary, tasks, obligations, routine, bills, checkin: checkinView, plan: planView, settings: settingsView, appearance: appearanceView, more };
+
+// Web Awesome is fetched only when the Kit choice is Web Awesome. Wait for it before any redraw.
+const ensureKit = () => (document.documentElement.dataset.kit === 'wa' ? loadWebAwesome().catch(() => {}) : Promise.resolve());
 
 const app = document.getElementById('app');
 let view = null;
@@ -77,7 +81,7 @@ function shell() {
 }
 
 // Appearance changed: update the frame, then the screen (unless a slider is mid-drag).
-window.addEventListener('xo:look', (e) => {
+window.addEventListener('xo:look', async (e) => {
   if (!document.getElementById('view')) return;
   document.querySelectorAll('.brand').forEach((el) => { el.textContent = L.prefs.title; });
   const bar = document.querySelector('.tabs');
@@ -87,6 +91,7 @@ window.addEventListener('xo:look', (e) => {
     bar.replaceChildren(...tabs().map(link), h('a', { href: '#/more', 'data-nav': 'more' }, 'More'));
   }
   if (e.detail.quiet) return;
+  await ensureKit();
   if (dialogOpen()) pending = true; else draw({ keepScroll: true, keepFocus: true });
 });
 
@@ -150,6 +155,7 @@ async function start() {
 
 async function boot() {
   await loadText(); // the wording comes first: every screen, the sign-in form included, reads it
+  await ensureKit();
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
   try {
     const status = await store.api('GET', '/api/auth/status');

@@ -1,0 +1,72 @@
+/* Web Awesome mapped onto the XO tokens. kit.js loads this after Web Awesome's default theme.
+   Unlayered, so it beats the theme's own @layer wa-theme rules. Only var(--*) tokens here:
+   XO's colours follow the appearance dials, so Web Awesome's controls do too. */
+:root {
+  --wa-font-family-body: var(--font-body);
+  --wa-font-family-heading: var(--font-head);
+
+  --wa-border-radius-s: var(--radius);
+  --wa-border-radius-m: var(--radius);
+  --wa-border-radius-l: var(--radius);
+  --wa-border-radius-pill: var(--pill);
+  --wa-border-width-s: var(--rule);
+
+  --wa-color-surface-default: var(--surface);
+  --wa-color-surface-raised: var(--surface);
+  --wa-color-surface-lowered: var(--paper);
+  --wa-color-surface-border: var(--line);
+  --wa-color-text-normal: var(--ink);
+  --wa-color-text-quiet: var(--muted);
+  --wa-color-text-link: var(--leaf);
+  --wa-color-focus: var(--leaf);
+
+  --wa-color-brand-fill-quiet: var(--leaf-soft);
+  --wa-color-brand-fill-normal: var(--leaf-soft);
+  --wa-color-brand-fill-loud: var(--leaf);
+  --wa-color-brand-border-quiet: var(--line);
+  --wa-color-brand-border-normal: var(--leaf);
+  --wa-color-brand-border-loud: var(--leaf);
+  --wa-color-brand-on-quiet: var(--ink);
+  --wa-color-brand-on-normal: var(--ink);
+  --wa-color-brand-on-loud: var(--leaf-ink);
+
+  --wa-color-success-fill-quiet: var(--leaf-soft);
+  --wa-color-success-fill-normal: var(--leaf-soft);
+  --wa-color-success-fill-loud: var(--leaf);
+  --wa-color-success-border-quiet: var(--line);
+  --wa-color-success-border-normal: var(--leaf);
+  --wa-color-success-border-loud: var(--leaf);
+  --wa-color-success-on-quiet: var(--ink);
+  --wa-color-success-on-normal: var(--ink);
+  --wa-color-success-on-loud: var(--leaf-ink);
+
+  --wa-color-warning-fill-quiet: var(--ochre-soft);
+  --wa-color-warning-fill-normal: var(--ochre-soft);
+  --wa-color-warning-fill-loud: var(--ochre);
+  --wa-color-warning-border-quiet: var(--line);
+  --wa-color-warning-border-normal: var(--ochre);
+  --wa-color-warning-border-loud: var(--ochre);
+  --wa-color-warning-on-quiet: var(--ink);
+  --wa-color-warning-on-normal: var(--ink);
+  --wa-color-warning-on-loud: var(--paper);
+
+  --wa-color-danger-fill-quiet: color-mix(in oklab, var(--danger) 10%, var(--surface));
+  --wa-color-danger-fill-normal: color-mix(in oklab, var(--danger) 18%, var(--surface));
+  --wa-color-danger-fill-loud: var(--danger);
+  --wa-color-danger-border-quiet: var(--line);
+  --wa-color-danger-border-normal: var(--danger);
+  --wa-color-danger-border-loud: var(--danger);
+  --wa-color-danger-on-quiet: var(--danger);
+  --wa-color-danger-on-normal: var(--danger);
+  --wa-color-danger-on-loud: var(--paper);
+
+  --wa-color-neutral-fill-quiet: var(--surface);
+  --wa-color-neutral-fill-normal: var(--surface);
+  --wa-color-neutral-fill-loud: var(--ink);
+  --wa-color-neutral-border-quiet: var(--line);
+  --wa-color-neutral-border-normal: var(--line);
+  --wa-color-neutral-border-loud: var(--muted);
+  --wa-color-neutral-on-quiet: var(--muted);
+  --wa-color-neutral-on-normal: var(--ink);
+  --wa-color-neutral-on-loud: var(--paper);
+}

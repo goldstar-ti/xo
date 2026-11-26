@@ -105,7 +105,7 @@ every file parses.
 
 ```bash
 make test-api     # pytest against the throwaway xo-test database
-make test-e2e     # tests/e2e.py, tests/e2e_look.py, then tests/e2e_kits.py, on a throwaway app and empty database
+make test-e2e     # tests/e2e.py once per kit (XO_KIT=xo, daisy, wa), then tests/e2e_look.py and tests/e2e_kits.py, on a throwaway app and empty database
 make test         # both
 make lint         # ruff check and format check
 make format       # ruff format and auto-fix, in place

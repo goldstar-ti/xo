@@ -45,6 +45,8 @@ static/js/boot.js          appearance engine (themes, fonts, look state, undo, l
 static/js/app.js           shell, sign-in, router, nav
 static/js/store.js         api(), save/load, ticks, reminder times
 static/js/util.js          h() element builder, put(), dates, toast, openDialog(), openForm(), IndexedDB flags for the service worker
+static/js/ui.js             kit-aware controls: button, input, textarea, select, checkbox, chip, field, notice
+static/js/kit.js           loads Web Awesome (and static/kit-wa.css) on demand
 static/js/forms.js         add/edit dialogs per kind
 static/js/text.js          loadText(), t(key, vars), text(key): the editable wording from /api/text
 static/js/content.js       thin module: reads plan, check-in, daily-line and default data through text()
@@ -80,6 +82,7 @@ Conventions:
   - `@theme inline` keeps each utility reading the variable on its own element, so `.themed` swatches and the dark scheme work.
   - No Preflight. Utilities are unlayered and `tw.css` loads after `app.css`, so a utility beats an `app.css` rule of the same specificity.
   - Existing screens stay on `app.css` until the owner approves a conversion plan.
+- Component kits: the Appearance option `kit` (`xo` default, `daisy`, `wa`) sets `data-kit` on `<html>`. Build buttons, fields and chips with `static/js/ui.js`, never with raw elements, so one switch restyles every screen. Write every daisyUI class in full in `ui.js` (Tailwind only compiles what it finds). Web Awesome's theme is mapped to the XO tokens in `static/kit-wa.css`. New screens use `ui.js` and `t()`; existing screens move over in batches.
 - Tap targets at least 2.5rem. Keyboard focus must stay visible. Honour `prefers-reduced-motion`.
 
 ## Code style
@@ -134,7 +137,7 @@ Tests, each on a throwaway compose project (`xo-test`, `docker-compose.test.yml`
 
 ```bash
 make test-api      # pytest; it DROPS and recreates every table in its database
-make test-e2e      # tests/e2e.py, tests/e2e_look.py, then tests/e2e_kits.py, on a throwaway app and empty database
+make test-e2e      # tests/e2e.py once per kit (XO_KIT=xo, daisy, wa), then tests/e2e_look.py and tests/e2e_kits.py, on a throwaway app and empty database
 make lint          # ruff check and format check (read-only)
 make format        # ruff format and auto-fix, in place
 ```

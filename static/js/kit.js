@@ -24,6 +24,14 @@ async function start() {
     link.dataset.waStyles = '';
     document.head.append(link);
   }
+  if (!document.querySelector('link[data-wa-tokens]')) {
+    // XO's tokens mapped onto Web Awesome's theme: after the theme, so it wins.
+    const map = document.createElement('link');
+    map.rel = 'stylesheet';
+    map.href = '/kit-wa.css';
+    map.dataset.waTokens = '';
+    document.head.append(map);
+  }
   // The loader starts discovering <wa-*> elements as soon as it is imported, before
   // setBasePath could run, so the base path is given through the attribute it reads.
   document.documentElement.dataset.webawesome = WA;

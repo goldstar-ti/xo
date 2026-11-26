@@ -1,8 +1,10 @@
-"""Browser smoke test for the two component kits, served locally under the CSP.
+"""Browser smoke test for the component kits, served locally.
 
 Loads Web Awesome through static/js/kit.js, renders a button and an icon, and
-checks that the daisyUI "xo" theme maps onto the XO tokens. Fails on any console
-error (a CSP violation is one) and on any request that leaves the app's origin.
+checks that the daisyUI "xo" theme maps onto the XO tokens. Then builds every
+static/js/ui.js control under each kit (xo, daisy, wa) and checks the value,
+checked state and click events behave the same. Fails on any console error and
+on any request that leaves the app's origin.
 
 Usage: python tests/e2e_kits.py http://localhost:8000
 """
@@ -11,7 +13,7 @@ import os
 import sys
 from urllib.parse import urlparse
 
-from playwright.sync_api import sync_playwright
+from playwright.sync_api import expect, sync_playwright
 
 BASE = sys.argv[1] if len(sys.argv) > 1 else "http://localhost:8000"
 ORIGIN = urlparse(BASE).netloc
@@ -57,6 +59,61 @@ with sync_playwright() as p:
           };
         }"""
     )
+
+    BUILD = """async (kit) => {
+      window.XOLook.change((s, look) => { look.kit = kit; }, { quiet: true });
+      const { loadWebAwesome } = await import('/js/kit.js');
+      if (kit === 'wa') await loadWebAwesome();
+      const ui = await import('/js/ui.js');
+      window.__clicks = 0;
+      const host = document.createElement('div');
+      host.id = 'kit-host';
+      const count = () => { window.__clicks += 1; };
+      host.append(
+        ui.button('Press', { variant: 'primary', onclick: count }),
+        ui.field('Name', ui.input({ id: 'k-in', value: 'start' }), 'A hint'),
+        ui.field('Notes', ui.textarea({ id: 'k-ta', rows: 2 })),
+        ui.field('Pick one', ui.select([['a', 'Alpha'], ['b', 'Beta']], { id: 'k-sel', value: 'b' })),
+        ui.field('Tick it', ui.checkbox({ id: 'k-cb', checked: true }), 'Another hint'),
+        ui.chip('Chosen', { pressed: true, onclick: count }),
+        ui.chip('Spare', { pressed: false }),
+      );
+      document.body.append(host);
+      if (kit === 'wa') {
+        const tags = ['wa-button', 'wa-input', 'wa-textarea', 'wa-select', 'wa-checkbox', 'wa-tag'];
+        await Promise.all(tags.map((t) => customElements.whenDefined(t)));
+      }
+      return document.documentElement.dataset.kit;
+    }"""
+    PRIMARY_BG = "getComputedStyle(document.querySelector('#kit-host button, #kit-host wa-button')).backgroundColor"
+    for kit in ("xo", "daisy", "wa"):
+        assert page.evaluate(BUILD, kit) == kit
+        host = page.locator("#kit-host")
+        inner = lambda sel, kit=kit: page.locator(sel).locator("input") if kit == "wa" else page.locator(sel)  # noqa: E731
+        expect(page.locator("#k-sel")).to_have_js_property("value", "b")
+        page.locator("#k-sel").evaluate("(e) => { e.value = 'a'; }")
+        assert page.locator("#k-sel").evaluate("(e) => e.value") == "a"
+        inner("#k-in").fill("typed")
+        assert page.locator("#k-in").evaluate("(e) => e.value") == "typed"
+        if kit == "wa":
+            page.locator("#k-ta").locator("textarea").fill("some notes")
+        else:
+            page.locator("#k-ta").fill("some notes")
+        assert page.locator("#k-ta").evaluate("(e) => e.value") == "some notes"
+        expect(page.locator("#k-cb")).to_have_js_property("checked", True)
+        # A Web Awesome checkbox is as wide as its row, so click its box, not the middle of the row.
+        page.locator("#k-cb").click(position={"x": 8, "y": 8})
+        expect(page.locator("#k-cb")).to_have_js_property("checked", False)
+        host.get_by_role("button", name="Press").click()
+        host.get_by_role("button", name="Chosen").click()
+        assert page.evaluate("window.__clicks") == 2
+        expect(host.get_by_role("button", name="Chosen")).to_have_attribute("aria-pressed", "true")
+        expect(host.get_by_role("button", name="Spare")).to_have_attribute("aria-pressed", "false")
+        expect(host.get_by_text("A hint")).to_have_count(1)
+        if kit == "daisy":
+            assert page.evaluate(PRIMARY_BG) != "rgba(0, 0, 0, 0)", "daisyUI classes did not compile into tw.css"
+        page.evaluate("document.getElementById('kit-host').remove()")
+        print("ui.js controls ok:", kit)
     browser.close()
 
 print("kits:", result)
