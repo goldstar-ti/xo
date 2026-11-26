@@ -3,10 +3,11 @@
 // Task table widgets. The chosen view and the filters are per browser, in localStorage `xo-tasks`.
 import * as store from '../store.js';
 import { editTask } from '../forms.js';
+import { openPalette, setScreenKeys } from '../palette.js';
 import { allTasks, pickTask, quickTask, saveMeta, saveTask, setStatus, taskMeta, toggleTask } from '../taskdata.js';
 import { ENERGIES, PRIORITIES, STATUSES, compareTasks, isBlocked, isStale, pace, parseQuick } from '../tasks.js';
 import { t, text } from '../text.js';
-import { button, checkbox, chip, field, input } from '../ui.js';
+import { button, checkbox, chip, field, focusControl, input } from '../ui.js';
 import { addDays, fmtDay, fmtDuration, h, openDialog, put, relDay, toast, today, uid } from '../util.js';
 
 export const live = true;
@@ -367,6 +368,58 @@ function manage() {
   openDialog(t('lists.tasks.manage'), body);
 }
 
+
+// ---- keys ----
+
+// The task the keys act on, and the address it was chosen at: a redraw refocuses it, a change of screen forgets it.
+let focused = null;
+
+const rowEls = (root) => [...root.querySelectorAll('[data-task-id]')];
+const rowById = (root, id) => rowEls(root).find((el) => el.dataset.taskId === id);
+
+function currentId(root) {
+  const el = document.activeElement?.closest?.('[data-task-id]');
+  return el && root.contains(el) ? el.dataset.taskId : focused?.id || '';
+}
+
+function focusRow(el) {
+  if (!el) return;
+  focused = { id: el.dataset.taskId, hash: location.hash };
+  el.focus();
+  el.scrollIntoView?.({ block: 'nearest' });
+}
+
+function stepFocus(root, dir) {
+  const els = rowEls(root).filter((el) => el.offsetParent !== null);
+  if (!els.length) return;
+  const at = els.findIndex((el) => el.dataset.taskId === currentId(root));
+  focusRow(els[at < 0 ? (dir > 0 ? 0 : els.length - 1) : Math.min(els.length - 1, Math.max(0, at + dir))]);
+}
+
+// Single-key shortcuts for the Tasks page. Returns true when the key was used.
+function taskKeys(root, e) {
+  const k = e.key;
+  if (k === 'n') { focusControl(root.querySelector('[data-focus="task"]')); return true; }
+  if (k === 'j' || k === 'ArrowDown') { stepFocus(root, 1); return true; }
+  if (k === 'k' || k === 'ArrowUp') { stepFocus(root, -1); return true; }
+  const view = { 1: 'list', 2: 'board', 3: 'table' }[k];
+  if (view) { savePrefs({ view }); location.hash = `#/tasks/${view}`; return true; }
+  if (k === 'Enter' && e.target.closest?.('button, a, summary, [role="button"]')) return false;
+  const id = currentId(root);
+  const item = id && allTasks().find((i) => i.id === id);
+  if (!item) return false;
+  const d = item.data;
+  if (k === 'e' || k === 'Enter') editTask(item);
+  else if (k === 'x') toggleTask(item).catch(fail);
+  else if (k === 't') pickTask(item).catch(fail);
+  else if (k === 'p') saveTask(item.id, { ...d, priority: PRIORITIES[(PRIORITIES.indexOf(d.priority) + 1) % PRIORITIES.length] }).catch(fail);
+  else if (k === '[' || k === ']') {
+    const to = STATUSES[STATUSES.indexOf(d.status) + (k === ']' ? 1 : -1)];
+    if (to) setStatus(item, to).catch(fail);
+  } else return false;
+  return true;
+}
+
 // ---- screen ----
 
 function redrawIn(root, param) {
@@ -406,9 +459,16 @@ export function render(root, param) {
       h('div', { class: 'actions' },
         h('div', { role: 'group', 'aria-label': t('lists.tasks.view_aria'), class: 'chips' },
           VIEWS.map((v) => chip(t(`lists.tasks.views.${v}`), { pressed: v === mode, onclick: () => setView(v) }))),
+        page && button(t('palette.open'), { onclick: openPalette }),
         button(t('lists.tasks.manage'), { onclick: manage }))),
     quickAdd(t('lists.tasks.add_placeholder'), {}, 'task', { preview: true }),
     filterBar(p, ctx, redraw),
     hidden > 0 && h('p', { class: 'note' }, t('lists.tasks.filter.hidden', { count: hidden })),
     body);
+  if (page) {
+    setScreenKeys((e) => taskKeys(root, e));
+    if (focused && focused.hash !== location.hash) focused = null;
+    const el = focused && document.activeElement === document.body && rowById(root, focused.id);
+    if (el) el.focus({ preventScroll: true });
+  }
 }

@@ -53,6 +53,7 @@ static/js/forms.js         add/edit dialogs per kind
 static/js/tasks.js         pure task logic: normalise, sort, repeats, blocking, pace, quick-add parsing
 static/js/taskdata.js      store-bound task actions: taskMeta, saveTask, setStatus, pickTask, quickTask
 static/js/taskfields.js    task form controls: chipSet, subtaskEditor, blockedEditor, repeatEditor
+static/js/palette.js       command palette (Ctrl+K, /), shortcut list (?), setScreenKeys for screen keys
 static/js/text.js          loadText(), t(key, vars), text(key): the editable wording from /api/text
 static/js/content.js       thin module: reads plan, check-in, daily-line and default data through text()
 static/js/views/*.js       one module per screen; each exports render(root, ...params) and `live`

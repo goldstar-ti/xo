@@ -14,6 +14,7 @@ import * as canvasView from './views/canvas.js';
 import * as trackerView from './views/tracker.js';
 import { bills, diary, obligations, routine } from './views/lists.js';
 import * as tasksView from './views/tasks.js';
+import { installPalette, setScreenKeys } from './palette.js';
 
 const NAV = Object.entries(text('app.nav')); // [key, label] in the order the sidebar lists them
 const L = window.XOLook;
@@ -50,6 +51,7 @@ function draw({ keepScroll = false, keepFocus = false } = {}) {
   view = VIEWS[name];
   const y = window.scrollY;
   root.replaceChildren();
+  setScreenKeys(null);
   view.render(root, ...params);
   document.querySelectorAll('[data-nav]').forEach((a) => {
     const on = a.dataset.nav === name || (a.dataset.nav === 'more' && !tabs().includes(name));
@@ -68,6 +70,7 @@ function draw({ keepScroll = false, keepFocus = false } = {}) {
 }
 
 function shell() {
+  installPalette();
   const link = ([k, label]) => h('a', { href: `#/${k}`, 'data-nav': k }, label);
   const actions = () => h('div', { class: 'head-actions' },
     button(t('app.look'), { class: 'look-btn', onclick: appearanceView.openLookPanel }),

@@ -6,6 +6,7 @@ python tests/e2e_tasks.py [base_url]
 """
 
 import os
+import re
 import sys
 from datetime import datetime, timedelta
 from urllib.parse import urlparse
@@ -314,6 +315,44 @@ with sync_playwright() as p:
 
     pg.goto(f"{BASE}/#/settings")
     expect(pg.get_by_text("XO allows 1.5 times your guess")).to_be_visible()
+
+    # 5. Command palette and keyboard shortcuts.
+    pg.goto(f"{BASE}/#/today")
+    pg.wait_for_selector(".dayline", timeout=20000)
+    pg.keyboard.press("Control+k")
+    dlg = pg.locator("dialog[open]")
+    expect(dlg.get_by_role("combobox")).to_be_visible()
+    pg.keyboard.type("board")
+    pg.keyboard.press("Enter")
+    expect(pg.locator("dialog[open]")).to_have_count(0)
+    expect(pg.locator("section[data-status]")).to_have_count(3)
+    assert pg.evaluate("location.hash") == "#/tasks/board"
+
+    pg.keyboard.press("Control+k")
+    expect(pg.locator("dialog[open]").get_by_role("combobox")).to_be_visible()
+    pg.keyboard.type("Buy stamps tomorrow")
+    pg.keyboard.press("Enter")
+    view("List")
+    expect(pg.locator(".list li", has_text="Buy stamps")).to_have_count(1)
+    expect(pg.locator(".list li", has_text="Buy stamps")).to_contain_text("due tomorrow")
+
+    pg.locator("h1").first.click()
+    pg.keyboard.press("j")
+    first_id = pg.evaluate("document.activeElement.dataset.taskId")
+    assert first_id, first_id
+    was_done = pg.evaluate("document.activeElement.classList.contains('done')")
+    pg.keyboard.press("x")
+    row5 = pg.locator(f'li[data-task-id="{first_id}"]')
+    if was_done:
+        expect(row5).not_to_have_class(re.compile(r"\bdone\b"))
+    else:
+        expect(row5).to_have_class(re.compile(r"\bdone\b"))
+
+    pg.locator("h1").first.click()
+    pg.keyboard.press("?")
+    expect(pg.get_by_role("heading", name="Keyboard shortcuts")).to_be_visible()
+    pg.keyboard.press("Escape")
+    expect(pg.locator("dialog[open]")).to_have_count(0)
 
     b.close()
 

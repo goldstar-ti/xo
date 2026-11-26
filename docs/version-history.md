@@ -4,6 +4,7 @@
 
 | Version | Date | Change |
 |---|---|---|
+| 2.11.0 | 2026-11-27 | A command palette (Ctrl+K) and keyboard shortcuts on the Tasks screen. |
 | 2.10.0 | 2026-11-27 | Tasks can take a time on Today's day line. The evening check-in closes the day: carry tasks forward, note actual times, pick tomorrow's three. Time allowed follows your own pacing. |
 | 2.9.0 | 2026-11-27 | Tasks as a list, a To do, Doing, Done board or a table, with filters for categories, focus and place, a ready list, and a review of tasks left untouched. |
 | 2.8.0 | 2026-11-27 | Tasks have priority, categories, subtasks, focus, places, repeats and waiting on another task. Quick add reads dates, priority, categories and time. |

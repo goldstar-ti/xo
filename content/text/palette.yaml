@@ -1,0 +1,39 @@
+# Palette: the command palette and keyboard shortcuts.
+#
+# How to edit this file
+# - Save the file and reload the page. There is no build and no restart.
+# - Change the words after a colon. Keep the keys (the words before a colon) as they are:
+#   the app looks the text up by key, and a missing key shows the key itself.
+# - Keep the indentation. It uses two spaces and never tabs.
+# - Put quote marks around any text that starts with a special character
+#   (" ' { [ * & ! % @ #) or that contains a colon followed by a space, and around times such as '09:00'.
+# - Write {name} where the app fills something in. Keep the same {name} in your wording.
+# - If a file has a mistake, the app keeps the last good version of that file and logs a note.
+#
+palette:
+  open: Commands
+  heading: Commands
+  placeholder: Type a command or a new task
+  list_aria: Matching commands
+  add_task: 'Add task: {title}'
+  go: 'Go to {screen}'
+  open_task: 'Open task: {title}'
+  view: 'Show tasks as {view}'
+  checkin_morning: Start the morning check-in
+  checkin_evening: Start the evening check-in
+  checkin_weekly: Start the weekly review
+  hint: 'Ctrl+K or / opens this list. Up and Down choose, Enter runs it, Esc closes it.'
+  shortcuts_heading: Keyboard shortcuts
+  shortcuts:
+    palette: 'Ctrl+K or /: commands'
+    new: 'n: add a task'
+    next: 'j or Down: next task'
+    prev: 'k or Up: previous task'
+    edit: 'e or Enter: edit the task'
+    done: 'x: mark done, or not done'
+    pick: 't: pick for today'
+    priority: 'p: change the priority'
+    left: '[: move to the column on the left'
+    right: ']: move to the column on the right'
+    views: '1, 2 or 3: list, board or table'
+    help: '?: this list'
