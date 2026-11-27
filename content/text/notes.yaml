@@ -44,3 +44,7 @@ notes:
     link: Link
     code: Code
     quote: Quote
+    table: Table
+    undo: Undo
+    redo: Redo
+    offline: The editor is not available offline yet. Plain text still saves.

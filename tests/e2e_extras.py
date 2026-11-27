@@ -20,6 +20,19 @@ errors = []
 offsite = []
 
 
+def set_md(scope, value):
+    """Set the Markdown editor's text through its CodeMirror (the real text area is hidden)."""
+    scope.locator(".CodeMirror").evaluate("(e, v) => e.CodeMirror.setValue(v)", value)
+
+
+def md_preview(scope, on):
+    """Show or hide the Markdown editor's preview, whichever state it is in now."""
+    shown = scope.locator(".editor-preview-active").count() > 0
+    if shown != on:
+        scope.get_by_role("button", name="Preview", exact=True).click()
+        expect(scope.locator(".editor-preview-active")).to_have_count(1 if on else 0)
+
+
 def set_control(el, value):
     """Fill one form control, whichever kit built it (Web Awesome controls are custom elements)."""
     tag = el.evaluate("e => e.tagName")
@@ -234,11 +247,13 @@ with sync_playwright() as p:
     pg.get_by_role("button", name="New note", exact=True).click()
     note_title = pg.locator('[data-focus="note-title"]')
     set_control(note_title, "Shopping")
-    body = pg.locator(".md-text")
-    set_control(body, "- eggs")
+    expect(pg.locator(".CodeMirror")).to_be_visible(timeout=15000)
+    set_md(pg, "- eggs")
+    pg.locator(".CodeMirror").click()
+    pg.keyboard.press("Control+End")
     pg.get_by_role("button", name="Bold", exact=True).click()
     pg.keyboard.type("milk")
-    pg.get_by_role("tab", name="Preview").click()
+    md_preview(pg, True)
     expect(pg.locator(".md li")).to_contain_text("eggs")
     expect(pg.locator(".md li strong")).to_have_text("milk")
     expect(pg.locator("p.hint[role=status]")).to_have_text("Saved")
@@ -251,9 +266,9 @@ with sync_playwright() as p:
     set_control(search, "")
     expect(pg.locator(".list li", has_text="Shopping")).to_have_count(1)
 
-    pg.get_by_role("tab", name="Write").click()
-    set_control(pg.locator(".md-text"), "- eggs\n<b>x</b>")
-    pg.get_by_role("tab", name="Preview").click()
+    md_preview(pg, False)
+    set_md(pg, "- eggs\n<b>x</b>")
+    md_preview(pg, True)
     expect(pg.locator(".md")).to_contain_text("<b>x</b>")
     expect(pg.locator(".md b")).to_have_count(0)
 
@@ -274,7 +289,7 @@ with sync_playwright() as p:
     pg.locator(".list li", has_text="Field test").locator(".row-main").first.click()
     dlg = pg.locator("dialog[open]")
     dlg.get_by_text("More options").click()
-    set_control(dlg.locator(".md-text"), "**bold**")
+    set_md(dlg, "**bold**")
     dlg.get_by_role("button", name="Save").click()
     expect(dlg).to_have_count(0)
     expect(pg.locator(".list li", has_text="Field test")).to_contain_text("Notes")
@@ -318,10 +333,10 @@ with sync_playwright() as p:
     vp.goto(f"{BASE}/#/notes")
     vp.wait_for_selector('[data-focus="notes-search"]', timeout=20000)
     vp.get_by_role("button", name="New note").first.click()
-    body = vp.locator(".md-text")
+    body = vp.locator(".CodeMirror")
     body.click()
     vp.get_by_role("button", name="Dictate").last.click()
-    expect(vp.locator(".md-text")).to_have_value(re.compile("buy milk tomorrow"))
+    expect(vp.locator("textarea.md-text")).to_have_value(re.compile("buy milk tomorrow"))
     vp.get_by_role("button", name="Delete note").click()
     vp.get_by_role("button", name="Tap again to delete this note").click()
 

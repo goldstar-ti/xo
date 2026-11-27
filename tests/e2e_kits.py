@@ -65,6 +65,9 @@ with sync_playwright() as p:
       const { loadWebAwesome } = await import('/js/kit.js');
       if (kit === 'wa') await loadWebAwesome();
       const ui = await import('/js/ui.js');
+      const { loadText } = await import('/js/text.js');
+      await loadText();
+      const { mdEditor } = await import('/js/mdeditor.js');
       window.__clicks = 0;
       const host = document.createElement('div');
       host.id = 'kit-host';
@@ -73,6 +76,7 @@ with sync_playwright() as p:
         ui.button('Press', { variant: 'primary', onclick: count }),
         ui.field('Name', ui.input({ id: 'k-in', value: 'start' }), 'A hint'),
         ui.field('Notes', ui.textarea({ id: 'k-ta', rows: 2 })),
+        mdEditor({ value: '', label: 'Body', rows: 4, id: 'k-md' }).node,
         ui.field('Pick one', ui.select([['a', 'Alpha'], ['b', 'Beta']], { id: 'k-sel', value: 'b' })),
         ui.field('Tick it', ui.checkbox({ id: 'k-cb', checked: true }), 'Another hint'),
         ui.chip('Chosen', { pressed: true, onclick: count }),
@@ -148,6 +152,17 @@ with sync_playwright() as p:
         else:
             page.locator("#k-ta").fill("some notes")
         assert page.locator("#k-ta").evaluate("(e) => e.value") == "some notes"
+        # The Markdown editor: type, select all, Bold, then Preview.
+        md = host.locator(".EasyMDEContainer")
+        expect(md).to_be_visible(timeout=15000)
+        md.locator(".CodeMirror").click()
+        page.keyboard.type("hi")
+        page.keyboard.press("Control+a")
+        md.get_by_role("button", name="Bold").click()
+        assert page.locator("#k-md").evaluate("(e) => e.value") == "**hi**"
+        md.get_by_role("button", name="Preview").click()
+        expect(md.locator(".editor-preview-full strong")).to_have_text("hi")
+        md.get_by_role("button", name="Preview").click()
         expect(page.locator("#k-cb")).to_have_js_property("checked", True)
         # A Web Awesome checkbox is as wide as its row, so click its box, not the middle of the row.
         page.locator("#k-cb").click(position={"x": 8, "y": 8})

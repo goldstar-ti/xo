@@ -1,122 +1,152 @@
-// The Markdown editor: a toolbar, a text area and a preview. Used by the Notes screen and the task form.
+// The Markdown editor: EasyMDE (CodeMirror) with a toolbar and a preview. Used by the Notes screen and the task form.
 //
-//   const ed = mdEditor({ value, label, rows, onInput });
-//   ed.node        the editor
+//   const ed = mdEditor({ value, label, rows, onInput, id });
+//   ed.node        the editor; node.value gets and sets the text
 //   ed.read()      the text
-//   ed.focus()     shows the Write tab and focuses the text area
-//   ed.textarea    the text area control (use nativeField(ed.textarea) for the real field)
+//   ed.focus()     focuses the writing area
+//   ed.textarea    the real <textarea> (hidden once the editor loads; it always holds the text)
 //
-// A toolbar button changes the text area and then fires `input` on it, so onInput and any listener see the change.
-// The keys (bold, italic, switch tab) come from keymap.js. They are read here, not through matchKey, so they also work
-// inside a dialog.
-import { comboOf, keyFor } from './keymap.js';
+// EasyMDE comes from /vendor/easymde and loads once. Until it does, the plain text area works, so a slow or missing
+// script never loses a note. The toolbar edits the text and fires `input` on the text area, so onInput and any
+// listener see the change. The keys (bold, italic, preview) come from keymap.js.
 import { renderMarkdown } from './markdown.js';
-import { tabStrip } from './tabs.js';
+import { paintIcon } from './icons.js';
+import { comboOf, keyFor } from './keymap.js';
 import { t } from './text.js';
-import { button, focusControl, nativeField, textarea } from './ui.js';
 import { h } from './util.js';
-import { micButton } from './voice.js';
+import { cmInsert, micButton } from './voice.js';
 
 let seq = 0;
+let loading = null;
 
-// Each tool wraps the selection ({ wrap }) or starts each selected line with a prefix ({ line }).
+// Loads the stylesheet and script once. Resolves to window.EasyMDE, or rejects when the script cannot load.
+function loadEasyMDE() {
+  if (window.EasyMDE) return Promise.resolve(window.EasyMDE);
+  loading ||= new Promise((resolve, reject) => {
+    document.head.append(h('link', { rel: 'stylesheet', href: '/vendor/easymde/easymde.min.css' }));
+    const script = h('script', { src: '/vendor/easymde/easymde.min.js' });
+    script.addEventListener('load', () => resolve(window.EasyMDE));
+    script.addEventListener('error', () => { loading = null; script.remove(); reject(new Error('easymde')); });
+    document.head.append(script);
+  });
+  return loading;
+}
+
+// A keymap combo (Ctrl+b) in CodeMirror form (Ctrl-B). EasyMDE swaps Cmd and Ctrl on a Mac itself.
+const cmKey = (combo) => (combo ? combo.split('+').map((p) => (p.length === 1 ? p.toUpperCase() : p)).join('-') : null);
+
+// Starts each selected line with a prefix (the checklist has no EasyMDE button that takes a custom marker).
+function checklist(ed) {
+  const cm = ed.codemirror;
+  const from = cm.getCursor('from');
+  const to = cm.getCursor('to');
+  cm.operation(() => {
+    for (let n = from.line; n <= to.line; n++) cm.replaceRange('- [ ] ', { line: n, ch: 0 });
+  });
+  cm.focus();
+}
+
+// [name, tabler icon, label key, action(EasyMDE) -> function(editor)]
 const TOOLS = [
-  ['bold', { wrap: ['**', '**'] }],
-  ['italic', { wrap: ['_', '_'] }],
-  ['heading', { line: () => '## ' }],
-  ['bullets', { line: () => '- ' }],
-  ['numbers', { line: (n) => `${n + 1}. ` }],
-  ['checklist', { line: () => '- [ ] ' }],
-  ['link', { link: true }],
-  ['code', { wrap: ['`', '`'] }],
-  ['quote', { line: () => '> ' }],
+  ['bold', 'bold', 'bold', (E) => E.toggleBold],
+  ['italic', 'italic', 'italic', (E) => E.toggleItalic],
+  ['heading', 'heading', 'heading', (E) => E.toggleHeadingSmaller],
+  ['quote', 'quote', 'quote', (E) => E.toggleBlockquote],
+  ['unordered-list', 'list', 'bullets', (E) => E.toggleUnorderedList],
+  ['ordered-list', 'list-numbers', 'numbers', (E) => E.toggleOrderedList],
+  ['check-list', 'checkbox', 'checklist', () => checklist],
+  ['link', 'link', 'link', (E) => E.drawLink],
+  ['table', 'table', 'table', (E) => E.drawTable],
+  ['code', 'code', 'code', (E) => E.toggleCodeBlock],
+  ['preview', 'eye', 'preview', (E) => E.togglePreview],
+  ['undo', 'arrow-back-up', 'undo', (E) => E.undo],
+  ['redo', 'arrow-forward-up', 'redo', (E) => E.redo],
 ];
 
-// Pure text edits: each takes the text and the selection and returns { value, start, end }.
-function wrapSelection(value, s, e, [before, after]) {
-  return { value: value.slice(0, s) + before + value.slice(s, e) + after + value.slice(e), start: s + before.length, end: e + before.length };
-}
+export function mdEditor({ value = '', label = '', rows = 8, onInput, id } = {}) {
+  const n = ++seq;
+  const ta = h('textarea', { id: id || `md-${n}`, rows, class: 'md-text', 'aria-label': label || t('notes.editor.write') });
+  ta.value = value;
+  let ed = null;
 
-function prefixLines(value, s, e, prefix) {
-  const from = value.lastIndexOf('\n', s - 1) + 1;
-  const nl = value.indexOf('\n', e);
-  const to = nl === -1 ? value.length : nl;
-  const lines = value.slice(from, to).split('\n').map((line, n) => prefix(n) + line);
-  const block = lines.join('\n');
-  return { value: value.slice(0, from) + block + value.slice(to), start: from + block.length, end: from + block.length };
-}
-
-function makeLink(value, s, e) {
-  const text = value.slice(s, e) || t('notes.editor.link_text');
-  const url = 'https://';
-  const out = `[${text}](${url})`;
-  const start = s + text.length + 3;
-  return { value: value.slice(0, s) + out + value.slice(e), start, end: start + url.length };
-}
-
-export function mdEditor({ value = '', label = '', rows = 8, onInput } = {}) {
-  const id = ++seq;
-  const ta = textarea({ id: `md-${id}`, rows, value, 'aria-label': label || t('notes.editor.write') });
-  ta.classList.add('md-text');
-
-  const apply = (tool) => {
-    const nf = nativeField(ta);
-    const text = nf.value;
-    const s = nf.selectionStart ?? text.length;
-    const e = nf.selectionEnd ?? text.length;
-    let next;
-    if (tool.wrap) next = wrapSelection(text, s, e, tool.wrap);
-    else if (tool.line) next = prefixLines(text, s, e, tool.line);
-    else next = makeLink(text, s, e);
-    ta.value = next.value;
-    ta.dispatchEvent(new Event('input', { bubbles: true }));
-    const place = () => { nf.focus(); nf.setSelectionRange(next.start, next.end); };
-    // A Web Awesome control redraws its inner field first.
-    if (ta.updateComplete) ta.updateComplete.then(place); else place();
+  // Dictation writes at the caret through this object once the editor is up, and into the text area before that.
+  const target = {
+    insertText(text) {
+      if (ed) { cmInsert(ed.codemirror, text); return; }
+      ta.value += text;
+      ta.dispatchEvent(new Event('input', { bubbles: true }));
+    },
   };
-
-  const toolbar = h('div', { class: 'md-tools tw:flex tw:flex-wrap tw:gap-1', role: 'toolbar', 'aria-label': t('notes.editor.tools_aria') },
-    TOOLS.map(([name, tool]) => button(t(`notes.editor.${name}`), { class: 'small', 'aria-label': t(`notes.editor.${name}`), onclick: () => apply(tool) })), micButton(ta));
-  const writePanel = h('div', { id: `md-write-${id}`, class: 'tw:flex tw:flex-col tw:gap-2' }, toolbar, ta);
-  const previewPanel = h('div', { id: `md-preview-${id}`, class: 'md-preview', hidden: true });
-
-  let mode = 'write';
-  const strip = tabStrip({ label: t('notes.editor.tabs_aria'), onSelect: (m) => setMode(m) });
-  const drawTabs = () => strip.set([
-    { key: 'write', label: t('notes.editor.write'), controls: writePanel.id },
-    { key: 'preview', label: t('notes.editor.preview'), controls: previewPanel.id },
-  ], mode);
-  function setMode(next) {
-    mode = next;
-    writePanel.hidden = mode !== 'write';
-    previewPanel.hidden = mode !== 'preview';
-    if (mode === 'preview') {
-      const text = ta.value.trim();
-      previewPanel.replaceChildren(text ? renderMarkdown(ta.value) : h('p', { class: 'empty' }, t('notes.editor.empty_preview')));
-    }
-    drawTabs();
-  }
-  drawTabs();
-
+  const mic = micButton(target);
+  const plainBar = h('div', { class: 'md-tools tw:flex tw:gap-1', role: 'toolbar', 'aria-label': t('notes.editor.tools_aria') }, mic);
+  const note = h('p', { class: 'md-note', 'aria-live': 'polite', hidden: true });
+  const node = h('div', { class: 'md-editor tw:flex tw:flex-col tw:gap-2' }, mic ? plainBar : null, ta, note);
   ta.addEventListener('input', () => onInput?.(ta.value));
 
-  const node = h('div', { class: 'md-editor tw:flex tw:flex-col tw:gap-2' }, strip.el, writePanel, previewPanel);
+  Object.defineProperty(node, 'value', {
+    get: () => (ed ? ed.value() : ta.value),
+    set: (v) => { if (ed) ed.value(v); else ta.value = v; },
+  });
+
+  function build(E) {
+    const toolbar = TOOLS.map(([name, glyph, key, pick]) => ({
+      name,
+      noDisable: name === 'preview',
+      action: pick(E),
+      title: t(`notes.editor.${key}`),
+      icon: `<span class="ico" aria-hidden="true" data-glyph="${glyph}"></span>`,
+    }));
+    const shortcuts = { toggleBold: cmKey(keyFor('notes.bold')), toggleItalic: cmKey(keyFor('notes.italic')), togglePreview: null };
+    ed = new E({
+      element: ta,
+      initialValue: ta.value,
+      spellChecker: false,
+      status: false,
+      autoDownloadFontAwesome: false,
+      forceSync: true,
+      minHeight: `${rows * 1.6}em`,
+      toolbar,
+      shortcuts,
+      previewRender: (text) => (text.trim() ? renderMarkdown(text).outerHTML : `<p class="empty">${t('notes.editor.empty_preview')}</p>`),
+    });
+    const cm = ed.codemirror;
+    cm.getInputField().setAttribute('aria-label', label || t('notes.editor.write'));
+    cm.on('change', () => {
+      ta.value = cm.getValue();
+      ta.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+    const bar = ed.gui.toolbar;
+    bar.setAttribute('role', 'toolbar');
+    bar.setAttribute('aria-label', t('notes.editor.tools_aria'));
+    for (const el of bar.querySelectorAll('.ico')) paintIcon(el, `tabler/${el.dataset.glyph}`);
+    if (mic) bar.append(mic);
+    plainBar.remove();
+    // CodeMirror measures its box, so it needs a refresh once the editor is on screen.
+    new ResizeObserver(() => cm.refresh()).observe(node);
+    requestAnimationFrame(() => cm.refresh());
+  }
+
+  loadEasyMDE().then(build).catch(() => {
+    note.textContent = t('notes.editor.offline');
+    note.hidden = false;
+  });
+
+  // The preview key toggles the preview, here as well as in the toolbar. Bold and italic come from EasyMDE's shortcuts.
   node.addEventListener('keydown', (e) => {
     const combo = comboOf(e);
-    if (!combo) return;
-    if (combo === keyFor('notes.preview')) { e.preventDefault(); setMode(mode === 'write' ? 'preview' : 'write'); return; }
-    if (mode !== 'write') return;
-    const tool = combo === keyFor('notes.bold') ? TOOLS[0][1] : combo === keyFor('notes.italic') ? TOOLS[1][1] : null;
-    if (tool) { e.preventDefault(); apply(tool); }
+    if (ed && combo && combo === keyFor('notes.preview')) { e.preventDefault(); window.EasyMDE.togglePreview(ed); }
   });
 
   return {
     node,
-    read: () => ta.value,
+    read: () => node.value,
     textarea: ta,
     focus() {
-      if (mode !== 'write') setMode('write');
-      focusControl(ta);
+      if (ed) {
+        const preview = ed.gui.toolbar.querySelector('button.preview.active');
+        if (preview) window.EasyMDE.togglePreview(ed);
+        ed.codemirror.focus();
+      } else ta.focus();
     },
   };
 }

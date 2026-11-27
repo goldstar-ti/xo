@@ -2,7 +2,8 @@
 // The browser may send the audio to its maker's speech service (D-28). No audio is stored by XO.
 //
 //   micButton(target)   a Dictate button and a live line for one text control, or null when dictation is off or unsupported
-//   dictateInto(el)     starts (or stops) dictation into a control; used by the global.voice key
+//   dictateInto(el)     starts (or stops) dictation into a control; used by the global.voice key.
+//                       el may also be { insertText(text) }, which writes the spoken text at its own caret (the Markdown editor).
 import * as store from './store.js';
 import { t } from './text.js';
 import { button, nativeField } from './ui.js';
@@ -21,7 +22,27 @@ let session = null;
 
 const ERRORS = { 'not-allowed': 'denied', 'service-not-allowed': 'denied', network: 'offline', 'no-speech': 'nothing' };
 
+// A CodeMirror editor's own input field stands in as an object with insertText, one per editor so a second press stops.
+const cmTargets = new WeakMap();
+
+/** Types spoken text into a CodeMirror editor at the caret, with a space before it when the text before it needs one. */
+export function cmInsert(cm, spoken) {
+  const from = cm.getCursor('from');
+  const before = cm.getRange({ line: from.line, ch: 0 }, from);
+  cm.replaceSelection((before && !/\s$/.test(before) ? ' ' : '') + spoken);
+}
+function asTarget(el) {
+  const cm = el?.closest?.('.CodeMirror')?.CodeMirror;
+  if (!cm) return el;
+  if (!cmTargets.has(cm)) cmTargets.set(cm, { insertText: (s) => cmInsert(cm, s) });
+  return cmTargets.get(cm);
+}
+
 function insert(target, spoken) {
+  if (typeof target.insertText === 'function') {
+    target.insertText(spoken);
+    return;
+  }
   const nf = nativeField(target);
   const value = target.value ?? nf.value ?? '';
   const focused = document.activeElement === target || document.activeElement === nf || target.shadowRoot?.activeElement === nf;
@@ -47,6 +68,7 @@ export function stopDictation() {
  * Returns false when nothing started because dictation is off or unsupported.
  */
 export function dictateInto(target, hooks = {}) {
+  target = asTarget(target);
   if (!voiceEnabled() || !target) return false;
   if (session) {
     const same = session.target === target;
