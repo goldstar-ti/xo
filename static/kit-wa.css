@@ -96,5 +96,11 @@ wa-details.xo-disc { border: var(--rule) solid var(--line); border-radius: var(-
 wa-details.xo-disc + wa-details.xo-disc { margin-top: calc(0.6rem * var(--d)); }
 wa-details.xo-disc::part(base) { background: var(--surface); }
 wa-card.xo-opt-card { --spacing: 0.5rem; border: 0; background: transparent; }
+/* The card's body is a plain slot, so the sample, title and hint would run together on one line. */
+wa-card.xo-opt-card :is(.xo-opt-title, .xo-opt-hint) { display: block; }
+wa-card.xo-opt-card .xo-opt-hint { margin-top: 0.3rem; }
+/* Web Awesome's label part is inline-block: icon and name sit on a baseline with no gap. Lay them out like XO. */
+wa-button.icon-pick::part(base) { justify-content: flex-start; }
+wa-button.icon-pick::part(label) { display: inline-flex; align-items: center; gap: 0.55rem; }
 .xo-opt:has(wa-card) { padding: 0.2rem; }
 wa-color-picker { --grid-width: 14rem; }
