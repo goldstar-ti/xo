@@ -9,6 +9,7 @@
 - Canvas screen `#/canvas` (D-9, 2.4.0): `static/js/views/canvas.js` mounts `static/js/canvas.js` (`mountCanvas(root)`; widget management in the More menu and the canvas bar, side tabs, undo), `static/js/tabs.js` (`tabStrip`, `tabSet`), registry `static/js/widgets.js` (every screen is a widget; 24 columns of 28px rows), styles `static/canvas.css`, text `content/text/canvas.yaml`, GridStack in `static/vendor/gridstack`. Covered by `tests/e2e_canvas.py`.
 - Tracker screen `#/tracker` (D-10, 2.5.0): `static/js/views/tracker.js` and `static/js/tracker/` (model, list, detail, board, reports, projects, keys, widgets, nobbie). NOBBIE's tracker shows read-only once `NOBBIE_URL`, `NOBBIE_USER` and `NOBBIE_PASSWORD` are in `.env` (`app/nobbie.py`). Covered by `tests/e2e_tracker.py` and two API tests.
 - Tasks (2.8.0 to 2.11.0, D-19 to D-22): priority, categories, subtasks, repeats, dependencies, board and table views, filters, stale review, time blocks, pacing, close the day, command palette. Logic in `static/js/tasks.js`, data in `static/js/taskdata.js`, screen in `static/js/views/tasks.js`, palette in `static/js/palette.js`. Covered by `tests/e2e_tasks.py`.
+- Shortcuts, custom fields, Notes and dictation (2.12.0 to 2.17.0, D-24 and D-26 to D-29): every keyboard shortcut is configurable in Settings (`static/js/keymap.js`); custom fields on every kind of record (`static/js/customfields.js`); a Notes screen in Markdown with a toolbar and preview (`static/js/views/notes.js`, `mdeditor.js`, `markdown.js`, marked 18.2.0 vendored); dictation through the browser's speech service (`static/js/voice.js`). Covered by `tests/e2e_extras.py`.
 - Version 1 screens are built (Today, Diary, Tasks, Routine, Bills, Obligations, Check-ins, My plan, Appearance). Specs for the rest are in `docs/ROADMAP.md`.
 - House style brought in from the owner's other project: `ruff.toml`, `docs/voice.md`, the Code style section of `CLAUDE.md`, `.claude/` skills, commands and guides, and `docs/decisions.md`.
 
@@ -25,7 +26,7 @@
    6. Section 5 GTD core.
    7. Sections 6 to 12 in the D-18 order: Health and mood (6), People and life admin (7), Legal and sessions (8), Goals and reviews (9), Money (10), Google Calendar (11), AI (12: 12a assisted writing under D-15, 12b the agent under D-23).
 4. Canvas, parked: a resizable side pane, undo that survives a reload, and saved layout presets.
-5. Tasks, parked: manual card order on the board; subtasks as full tasks. Out of scope by the owner's decision: custom fields, Markdown backing, local-first sync, webhooks, voice capture and OS-wide hotkeys (rule 2; a PWA cannot register global hotkeys).
+5. Tasks, parked: manual card order on the board; subtasks as full tasks. Out of scope by the owner's decision: local-first sync and webhooks. OS-wide hotkeys are parked (D-29): a PWA cannot register them.
 
 ## Owner to-do
 
@@ -40,7 +41,13 @@
 7. Open `https://xo.tifunction.com/#/tasks`, switch to Board, drag a card, and press Ctrl+K. Nothing here was checked on a phone or by a person in a browser, only by the Playwright tests.
 8. Rename or replace the seed categories and places: Tasks, `Categories and places`.
 9. Decide whether to keep the evening `Close the day` step on: Settings, Tasks.
-10. `tests/e2e_tracker.py` is flaky: it failed twice out of five full runs on 2026-11-27 with `Checklist: N of 2 ticked` and passed on rerun. The cause is not diagnosed; fix the wait before relying on the suite as a gate.
+10. `tests/e2e_tracker.py` is flaky: it fails now and then with `Checklist: 0 of 2 ticked` (the page shows "0 of 1 ticked") and passes on rerun. It failed in 3 of the 5 build steps on 2026-11-27. Fix the wait before relying on the suite as a gate.
+11. Open `https://xo.tifunction.com/#/settings`, change a key under Keyboard shortcuts, then press `?` on Tasks to see it.
+12. Add a custom field in Settings, Custom fields, and fill it in on a task.
+13. Open `https://xo.tifunction.com/#/notes`, write a note with a list, and check Preview.
+14. On your phone and desktop, tap Dictate once and allow the microphone. Nothing here was checked on a phone or with a real microphone; the tests use a fake speech engine.
+15. `tests/e2e_look.py` line 116 (the banner should read "Night") failed once on 2026-11-27 and passed on rerun. Not diagnosed.
+16. Another session's Settings, My data, "Review and delete entries" button (it claims 2.13.0 and D-25) was uncommitted at deploy time and is not in the deployed app. Commit it and run `make db-backup` then `docker compose up -d --build app` when that work is finished.
 
 ## What worked
 
