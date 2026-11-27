@@ -164,6 +164,13 @@ with sync_playwright() as p:
         assert page.evaluate("window.__seg") == "b", "segmented click"
         page.keyboard.press("ArrowRight")
         assert page.evaluate("window.__seg") == "c", "segmented arrow key"
+        if kit == "daisy":
+            bgs = cmp.get_by_role("radio").evaluate_all("(els) => els.map((e) => getComputedStyle(e).backgroundColor)")
+            assert len(set(bgs)) > 1, f"daisy chosen segment looks like the others: {bgs}"
+            first = cmp.get_by_role("radio").first
+            border = first.evaluate("(e) => getComputedStyle(e).borderTopWidth")
+            assert border != "0px", "daisy segment has no button border"
+            assert first.evaluate("(e) => e.getBoundingClientRect().height") >= 40, "daisy segment tap target"
         sw = page.locator("#cmp-tog wa-switch") if kit == "wa" else cmp.get_by_role("switch")
         sw.click()
         assert page.evaluate("window.__tog") is True, "toggle on"
@@ -171,6 +178,12 @@ with sync_playwright() as p:
         sw.click()
         assert page.evaluate("window.__tog") is False, "toggle off"
         disc = page.locator("#cmp-disc > *")
+        if kit != "wa":
+            arrow = page.locator("#cmp-disc summary").evaluate(
+                "(e) => { const a = getComputedStyle(e, '::after');"
+                " return [a.content, a.display, parseFloat(a.width) || 0]; }"
+            )
+            assert arrow[0] != "none" and arrow[1] != "none" and arrow[2] > 0, f"{kit} disclosure has no arrow: {arrow}"
         assert not disc.evaluate("(e) => e.open")
         page.locator("#cmp-disc").get_by_text("Section").click()
         assert disc.evaluate("(e) => e.open"), "disclosure opens"

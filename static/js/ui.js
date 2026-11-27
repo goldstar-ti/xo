@@ -249,7 +249,7 @@ export function disclosure(title, body, { open = false, badge: tag = null, id, o
     return el;
   }
   const daisy = k === 'daisy';
-  const el = h('details', { id, open: open || null, class: daisy ? 'xo-disc tw:collapse tw:collapse-arrow tw:border tw:border-base-300' : 'xo-disc' },
+  const el = h('details', { id, open: open || null, class: daisy ? 'xo-disc tw:collapse tw:border tw:border-base-300' : 'xo-disc' },
     h('summary', { class: daisy ? 'tw:collapse-title' : null }, h('span', { class: 'xo-disc-title' }, title, tag)),
     h('div', { class: daisy ? 'tw:collapse-content xo-disc-body' : 'xo-disc-body' }, body));
   el.addEventListener('toggle', () => onToggle?.(el.open));

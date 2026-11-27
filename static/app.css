@@ -509,13 +509,14 @@ kbd { border: var(--rule) solid var(--line); border-radius: var(--radius); font-
 .xo-ctl-label { font-size: var(--fs-label, 0.875rem); font-weight: 600; }
 
 .xo-seg { display: inline-flex; max-width: 100%; overflow-x: auto; border: calc(var(--rule) + 0.5px) solid var(--line); border-radius: var(--pill); background: var(--surface); }
-.xo-seg > button { flex: none; min-height: 2.5rem; padding: 0.3rem 0.9rem; background: transparent; border: 0; border-radius: var(--pill); font-weight: 600; color: var(--muted); }
-.xo-seg > button + button { border-left: var(--rule) solid var(--line); border-radius: 0; }
-.xo-seg > button:first-child { border-radius: var(--pill) 0 0 var(--pill); }
-.xo-seg > button:last-child { border-radius: 0 var(--pill) var(--pill) 0; }
-.xo-seg > button.on { background: var(--leaf); color: var(--leaf-ink); }
+.xo-seg > button:not(.tw\:btn) { flex: none; min-height: 2.5rem; padding: 0.3rem 0.9rem; background: transparent; border: 0; border-radius: var(--pill); font-weight: 600; color: var(--muted); }
+.xo-seg > button:not(.tw\:btn) + button:not(.tw\:btn) { border-left: var(--rule) solid var(--line); border-radius: 0; }
+.xo-seg > button:not(.tw\:btn):first-child { border-radius: var(--pill) 0 0 var(--pill); }
+.xo-seg > button:not(.tw\:btn):last-child { border-radius: 0 var(--pill) var(--pill) 0; }
+.xo-seg > button.on:not(.tw\:btn) { background: var(--leaf); color: var(--leaf-ink); }
 .xo-seg.tw\:join { border: 0; background: none; border-radius: 0; }
 .xo-seg.tw\:join > button { border-left: 0; }
+.xo-seg.tw\:join > .tw\:btn { min-height: 2.5rem; }
 wa-radio-group.xo-seg-wa::part(form-control-label) { font-size: var(--fs-label, 0.875rem); font-weight: 600; }
 
 .xo-toggle { display: inline-flex; align-items: center; gap: 0.6rem; min-height: 2.5rem; cursor: pointer; }
@@ -537,7 +538,6 @@ input.xo-switch:checked::after { transform: translateX(1.25rem); }
 .xo-disc[open] > summary::after { transform: rotate(-135deg); }
 .xo-disc-title { display: inline-flex; align-items: center; gap: 0.5rem; }
 .xo-disc-body { padding: 0.25rem 0.9rem calc(0.9rem * var(--d)); }
-.xo-disc.tw\:collapse > summary::after { display: none; }
 @media (prefers-reduced-motion: reduce) { .xo-disc > summary::after { transition: none; } }
 
 .xo-opts { display: grid; grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr)); gap: 0.6rem; }
