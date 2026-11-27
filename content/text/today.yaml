@@ -53,7 +53,6 @@ today:
     empty_tail: for today.
     needs: 'Needs about {duration}'
     over: 'That is more than the {duration} left before your evening check-in.'
-    block_aria: 'Time for {title}'
     done: done
   day:
     heading: The day
