@@ -241,6 +241,26 @@ appearance:
       ochre: Attention
       ochre-soft: Attention tint
       danger: Warning
+  ident:
+    heading: Widget and tab colours
+    hint: Colours here help you find a widget or canvas at a glance. They stay on this device.
+    widgets: Widgets
+    tabs: Canvas tabs
+    none: None
+    opacity: Opacity
+    title: Colour the title
+    no_tabs: No canvases yet.
+    reset: Reset widget and tab colours
+    name: Name
+    colour: Colour
+    pick: Choose a palette for {name}
+    pick_title: Palette for {name}
+    current: '{name}: {palette}'
+    load_failed: The palettes could not be loaded. Check your connection and try again.
+    hues:
+      Red: Reds and warm
+      Green: Greens and earth
+      Blue: Blues and cool
   glass:
     heading: Glass
     alpha: Transparency

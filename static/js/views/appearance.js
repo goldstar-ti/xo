@@ -2,6 +2,9 @@
 // All of it is stored on this device only (see boot.js).
 import { t, text } from '../text.js';
 import { button, checkbox, chip, colour, field, focusControl, input, select, textarea } from '../ui.js';
+import { tabStrip } from '../tabs.js';
+import * as store from '../store.js';
+import { WIDGETS } from '../widgets.js';
 import { fmtTime, h, kvSet, openDialog, put, toast, uid } from '../util.js';
 
 export const live = false;
@@ -404,6 +407,79 @@ function coloursSection(lk) {
     h('div', { class: 'row' }, clear('light'), clear('dark')));
 }
 
+// ---- Widget and tab colours ----
+// A palette is chosen from NOBBIE's list (static/vendor/swatches/swatch_palettes.json, loaded when first needed).
+// The look keeps the palette's step 500 (light mode) and step 300 (dark mode), so it paints before the list loads.
+let palettes = null;
+async function loadPalettes() {
+  if (!palettes) {
+    palettes = fetch('/vendor/swatches/swatch_palettes.json').then((r) => { if (!r.ok) throw new Error('palettes'); return r.json(); });
+    palettes.catch(() => { palettes = null; });
+  }
+  return palettes;
+}
+
+// A dialog with a strip of hues, each family as a heading with its palettes as swatches, and None.
+function openPalettePicker(name, onPick) {
+  const body = h('div', { class: 'ident-pick' });
+  const dlg = openDialog(t('appearance.ident.pick_title', { name }), body, { wide: true });
+  const hues = text('appearance.ident.hues');
+  loadPalettes().then((families) => {
+    const order = [...new Set(families.map((f) => f.hue))];
+    let hue = order[0];
+    const strip = tabStrip({ label: t('appearance.ident.pick', { name }), onSelect: (k) => { hue = k; draw(); } });
+    const grid = h('div', { class: 'ident-families' });
+    const pick = (value) => { onPick(value); dlg.close(); };
+    function draw() {
+      strip.set(order.map((k) => ({ key: k, label: hues[k] || k })), hue);
+      grid.replaceChildren(...families.filter((f) => f.hue === hue).map((f) => h('div', { class: 'ident-family' },
+        h('h3', {}, f.name),
+        h('div', { class: 'swatches ident-swatches' }, f.palettes.map((p) => {
+          const el = h('button', { type: 'button', class: 'ident-swatch', title: p.name, 'aria-label': p.name, 'data-fk': `ident-pick-${p.slug}`, onclick: () => pick({ swatch: p.slug, light: p.steps['500'], dark: p.steps['300'] }) });
+          el.style.setProperty('--swatch', p.steps['500']);
+          return el;
+        })))));
+    }
+    draw();
+    body.replaceChildren(strip.el, grid, button(t('appearance.ident.none'), { 'data-fk': 'ident-pick-none', onclick: () => pick(null) }));
+  }).catch(() => body.replaceChildren(h('p', { class: 'note' }, t('appearance.ident.load_failed'))));
+}
+
+function identRow(kind, id, name, lk) {
+  const key = kind === 'widgets' ? 'w' : 't';
+  const e = lk.ident[kind][id];
+  const set = (fn, opts) => L.change((s, l) => { fn(l.ident[kind]); }, opts);
+  const swatch = h('button', { type: 'button', class: 'ident-swatch', 'data-fk': `ident-${key}-${id}-${e ? e.swatch : 'none'}`, 'aria-label': t('appearance.ident.pick', { name }),
+    title: e ? e.swatch.replace(/-/g, ' ') : t('appearance.ident.none'),
+    onclick: () => openPalettePicker(name, (v) => set((m) => {
+      if (!v) delete m[id];
+      else m[id] = { ...(m[id] || { op: 100, title: false }), ...v };
+    })) }, e ? '' : '-');
+  if (e) swatch.style.setProperty('--swatch', e.light);
+  const op = e
+    ? dial(t('appearance.ident.opacity'), { id: `d-ident-${key}-${id}`, min: 20, max: 100, step: 5, value: e.op, def: 100, unit: '%', apply: (v, o) => set((m) => { m[id].op = v; }, o) })
+    : null;
+  const title = kind === 'widgets' && e
+    ? checkbox({ checked: e.title, 'aria-label': `${t('appearance.ident.title')}: ${name}`, 'data-fk': `ident-title-${id}`, onchange: (ev) => set((m) => { m[id].title = ev.target.checked; }) })
+    : null;
+  return adv(h('tr', {}, h('th', { scope: 'row' }, name), h('td', {}, swatch), h('td', {}, op), kind === 'widgets' && h('td', {}, title, title && ` ${t('appearance.ident.title')}`)), !!e);
+}
+
+function identSection(lk) {
+  const table = (kind, rows, head) => h('table', { class: 'ident-table' },
+    h('caption', {}, head),
+    h('tbody', {}, rows));
+  const widgets = Object.keys(WIDGETS).map((id) => identRow('widgets', id, t(WIDGETS[id].title), lk));
+  const canvases = store.byKind('canvas').slice().sort((a, b) => (a.data?.order ?? 0) - (b.data?.order ?? 0));
+  const tabs = canvases.map((c) => identRow('tabs', c.id, c.data?.title || t('canvas.untitled'), lk));
+  const any = Object.keys(lk.ident.widgets).length + Object.keys(lk.ident.tabs).length > 0;
+  return advSection(t('appearance.ident.heading'),
+    h('p', { class: 'hint' }, t('appearance.ident.hint')),
+    table('widgets', widgets, t('appearance.ident.widgets')),
+    tabs.length ? table('tabs', tabs, t('appearance.ident.tabs')) : h('p', { class: 'note' }, t('appearance.ident.no_tabs')),
+    button(t('appearance.ident.reset'), { 'data-fk': 'reset-ident', onclick: () => L.change((s, l) => { l.ident = { widgets: {}, tabs: {} }; }) }));
+}
+
 // Corner radii the Corners choice gives: card, button and chip (40 reads as Round), dialog. Keep in step with CORNERS in boot.js.
 const CORNER_PX = { square: [0, 0, 0], soft: [6, 8, 10], round: [10, 40, 14], pill: [20, 40, 20] };
 function shapeSection(lk, d) {
@@ -445,6 +521,7 @@ export function render(root) {
     coloursSection(lk),
     shapeSection(lk, d),
     glassSection(lk, d),
+    identSection(lk),
     advSection(t('appearance.figure.heading'), adv(seg(t('appearance.figure.label'), 'figure'), lk.figure !== d.figure)),
     advSection(t('appearance.layout.heading'),
       ...[['hero', 'hero'], ['dayline', 'dayline'], ['loud', 'loud'], ['line', 'line']].map(([k, key]) => adv(seg(t(`appearance.layout.${k}`), key), lk[key] !== d[key]))),

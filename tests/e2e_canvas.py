@@ -98,6 +98,25 @@ with sync_playwright() as p:
     expect(pg.locator(".xo-canvas-empty")).to_be_hidden()
     assert node(pg, "tasks")["w"] == 8
 
+    # Widget and tab colours: a chosen palette tints the frame and the active tab's underline; reset clears it.
+    frame = "document.querySelector('[data-widget=\"tasks\"] > .xo-w')"
+    top = f"getComputedStyle({frame}).borderTopColor"
+    plain = pg.evaluate(top)
+    plain_underline = tabs.locator(".xo-tab").first.evaluate("e => getComputedStyle(e).borderBottomColor")
+    tab_id = tabs.get_by_role("tab").first.get_attribute("data-tid")
+    pg.evaluate(
+        "(tid) => XOLook.change((s, lk) => {"
+        " lk.ident.widgets.tasks = { swatch: 'raspberry-tart', light: '#e63965', dark: '#f18fa8', op: 100, title: true };"
+        " lk.ident.tabs[tid] = { swatch: 'raspberry-tart', light: '#e63965', dark: '#f18fa8', op: 100, title: false }; }, { quiet: true })",
+        tab_id,
+    )
+    pg.wait_for_function(f"{frame} && {top} != {plain!r}")
+    assert pg.evaluate(f"getComputedStyle({frame}.querySelector('.xo-w-title')).color") == "rgb(230, 57, 101)"
+    underline = tabs.locator(".xo-tab").first.evaluate("e => getComputedStyle(e).borderBottomColor")
+    assert underline != plain_underline
+    pg.evaluate("XOLook.change((s, lk) => { lk.ident = { widgets: {}, tabs: {} }; }, { quiet: true })")
+    pg.wait_for_function(f"{frame} && {top} == {plain!r}")
+
     # Roll Tasks up: two rows high, body hidden.
     widget(pg, "tasks").get_by_role("button", name="Roll up").click()
     expect(widget(pg, "tasks").locator(".xo-w-body")).to_be_hidden()

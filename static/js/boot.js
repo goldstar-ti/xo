@@ -102,14 +102,18 @@
   const clamp = (n, lo, hi, fallback) => { n = Number(n); return Number.isFinite(n) ? Math.min(hi, Math.max(lo, n)) : fallback; };
   const text = (v, max, fallback) => (typeof v === 'string' ? v.slice(0, max) : fallback);
 
-  // Identity colours: a map of widget or tab key to { hue, op, title }, rebuilt entry by entry.
+  // Identity colours: a map of widget or tab key to { swatch, light, dark, op, title }, rebuilt entry by entry.
+  // `light` and `dark` are the palette's step 500 and step 300, copied in when it is chosen, so no palette list is
+  // needed before the first paint. An entry with a bad slug or hex is dropped.
   function cleanIdent(raw) {
     const out = {};
     if (!raw || typeof raw !== 'object') return out;
+    const hex = (v) => typeof v === 'string' && /^#[0-9a-f]{6}$/i.test(v);
     Object.keys(raw).slice(0, 200).forEach((k) => {
       const v = raw[k];
       if (!/^[a-z0-9:_-]{1,60}$/i.test(k) || !v || typeof v !== 'object') return;
-      out[k] = { hue: Math.round(clamp(v.hue, 0, 360, 0)), op: Math.round(clamp(v.op, 20, 100, 100) / 5) * 5, title: v.title === true };
+      if (typeof v.swatch !== 'string' || !/^[a-z0-9-]{1,60}$/.test(v.swatch) || !hex(v.light) || !hex(v.dark)) return;
+      out[k] = { swatch: v.swatch, light: v.light.toLowerCase(), dark: v.dark.toLowerCase(), op: Math.round(clamp(v.op, 20, 100, 100) / 5) * 5, title: v.title === true };
     });
     return out;
   }
@@ -218,6 +222,27 @@
     }).join('');
   }
 
+  // Widget frames and canvas tabs the reader coloured: one style element, rebuilt on every apply.
+  function identStyle(ident) {
+    let el = document.getElementById('xo-ident');
+    if (!el) { el = document.createElement('style'); el.id = 'xo-ident'; document.head.appendChild(el); }
+    const q = (id) => '"' + CSS.escape(id) + '"';
+    const mix = (e) => 'color-mix(in oklch,var(--ident) ' + e.op + '%,transparent)';
+    const rules = [];
+    Object.keys(ident.widgets).forEach((id) => {
+      const e = ident.widgets[id], frame = '[data-widget=' + q(id) + ']';
+      ['light', 'dark'].forEach((m) => rules.push(':root[data-scheme="' + m + '"] ' + frame + '{--ident:' + e[m] + ';}'));
+      rules.push(frame + ' > .xo-w{border-top:3px solid ' + mix(e) + ';}');
+      if (e.title) rules.push(frame + ' .xo-w-title{color:var(--ident);}');
+    });
+    Object.keys(ident.tabs).forEach((id) => {
+      const e = ident.tabs[id], tab = '.xo-tab:has(> [data-tid=' + q(id) + '])';
+      ['light', 'dark'].forEach((m) => rules.push(':root[data-scheme="' + m + '"] ' + tab + '{--ident:' + e[m] + ';}'));
+      rules.push(':root ' + tab + '{border-bottom-color:' + mix(e) + ';}');
+    });
+    el.textContent = rules.join('');
+  }
+
   function apply() {
     const { look, item } = active();
     const root = document.documentElement;
@@ -257,6 +282,7 @@
     root.dataset.kit = look.kit;
     root.dataset.figure = look.figure;
     colourOverrides(look.colours);
+    identStyle(look.ident);
     root.dataset.pop = state.prefs.pop ? 'on' : 'off';
     lastKey = (item ? item.id : 'base') + '|' + root.dataset.scheme;
   }

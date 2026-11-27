@@ -447,6 +447,13 @@ input[type="range"] { width: 100%; min-height: 2.25rem; accent-color: var(--leaf
 .look-group > * + * { margin-top: 0.9rem; }
 .look-group > h3:first-child { margin-top: 0; }
 .colour-table { width: 100%; border-collapse: collapse; }
+.ident-table { width: 100%; border-collapse: collapse; }
+.ident-table th, .ident-table td { padding: 0.35rem 0.5rem 0.35rem 0; text-align: left; border-bottom: 1px solid var(--line); vertical-align: middle; }
+.ident-table caption { text-align: left; font-weight: 600; padding: 0.6rem 0 0.25rem; }
+.ident-table .dial { min-width: 14rem; }
+.ident-swatch { width: 2rem; height: 2rem; padding: 0; border-radius: 50%; border: 3px solid var(--paper); box-shadow: 0 0 0 1.5px var(--line); background: var(--swatch, var(--paper)); color: var(--muted); }
+.ident-swatches { grid-template-columns: repeat(auto-fill, 2.25rem); }
+.ident-family h3 { margin: 0.9rem 0 0.4rem; font-size: var(--fs-small, 0.875rem); }
 .colour-table th, .colour-table td { padding: 0.35rem 0.5rem 0.35rem 0; text-align: left; border-bottom: 1px solid var(--line); vertical-align: middle; }
 .colour-table thead th { font-size: var(--fs-small, 0.875rem); color: var(--muted); font-weight: 600; }
 .colour-table tbody th { font-weight: 500; font-size: var(--fs-label, 0.9375rem); }

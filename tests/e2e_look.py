@@ -215,6 +215,21 @@ with sync_playwright() as p:
     expect(pg.get_by_role("heading", name="Colours", exact=True)).to_be_visible()
     expect(pg.locator(".colour-table")).to_be_visible()
     pg.screenshot(path=SHOTS / "look-advanced-desktop.png", full_page=True)
+    # widget and tab colours: pick a palette for a widget on the screen, tune it, reset
+    pg.locator('[data-fk="view:advanced"]').click()
+    expect(pg.get_by_role("heading", name="Widget and tab colours")).to_be_visible()
+    pg.locator('[data-fk="ident-w-tasks-none"]').click()
+    pg.locator('[data-fk="ident-pick-raspberry-tart"]').click()
+    ident = pg.evaluate("XOLook.active().look.ident.widgets.tasks")
+    assert ident["swatch"] == "raspberry-tart" and ident["light"] == "#e63965" and ident["dark"] == "#f18fa8", ident
+    pg.locator('[data-fk="d-ident-w-tasks-num"]').fill("60")
+    pg.locator('[data-fk="d-ident-w-tasks-num"]').dispatch_event("change")
+    assert pg.evaluate("XOLook.active().look.ident.widgets.tasks.op") == 60
+    pg.locator('[data-fk="ident-title-tasks"]').check()
+    assert pg.evaluate("XOLook.active().look.ident.widgets.tasks.title") is True
+    assert pg.locator("#xo-ident").evaluate("e => e.textContent").count("tasks") >= 2
+    pg.get_by_role("button", name="Reset widget and tab colours").click()
+    assert pg.evaluate("XOLook.active().look.ident") == {"widgets": {}, "tabs": {}}
     pg.get_by_role("button", name="Reset everything").click()
     pg.get_by_role("button", name="Tap again to reset").click()
     assert pg.evaluate("XOLook.prefs.view") == "standard"

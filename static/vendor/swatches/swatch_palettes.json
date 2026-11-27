@@ -1,0 +1,2326 @@
+[
+  {
+    "slug": "berry-wine",
+    "name": "Berry & Wine",
+    "hue": "Red",
+    "palettes": [
+      {
+        "slug": "raspberry-tart",
+        "name": "Raspberry Tart",
+        "steps": {
+          "50": "#fff0f3",
+          "125": "#fcd6df",
+          "200": "#f7b8c8",
+          "300": "#f18fa8",
+          "400": "#eb6687",
+          "500": "#e63965",
+          "600": "#c4264f",
+          "700": "#a81c3f"
+        }
+      },
+      {
+        "slug": "deep-crimson",
+        "name": "Deep Crimson",
+        "steps": {
+          "50": "#fdf0f2",
+          "125": "#f4d6dc",
+          "200": "#e8b2bc",
+          "300": "#dc92a1",
+          "400": "#d47486",
+          "500": "#c9596e",
+          "600": "#a83e53",
+          "700": "#8c273b"
+        }
+      },
+      {
+        "slug": "mulberry-wine",
+        "name": "Mulberry Wine",
+        "steps": {
+          "50": "#f8f1f5",
+          "125": "#e9d2e0",
+          "200": "#d7b5c9",
+          "300": "#bc90aa",
+          "400": "#ad7595",
+          "500": "#9e5c82",
+          "600": "#804368",
+          "700": "#63324e"
+        }
+      },
+      {
+        "slug": "boysenberry",
+        "name": "Boysenberry",
+        "steps": {
+          "50": "#f5f0f7",
+          "125": "#e4d2ec",
+          "200": "#d1badb",
+          "300": "#b295c0",
+          "400": "#9f79b0",
+          "500": "#8e5ea3",
+          "600": "#734587",
+          "700": "#553166"
+        }
+      },
+      {
+        "slug": "merlot-velvet",
+        "name": "Merlot Velvet",
+        "steps": {
+          "50": "#f6f0f2",
+          "125": "#e7d4da",
+          "200": "#d6bac2",
+          "300": "#bd95a3",
+          "400": "#a87688",
+          "500": "#96596d",
+          "600": "#7a4255",
+          "700": "#5e2e3e"
+        }
+      }
+    ]
+  },
+  {
+    "slug": "sand-desert",
+    "name": "Sand & Desert",
+    "hue": "Green",
+    "palettes": [
+      {
+        "slug": "ivory",
+        "name": "Ivory",
+        "steps": {
+          "50": "#f6f6f3",
+          "125": "#f2f2eb",
+          "200": "#f0f0e2",
+          "300": "#e9e9d4",
+          "400": "#e6e5cd",
+          "500": "#dfdfc3",
+          "600": "#88886d",
+          "700": "#6b6b50"
+        }
+      },
+      {
+        "slug": "beige",
+        "name": "Beige",
+        "steps": {
+          "50": "#f6f6f1",
+          "125": "#f1f1e6",
+          "200": "#ececd6",
+          "300": "#e3e3c1",
+          "400": "#dedeb7",
+          "500": "#d7d6ab",
+          "600": "#8a895e",
+          "700": "#6d6c40"
+        }
+      },
+      {
+        "slug": "parchment",
+        "name": "Parchment",
+        "steps": {
+          "50": "#f7f6f1",
+          "125": "#f3efe4",
+          "200": "#ede6d2",
+          "300": "#e5dabb",
+          "400": "#dfd2ae",
+          "500": "#d8c9a1",
+          "600": "#93855d",
+          "700": "#76683f"
+        }
+      },
+      {
+        "slug": "camel",
+        "name": "Camel",
+        "steps": {
+          "50": "#f9f5f0",
+          "125": "#ede3d8",
+          "200": "#d8c5b1",
+          "300": "#c3a888",
+          "400": "#b2936e",
+          "500": "#a6845b",
+          "600": "#8c693e",
+          "700": "#775527"
+        }
+      },
+      {
+        "slug": "desert-sand",
+        "name": "Desert Sand",
+        "steps": {
+          "50": "#faf5f1",
+          "125": "#f6e9e0",
+          "200": "#efd7c6",
+          "300": "#e7c3a9",
+          "400": "#dfb698",
+          "500": "#d7aa89",
+          "600": "#a87b59",
+          "700": "#8a5d3b"
+        }
+      }
+    ]
+  },
+  {
+    "slug": "cyan-aqua",
+    "name": "Cyan & Aqua",
+    "hue": "Blue",
+    "palettes": [
+      {
+        "slug": "ice-water",
+        "name": "Ice Water",
+        "steps": {
+          "50": "#f0f7f7",
+          "125": "#e4f6f5",
+          "200": "#d3f5f4",
+          "300": "#bcf1ef",
+          "400": "#b0eeec",
+          "500": "#a2e8e6",
+          "600": "#4a9493",
+          "700": "#247775"
+        }
+      },
+      {
+        "slug": "cyan",
+        "name": "Cyan",
+        "steps": {
+          "50": "#e9faf9",
+          "125": "#d2f9f8",
+          "200": "#aafaf9",
+          "300": "#6ef6f6",
+          "400": "#3ef4f4",
+          "500": "#10ecec",
+          "600": "#009a9a",
+          "700": "#047878"
+        }
+      },
+      {
+        "slug": "aquamarine",
+        "name": "Aquamarine",
+        "steps": {
+          "50": "#edf9f4",
+          "125": "#dbf8ec",
+          "200": "#c0f9e2",
+          "300": "#99f5d4",
+          "400": "#83f3cc",
+          "500": "#6cedc3",
+          "600": "#0b9d79",
+          "700": "#037c5f"
+        }
+      },
+      {
+        "slug": "turquoise",
+        "name": "Turquoise",
+        "steps": {
+          "50": "#ecf9f7",
+          "125": "#d5f5f0",
+          "200": "#afefe6",
+          "300": "#7ce6d9",
+          "400": "#5bdfd0",
+          "500": "#32d7c7",
+          "600": "#049b8f",
+          "700": "#087970"
+        }
+      },
+      {
+        "slug": "cerulean",
+        "name": "Cerulean",
+        "steps": {
+          "50": "#eef7fd",
+          "125": "#d1e7f4",
+          "200": "#a0cbe2",
+          "300": "#6aafd2",
+          "400": "#469ac3",
+          "500": "#238bb8",
+          "600": "#066f97",
+          "700": "#025a7b"
+        }
+      }
+    ]
+  },
+  {
+    "slug": "blush-rose",
+    "name": "Blush & Rose",
+    "hue": "Red",
+    "palettes": [
+      {
+        "slug": "ballet-slipper",
+        "name": "Ballet Slipper",
+        "steps": {
+          "50": "#fef2f6",
+          "125": "#fbe1ea",
+          "200": "#f6c6d7",
+          "300": "#efa7c3",
+          "400": "#e795b5",
+          "500": "#df85a9",
+          "600": "#bf648b",
+          "700": "#a0446d"
+        }
+      },
+      {
+        "slug": "carnation",
+        "name": "Carnation",
+        "steps": {
+          "50": "#fdf3f6",
+          "125": "#ffe9f1",
+          "200": "#fee0ea",
+          "300": "#fed0e0",
+          "400": "#ffc6db",
+          "500": "#ffb9d3",
+          "600": "#bd668a",
+          "700": "#9e466d"
+        }
+      },
+      {
+        "slug": "dusty-rose",
+        "name": "Dusty Rose",
+        "steps": {
+          "50": "#faf4f1",
+          "125": "#f3e5de",
+          "200": "#e7cdbf",
+          "300": "#dab39e",
+          "400": "#cfa28a",
+          "500": "#c5947a",
+          "600": "#aa785d",
+          "700": "#8d5b40"
+        }
+      },
+      {
+        "slug": "rosewater",
+        "name": "Rosewater",
+        "steps": {
+          "50": "#fbf4f4",
+          "125": "#fbeaeb",
+          "200": "#fddde0",
+          "300": "#fcccd0",
+          "400": "#f9c3c7",
+          "500": "#f4b8bd",
+          "600": "#ae7479",
+          "700": "#90565c"
+        }
+      },
+      {
+        "slug": "flamingo",
+        "name": "Flamingo",
+        "steps": {
+          "50": "#fef2f5",
+          "125": "#fcdce3",
+          "200": "#f2b9c6",
+          "300": "#e893a9",
+          "400": "#db7b95",
+          "500": "#d16886",
+          "600": "#b6496b",
+          "700": "#a03057"
+        }
+      }
+    ]
+  },
+  {
+    "slug": "orange-yellow",
+    "name": "Orange & Yellow",
+    "hue": "Green",
+    "palettes": [
+      {
+        "slug": "peach-cream",
+        "name": "Peach Cream",
+        "steps": {
+          "50": "#fff6ee",
+          "125": "#ffead9",
+          "200": "#ffd3b6",
+          "300": "#ffbe9e",
+          "400": "#ffb4a2",
+          "500": "#ffaaa6",
+          "600": "#e6918d",
+          "700": "#d47a76"
+        }
+      },
+      {
+        "slug": "soft-apricot",
+        "name": "Soft Apricot",
+        "steps": {
+          "50": "#fff7f0",
+          "125": "#ffeedb",
+          "200": "#ffe0b2",
+          "300": "#ffce8b",
+          "400": "#ffc26a",
+          "500": "#ffb74d",
+          "600": "#f79b26",
+          "700": "#f57c00"
+        }
+      },
+      {
+        "slug": "melon-sorbet",
+        "name": "Melon Sorbet",
+        "steps": {
+          "50": "#fffff0",
+          "125": "#fff9d6",
+          "200": "#ffe599",
+          "300": "#ffdc7a",
+          "400": "#ffc552",
+          "500": "#ffd166",
+          "600": "#e6b543",
+          "700": "#d4a326"
+        }
+      },
+      {
+        "slug": "buttercup-yellow",
+        "name": "Buttercup Yellow",
+        "steps": {
+          "50": "#fffde7",
+          "125": "#fff9c4",
+          "200": "#fff59d",
+          "300": "#fff176",
+          "400": "#ffee58",
+          "500": "#ffeb3b",
+          "600": "#fdd835",
+          "700": "#fbc02d"
+        }
+      },
+      {
+        "slug": "chiffon-lemon",
+        "name": "Chiffon Lemon",
+        "steps": {
+          "50": "#fffffa",
+          "125": "#fffeeb",
+          "200": "#fff9a6",
+          "300": "#fff778",
+          "400": "#fff55d",
+          "500": "#fff44f",
+          "600": "#e2d126",
+          "700": "#d4c31b"
+        }
+      }
+    ]
+  },
+  {
+    "slug": "teal-blue",
+    "name": "Teal & Blue",
+    "hue": "Blue",
+    "palettes": [
+      {
+        "slug": "pale-turquoise",
+        "name": "Pale Turquoise",
+        "steps": {
+          "50": "#e0f7fa",
+          "125": "#b8f0f5",
+          "200": "#80deea",
+          "300": "#62d7e6",
+          "400": "#54d3e3",
+          "500": "#4dd0e1",
+          "600": "#26b6c8",
+          "700": "#0097a7"
+        }
+      },
+      {
+        "slug": "glacier-ice",
+        "name": "Glacier Ice",
+        "steps": {
+          "50": "#e1f5fe",
+          "125": "#c4ecfe",
+          "200": "#90caf9",
+          "300": "#74bcf8",
+          "400": "#5cb2f8",
+          "500": "#4fc3f7",
+          "600": "#24a5e8",
+          "700": "#0288d1"
+        }
+      },
+      {
+        "slug": "powder-blue",
+        "name": "Powder Blue",
+        "steps": {
+          "50": "#ebf3f9",
+          "125": "#d8e7f5",
+          "200": "#b9d1ea",
+          "300": "#a3c2e1",
+          "400": "#95b7d9",
+          "500": "#89aed4",
+          "600": "#658dbb",
+          "700": "#4f7cac"
+        }
+      },
+      {
+        "slug": "periwinkle-mist",
+        "name": "Periwinkle Mist",
+        "steps": {
+          "50": "#eef2ff",
+          "125": "#e0e7ff",
+          "200": "#c7d2fe",
+          "300": "#a5b4fc",
+          "400": "#93a3fc",
+          "500": "#818cf8",
+          "600": "#6366f1",
+          "700": "#4338ca"
+        }
+      },
+      {
+        "slug": "sky-pastel",
+        "name": "Sky Pastel",
+        "steps": {
+          "50": "#e0f2f1",
+          "125": "#cbeae8",
+          "200": "#b2dfdb",
+          "300": "#8cd0c9",
+          "400": "#6ac3b8",
+          "500": "#4db6ac",
+          "600": "#279b8f",
+          "700": "#00796b"
+        }
+      }
+    ]
+  },
+  {
+    "slug": "coral-sunset",
+    "name": "Coral & Sunset",
+    "hue": "Red",
+    "palettes": [
+      {
+        "slug": "coral-flame",
+        "name": "Coral Flame",
+        "steps": {
+          "50": "#fff1ed",
+          "125": "#ffdbd3",
+          "200": "#ffb4a6",
+          "300": "#ff8b79",
+          "400": "#fa6f5c",
+          "500": "#f15946",
+          "600": "#d72a1a",
+          "700": "#bb0000"
+        }
+      },
+      {
+        "slug": "tangerine-sunset",
+        "name": "Tangerine Sunset",
+        "steps": {
+          "50": "#fff2e9",
+          "125": "#ffe1cc",
+          "200": "#ffc49f",
+          "300": "#ffa570",
+          "400": "#ff8f49",
+          "500": "#ff7f2a",
+          "600": "#e55a00",
+          "700": "#c24900"
+        }
+      },
+      {
+        "slug": "afterglow-magenta",
+        "name": "Afterglow Magenta",
+        "steps": {
+          "50": "#fff0f7",
+          "125": "#ffd8e7",
+          "200": "#feb0cb",
+          "300": "#f485af",
+          "400": "#ea699d",
+          "500": "#e0528f",
+          "600": "#c62474",
+          "700": "#a9005d"
+        }
+      },
+      {
+        "slug": "dusk-mauve",
+        "name": "Dusk Mauve",
+        "steps": {
+          "50": "#f8f5fb",
+          "125": "#e2dce7",
+          "200": "#bcb2c5",
+          "300": "#9789a3",
+          "400": "#7f6f8d",
+          "500": "#6c5b7b",
+          "600": "#534162",
+          "700": "#3e2c4c"
+        }
+      },
+      {
+        "slug": "twilight-navy",
+        "name": "Twilight Navy",
+        "steps": {
+          "50": "#f2f8fd",
+          "125": "#d2dfea",
+          "200": "#9fb5c8",
+          "300": "#6d8ba7",
+          "400": "#4d7190",
+          "500": "#355c7d",
+          "600": "#164265",
+          "700": "#002d4f"
+        }
+      }
+    ]
+  },
+  {
+    "slug": "mustard-saffron",
+    "name": "Mustard & Saffron",
+    "hue": "Green",
+    "palettes": [
+      {
+        "slug": "corn",
+        "name": "Corn",
+        "steps": {
+          "50": "#f8f7e9",
+          "125": "#f6f3d3",
+          "200": "#f6f0b1",
+          "300": "#f2e882",
+          "400": "#f0e368",
+          "500": "#ebdc4a",
+          "600": "#958901",
+          "700": "#746b03"
+        }
+      },
+      {
+        "slug": "saffron",
+        "name": "Saffron",
+        "steps": {
+          "50": "#faf5e9",
+          "125": "#f7ebcd",
+          "200": "#f1da9f",
+          "300": "#ebc766",
+          "400": "#e4ba3e",
+          "500": "#dcae0b",
+          "600": "#a48106",
+          "700": "#816501"
+        }
+      },
+      {
+        "slug": "mustard",
+        "name": "Mustard",
+        "steps": {
+          "50": "#f9f6ea",
+          "125": "#f8efd2",
+          "200": "#f8e7ae",
+          "300": "#f5da7d",
+          "400": "#f2d261",
+          "500": "#ecc942",
+          "600": "#a08403",
+          "700": "#7d6700"
+        }
+      },
+      {
+        "slug": "turmeric",
+        "name": "Turmeric",
+        "steps": {
+          "50": "#faf5ec",
+          "125": "#f0e4ce",
+          "200": "#ddc69d",
+          "300": "#cba866",
+          "400": "#bc9443",
+          "500": "#b18420",
+          "600": "#926a00",
+          "700": "#795702"
+        }
+      },
+      {
+        "slug": "topaz",
+        "name": "Topaz",
+        "steps": {
+          "50": "#fbf5ed",
+          "125": "#f9ebd8",
+          "200": "#f8dcb8",
+          "300": "#f4ca92",
+          "400": "#f0bf7c",
+          "500": "#eab468",
+          "600": "#b07a21",
+          "700": "#8e5e00"
+        }
+      }
+    ]
+  },
+  {
+    "slug": "slate-steel",
+    "name": "Slate & Steel",
+    "hue": "Blue",
+    "palettes": [
+      {
+        "slug": "cool-steel",
+        "name": "Cool Steel",
+        "steps": {
+          "50": "#f0f4f8",
+          "125": "#e2eaf2",
+          "200": "#cbd5e1",
+          "300": "#a8b8cc",
+          "400": "#8498b0",
+          "500": "#64748b",
+          "600": "#475569",
+          "700": "#334155"
+        }
+      },
+      {
+        "slug": "industrial-slate",
+        "name": "Industrial Slate",
+        "steps": {
+          "50": "#f1f5f9",
+          "125": "#e5e9f0",
+          "200": "#d1d5db",
+          "300": "#9ca3af",
+          "400": "#828b99",
+          "500": "#6b7280",
+          "600": "#4b5563",
+          "700": "#374151"
+        }
+      },
+      {
+        "slug": "graphite-mist",
+        "name": "Graphite Mist",
+        "steps": {
+          "50": "#f3f4f6",
+          "125": "#ebecef",
+          "200": "#e5e7eb",
+          "300": "#d1d5db",
+          "400": "#b8bec8",
+          "500": "#9ca3af",
+          "600": "#6b7280",
+          "700": "#4b5563"
+        }
+      },
+      {
+        "slug": "stormy-zinc",
+        "name": "Stormy Zinc",
+        "steps": {
+          "50": "#f2f4f5",
+          "125": "#e4e8ea",
+          "200": "#d3d7d9",
+          "300": "#b0b8bc",
+          "400": "#97a0a4",
+          "500": "#7e888c",
+          "600": "#606a6e",
+          "700": "#454d50"
+        }
+      },
+      {
+        "slug": "pewter-haze",
+        "name": "Pewter Haze",
+        "steps": {
+          "50": "#f4f5f6",
+          "125": "#e7e9eb",
+          "200": "#d9dbdd",
+          "300": "#b5b9bc",
+          "400": "#a0a4a8",
+          "500": "#8c9295",
+          "600": "#6d7478",
+          "700": "#505659"
+        }
+      }
+    ]
+  },
+  {
+    "slug": "pink-red",
+    "name": "Pink & Red",
+    "hue": "Red",
+    "palettes": [
+      {
+        "slug": "cotton-candy-pink",
+        "name": "Cotton Candy Pink",
+        "steps": {
+          "50": "#fff0f5",
+          "125": "#ffe2ec",
+          "200": "#ffb7ce",
+          "300": "#ff9eb8",
+          "400": "#ff8fa8",
+          "500": "#ff80a5",
+          "600": "#e85e87",
+          "700": "#d84b75"
+        }
+      },
+      {
+        "slug": "blush-rose",
+        "name": "Blush Rose",
+        "steps": {
+          "50": "#fff5f5",
+          "125": "#fde8e8",
+          "200": "#fbc4c4",
+          "300": "#f8a5a5",
+          "400": "#f69090",
+          "500": "#f47c7c",
+          "600": "#dd6161",
+          "700": "#c64747"
+        }
+      },
+      {
+        "slug": "sweet-flamingo",
+        "name": "Sweet Flamingo",
+        "steps": {
+          "50": "#fff0f2",
+          "125": "#ffe1e6",
+          "200": "#ffaec1",
+          "300": "#ff8da9",
+          "400": "#ff7ca0",
+          "500": "#ff6b8b",
+          "600": "#ea4f73",
+          "700": "#d13b5f"
+        }
+      },
+      {
+        "slug": "pastel-salmon",
+        "name": "Pastel Salmon",
+        "steps": {
+          "50": "#fff2eb",
+          "125": "#ffe5d9",
+          "200": "#ffc4a8",
+          "300": "#ffaa88",
+          "400": "#ff9a74",
+          "500": "#ff8a65",
+          "600": "#e86e46",
+          "700": "#d8532b"
+        }
+      },
+      {
+        "slug": "muted-coral",
+        "name": "Muted Coral",
+        "steps": {
+          "50": "#fff5f2",
+          "125": "#ffe8e0",
+          "200": "#ffc8b4",
+          "300": "#ffa692",
+          "400": "#ff9b81",
+          "500": "#ff9175",
+          "600": "#e67558",
+          "700": "#cd5235"
+        }
+      }
+    ]
+  },
+  {
+    "slug": "gold-brass",
+    "name": "Gold & Brass",
+    "hue": "Green",
+    "palettes": [
+      {
+        "slug": "champagne",
+        "name": "Champagne",
+        "steps": {
+          "50": "#f8f5f1",
+          "125": "#f7f0e5",
+          "200": "#f9ebd5",
+          "300": "#f6e1bf",
+          "400": "#f5dcb5",
+          "500": "#efd4a8",
+          "600": "#9d8256",
+          "700": "#7f6437"
+        }
+      },
+      {
+        "slug": "old-gold",
+        "name": "Old Gold",
+        "steps": {
+          "50": "#f8f6eb",
+          "125": "#f0eacf",
+          "200": "#e2d6a2",
+          "300": "#d4c06c",
+          "400": "#c9b24a",
+          "500": "#bfa525",
+          "600": "#9c8500",
+          "700": "#7b6800"
+        }
+      },
+      {
+        "slug": "antique-gold",
+        "name": "Antique Gold",
+        "steps": {
+          "50": "#f9f6eb",
+          "125": "#ede5cb",
+          "200": "#d7c795",
+          "300": "#c2a959",
+          "400": "#b2942e",
+          "500": "#a48505",
+          "600": "#856b02",
+          "700": "#6d5802"
+        }
+      },
+      {
+        "slug": "brass",
+        "name": "Brass",
+        "steps": {
+          "50": "#f7f6ec",
+          "125": "#ebe8d0",
+          "200": "#d6cfa2",
+          "300": "#c1b66e",
+          "400": "#b2a44e",
+          "500": "#a59630",
+          "600": "#8a7b02",
+          "700": "#736703"
+        }
+      },
+      {
+        "slug": "pale-gold",
+        "name": "Pale Gold",
+        "steps": {
+          "50": "#faf5ef",
+          "125": "#f5eadd",
+          "200": "#eed9c0",
+          "300": "#e5c69e",
+          "400": "#ddb98b",
+          "500": "#d5ae7a",
+          "600": "#a67e48",
+          "700": "#886026"
+        }
+      },
+      {
+        "slug": "goldstar-gold",
+        "name": "Goldstar Gold",
+        "steps": {
+          "50": "#fff8e1",
+          "125": "#fdefc0",
+          "200": "#f9e391",
+          "300": "#f3d563",
+          "400": "#eeca45",
+          "500": "#e8c02f",
+          "600": "#b08f14",
+          "700": "#7a5a00"
+        }
+      }
+    ]
+  },
+  {
+    "slug": "cobalt-sapphire",
+    "name": "Cobalt & Sapphire",
+    "hue": "Blue",
+    "palettes": [
+      {
+        "slug": "cornflower",
+        "name": "Cornflower",
+        "steps": {
+          "50": "#f1f6fe",
+          "125": "#e6effe",
+          "200": "#d7e5fe",
+          "300": "#c2d8ff",
+          "400": "#b5d0ff",
+          "500": "#a7c7fe",
+          "600": "#5183df",
+          "700": "#3264c1"
+        }
+      },
+      {
+        "slug": "azure",
+        "name": "Azure",
+        "steps": {
+          "50": "#f0f6ff",
+          "125": "#e1edfe",
+          "200": "#cae0ff",
+          "300": "#aed0fe",
+          "400": "#9bc5ff",
+          "500": "#89bbfe",
+          "600": "#2f84ef",
+          "700": "#0165cd"
+        }
+      },
+      {
+        "slug": "sapphire",
+        "name": "Sapphire",
+        "steps": {
+          "50": "#f1f6ff",
+          "125": "#dae8ff",
+          "200": "#b4d0fe",
+          "300": "#8bb7fe",
+          "400": "#6fa5fe",
+          "500": "#5695ff",
+          "600": "#3578e6",
+          "700": "#1a61d1"
+        }
+      },
+      {
+        "slug": "navy",
+        "name": "Navy",
+        "steps": {
+          "50": "#f1f6ff",
+          "125": "#d2e1ff",
+          "200": "#9fbbf2",
+          "300": "#6e96e9",
+          "400": "#507bda",
+          "500": "#3a67d0",
+          "600": "#1e49b7",
+          "700": "#0931a3"
+        }
+      },
+      {
+        "slug": "royal-blue",
+        "name": "Royal Blue",
+        "steps": {
+          "50": "#f2f6ff",
+          "125": "#e2eafe",
+          "200": "#c8d8fe",
+          "300": "#abc4fe",
+          "400": "#98b6fe",
+          "500": "#86a9ff",
+          "600": "#547df1",
+          "700": "#375dd3"
+        }
+      }
+    ]
+  },
+  {
+    "slug": "ruby-garnet",
+    "name": "Ruby & Garnet",
+    "hue": "Red",
+    "palettes": [
+      {
+        "slug": "rosewood",
+        "name": "Rosewood",
+        "steps": {
+          "50": "#fef3f2",
+          "125": "#f7d9d6",
+          "200": "#e3ada8",
+          "300": "#d1817b",
+          "400": "#be645e",
+          "500": "#b14f4a",
+          "600": "#96302f",
+          "700": "#81141a"
+        }
+      },
+      {
+        "slug": "carmine",
+        "name": "Carmine",
+        "steps": {
+          "50": "#fef3f2",
+          "125": "#ffddd9",
+          "200": "#feb6b0",
+          "300": "#f88d87",
+          "400": "#ee736e",
+          "500": "#e55d5a",
+          "600": "#c93a3d",
+          "700": "#b31725"
+        }
+      },
+      {
+        "slug": "ruby",
+        "name": "Ruby",
+        "steps": {
+          "50": "#fef2f4",
+          "125": "#fee7ea",
+          "200": "#ffd5db",
+          "300": "#febfc9",
+          "400": "#feb1bd",
+          "500": "#fea1b1",
+          "600": "#db4b6f",
+          "700": "#ba2252"
+        }
+      },
+      {
+        "slug": "garnet",
+        "name": "Garnet",
+        "steps": {
+          "50": "#fcf3f3",
+          "125": "#f4e0de",
+          "200": "#e5bfbd",
+          "300": "#d59e9b",
+          "400": "#c78885",
+          "500": "#bb7774",
+          "600": "#a15b59",
+          "700": "#8c4645"
+        }
+      },
+      {
+        "slug": "mahogany",
+        "name": "Mahogany",
+        "steps": {
+          "50": "#fef3ef",
+          "125": "#ffe6dd",
+          "200": "#fed1c2",
+          "300": "#feb8a0",
+          "400": "#fea688",
+          "500": "#fe9470",
+          "600": "#dc551f",
+          "700": "#b33b00"
+        }
+      }
+    ]
+  },
+  {
+    "slug": "vanilla-cream",
+    "name": "Vanilla & Cream",
+    "hue": "Green",
+    "palettes": [
+      {
+        "slug": "pearl",
+        "name": "Pearl",
+        "steps": {
+          "50": "#f7f6f1",
+          "125": "#eeeadf",
+          "200": "#e0d7c2",
+          "300": "#d0c2a3",
+          "400": "#c4b590",
+          "500": "#baa980",
+          "600": "#96845a",
+          "700": "#78673c"
+        }
+      },
+      {
+        "slug": "vanilla",
+        "name": "Vanilla",
+        "steps": {
+          "50": "#f7f6f0",
+          "125": "#efebde",
+          "200": "#e1dbc2",
+          "300": "#d2c9a1",
+          "400": "#c8bd8f",
+          "500": "#beb27e",
+          "600": "#938651",
+          "700": "#766931"
+        }
+      },
+      {
+        "slug": "cream",
+        "name": "Cream",
+        "steps": {
+          "50": "#f6f6f0",
+          "125": "#f3f3e5",
+          "200": "#f1f0d6",
+          "300": "#ebe9c0",
+          "400": "#e8e6b6",
+          "500": "#e2dfa9",
+          "600": "#8c8953",
+          "700": "#6f6b34"
+        }
+      },
+      {
+        "slug": "alabaster",
+        "name": "Alabaster",
+        "steps": {
+          "50": "#f6f6f4",
+          "125": "#f0efea",
+          "200": "#e7e5dc",
+          "300": "#dcd9ca",
+          "400": "#d5d1c0",
+          "500": "#ccc8b5",
+          "600": "#8b8774",
+          "700": "#6d6956"
+        }
+      },
+      {
+        "slug": "chiffon",
+        "name": "Chiffon",
+        "steps": {
+          "50": "#f8f6f0",
+          "125": "#ece6d9",
+          "200": "#d7cdb4",
+          "300": "#c3b38e",
+          "400": "#b3a176",
+          "500": "#a79463",
+          "600": "#8d7845",
+          "700": "#79642e"
+        }
+      }
+    ]
+  },
+  {
+    "slug": "navy-indigo",
+    "name": "Navy & Indigo",
+    "hue": "Blue",
+    "palettes": [
+      {
+        "slug": "denim",
+        "name": "Denim",
+        "steps": {
+          "50": "#f1f6fe",
+          "125": "#e2eeff",
+          "200": "#cbe1ff",
+          "300": "#b0d1ff",
+          "400": "#9fc7ff",
+          "500": "#8dbcff",
+          "600": "#3884eb",
+          "700": "#0a64cc"
+        }
+      },
+      {
+        "slug": "cobalt",
+        "name": "Cobalt",
+        "steps": {
+          "50": "#f1f6ff",
+          "125": "#dce9ff",
+          "200": "#bad4fe",
+          "300": "#95bdfe",
+          "400": "#7badfe",
+          "500": "#649fff",
+          "600": "#3c80ef",
+          "700": "#1962d2"
+        }
+      },
+      {
+        "slug": "lapis",
+        "name": "Lapis",
+        "steps": {
+          "50": "#f0f7fe",
+          "125": "#dfedfe",
+          "200": "#c3dfff",
+          "300": "#a4cffe",
+          "400": "#8ec4ff",
+          "500": "#7db9fa",
+          "600": "#4b8acc",
+          "700": "#286bad"
+        }
+      },
+      {
+        "slug": "midnight",
+        "name": "Midnight",
+        "steps": {
+          "50": "#f3f5fe",
+          "125": "#d8e0fa",
+          "200": "#acb9ea",
+          "300": "#8294dd",
+          "400": "#6779cd",
+          "500": "#5566c2",
+          "600": "#3d4aa9",
+          "700": "#2c3495"
+        }
+      },
+      {
+        "slug": "indigo",
+        "name": "Indigo",
+        "steps": {
+          "50": "#f7f4fe",
+          "125": "#e8ddfd",
+          "200": "#ceb7f3",
+          "300": "#b491ea",
+          "400": "#a277dd",
+          "500": "#9463d4",
+          "600": "#7b44bb",
+          "700": "#682aa7"
+        }
+      }
+    ]
+  },
+  {
+    "slug": "bronze-copper",
+    "name": "Bronze & Copper",
+    "hue": "Red",
+    "palettes": [
+      {
+        "slug": "penny",
+        "name": "Penny",
+        "steps": {
+          "50": "#fcf4f3",
+          "125": "#f8e6e3",
+          "200": "#f2cfcb",
+          "300": "#ebb6b1",
+          "400": "#e3a7a1",
+          "500": "#db9993",
+          "600": "#b4726b",
+          "700": "#95544e"
+        }
+      },
+      {
+        "slug": "copper",
+        "name": "Copper",
+        "steps": {
+          "50": "#fdf4ed",
+          "125": "#fbe7d7",
+          "200": "#f9d3b5",
+          "300": "#f4bb8d",
+          "400": "#efad75",
+          "500": "#e89f61",
+          "600": "#bb722c",
+          "700": "#9a5502"
+        }
+      },
+      {
+        "slug": "bronze",
+        "name": "Bronze",
+        "steps": {
+          "50": "#fdf4ec",
+          "125": "#feeada",
+          "200": "#ffddc2",
+          "300": "#ffcba0",
+          "400": "#ffc08a",
+          "500": "#feb370",
+          "600": "#c16f0f",
+          "700": "#995605"
+        }
+      },
+      {
+        "slug": "rust",
+        "name": "Rust",
+        "steps": {
+          "50": "#fff3ef",
+          "125": "#feded3",
+          "200": "#fbbaa4",
+          "300": "#f49473",
+          "400": "#ea7b55",
+          "500": "#e1673c",
+          "600": "#c5460f",
+          "700": "#a73701"
+        }
+      },
+      {
+        "slug": "auburn",
+        "name": "Auburn",
+        "steps": {
+          "50": "#fff3f1",
+          "125": "#fdd9d5",
+          "200": "#f1aea7",
+          "300": "#e4827a",
+          "400": "#d5645d",
+          "500": "#c94d48",
+          "600": "#ae292a",
+          "700": "#960214"
+        }
+      }
+    ]
+  },
+  {
+    "slug": "olive-khaki",
+    "name": "Olive & Khaki",
+    "hue": "Green",
+    "palettes": [
+      {
+        "slug": "khaki",
+        "name": "Khaki",
+        "steps": {
+          "50": "#f8f5f0",
+          "125": "#f6eee2",
+          "200": "#f4e5ce",
+          "300": "#efd8b4",
+          "400": "#ebd1a6",
+          "500": "#e5c899",
+          "600": "#9e8151",
+          "700": "#806431"
+        }
+      },
+      {
+        "slug": "drab",
+        "name": "Drab",
+        "steps": {
+          "50": "#faf5ed",
+          "125": "#ede2cf",
+          "200": "#d5c29c",
+          "300": "#bfa267",
+          "400": "#ae8c44",
+          "500": "#a17b26",
+          "600": "#846105",
+          "700": "#6b4f02"
+        }
+      },
+      {
+        "slug": "olive-drab",
+        "name": "Olive Drab",
+        "steps": {
+          "50": "#f3f8ed",
+          "125": "#dfead1",
+          "200": "#bed2a2",
+          "300": "#9dba6f",
+          "400": "#87a84f",
+          "500": "#779b33",
+          "600": "#5d7f03",
+          "700": "#4c6904"
+        }
+      },
+      {
+        "slug": "camouflage",
+        "name": "Camouflage",
+        "steps": {
+          "50": "#f4f7f1",
+          "125": "#e1e8db",
+          "200": "#c2cfb7",
+          "300": "#a3b592",
+          "400": "#8ea37a",
+          "500": "#7f9668",
+          "600": "#647b4c",
+          "700": "#506737"
+        }
+      },
+      {
+        "slug": "lichen",
+        "name": "Lichen",
+        "steps": {
+          "50": "#f3f7f3",
+          "125": "#e7f2e7",
+          "200": "#d7ebd7",
+          "300": "#c2e1c2",
+          "400": "#b7dbb7",
+          "500": "#abd3ab",
+          "600": "#6a926a",
+          "700": "#4c754d"
+        }
+      }
+    ]
+  },
+  {
+    "slug": "purple-lavender",
+    "name": "Purple & Lavender",
+    "hue": "Blue",
+    "palettes": [
+      {
+        "slug": "lilac-petal",
+        "name": "Lilac Petal",
+        "steps": {
+          "50": "#f3e5f5",
+          "125": "#e8d0ec",
+          "200": "#ce93d8",
+          "300": "#c47ee0",
+          "400": "#bd70d6",
+          "500": "#ba68c8",
+          "600": "#9c3db0",
+          "700": "#7b1fa2"
+        }
+      },
+      {
+        "slug": "lavender-haze",
+        "name": "Lavender Haze",
+        "steps": {
+          "50": "#f5f3ff",
+          "125": "#ece9ff",
+          "200": "#ddd6fe",
+          "300": "#c4b5fd",
+          "400": "#b4a0fc",
+          "500": "#a78bfa",
+          "600": "#8b5cf6",
+          "700": "#6d28d9"
+        }
+      },
+      {
+        "slug": "orchid-whisper",
+        "name": "Orchid Whisper",
+        "steps": {
+          "50": "#faf5ff",
+          "125": "#f3e8ff",
+          "200": "#e9d5ff",
+          "300": "#d8b4fe",
+          "400": "#cca1fe",
+          "500": "#c084fc",
+          "600": "#a855f7",
+          "700": "#7e22ce"
+        }
+      },
+      {
+        "slug": "sweet-plum",
+        "name": "Sweet Plum",
+        "steps": {
+          "50": "#fff0f6",
+          "125": "#ffe1ee",
+          "200": "#ffd6e8",
+          "300": "#ffa8d0",
+          "400": "#fa8cbe",
+          "500": "#f472b6",
+          "600": "#db3a8b",
+          "700": "#be185d"
+        }
+      },
+      {
+        "slug": "wisteria-dream",
+        "name": "Wisteria Dream",
+        "steps": {
+          "50": "#f8f7ff",
+          "125": "#ebe9fe",
+          "200": "#d6d1fa",
+          "300": "#bab2f9",
+          "400": "#b0a7f9",
+          "500": "#a399fa",
+          "600": "#8172f2",
+          "700": "#6255d9"
+        }
+      }
+    ]
+  },
+  {
+    "slug": "earthy-neutral-pastels",
+    "name": "Earthy & Neutral Pastels",
+    "hue": "Red",
+    "palettes": [
+      {
+        "slug": "dusty-rose-mauve",
+        "name": "Dusty Rose Mauve",
+        "steps": {
+          "50": "#fdf8f7",
+          "125": "#f5eae8",
+          "200": "#ead5d3",
+          "300": "#d8b8b4",
+          "400": "#cfa6a2",
+          "500": "#c39b97",
+          "600": "#a87874",
+          "700": "#8e615d"
+        }
+      },
+      {
+        "slug": "warm-sand",
+        "name": "Warm Sand",
+        "steps": {
+          "50": "#faf7f2",
+          "125": "#f0eae1",
+          "200": "#e6dcd2",
+          "300": "#d2c4b7",
+          "400": "#c5b5a7",
+          "500": "#bcaba0",
+          "600": "#a08d80",
+          "700": "#8a7366"
+        }
+      },
+      {
+        "slug": "muted-clay",
+        "name": "Muted Clay",
+        "steps": {
+          "50": "#fbf7f5",
+          "125": "#efeae6",
+          "200": "#e3d3cb",
+          "300": "#cfb8ae",
+          "400": "#c4aba0",
+          "500": "#ba9e93",
+          "600": "#a07f73",
+          "700": "#8a6559"
+        }
+      },
+      {
+        "slug": "foggy-gray",
+        "name": "Foggy Gray",
+        "steps": {
+          "50": "#f4f6f7",
+          "125": "#e8ecee",
+          "200": "#d5dbdb",
+          "300": "#bcc3c4",
+          "400": "#b2b9ba",
+          "500": "#a6acaf",
+          "600": "#7d8688",
+          "700": "#616a6b"
+        }
+      },
+      {
+        "slug": "vanilla-latte",
+        "name": "Vanilla Latte",
+        "steps": {
+          "50": "#faf6f0",
+          "125": "#f4ebe0",
+          "200": "#efe3d3",
+          "300": "#e2ceb6",
+          "400": "#dcc3a8",
+          "500": "#d4bfa7",
+          "600": "#b59c7e",
+          "700": "#947a5c"
+        }
+      }
+    ]
+  },
+  {
+    "slug": "forest-moss",
+    "name": "Forest & Moss",
+    "hue": "Green",
+    "palettes": [
+      {
+        "slug": "fern",
+        "name": "Fern",
+        "steps": {
+          "50": "#f2f8f1",
+          "125": "#e2eedf",
+          "200": "#c8e0c2",
+          "300": "#accfa2",
+          "400": "#9bc38f",
+          "500": "#8cb97e",
+          "600": "#679559",
+          "700": "#48773a"
+        }
+      },
+      {
+        "slug": "pine",
+        "name": "Pine",
+        "steps": {
+          "50": "#eff8f6",
+          "125": "#d9efeb",
+          "200": "#b4dfd9",
+          "300": "#8acfc5",
+          "400": "#70c2b7",
+          "500": "#59b7ac",
+          "600": "#2d998e",
+          "700": "#077970"
+        }
+      },
+      {
+        "slug": "hunter-green",
+        "name": "Hunter Green",
+        "steps": {
+          "50": "#f2f7f3",
+          "125": "#dce8dd",
+          "200": "#b7ccb9",
+          "300": "#92b295",
+          "400": "#7a9f7e",
+          "500": "#68916d",
+          "600": "#4c7652",
+          "700": "#37633e"
+        }
+      },
+      {
+        "slug": "olive",
+        "name": "Olive",
+        "steps": {
+          "50": "#f6f7ec",
+          "125": "#eef0d7",
+          "200": "#e4e6b5",
+          "300": "#d6d88c",
+          "400": "#ced075",
+          "500": "#c5c65f",
+          "600": "#8c8c04",
+          "700": "#6e6e00"
+        }
+      },
+      {
+        "slug": "juniper",
+        "name": "Juniper",
+        "steps": {
+          "50": "#f4f7f0",
+          "125": "#dde5d4",
+          "200": "#b6c6a5",
+          "300": "#91a876",
+          "400": "#789258",
+          "500": "#668242",
+          "600": "#4c6823",
+          "700": "#395404"
+        }
+      }
+    ]
+  },
+  {
+    "slug": "lilac-orchid",
+    "name": "Lilac & Orchid",
+    "hue": "Blue",
+    "palettes": [
+      {
+        "slug": "heather",
+        "name": "Heather",
+        "steps": {
+          "50": "#f7f4ff",
+          "125": "#e7e0fc",
+          "200": "#ccbdf3",
+          "300": "#b29aeb",
+          "400": "#a083df",
+          "500": "#9371d6",
+          "600": "#7953bd",
+          "700": "#663ca9"
+        }
+      },
+      {
+        "slug": "lavender",
+        "name": "Lavender",
+        "steps": {
+          "50": "#f5f5f9",
+          "125": "#f0f0fa",
+          "200": "#ebebfd",
+          "300": "#e1e1fc",
+          "400": "#dcdcfc",
+          "500": "#d4d4f7",
+          "600": "#8382a4",
+          "700": "#666587"
+        }
+      },
+      {
+        "slug": "lilac",
+        "name": "Lilac",
+        "steps": {
+          "50": "#f9f4f9",
+          "125": "#f0e5f0",
+          "200": "#e1cde1",
+          "300": "#d2b3d1",
+          "400": "#c6a2c6",
+          "500": "#bb95bb",
+          "600": "#9e779e",
+          "700": "#805981"
+        }
+      },
+      {
+        "slug": "orchid",
+        "name": "Orchid",
+        "steps": {
+          "50": "#fdf2fc",
+          "125": "#f8dcf5",
+          "200": "#ecb9e8",
+          "300": "#e093dc",
+          "400": "#d47bd0",
+          "500": "#ca68c6",
+          "600": "#ae48ac",
+          "700": "#992d97"
+        }
+      },
+      {
+        "slug": "wisteria",
+        "name": "Wisteria",
+        "steps": {
+          "50": "#f8f4fb",
+          "125": "#f0e5f5",
+          "200": "#e1cceb",
+          "300": "#d2b2e1",
+          "400": "#c6a1d7",
+          "500": "#bb93ce",
+          "600": "#9d73b0",
+          "700": "#7f5592"
+        }
+      }
+    ]
+  },
+  {
+    "slug": "amber-ochre",
+    "name": "Amber & Ochre",
+    "hue": "Red",
+    "palettes": [
+      {
+        "slug": "golden-honey",
+        "name": "Golden Honey",
+        "steps": {
+          "50": "#fffdf0",
+          "125": "#fffac2",
+          "200": "#fcefa8",
+          "300": "#fce375",
+          "400": "#f8da5b",
+          "500": "#f5d042",
+          "600": "#dca922",
+          "700": "#c29b14"
+        }
+      },
+      {
+        "slug": "warm-ochre",
+        "name": "Warm Ochre",
+        "steps": {
+          "50": "#fffbf0",
+          "125": "#faf1dc",
+          "200": "#f5dcb0",
+          "300": "#eec88b",
+          "400": "#eaba70",
+          "500": "#e6a85c",
+          "600": "#cc8a3f",
+          "700": "#b37122"
+        }
+      },
+      {
+        "slug": "burnt-sienna",
+        "name": "Burnt Sienna",
+        "steps": {
+          "50": "#fff5f0",
+          "125": "#f7e2d8",
+          "200": "#eed0c2",
+          "300": "#e2b09c",
+          "400": "#d99b81",
+          "500": "#d1866b",
+          "600": "#b36a4e",
+          "700": "#9e4f32"
+        }
+      },
+      {
+        "slug": "terracotta-dust",
+        "name": "Terracotta Dust",
+        "steps": {
+          "50": "#faf3f0",
+          "125": "#efe4df",
+          "200": "#dfbcad",
+          "300": "#cf9d87",
+          "400": "#c28c76",
+          "500": "#b57d65",
+          "600": "#96614c",
+          "700": "#7a4936"
+        }
+      },
+      {
+        "slug": "rust-glow",
+        "name": "Rust Glow",
+        "steps": {
+          "50": "#fff3ed",
+          "125": "#fae2d8",
+          "200": "#f5c4b3",
+          "300": "#eea289",
+          "400": "#e68e73",
+          "500": "#e07a5f",
+          "600": "#c25c3e",
+          "700": "#a84524"
+        }
+      }
+    ]
+  },
+  {
+    "slug": "green",
+    "name": "Green",
+    "hue": "Green",
+    "palettes": [
+      {
+        "slug": "matcha-latte",
+        "name": "Matcha Latte",
+        "steps": {
+          "50": "#f4f9f4",
+          "125": "#e2f0e2",
+          "200": "#c8e6c9",
+          "300": "#a8dca9",
+          "400": "#93d295",
+          "500": "#81c784",
+          "600": "#5bb05e",
+          "700": "#388e3c"
+        }
+      },
+      {
+        "slug": "mint-foam",
+        "name": "Mint Foam",
+        "steps": {
+          "50": "#e8f8f5",
+          "125": "#d0f2ec",
+          "200": "#a3e4d7",
+          "300": "#7ad9c3",
+          "400": "#5dcfba",
+          "500": "#48c9b0",
+          "600": "#32a892",
+          "700": "#1abc9c"
+        }
+      },
+      {
+        "slug": "pistachio-cream",
+        "name": "Pistachio Cream",
+        "steps": {
+          "50": "#f1f8e9",
+          "125": "#e3f1d5",
+          "200": "#c5e1a5",
+          "300": "#b1d888",
+          "400": "#a5d277",
+          "500": "#9ccc65",
+          "600": "#80b245",
+          "700": "#689f38"
+        }
+      },
+      {
+        "slug": "soft-sage",
+        "name": "Soft Sage",
+        "steps": {
+          "50": "#f2f4f3",
+          "125": "#e5e9e7",
+          "200": "#c2d1c6",
+          "300": "#a8bcae",
+          "400": "#9ab09e",
+          "500": "#8fa89b",
+          "600": "#6d877a",
+          "700": "#5a7367"
+        }
+      },
+      {
+        "slug": "pale-olive",
+        "name": "Pale Olive",
+        "steps": {
+          "50": "#f9fbe7",
+          "125": "#f1f5cd",
+          "200": "#e6ee9c",
+          "300": "#dbe66b",
+          "400": "#d8e460",
+          "500": "#d4e157",
+          "600": "#c2d038",
+          "700": "#afb42b"
+        }
+      }
+    ]
+  },
+  {
+    "slug": "plum-eggplant",
+    "name": "Plum & Eggplant",
+    "hue": "Blue",
+    "palettes": [
+      {
+        "slug": "mauve",
+        "name": "Mauve",
+        "steps": {
+          "50": "#f9f3fc",
+          "125": "#f7ebff",
+          "200": "#f3e2fe",
+          "300": "#edd3fe",
+          "400": "#eacbff",
+          "500": "#e5bffe",
+          "600": "#9f6ebd",
+          "700": "#81509f"
+        }
+      },
+      {
+        "slug": "boysenberry-plum",
+        "name": "Boysenberry Plum",
+        "steps": {
+          "50": "#fef2f7",
+          "125": "#f7dce8",
+          "200": "#e9b7cd",
+          "300": "#da91b4",
+          "400": "#cc79a1",
+          "500": "#c06693",
+          "600": "#a54879",
+          "700": "#903165"
+        }
+      },
+      {
+        "slug": "plum",
+        "name": "Plum",
+        "steps": {
+          "50": "#fcf2fa",
+          "125": "#f4dff0",
+          "200": "#e6bddf",
+          "300": "#d89bce",
+          "400": "#cb84c0",
+          "500": "#c073b5",
+          "600": "#a5559b",
+          "700": "#903f86"
+        }
+      },
+      {
+        "slug": "eggplant",
+        "name": "Eggplant",
+        "steps": {
+          "50": "#faf4f7",
+          "125": "#eddfe6",
+          "200": "#d6bbc8",
+          "300": "#c099ac",
+          "400": "#ae8198",
+          "500": "#a17189",
+          "600": "#87566f",
+          "700": "#73415c"
+        }
+      },
+      {
+        "slug": "fig",
+        "name": "Fig",
+        "steps": {
+          "50": "#fdf2f8",
+          "125": "#f1d9e7",
+          "200": "#d9aec9",
+          "300": "#c383ac",
+          "400": "#af6797",
+          "500": "#a15388",
+          "600": "#87366e",
+          "700": "#721e5b"
+        }
+      }
+    ]
+  },
+  {
+    "slug": "peach-apricot",
+    "name": "Peach & Apricot",
+    "hue": "Red",
+    "palettes": [
+      {
+        "slug": "cantaloupe",
+        "name": "Cantaloupe",
+        "steps": {
+          "50": "#fef3ee",
+          "125": "#f9e0d4",
+          "200": "#efbfa8",
+          "300": "#e49d7a",
+          "400": "#d7875e",
+          "500": "#ce7647",
+          "600": "#b35824",
+          "700": "#9c4302"
+        }
+      },
+      {
+        "slug": "apricot",
+        "name": "Apricot",
+        "steps": {
+          "50": "#faf4f1",
+          "125": "#f7e9e1",
+          "200": "#f1d8c9",
+          "300": "#eac4ac",
+          "400": "#e3b89c",
+          "500": "#dcac8e",
+          "600": "#aa7a5b",
+          "700": "#8b5c3c"
+        }
+      },
+      {
+        "slug": "melon",
+        "name": "Melon",
+        "steps": {
+          "50": "#fbf4f3",
+          "125": "#f6e6e4",
+          "200": "#eecfcb",
+          "300": "#e5b7b1",
+          "400": "#dca7a1",
+          "500": "#d39a93",
+          "600": "#af756e",
+          "700": "#905751"
+        }
+      },
+      {
+        "slug": "papaya",
+        "name": "Papaya",
+        "steps": {
+          "50": "#f8f5f0",
+          "125": "#f8f1e5",
+          "200": "#faecd5",
+          "300": "#f7e2c0",
+          "400": "#f6deb5",
+          "500": "#f1d6a9",
+          "600": "#9d8254",
+          "700": "#7f6435"
+        }
+      },
+      {
+        "slug": "mango",
+        "name": "Mango",
+        "steps": {
+          "50": "#fbf5ea",
+          "125": "#f5e6cc",
+          "200": "#eace9b",
+          "300": "#deb361",
+          "400": "#d4a239",
+          "500": "#c9930a",
+          "600": "#a77a02",
+          "700": "#876202"
+        }
+      }
+    ]
+  },
+  {
+    "slug": "mint-sage",
+    "name": "Mint & Sage",
+    "hue": "Green",
+    "palettes": [
+      {
+        "slug": "spearmint",
+        "name": "Spearmint",
+        "steps": {
+          "50": "#eef8f6",
+          "125": "#d7efe9",
+          "200": "#b0e0d4",
+          "300": "#82cfbe",
+          "400": "#66c2af",
+          "500": "#4bb7a2",
+          "600": "#149b86",
+          "700": "#057a69"
+        }
+      },
+      {
+        "slug": "celadon",
+        "name": "Celadon",
+        "steps": {
+          "50": "#f2f8f2",
+          "125": "#e7f5e8",
+          "200": "#d8f3d9",
+          "300": "#c4edc6",
+          "400": "#baeabc",
+          "500": "#aee3b1",
+          "600": "#609564",
+          "700": "#417846"
+        }
+      },
+      {
+        "slug": "eucalyptus",
+        "name": "Eucalyptus",
+        "steps": {
+          "50": "#f1f7f5",
+          "125": "#d9e8e1",
+          "200": "#b0ccc0",
+          "300": "#86b29f",
+          "400": "#6c9e89",
+          "500": "#579079",
+          "600": "#39765f",
+          "700": "#1f624b"
+        }
+      },
+      {
+        "slug": "pistachio",
+        "name": "Pistachio",
+        "steps": {
+          "50": "#f2f8ef",
+          "125": "#e4f1dc",
+          "200": "#cde7be",
+          "300": "#b4db9b",
+          "400": "#a5d288",
+          "500": "#97c976",
+          "600": "#64973f",
+          "700": "#467918"
+        }
+      },
+      {
+        "slug": "seafoam",
+        "name": "Seafoam",
+        "steps": {
+          "50": "#f1f8f4",
+          "125": "#e4f5ec",
+          "200": "#d3f3e1",
+          "300": "#bbeed2",
+          "400": "#afebcb",
+          "500": "#a1e4c1",
+          "600": "#519775",
+          "700": "#2e7958"
+        }
+      }
+    ]
+  },
+  {
+    "slug": "magenta-fuchsia",
+    "name": "Magenta & Fuchsia",
+    "hue": "Blue",
+    "palettes": [
+      {
+        "slug": "magenta",
+        "name": "Magenta",
+        "steps": {
+          "50": "#fdf2fc",
+          "125": "#fee3fc",
+          "200": "#ffccfb",
+          "300": "#feb0fa",
+          "400": "#faa0f7",
+          "500": "#f590f1",
+          "600": "#be57bb",
+          "700": "#9f339d"
+        }
+      },
+      {
+        "slug": "fuchsia",
+        "name": "Fuchsia",
+        "steps": {
+          "50": "#fdf2fc",
+          "125": "#f7dcf5",
+          "200": "#eab8e8",
+          "300": "#dd92dc",
+          "400": "#d07acf",
+          "500": "#c666c5",
+          "600": "#ab46ab",
+          "700": "#962c97"
+        }
+      },
+      {
+        "slug": "hot-pink",
+        "name": "Hot Pink",
+        "steps": {
+          "50": "#fef2f7",
+          "125": "#fee8f1",
+          "200": "#fedbe9",
+          "300": "#ffc8de",
+          "400": "#febdd8",
+          "500": "#ffaed1",
+          "600": "#d24e91",
+          "700": "#b22774"
+        }
+      },
+      {
+        "slug": "cerise",
+        "name": "Cerise",
+        "steps": {
+          "50": "#fef2f4",
+          "125": "#fed9dd",
+          "200": "#f6afb9",
+          "300": "#ec8295",
+          "400": "#df657d",
+          "500": "#d44e6c",
+          "600": "#b82851",
+          "700": "#9f033e"
+        }
+      },
+      {
+        "slug": "raspberry-pink",
+        "name": "Raspberry Pink",
+        "steps": {
+          "50": "#fef2f6",
+          "125": "#fedeea",
+          "200": "#febcd6",
+          "300": "#fb96c1",
+          "400": "#f37fb2",
+          "500": "#eb6ba6",
+          "600": "#cf498b",
+          "700": "#b32671"
+        }
+      }
+    ]
+  },
+  {
+    "slug": "coffee-mocha",
+    "name": "Coffee & Mocha",
+    "hue": "Red",
+    "palettes": [
+      {
+        "slug": "latte",
+        "name": "Latte",
+        "steps": {
+          "50": "#f9f5ee",
+          "125": "#f8eedc",
+          "200": "#f7e4c1",
+          "300": "#f3d5a0",
+          "400": "#f0cd8e",
+          "500": "#eac47c",
+          "600": "#a67f31",
+          "700": "#876204"
+        }
+      },
+      {
+        "slug": "cappuccino",
+        "name": "Cappuccino",
+        "steps": {
+          "50": "#faf4f1",
+          "125": "#f1e3db",
+          "200": "#dfc5b7",
+          "300": "#cda792",
+          "400": "#bf937b",
+          "500": "#b38469",
+          "600": "#99694d",
+          "700": "#845437"
+        }
+      },
+      {
+        "slug": "mocha",
+        "name": "Mocha",
+        "steps": {
+          "50": "#f8f5f0",
+          "125": "#e9e2d6",
+          "200": "#cec1aa",
+          "300": "#b4a27f",
+          "400": "#a18b63",
+          "500": "#937c4e",
+          "600": "#796131",
+          "700": "#654d19"
+        }
+      },
+      {
+        "slug": "espresso",
+        "name": "Espresso",
+        "steps": {
+          "50": "#faf5f0",
+          "125": "#ebe0d6",
+          "200": "#d2bdaa",
+          "300": "#ba9b7f",
+          "400": "#a78463",
+          "500": "#99744f",
+          "600": "#7f5932",
+          "700": "#6b451b"
+        }
+      },
+      {
+        "slug": "roast",
+        "name": "Roast",
+        "steps": {
+          "50": "#faf5f1",
+          "125": "#eaded6",
+          "200": "#cdb6a8",
+          "300": "#b2917b",
+          "400": "#9d775e",
+          "500": "#8e664a",
+          "600": "#754b2e",
+          "700": "#613819"
+        }
+      }
+    ]
+  },
+  {
+    "slug": "emerald-jade",
+    "name": "Emerald & Jade",
+    "hue": "Green",
+    "palettes": [
+      {
+        "slug": "mint",
+        "name": "Mint",
+        "steps": {
+          "50": "#eef9f3",
+          "125": "#d8f2e6",
+          "200": "#b5e8d0",
+          "300": "#89dbb8",
+          "400": "#6fd2a9",
+          "500": "#55c89c",
+          "600": "#089e73",
+          "700": "#067c59"
+        }
+      },
+      {
+        "slug": "malachite",
+        "name": "Malachite",
+        "steps": {
+          "50": "#eef9ef",
+          "125": "#ddf8df",
+          "200": "#c3f8c7",
+          "300": "#a0f4a9",
+          "400": "#8df099",
+          "500": "#79ea88",
+          "600": "#11a13c",
+          "700": "#007f2b"
+        }
+      },
+      {
+        "slug": "jade",
+        "name": "Jade",
+        "steps": {
+          "50": "#edf9f2",
+          "125": "#d4f1df",
+          "200": "#a9e2c0",
+          "300": "#75d2a0",
+          "400": "#53c58c",
+          "500": "#2dba7c",
+          "600": "#079c64",
+          "700": "#017d4f"
+        }
+      },
+      {
+        "slug": "emerald",
+        "name": "Emerald",
+        "steps": {
+          "50": "#eef9f0",
+          "125": "#dbf6e0",
+          "200": "#bdf3c9",
+          "300": "#96ecac",
+          "400": "#7fe69c",
+          "500": "#69df8d",
+          "600": "#07a150",
+          "700": "#027e3d"
+        }
+      },
+      {
+        "slug": "viridian",
+        "name": "Viridian",
+        "steps": {
+          "50": "#f1f8f5",
+          "125": "#d8e8e1",
+          "200": "#aeccc0",
+          "300": "#84b1a0",
+          "400": "#689d8a",
+          "500": "#538f7b",
+          "600": "#347460",
+          "700": "#19614d"
+        }
+      }
+    ]
+  },
+  {
+    "slug": "monochrome-charcoal",
+    "name": "Monochrome & Charcoal",
+    "hue": "Blue",
+    "palettes": [
+      {
+        "slug": "platinum",
+        "name": "Platinum",
+        "steps": {
+          "50": "#f6f6f5",
+          "125": "#f2f1ef",
+          "200": "#eeece9",
+          "300": "#e5e3de",
+          "400": "#e1ded8",
+          "500": "#dad7d0",
+          "600": "#89867f",
+          "700": "#6c6962"
+        }
+      },
+      {
+        "slug": "silver",
+        "name": "Silver",
+        "steps": {
+          "50": "#f6f6f5",
+          "125": "#efeeed",
+          "200": "#e5e4e3",
+          "300": "#d8d7d4",
+          "400": "#d0cfcc",
+          "500": "#c7c6c2",
+          "600": "#878683",
+          "700": "#6a6965"
+        }
+      },
+      {
+        "slug": "iron",
+        "name": "Iron",
+        "steps": {
+          "50": "#f7f6f3",
+          "125": "#eeece7",
+          "200": "#e0dcd3",
+          "300": "#d1cbbc",
+          "400": "#c7bfaf",
+          "500": "#bdb4a2",
+          "600": "#8e8573",
+          "700": "#706856"
+        }
+      },
+      {
+        "slug": "obsidian",
+        "name": "Obsidian",
+        "steps": {
+          "50": "#f6f6f5",
+          "125": "#dfdfde",
+          "200": "#b8b7b5",
+          "300": "#939290",
+          "400": "#797875",
+          "500": "#686764",
+          "600": "#4f4e4b",
+          "700": "#3d3b38"
+        }
+      },
+      {
+        "slug": "onyx",
+        "name": "Onyx",
+        "steps": {
+          "50": "#f5f6f6",
+          "125": "#e1e4e5",
+          "200": "#c0c5c7",
+          "300": "#9fa7aa",
+          "400": "#899295",
+          "500": "#7a8386",
+          "600": "#5f696c",
+          "700": "#4c5559"
+        }
+      }
+    ]
+  }
+]
