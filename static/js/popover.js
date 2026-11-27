@@ -90,6 +90,13 @@ export function openPopover({ title, body, anchor, form = true, pinKey = null, w
 
   // Escape closes unless pinned.
   dlg.addEventListener('cancel', (e) => { if (pinned) e.preventDefault(); });
+  // A non-modal dialog gets no cancel event from Escape, so close it here when the focus is inside.
+  dlg.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape' || pinned || e.defaultPrevented) return;
+    e.preventDefault();
+    e.stopPropagation();
+    close();
+  });
   // A non-form popover also closes on a press outside it (and outside its own button).
   const onOutside = (e) => {
     if (form || pinned || phone) return;

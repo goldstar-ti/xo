@@ -34,20 +34,39 @@ def node(pg, wid):
 
 
 def widget(pg, wid):
-    """The widget on the board (not its entry in the Add widget list)."""
+    """The widget on the board (not its tick in the Widgets popover)."""
     return pg.locator(f".xo-board [data-widget='{wid}']")
 
 
-def menu(pg, wid, item):
-    """Opens a widget's More menu and picks an item."""
+def tool(pg, wid, name):
+    """Runs a title bar tool: its icon button when the bar shows it, else the same item in More."""
+    w = widget(pg, wid)
+    w.hover()
+    btn = w.locator(".xo-w-tools").get_by_role("button", name=name, exact=True)
+    if btn.count() and btn.is_visible():
+        btn.click()
+        return
+    w.locator(".xo-w-more").click()
+    pg.get_by_role("menu").get_by_role("menuitem", name=name, exact=True).click()
+
+
+def more(pg, wid, item):
+    """Picks an item that only lives in the More menu (Move to canvas)."""
     widget(pg, wid).locator(".xo-w-more").click()
     pg.get_by_role("menu").get_by_role("menuitem", name=item, exact=True).click()
 
 
+def pop(pg):
+    """The open popover."""
+    return pg.locator("dialog.xo-pop[open]")
+
+
 def add(pg, name):
-    """Adds a widget through the Add widget list."""
-    pg.get_by_role("button", name="Add widget").click()
-    pg.locator("dialog[open]").get_by_role("button", name=name, exact=True).click()
+    """Puts a widget on the canvas by ticking it in the Widgets popover."""
+    pg.get_by_role("button", name="Widgets", exact=True).click()
+    pop(pg).get_by_role("checkbox", name=name, exact=True).check()
+    pop(pg).get_by_role("button", name="Close", exact=True).click()
+    expect(pop(pg)).to_have_count(0)
 
 
 def open_canvas(pg):
@@ -136,7 +155,7 @@ with sync_playwright() as p:
 
     # Fit to content: the whole body shows without a scroll bar. Ctrl+Z puts the old height back.
     tall = node(pg, "bills")["h"]
-    menu(pg, "bills", "Fit to content")
+    tool(pg, "bills", "Fit to content")
     pg.wait_for_function(
         "() => { const b = document.querySelector(\".xo-board [data-widget='bills'] .xo-w-body\");"
         " return b.scrollHeight <= b.clientHeight + 1; }"
@@ -147,29 +166,74 @@ with sync_playwright() as p:
     assert node(pg, "bills")["h"] == tall
 
     # Zoom: Bills alone until Esc.
-    menu(pg, "bills", "Zoom: this widget only")
+    tool(pg, "bills", "Zoom: this widget only")
     expect(widget(pg, "tasks")).to_be_hidden()
-    expect(pg.get_by_role("button", name="Leave zoom")).to_be_visible()
+    expect(pg.locator(".xo-canvas-tools").get_by_role("button", name="Leave zoom")).to_be_visible()
     pg.keyboard.press("Escape")
     expect(widget(pg, "tasks")).to_be_visible()
-    expect(pg.get_by_role("button", name="Leave zoom")).to_be_hidden()
+    expect(pg.locator(".xo-canvas-tools").get_by_role("button", name="Leave zoom")).to_be_hidden()
 
     # Focus on Tasks: it rolls down and Bills rolls up; Leave focus rolls Bills down again.
-    menu(pg, "tasks", "Focus: roll up the others")
+    tool(pg, "tasks", "Focus: roll up the others")
     expect(widget(pg, "tasks").locator(".xo-w-body")).to_be_visible()
     expect(widget(pg, "bills")).to_have_class(re.compile(r"\bxo-w-rolled\b"))
-    pg.get_by_role("button", name="Leave focus").click()
+    pg.locator(".xo-canvas-tools").get_by_role("button", name="Leave focus").click()
     expect(widget(pg, "bills")).not_to_have_class(re.compile(r"\bxo-w-rolled\b"))
 
     # Reset size: back to the registry's default.
-    menu(pg, "bills", "Reset size")
+    tool(pg, "bills", "Reset size")
     assert node(pg, "bills")["w"] == 8 and node(pg, "bills")["h"] == 16, node(pg, "bills")
     pg.screenshot(path=SHOTS / "canvas-desktop.png")
 
+    # Icons: the canvas bar's buttons hold an svg once the icon sets have loaded.
+    expect(pg.get_by_role("button", name="Fit all").locator("svg")).to_have_count(1)
+
+    # Redo: Undo puts the height back, Redo (Ctrl+Shift+Z) takes it forward again.
+    assert node(pg, "bills")["h"] == 16
+    tool(pg, "bills", "Fit to content")
+    fitted = node(pg, "bills")["h"]
+    assert fitted != 16
+    expect(pg.get_by_role("button", name="Redo")).to_be_disabled()
+    pg.get_by_role("button", name="Undo").click()
+    assert node(pg, "bills")["h"] == 16
+    expect(pg.get_by_role("button", name="Redo")).to_be_enabled()
+    pg.keyboard.press("Control+Shift+Z")
+    expect(pg.locator("#toast")).to_contain_text("Redone: fitting a widget.")
+    assert node(pg, "bills")["h"] == fitted
+    pg.keyboard.press("Control+z")
+    assert node(pg, "bills")["h"] == 16
+
+    # The Widgets popover: unticking takes a widget off but leaves its row; search filters the rows.
+    pg.get_by_role("button", name="Widgets", exact=True).click()
+    w = pop(pg)
+    expect(w.get_by_role("checkbox", name="Bills", exact=True)).to_be_checked()
+    w.get_by_role("checkbox", name="Bills", exact=True).uncheck()
+    expect(widget(pg, "bills")).to_have_count(0)
+    expect(w.get_by_role("checkbox", name="Bills", exact=True)).not_to_be_checked()
+    w.get_by_role("checkbox", name="Bills", exact=True).check()
+    expect(widget(pg, "bills")).to_have_count(1)
+    w.get_by_role("searchbox", name="Find a widget").fill("zzzz")
+    expect(w.get_by_text("No widget matches.")).to_be_visible()
+    expect(w.locator(".xo-wlist li:visible")).to_have_count(0)
+    w.get_by_role("searchbox", name="Find a widget").fill("bill")
+    expect(w.locator(".xo-wlist li:visible")).to_have_count(1)
+    pg.get_by_role("button", name="Widgets", exact=True).click()
+    expect(pop(pg)).to_have_count(0)
+    assert node(pg, "bills")["h"] == 16
+
+    # A form popover (New canvas) stays open through a click on the board and closes on Escape.
+    pg.get_by_role("button", name="New canvas").click()
+    expect(pop(pg)).to_have_count(1)
+    pg.locator(".xo-board").click(position={"x": 4, "y": 4})
+    expect(pop(pg)).to_have_count(1)
+    pop(pg).locator("#f-title").focus()
+    pg.keyboard.press("Escape")
+    expect(pop(pg)).to_have_count(0)
+
     # A second canvas: created, selected and empty; the arrow keys switch back.
     pg.get_by_role("button", name="New canvas").click()
-    pg.locator("dialog[open] #f-title").fill("Second")
-    pg.locator("dialog[open]").get_by_role("button", name="Create canvas").click()
+    pop(pg).locator("#f-title").fill("Second")
+    pop(pg).get_by_role("button", name="Create canvas").click()
     expect(tabs.get_by_role("tab")).to_have_count(2)
     expect(tabs.get_by_role("tab", name="Second")).to_have_attribute("aria-selected", "true")
     expect(pg.locator(".xo-canvas-empty")).to_be_visible()
@@ -179,7 +243,7 @@ with sync_playwright() as p:
     expect(widget(pg, "tasks")).to_have_count(1)
 
     # Move Bills to Second, check it arrived, then undo the move.
-    menu(pg, "bills", "Second")
+    more(pg, "bills", "Second")
     expect(widget(pg, "bills")).to_have_count(0)
     expect(pg.locator("#toast")).to_contain_text("Bills is now on Second.")
     tabs.get_by_role("tab", name="Second").click()
@@ -191,7 +255,7 @@ with sync_playwright() as p:
 
     # Side tab: Tasks leaves the board for the side pane, and comes back.
     side = pg.get_by_role("complementary", name="Side tabs")
-    menu(pg, "tasks", "Open in side tab")
+    tool(pg, "tasks", "Open in side tab")
     expect(side).to_be_visible()
     expect(side.get_by_role("tab", name="Tasks")).to_have_attribute("aria-selected", "true")
     expect(side.locator(".page-head h1")).to_have_text("Tasks")
@@ -201,7 +265,7 @@ with sync_playwright() as p:
     expect(side).to_be_hidden()
 
     # Side tabs survive leaving the screen; the close button shuts one.
-    menu(pg, "bills", "Open in side tab")
+    tool(pg, "bills", "Open in side tab")
     pg.locator(".side").get_by_role("link", name="Today").click()
     pg.wait_for_selector(".dayline")
     open_canvas(pg)
@@ -212,8 +276,8 @@ with sync_playwright() as p:
 
     # Rename Main, reload: both canvases and the layout come back from the server.
     pg.get_by_role("button", name="Rename canvas").click()
-    pg.locator("dialog[open] #f-title").fill("Home base")
-    pg.locator("dialog[open]").get_by_role("button", name="Save").click()
+    pop(pg).locator("#f-title").fill("Home base")
+    pop(pg).get_by_role("button", name="Save").click()
     expect(tabs.get_by_role("tab", name="Home base")).to_be_visible()
     widget(pg, "bills").get_by_role("button", name="Roll up").click()
     # Leaving the screen saves straight away; wait for that save before reloading.
@@ -233,21 +297,23 @@ with sync_playwright() as p:
     # Delete the second canvas through Rename: two presses on Delete.
     tabs.get_by_role("tab", name="Second").click()
     pg.get_by_role("button", name="Rename canvas").click()
-    dlg = pg.locator("dialog[open]")
+    dlg = pop(pg)
     dlg.get_by_role("button", name="Delete").click()
     dlg.get_by_role("button", name="Tap again to delete").click()
     expect(tabs.get_by_role("tab")).to_have_count(1)
 
     # Every widget in the registry renders on one canvas without an error; Fit all and Reset layout run.
     pg.get_by_role("button", name="New canvas").click()
-    pg.locator("dialog[open] #f-title").fill("Everything")
-    pg.locator("dialog[open]").get_by_role("button", name="Create canvas").click()
+    pop(pg).locator("#f-title").fill("Everything")
+    pop(pg).get_by_role("button", name="Create canvas").click()
     ids = pg.evaluate("async () => Object.keys((await import('/js/widgets.js')).WIDGETS)")
     assert len(ids) >= 13, ids
     for wid in ids:
-        pg.get_by_role("button", name="Add widget").click()
-        pg.locator(f"dialog[open] [data-widget='{wid}']").click()
+        pg.get_by_role("button", name="Widgets", exact=True).click()
+        pop(pg).locator(f"[data-widget='{wid}']").check()
         expect(pg.locator(f".xo-board [data-widget='{wid}'] .xo-w-body > *").first).to_be_attached()
+        if pop(pg).count():
+            pop(pg).get_by_role("button", name="Close", exact=True).click()
     expect(pg.locator(".xo-w-body .empty", has_text="could not be shown")).to_have_count(0)
     pg.get_by_role("button", name="Fit all").click()
     pg.get_by_role("button", name="Reset layout").click()
@@ -260,11 +326,11 @@ with sync_playwright() as p:
     assert pg.evaluate("location.hash") == "#/canvas"
     tabs.get_by_role("tab", name="Home base").click()
 
-    # Phone width: a plain list, nothing to drag, no Add widget and no side pane.
+    # Phone width: a plain list, nothing to drag, no Widgets button and no side pane.
     pg.set_viewport_size({"width": 390, "height": 860})
     expect(pg.locator(".xo-board")).to_have_class(re.compile(r"\bxo-board-list\b"))
     expect(widget(pg, "tasks").locator(".xo-w-body .page-head h1")).to_have_text("Tasks")
-    expect(pg.get_by_role("button", name="Add widget")).to_be_hidden()
+    expect(pg.get_by_role("button", name="Widgets", exact=True)).to_be_hidden()
     expect(widget(pg, "tasks").locator(".xo-w-grip")).to_have_count(0)
     pg.screenshot(path=SHOTS / "canvas-phone.png")
     pg.set_viewport_size({"width": 1400, "height": 900})

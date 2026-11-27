@@ -71,3 +71,5 @@ keys:
     notes_italic: Italic
     notes_preview: Switch between Write and Preview
     canvas_undo: Undo the last layout change
+    canvas_redo: Redo the last undone layout change
+    canvas_redo_alt: Redo the last undone layout change (second key)

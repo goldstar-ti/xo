@@ -57,6 +57,8 @@ const ACTIONS = [
   { id: 'notes.italic', scope: 'notes', key: 'Ctrl+i' },
   { id: 'notes.preview', scope: 'notes', key: 'Alt+p' },
   { id: 'canvas.undo', scope: 'canvas', key: 'Ctrl+z' },
+  { id: 'canvas.redo', scope: 'canvas', key: 'Ctrl+Shift+z' },
+  { id: 'canvas.redo_alt', scope: 'canvas', key: 'Ctrl+y' },
 ];
 
 const MODIFIER_KEYS = ['Control', 'Shift', 'Alt', 'Meta', 'AltGraph', 'CapsLock', 'Dead', 'OS', 'Fn'];

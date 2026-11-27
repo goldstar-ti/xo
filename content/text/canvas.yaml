@@ -16,10 +16,12 @@ canvas:
   untitled: Untitled canvas
   tabs_aria: Canvases
   board_aria: Widgets
-  empty: Nothing on this canvas yet. Add widget puts one here.
-  add_widget: Add widget
-  add_title: Add a widget
-  add_none: Every widget is already on this canvas.
+  empty: Nothing on this canvas yet. Widgets puts one here.
+  widgets_btn: Widgets
+  widgets_title: Widgets
+  widgets_note: Ticked widgets are on this canvas.
+  widgets_search: Find a widget
+  widgets_none: No widget matches.
   new: New canvas
   new_title: New canvas
   new_save: Create canvas
@@ -33,7 +35,7 @@ canvas:
   w_roll: Roll up
   w_unroll: Roll down
   w_close: Take {name} off this canvas
-  w_closed: '{name} is off the canvas. Add widget brings it back.'
+  w_closed: '{name} is off the canvas. Widgets brings it back.'
   w_failed: This widget could not be shown.
   failed: The canvas could not be loaded. Reload the page to try again.
   w_more: More for {name}
@@ -51,6 +53,8 @@ canvas:
   reset_layout: Reset layout
   undo: Undo
   undone: 'Undone: {what}.'
+  redo: Redo
+  redone: 'Redone: {what}.'
   pane_aria: Side tabs
   p_to_canvas: Put back on canvas
   change:

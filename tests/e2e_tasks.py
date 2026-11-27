@@ -274,8 +274,9 @@ with sync_playwright() as p:
 
     pg.goto(f"{BASE}/#/canvas")
     pg.wait_for_selector(".xo-canvas .xo-board", timeout=20000)
-    pg.get_by_role("button", name="Add widget").click()
-    pg.locator("dialog[open]").get_by_role("button", name="Task board", exact=True).click()
+    pg.get_by_role("button", name="Widgets", exact=True).click()
+    pg.locator("dialog.xo-pop[open] [data-widget='tasks-board']").check()
+    pg.locator("dialog.xo-pop[open]").get_by_role("button", name="Close", exact=True).click()
     expect(pg.locator(".xo-board [data-widget='tasks-board'] h2", has_text="To do").first).to_be_visible()
 
     # 4. Time blocks, the close-the-day step and pacing.
