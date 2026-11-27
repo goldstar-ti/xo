@@ -130,6 +130,26 @@ async def test_items_and_reminders(client):
 
 
 @pytest.mark.asyncio
+async def test_bulk_delete(client):
+    await register(client)
+    soon = (datetime.now(timezone.utc) + timedelta(hours=1)).isoformat()
+    for i in ("t1", "t2", "t3"):
+        body = {"kind": "task", "payload": {"title": i}, "reminders": [{"fire_at": soon, "kind": "task_due"}]}
+        await client.put(f"/api/items/{i}", json=body, headers=H)
+    await client.delete("/api/items/t3", headers=H)
+
+    r = await client.post("/api/items/bulk-delete", json={"ids": ["t1", "t3", "missing"]}, headers=H)
+    assert r.status_code == 200 and r.json() == {"deleted": 1}
+    assert {i["id"] for i in (await client.get("/api/items")).json()} == {"t2"}
+    async with SessionLocal() as db:
+        assert {x.item_id for x in (await db.execute(select(Reminder))).scalars().all()} == {"t2"}
+
+    assert (await client.post("/api/items/bulk-delete", json={"ids": []}, headers=H)).status_code == 422
+    assert (await client.post("/api/items/bulk-delete", json={"ids": ["bad id!"]}, headers=H)).status_code == 422
+    assert (await client.post("/api/items/bulk-delete", json={"ids": ["t2"]})).status_code == 403
+
+
+@pytest.mark.asyncio
 async def test_scheduler_sends_and_repeats(client):
     await register(client)
     now = datetime.now(timezone.utc)

@@ -55,6 +55,18 @@ export async function remove(id) {
   emit();
 }
 
+// Deletes many items at once, in batches the server accepts. Returns how many were deleted.
+export async function removeMany(ids) {
+  let deleted = 0;
+  for (let i = 0; i < ids.length; i += 500) {
+    const part = ids.slice(i, i + 500);
+    deleted += (await api('POST', '/api/items/bulk-delete', { ids: part })).deleted;
+    part.forEach((id) => items.delete(id));
+  }
+  emit();
+  return deleted;
+}
+
 // ---- ticks: "did it today" marks for routines and daily conditions ----
 export const tickId = (ref, day) => `tick:${ref}:${day}`;
 export const isTicked = (ref, day = today()) => items.has(tickId(ref, day));

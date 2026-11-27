@@ -7,7 +7,7 @@ import time
 from contextlib import asynccontextmanager
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
-from typing import Any, Literal
+from typing import Annotated, Any, Literal
 from zoneinfo import ZoneInfo, available_timezones
 
 from argon2 import PasswordHasher
@@ -17,7 +17,7 @@ from fastapi import Path as PathParam
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
-from sqlalchemy import delete, func, or_, select
+from sqlalchemy import delete, func, or_, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from . import config, nobbie
@@ -326,6 +326,38 @@ async def delete_item(
     await db.execute(delete(Reminder).where(Reminder.user_id == user.id, Reminder.item_id == item_id))
     await db.commit()
     return {"ok": True}
+
+
+class BulkDeleteIn(BaseModel):
+    """Body of a bulk delete: the ids of the items to delete."""
+
+    ids: list[Annotated[str, Field(pattern=ITEM_ID)]] = Field(min_length=1, max_length=500)
+
+
+@app.post("/api/items/bulk-delete")
+async def bulk_delete_items(
+    body: BulkDeleteIn,
+    user: User = Depends(current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Mark several items deleted and drop their reminders, as one delete per item would.
+
+    Args:
+        body: The ids to delete. Ids that do not exist or are already deleted are skipped.
+        user: The signed-in user.
+        db: The database session.
+
+    Returns:
+        The number of items deleted.
+    """
+    result = await db.execute(
+        update(Item)
+        .where(Item.user_id == user.id, Item.id.in_(body.ids), Item.deleted.is_(False))
+        .values(deleted=True, payload=None, updated_at=datetime.now(timezone.utc))
+    )
+    await db.execute(delete(Reminder).where(Reminder.user_id == user.id, Reminder.item_id.in_(body.ids)))
+    await db.commit()
+    return {"deleted": result.rowcount}
 
 
 # ---------------------------------------------------------------- reminders and push
