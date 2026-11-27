@@ -152,6 +152,8 @@ export function quickAdd(placeholder, extra, focusKey, { preview = false } = {})
   const kept = typed.get(focusKey)?.screen === screenNow() ? typed.get(focusKey).text : '';
   if (kept) {
     box.value = kept;
+    // The screen refocuses the box straight after drawing, so a key pressed a moment later still lands in it.
+    if (document.activeElement === document.body) { try { sessionStorage.setItem('refocus', focusKey); } catch { /* storage blocked */ } }
     setTimeout(() => { if (box.isConnected && document.activeElement === document.body) box.focus({ preventScroll: true }); }, 0);
   }
   if (!preview) return form;
