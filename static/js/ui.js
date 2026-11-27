@@ -331,7 +331,7 @@ export function fontPicker({ value, fonts = [], onchange, mono = false, label, i
       const row = h('li', { role: 'option', id: `${listId}-${i}`, 'data-value': f[0], 'aria-selected': f[0] === cur ? 'true' : 'false', onmousedown: (e) => { e.preventDefault(); choose(i); } }, f[1]);
       const head = f[2] && f[2] !== lastGroup ? h('li', { role: 'presentation', class: 'xo-fl-group' }, f[2]) : null;
       lastGroup = f[2];
-      return [head, row];
+      return head ? [head, row] : [row];
     }));
     if (!shown.length) list.append(h('li', { role: 'presentation', class: 'xo-fl-none' }, t('common.no_match')));
     mark(shown.length ? 0 : -1);

@@ -200,6 +200,7 @@ with sync_playwright() as p:
             assert page.evaluate("window.__q") == "", "search clear"
         font_in = page.locator("#cmp-font input")
         font_in.click()
+        assert "null" not in page.locator("#cmp-font .xo-fl-list").inner_text(), "font list has no null rows"
         font_in.fill("lora")
         expect(page.locator("#cmp-font [role=option]")).to_have_count(1)
         font_in.press("Enter")
