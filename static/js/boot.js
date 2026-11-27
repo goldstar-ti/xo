@@ -58,7 +58,23 @@
     ['brand', 1.125], ['sub', 1], ['body', 1], ['large', 1.0625], ['label', 0.9375], ['control', 0.9375], ['small', 0.875], ['small_btn', 0.875],
     ['nav', 0.8125], ['tag', 0.75], ['tiny', 0.6875]];
   const FS_STEPS = [0.6875, 0.75, 0.8125, 0.875, 0.9375, 1, 1.0625, 1.125, 1.25, 1.375, 1.5, 1.75, 2, 2.25, 2.75, 3.25];
-  const COLOUR_TOKENS = ['paper', 'surface', 'ink', 'muted', 'line', 'leaf', 'leaf-ink', 'leaf-soft', 'ochre', 'ochre-soft', 'danger'];
+  // Colour tokens by group, in the order Appearance shows them: [groupKey, [token, ...]]. The first two groups are the
+  // base colours; the rest are component colours (static/app.css) that start as a base colour. Names live in appearance.yaml.
+  const COLOUR_GROUPS = [
+    ['page', ['paper', 'surface', 'ink', 'muted', 'line']],
+    ['accent', ['leaf', 'leaf-ink', 'leaf-soft', 'ochre', 'ochre-soft', 'danger']],
+    ['bars', ['c-top-bg', 'c-top-ink', 'c-side-bg', 'c-side-ink', 'c-side-on', 'c-tabs-bg', 'c-tabs-ink', 'c-tabs-on']],
+    ['buttons', ['c-primary-bg', 'c-primary-ink', 'c-ghost-ink', 'c-ghost-border', 'c-danger-ink']],
+    ['chips', ['c-chip-bg', 'c-chip-border', 'c-chip-on-bg', 'c-chip-on-ink', 'c-tag']],
+    ['fields', ['c-field-bg', 'c-field-border', 'c-field-focus', 'c-check']],
+    ['dialogs', ['c-sheet-bg', 'c-sheet-top', 'c-backdrop']],
+    ['today', ['c-next-head', 'c-next-rule', 'c-urgent', 'c-now', 'c-time', 'c-done', 'c-missed', 'c-appt']],
+    ['lists', ['c-row-link', 'c-row-line', 'c-late']],
+    ['notes', ['c-nudge-bg', 'c-guard-bg', 'c-guard-rule', 'c-reveal-bg', 'c-banner-bg']],
+    ['links', ['c-link', 'c-focus']],
+    ['widgets', ['c-w-bg', 'c-w-title', 'c-w-border']],
+  ];
+  const COLOUR_TOKENS = COLOUR_GROUPS.flatMap(([, tokens]) => tokens);
   const SIZE_PRESETS = {
     compact: { size: 92, space: 0.75, chrome: 0.9 }, regular: { size: 100, space: 1, chrome: 1 },
     comfortable: { size: 106, space: 1, chrome: 1 }, large: { size: 114, space: 1, chrome: 1.1 },
@@ -372,7 +388,7 @@
 
   window.XOLook = {
     THEMES, FONTS, CHOICES, SECTIONS, BLOCKS, COLOUR_RANGE, DEFAULT_LOOK,
-    FS_ROLES, FS_STEPS, COLOUR_TOKENS, SIZE_PRESETS, presetOf, stackOf, ensureFont,
+    FS_ROLES, FS_STEPS, COLOUR_GROUPS, COLOUR_TOKENS, SIZE_PRESETS, presetOf, stackOf, ensureFont,
     get state() { return state; },
     get prefs() { return state.prefs; },
     get canUndo() { return undoStack.length > 0; },

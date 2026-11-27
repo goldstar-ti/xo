@@ -17,18 +17,20 @@
   --wa-color-surface-border: var(--line);
   --wa-color-text-normal: var(--ink);
   --wa-color-text-quiet: var(--muted);
-  --wa-color-text-link: var(--leaf);
+  --wa-color-text-link: var(--c-link);
   --wa-color-focus: var(--leaf);
+  --wa-form-control-background-color: var(--c-field-bg);
+  --wa-form-control-border-color: var(--c-field-border);
 
   --wa-color-brand-fill-quiet: var(--leaf-soft);
   --wa-color-brand-fill-normal: var(--leaf-soft);
-  --wa-color-brand-fill-loud: var(--leaf);
+  --wa-color-brand-fill-loud: var(--c-primary-bg);
   --wa-color-brand-border-quiet: var(--line);
   --wa-color-brand-border-normal: var(--leaf);
-  --wa-color-brand-border-loud: var(--leaf);
+  --wa-color-brand-border-loud: var(--c-primary-bg);
   --wa-color-brand-on-quiet: var(--ink);
   --wa-color-brand-on-normal: var(--ink);
-  --wa-color-brand-on-loud: var(--leaf-ink);
+  --wa-color-brand-on-loud: var(--c-primary-ink);
 
   --wa-color-success-fill-quiet: var(--leaf-soft);
   --wa-color-success-fill-normal: var(--leaf-soft);

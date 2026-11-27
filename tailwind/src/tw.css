@@ -70,8 +70,8 @@
   --color-base-200: var(--surface);
   --color-base-300: var(--line);
   --color-base-content: var(--ink);
-  --color-primary: var(--leaf);
-  --color-primary-content: var(--leaf-ink);
+  --color-primary: var(--c-primary-bg);
+  --color-primary-content: var(--c-primary-ink);
   --color-secondary: var(--ochre);
   --color-secondary-content: var(--ink);
   --color-accent: var(--leaf-soft);

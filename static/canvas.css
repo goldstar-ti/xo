@@ -49,18 +49,18 @@
 /* ---- widget ---- */
 .xo-w {
   display: flex; flex-direction: column;
-  background: var(--surface); border: var(--rule) solid var(--line); border-radius: var(--radius);
+  background: var(--c-w-bg); border: var(--rule) solid var(--c-w-border); border-radius: var(--radius);
   overflow: hidden;
 }
 .xo-board-list .xo-w { position: static; }
 .xo-w-head {
   display: flex; align-items: center; gap: 0.5rem;
   min-height: 2.5rem; padding: 0 0.25rem 0 0.85rem;
-  border-bottom: var(--rule) solid var(--line);
+  border-bottom: var(--rule) solid var(--c-w-border);
   cursor: grab; user-select: none; flex: none;
 }
 .xo-board-list .xo-w-head { cursor: default; }
-.xo-w-title { flex: 1; min-width: 0; font-size: 0.9375rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.xo-w-title { flex: 1; min-width: 0; color: var(--c-w-title); font-size: 0.9375rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .xo-w-actions { display: flex; flex: none; }
 .xo-w-btn {
   min-width: 2.5rem; min-height: 2.5rem; padding: 0;

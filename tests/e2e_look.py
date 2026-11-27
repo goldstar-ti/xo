@@ -169,6 +169,21 @@ with sync_playwright() as p:
     assert pg.evaluate(css + "('--leaf')").strip() == "#ff0000"
     pg.evaluate("XOLook.reset()")
     assert pg.evaluate(css + "('--fs-section')") == ""
+    # component colours: derived from the base tokens until overridden
+    pg.goto(BASE + "/#/today")
+    pg.wait_for_selector("h1")
+    pg.evaluate("XOLook.change((s, lk) => { lk.mode = 'light'; })")
+    assert pg.evaluate("XOLook.COLOUR_GROUPS.length") == 12
+    assert pg.evaluate("new Set(XOLook.COLOUR_TOKENS).size") == pg.evaluate("XOLook.COLOUR_TOKENS.length") == 57
+    leaf = pg.evaluate(css + "('--leaf')").strip()
+    assert leaf and pg.evaluate(css + "('--c-primary-bg')").strip() == leaf
+    pg.evaluate(
+        "document.body.insertAdjacentHTML('beforeend', '<button id=\"c-probe\" class=\"primary\" type=\"button\">x</button>')"
+    )
+    pg.evaluate("XOLook.change((s, lk) => { lk.colours.light['c-primary-bg'] = '#123456'; })")
+    assert pg.evaluate("getComputedStyle(document.getElementById('c-probe')).backgroundColor") == "rgb(18, 52, 86)"
+    assert pg.evaluate(css + "('--leaf')").strip() == leaf
+    pg.evaluate("document.getElementById('c-probe').remove(); XOLook.reset()")
     # screen: Standard and Advanced
     pg.goto(BASE + "/#/appearance")
     pg.wait_for_selector("h1")
