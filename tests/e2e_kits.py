@@ -103,22 +103,27 @@ with sync_playwright() as p:
       const strip = tabStrip({ label: 'Groups', vertical: true, active: 'a', onSelect: (k) => { w.__tab = k; },
         items: [{ key: 'a', label: 'Alpha', badge: 2 }, { key: 'b', label: 'Beta' }] });
       host.append(
-        one('cmp-seg', ui.segmented('Pick', [['a', 'One'], ['b', 'Two'], ['c', 'Three']], { value: 'a', onchange: (v) => { w.__seg = v; } })),
+        one('cmp-seg', ui.segmented('Pick', [['a', 'One'], ['b', 'Two'], ['c', 'Three']],
+          { value: 'a', onchange: (v) => { w.__seg = v; } })),
         one('cmp-tog', ui.toggle('Glass', { checked: false, onchange: (v) => { w.__tog = v; } })),
-        one('cmp-disc', ui.disclosure('Section', document.createTextNode('Inside'), { open: false, badge: ui.badge('3', 'accent') })),
+        one('cmp-disc', ui.disclosure('Section', document.createTextNode('Inside'),
+          { open: false, badge: ui.badge('3', 'accent') })),
         one('cmp-cards', ui.optionCards('Style', [
           { value: 'a', title: 'Card A', hint: 'First' }, { value: 'b', title: 'Card B', hint: 'Second' },
         ], { value: 'a', onchange: (v) => { w.__card = v; } })),
         one('cmp-search', ui.searchBox({ placeholder: 'Find', oninput: (v) => { w.__q = v; } })),
-        one('cmp-font', ui.fontPicker({ value: 'atkinson', fonts, label: 'Body font', onchange: (v) => { w.__font = v; } })),
+        one('cmp-font', ui.fontPicker({ value: 'atkinson', fonts, label: 'Body font',
+          onchange: (v) => { w.__font = v; } })),
         one('cmp-col', ui.colourField({ value: '#336699', label: 'Ink', onchange: (v) => { w.__col = v; } })),
-        one('cmp-sort', ui.sortList(['first', 'second', 'third'], { render: (x) => document.createTextNode(x), onmove: (a, b) => { w.__moved = [a, b]; } })),
+        one('cmp-sort', ui.sortList(['first', 'second', 'third'],
+          { render: (x) => document.createTextNode(x), onmove: (a, b) => { w.__moved = [a, b]; } })),
         one('cmp-stat', ui.stat('Due', '12')),
         one('cmp-tabs', strip.el),
       );
       document.body.append(host);
       if (kit === 'wa') {
-        const tags = ['wa-radio-group', 'wa-radio', 'wa-switch', 'wa-details', 'wa-badge', 'wa-card', 'wa-input', 'wa-color-picker'];
+        const tags = ['wa-radio-group', 'wa-radio', 'wa-switch', 'wa-details', 'wa-badge', 'wa-card',
+          'wa-input', 'wa-color-picker'];
         await Promise.all(tags.map((t) => customElements.whenDefined(t)));
       }
       return true;

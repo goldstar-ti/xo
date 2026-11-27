@@ -106,8 +106,10 @@ with sync_playwright() as p:
     tab_id = tabs.get_by_role("tab").first.get_attribute("data-tid")
     pg.evaluate(
         "(tid) => XOLook.change((s, lk) => {"
-        " lk.ident.widgets.tasks = { swatch: 'raspberry-tart', light: '#e63965', dark: '#f18fa8', op: 100, title: true };"
-        " lk.ident.tabs[tid] = { swatch: 'raspberry-tart', light: '#e63965', dark: '#f18fa8', op: 100, title: false }; }, { quiet: true })",
+        " lk.ident.widgets.tasks = {"
+        " swatch: 'raspberry-tart', light: '#e63965', dark: '#f18fa8', op: 100, title: true };"
+        " lk.ident.tabs[tid] = {"
+        " swatch: 'raspberry-tart', light: '#e63965', dark: '#f18fa8', op: 100, title: false }; }, { quiet: true })",
         tab_id,
     )
     pg.wait_for_function(f"{frame} && {top} != {plain!r}")

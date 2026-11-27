@@ -28,6 +28,7 @@ with sync_playwright() as p:
     pg.fill("#a-pass", "orbit-walnut-ferry-linen-42")
     pg.get_by_role("button", name="Sign in").click()
     pg.wait_for_selector(".dayline", timeout=20000)
+
     # quick panel
     def tab(key):
         pg.locator(f'[data-key="{key}"]').click()
@@ -225,7 +226,8 @@ with sync_playwright() as p:
     leaf = pg.evaluate(css + "('--leaf')").strip()
     assert leaf and pg.evaluate(css + "('--c-primary-bg')").strip() == leaf
     pg.evaluate(
-        "document.body.insertAdjacentHTML('beforeend', '<button id=\"c-probe\" class=\"primary\" type=\"button\">x</button>')"
+        "document.body.insertAdjacentHTML('beforeend',"
+        ' \'<button id="c-probe" class="primary" type="button">x</button>\')'
     )
     pg.evaluate("XOLook.change((s, lk) => { lk.colours.light['c-primary-bg'] = '#123456'; })")
     assert pg.evaluate("getComputedStyle(document.getElementById('c-probe')).backgroundColor") == "rgb(18, 52, 86)"
@@ -375,9 +377,15 @@ with sync_playwright() as p:
     assert r == {"added": 1, "skipped": 0}, r
     assert pg.evaluate("XOLook.state.myThemes.length") == before + 1
     mine = pg.evaluate("XOLook.state.myThemes[XOLook.state.myThemes.length - 1]")
-    pg.evaluate("id => XOLook.change((s, l) => { const m = s.myThemes.find(x => x.id === id); l.theme = 'my:' + id; l.c = m.c; l.strength = m.strength; l.colours = m.colours; })", mine["id"])
+    pg.evaluate(
+        "id => XOLook.change((s, l) => { const m = s.myThemes.find(x => x.id === id);"
+        " l.theme = 'my:' + id; l.c = m.c; l.strength = m.strength; l.colours = m.colours; })",
+        mine["id"],
+    )
     got = pg.evaluate("XOLook.active().look")
-    assert got["strength"] == 1.3 and got["colours"]["light"] == {"leaf": "#aa0000"} and got["c"] == file["themes"][0]["c"], got
+    assert (
+        got["strength"] == 1.3 and got["colours"]["light"] == {"leaf": "#aa0000"} and got["c"] == file["themes"][0]["c"]
+    ), got
     bad = pg.evaluate("XOLook.importThemes({ xo: 'other' })")
     assert bad["error"] is True and bad["added"] == 0 and pg.evaluate("XOLook.state.myThemes.length") == before + 1
     pg.evaluate("f => XOLook.importThemes(f)", file)
