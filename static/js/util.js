@@ -2,6 +2,8 @@
 import { button, checkbox, field, focusControl, input, notice, select, textarea } from './ui.js';
 import { t } from './text.js';
 import { openPopover } from './popover.js';
+import { icon, paintIcon, parseIcon } from './icons.js';
+import { openIconPicker } from './iconpicker.js';
 import { micButton } from './voice.js';
 
 export function h(tag, attrs, ...kids) {
@@ -116,7 +118,7 @@ export const dialogOpen = () => !!document.querySelector('dialog[open]:modal, di
 
 /**
  * A form in a dialog, or in a popover beside `anchor` when one is given (that adds a Cancel button).
- * fields: [{ name, label, type: text|textarea|date|time|number|select|checkbox|custom, options, hint, required, placeholder, half, more }]
+ * fields: [{ name, label, type: text|textarea|date|time|number|select|checkbox|icon|custom, options, hint, required, placeholder, half, more }]
  * A custom field has build(value) returning { node, read }; read() gives its value on save, and filled(value) may say
  * whether the value counts as set. A field with more: true sits under "More options", which opens when one is set.
  */
@@ -126,6 +128,29 @@ export function openForm({ title, fields, values = {}, saveLabel = t('common.sav
     const id = `f-${f.name}`;
     const v = values[f.name];
     let control;
+    if (f.type === 'icon') {
+      let value = v || '';
+      const ico = icon(value || 'squares-four');
+      const nameEl = h('span', {});
+      const btn = h('button', { type: 'button', class: 'xo-iconfield-btn', 'aria-haspopup': 'dialog' }, ico, nameEl);
+      const clear = button(t('canvas.icon_clear'), { variant: 'ghost', type: 'button' });
+      const sync = () => {
+        const shown = value ? parseIcon(value).name.replace(/-/g, ' ') : t('canvas.icon_none');
+        nameEl.textContent = shown;
+        btn.setAttribute('aria-label', t('canvas.icon_button', { label: f.label, name: shown }));
+        ico.hidden = !value;
+        if (value) paintIcon(ico, value);
+        clear.hidden = !value;
+      };
+      btn.addEventListener('click', () => openIconPicker(btn, {
+        value, def: 'squares-four', title: inputs.title?.value?.trim() || f.label,
+        onpick: (picked) => { value = picked || ''; sync(); },
+      }));
+      sync();
+      clear.addEventListener('click', () => { value = ''; sync(); });
+      inputs[f.name] = { read: () => value };
+      return h('fieldset', { class: 'field' }, h('legend', {}, f.label), h('div', { class: 'xo-iconfield' }, btn, clear));
+    }
     if (f.type === 'custom') {
       const built = f.build(v);
       inputs[f.name] = built;
@@ -181,7 +206,7 @@ export function openForm({ title, fields, values = {}, saveLabel = t('common.sav
     const out = {};
     for (const f of fields) {
       const el = inputs[f.name];
-      if (f.type === 'custom') out[f.name] = el.read();
+      if (f.type === 'custom' || f.type === 'icon') out[f.name] = el.read();
       else if (f.type === 'checkbox') out[f.name] = el.checked;
       else if (f.type === 'number') out[f.name] = el.value === '' ? 0 : Number(el.value);
       else out[f.name] = el.value.trim();
@@ -197,7 +222,7 @@ export function openForm({ title, fields, values = {}, saveLabel = t('common.sav
       save.disabled = false;
     }
   });
-  const firstField = fields.find((f) => !f.more && !['checkbox', 'select', 'custom'].includes(f.type));
+  const firstField = fields.find((f) => !f.more && !['checkbox', 'select', 'custom', 'icon'].includes(f.type));
   if (firstField && !values[fields[0].name]) focusControl(inputs[firstField.name]);
   return dlg;
 }

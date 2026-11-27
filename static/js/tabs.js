@@ -13,6 +13,7 @@
 // static/canvas.css: they are part of the strip's look, not form controls, so ui.js and the
 // Kit choice leave them alone.
 import { t } from './text.js';
+import { icon } from './icons.js';
 import { badge } from './ui.js';
 import { h } from './util.js';
 
@@ -28,7 +29,7 @@ function styles() {
   document.head.append(link);
 }
 
-// items: [{ key, label, closable, controls, badge }] (controls: id of that tab's own panel; badge: a short count or word
+// items: [{ key, label, icon (an icon value shown before the label), closable, controls, badge }] (controls: id of that tab's own panel; badge: a short count or word
 // shown beside the label, left off when empty). active: the selected key.
 // vertical: stack the tabs in a column (aria-orientation=vertical, Up and Down keys).
 // onSelect(key), onClose(key): called on a click or key press; the caller updates and calls set().
@@ -58,7 +59,7 @@ export function tabStrip({ items = [], active = null, label, onSelect, onClose, 
         'aria-controls': item.controls ?? panelId,
         tabindex: on ? '0' : '-1',
         onclick: () => onSelect?.(item.key),
-      }, item.label, item.badge != null && item.badge !== '' ? badge(String(item.badge), 'accent') : null);
+      }, item.icon ? icon(item.icon) : null, item.label, item.badge != null && item.badge !== '' ? badge(String(item.badge), 'accent') : null);
       const close = item.closable && onClose
         ? h('button', {
           type: 'button',

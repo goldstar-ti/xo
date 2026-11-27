@@ -130,3 +130,8 @@
 .xo-tabs-v .xo-tab { display: flex; border-bottom: 0; margin-bottom: 0; border-right: 3px solid transparent; margin-right: calc(-1 * var(--rule)); }
 .xo-tabs-v .xo-tab.on { border-right-color: var(--leaf); }
 .xo-tabs-v .xo-tab-btn { flex: 1; display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; text-align: left; }
+
+.xo-iconfield { display: flex; align-items: center; gap: 0.5rem; }
+.xo-iconfield-btn { display: inline-flex; align-items: center; gap: 0.5rem; min-height: 2.5rem; padding: 0.35rem 0.8rem; background: transparent; border: var(--rule) solid var(--line); border-radius: 0.5rem; color: var(--ink); font: inherit; cursor: pointer; }
+.xo-iconfield-btn .ico { width: 1.25rem; height: 1.25rem; }
+.xo-tab-btn .ico { width: 1rem; height: 1rem; margin-right: 0.4rem; vertical-align: -0.15em; }

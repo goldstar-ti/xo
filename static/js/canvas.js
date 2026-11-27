@@ -30,7 +30,7 @@
 import * as store from './store.js';
 import { loadGridStack } from './grid.js';
 import { ariaKeys, keyFor, matchKey, setScope } from './keymap.js';
-import { icon, iconButton, setIcon, setLabel } from './icons.js';
+import { VALUE_RE, icon, iconButton, setIcon, setLabel } from './icons.js';
 import { openPopover } from './popover.js';
 import { tabSet, tabStrip } from './tabs.js';
 import { t } from './text.js';
@@ -50,13 +50,14 @@ const ACTIVE_KEY = 'xo-canvas';
 const PANE_KEY = 'xo-canvas-pane';
 const PHONE = '(max-width: 39.99rem)';
 
-const blank = (title, order) => ({ title, order, items: {}, closed: {}, rolled: {} });
+const blank = (title, order, icon = '') => ({ title, icon, order, items: {}, closed: {}, rolled: {} });
 const copy = (v) => JSON.parse(JSON.stringify(v));
 
 function clean(data) {
   const d = data && typeof data === 'object' ? data : {};
   return {
     title: typeof d.title === 'string' && d.title ? d.title : t('canvas.untitled'),
+    icon: typeof d.icon === 'string' && VALUE_RE.test(d.icon) ? d.icon : '',
     order: Number(d.order) || 0,
     items: d.items && typeof d.items === 'object' ? d.items : {},
     closed: d.closed && typeof d.closed === 'object' ? d.closed : {},
@@ -141,7 +142,7 @@ export async function mountCanvas(root) {
   const placed = (c = current()) => Object.keys(c.items).filter((id) => WIDGETS[id]);
 
   function drawTabs() {
-    strip.set([...canvases].map(([key, c]) => ({ key, label: c.title })), activeId);
+    strip.set([...canvases].map(([key, c]) => ({ key, label: c.title, icon: c.icon })), activeId);
   }
 
   function syncBar() {
@@ -719,14 +720,15 @@ export async function mountCanvas(root) {
   function openNew() {
     openForm({
       title: t('canvas.new_title'),
-      fields: [{ name: 'title', label: t('canvas.name_label'), required: true }],
+      fields: [{ name: 'title', label: t('canvas.name_label'), required: true },
+        { name: 'icon', label: t('canvas.icon_label'), type: 'icon' }],
       saveLabel: t('canvas.new_save'),
       anchor: newBtn,
-      onSave: async ({ title }) => {
+      onSave: async ({ title, icon: pickedIcon }) => {
         if (!title) return t('canvas.name_needed');
         const id = `canvas:${uid()}`;
         const order = Math.max(-1, ...[...canvases.values()].map((c) => c.order)) + 1;
-        canvases.set(id, blank(title, order));
+        canvases.set(id, blank(title, order, pickedIcon));
         await store.save('canvas', id, canvases.get(id), { silent: true });
         await switchTo(id);
       },
@@ -737,12 +739,14 @@ export async function mountCanvas(root) {
     const c = current();
     openForm({
       title: t('canvas.rename_title'),
-      fields: [{ name: 'title', label: t('canvas.name_label'), required: true }],
-      values: { title: c.title },
+      fields: [{ name: 'title', label: t('canvas.name_label'), required: true },
+        { name: 'icon', label: t('canvas.icon_label'), type: 'icon' }],
+      values: { title: c.title, icon: c.icon },
       anchor: renameBtn,
-      onSave: async ({ title }) => {
+      onSave: async ({ title, icon: pickedIcon }) => {
         if (!title) return t('canvas.name_needed');
         c.title = title;
+        c.icon = pickedIcon;
         await store.save('canvas', activeId, c, { silent: true });
         drawTabs();
       },

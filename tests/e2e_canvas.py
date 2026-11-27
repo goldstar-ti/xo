@@ -230,10 +230,17 @@ with sync_playwright() as p:
     pg.keyboard.press("Escape")
     expect(pop(pg)).to_have_count(0)
 
-    # A second canvas: created, selected and empty; the arrow keys switch back.
+    # A second canvas: created with an icon from the picker, selected and empty; the arrow keys switch back.
     pg.get_by_role("button", name="New canvas").click()
+    pop(pg).get_by_role("button", name=re.compile(r"^Icon: No icon")).click()
+    pg.locator("#ip-search").fill("house")
+    pg.locator('.icon-pop [data-name="house"]').first.click()
+    pg.keyboard.press("Escape")
+    expect(pg.locator(".icon-pop")).to_be_hidden()
+    expect(pop(pg)).to_have_count(1)
     pop(pg).locator("#f-title").fill("Second")
     pop(pg).get_by_role("button", name="Create canvas").click()
+    expect(tabs.get_by_role("tab", name="Second").locator("svg")).to_have_count(1)
     expect(tabs.get_by_role("tab")).to_have_count(2)
     expect(tabs.get_by_role("tab", name="Second")).to_have_attribute("aria-selected", "true")
     expect(pg.locator(".xo-canvas-empty")).to_be_visible()
@@ -273,6 +280,15 @@ with sync_playwright() as p:
     side.get_by_role("button", name="Close Bills").click()
     expect(side).to_be_hidden()
     add(pg, "Bills")
+
+    # Rename shows the chosen icon; No icon clears it.
+    tabs.get_by_role("tab", name="Second").click()
+    pg.get_by_role("button", name="Rename canvas").click()
+    expect(pop(pg).get_by_role("button", name=re.compile(r"^Icon: house"))).to_be_visible()
+    pop(pg).get_by_role("button", name="No icon", exact=True).click()
+    pop(pg).get_by_role("button", name="Save").click()
+    expect(tabs.get_by_role("tab", name="Second").locator("svg")).to_have_count(0)
+    tabs.get_by_role("tab", name="Main").click()
 
     # Rename Main, reload: both canvases and the layout come back from the server.
     pg.get_by_role("button", name="Rename canvas").click()

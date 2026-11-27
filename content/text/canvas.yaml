@@ -17,6 +17,10 @@ canvas:
   tabs_aria: Canvases
   board_aria: Widgets
   empty: Nothing on this canvas yet. Widgets puts one here.
+  icon_label: Icon
+  icon_none: No icon
+  icon_clear: No icon
+  icon_button: '{label}: {name}'
   widgets_btn: Widgets
   widgets_title: Widgets
   widgets_note: Ticked widgets are on this canvas.
