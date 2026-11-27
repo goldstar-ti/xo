@@ -120,6 +120,11 @@ export function openPopover({ title, body, anchor, form = true, pinKey = null, w
   // Focus the first field in the body, never a title bar button; fall back to Close.
   const first = [...body.querySelectorAll('input:not([type="hidden"]), select, textarea, wa-input, button, [tabindex]:not([tabindex="-1"])')]
     .find((el) => !el.disabled && !el.hidden);
-  (first || x).focus();
+  const target = first || x;
+  // A custom element (Web Awesome) may not be upgraded yet: wait for it, then focus.
+  if (target.localName.includes('-')) {
+    customElements.whenDefined(target.localName)
+      .then(() => (target.updateComplete || Promise.resolve()).then(() => target.focus()));
+  } else target.focus();
   return dlg;
 }

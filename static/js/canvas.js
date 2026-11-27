@@ -708,7 +708,7 @@ export async function mountCanvas(root) {
       }
       none.hidden = shown > 0;
     };
-    const find = searchBox({ label: t('canvas.widgets_search'), placeholder: t('canvas.widgets_search'), oninput: filter });
+    const find = searchBox({ 'aria-label': t('canvas.widgets_search'), placeholder: t('canvas.widgets_search'), oninput: filter });
     const body = h('div', { class: 'xo-widgets' }, h('p', { class: 'note' }, t('canvas.widgets_note')), find, none, h('ul', { class: 'xo-wlist' }, rows));
     anchor.setAttribute('aria-expanded', 'true');
     widgetsPop = openPopover({
