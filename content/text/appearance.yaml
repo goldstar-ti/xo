@@ -241,6 +241,13 @@ appearance:
       ochre: Attention
       ochre-soft: Attention tint
       danger: Warning
+  families:
+    heading: Theme families
+    hint: Every palette from NOBBIE, grouped by colour. Fine-tune any of them below.
+    hues:
+      Red: Reds and warm
+      Green: Greens and earth
+      Blue: Blues and cool
   ident:
     heading: Widget and tab colours
     hint: Colours here help you find a widget or canvas at a glance. They stay on this device.
@@ -257,10 +264,6 @@ appearance:
     pick_title: Palette for {name}
     current: '{name}: {palette}'
     load_failed: The palettes could not be loaded. Check your connection and try again.
-    hues:
-      Red: Reds and warm
-      Green: Greens and earth
-      Blue: Blues and cool
   glass:
     heading: Glass
     alpha: Transparency

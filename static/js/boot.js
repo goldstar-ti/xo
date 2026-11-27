@@ -201,8 +201,10 @@
       base: cleanLook(raw.base),
       scheduled: (Array.isArray(raw.scheduled) ? raw.scheduled : []).filter((s) => s && isTime(s.from) && isTime(s.to)).slice(0, 8)
         .map((s) => ({ id: text(s.id, 40, String(Math.random()).slice(2)), name: text(s.name, 30, 'Scheduled').trim() || 'Scheduled', from: s.from, to: s.to, look: cleanLook(s.look) })),
-      myThemes: (Array.isArray(raw.myThemes) ? raw.myThemes : []).slice(0, 24)
-        .map((t) => ({ id: text(t && t.id, 40, String(Math.random()).slice(2)), name: text(t && t.name, 30, 'Mine').trim() || 'Mine', c: cleanLook({ c: t && t.c }).c })),
+      myThemes: (Array.isArray(raw.myThemes) ? raw.myThemes : []).slice(0, 100).map((t) => {
+        const l = cleanLook({ c: t && t.c, strength: t && t.strength, colours: t && t.colours });
+        return { id: text(t && t.id, 40, String(Math.random()).slice(2)), name: text(t && t.name, 30, 'Mine').trim() || 'Mine', c: l.c, strength: l.strength, colours: l.colours };
+      }),
       prefs: cleanPrefs(raw.prefs),
     };
   }
@@ -373,17 +375,46 @@
   const pick = (list) => list[Math.floor(Math.random() * list.length)];
   const PAIRS = [['atkinson', 'same', 'same'], ['atkinson', 'fraunces', 'same'], ['lexend', 'same', 'mono'], ['lexend', 'fraunces', 'same'],
     ['grotesk', 'same', 'mono'], ['atkinson', 'grotesk', 'mono'], ['serif', 'fraunces', 'same'], ['system', 'grotesk', 'same'], ['mono', 'same', 'same']];
-  function surprise() {
+  // extraThemes: optional [{ id, c }] (the family themes) to choose from as well as the built-in ten.
+  function surprise(extraThemes) {
     change((s, look) => {
-      const id = pick(Object.keys(THEMES).filter((k) => k !== look.theme));
+      const all = Object.keys(THEMES).map((k) => ({ id: k, c: colourOf(k) })).concat(Array.isArray(extraThemes) ? extraThemes : []);
+      const chosen = pick(all.filter((t) => t.id !== look.theme));
       const fonts = pick(PAIRS);
       Object.assign(look, {
-        theme: id, c: colourOf(id), strength: pick([0.8, 1, 1, 1.2, 1.4]),
+        theme: chosen.id, c: { ...chosen.c }, strength: pick([0.8, 1, 1, 1.2, 1.4]),
         body: fonts[0], head: fonts[1], num: fonts[2],
         corners: pick(CHOICES.corners), rule: pick(CHOICES.rule), texture: pick(CHOICES.texture),
         hero: pick(CHOICES.hero), dayline: pick(CHOICES.dayline), loud: pick(CHOICES.loud), line: pick(['plain', 'quote']),
       }); // size, weight, spacing, chrome, zoom, text sizes, colours, identity colours and mode are left as you set them
     });
+  }
+
+  // Colour themes as a file: the colours only (palette numbers, strength, per-token overrides), nothing else of the look.
+  function exportThemes(ids) {
+    const mine = state.myThemes.filter((m) => Array.isArray(ids) && ids.includes(m.id));
+    const list = mine.length ? mine : [{ name: ((THEMES[active().look.theme] || {}).name || active().look.theme.replace(/^(fam|my):/, '').replace(/-/g, ' ')).slice(0, 30), ...pickColours(active().look) }];
+    return { xo: 'colour-themes', version: 1, themes: list.map((m) => ({ name: m.name, c: { ...m.c }, strength: m.strength, colours: JSON.parse(JSON.stringify(m.colours)) })) };
+  }
+  const pickColours = (l) => ({ c: l.c, strength: l.strength, colours: l.colours });
+  function importThemes(obj) {
+    const bad = (n) => ({ added: 0, skipped: n, error: true });
+    if (!obj || typeof obj !== 'object' || obj.xo !== 'colour-themes' || obj.version !== 1 || !Array.isArray(obj.themes) || obj.themes.length > 100) return bad(Array.isArray(obj && obj.themes) ? obj.themes.length : 1);
+    let added = 0, skipped = 0;
+    change((s) => {
+      const used = new Set(s.myThemes.map((m) => m.name));
+      obj.themes.forEach((t) => {
+        if (!t || typeof t !== 'object' || s.myThemes.length >= 100) { skipped += 1; return; }
+        const l = cleanLook({ c: t.c, strength: t.strength, colours: t.colours });
+        const base = text(t.name, 30, 'Mine').trim() || 'Mine';
+        let name = base, n = 2;
+        while (used.has(name)) { name = text(base, 30 - (' (' + n + ')').length, base).trim() + ' (' + n + ')'; n += 1; }
+        used.add(name);
+        s.myThemes.push({ id: String(Math.random()).slice(2, 12), name, c: l.c, strength: l.strength, colours: l.colours });
+        added += 1;
+      });
+    });
+    return { added, skipped };
   }
 
   window.XOLook = {
@@ -393,7 +424,7 @@
     get prefs() { return state.prefs; },
     get canUndo() { return undoStack.length > 0; },
     get editing() { return editing; },
-    active, scheduledNow, apply, change, undo, encode, decode, surprise, colourOf,
+    active, scheduledNow, apply, change, undo, encode, decode, surprise, colourOf, exportThemes, importThemes,
     defaultLook: () => cleanLook({}),
     setEditing(id) { editing = id; apply(); announce(false); },
     reset() { change((s) => { s.base = cleanLook({}); s.scheduled = []; s.prefs = cleanPrefs({}); }); editing = null; apply(); announce(false); },

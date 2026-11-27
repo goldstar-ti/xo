@@ -64,17 +64,67 @@ const colourDial = (label, key, scale, unit) => {
     apply: (v, opts) => L.change((s, lk) => { lk.c[key] = v; lk.theme = 'custom'; }, opts) });
 };
 
-function themeSwatch(id, name, c) {
+function themeSwatch(id, name, c, extra = {}) {
   const on = look().theme === id;
-  const el = h('button', { type: 'button', class: `swatch themed${on ? ' on' : ''}`, 'aria-pressed': String(on), 'data-fk': `theme:${id}`, onclick: () => setLook({ theme: id, c: { ...c } }) }, name);
+  const el = h('button', { type: 'button', class: `swatch themed${on ? ' on' : ''}`, 'aria-pressed': String(on), 'data-fk': `theme:${id}`, onclick: () => setLook({ theme: id, c: { ...c }, ...extra }) }, name);
   for (const [k, v] of Object.entries(c)) el.style.setProperty(`--${k}`, v);
   return el;
 }
 function themeSwatches() {
   const named = Object.entries(L.THEMES).map(([id, theme]) => themeSwatch(id, theme.name, L.colourOf(id)));
-  const mine = L.state.myThemes.map((m) => themeSwatch(`my:${m.id}`, m.name, m.c));
+  const mine = L.state.myThemes.map((m) => themeSwatch(`my:${m.id}`, m.name, m.c, { strength: m.strength, colours: JSON.parse(JSON.stringify(m.colours)) }));
   return h('div', { class: 'swatches' }, named, mine);
 }
+// ---- Theme families: every NOBBIE palette as a colour theme (static/js/family-themes.js, loaded when first needed) ----
+let familiesMod = null;
+function loadFamilies() {
+  if (!familiesMod) {
+    familiesMod = import('../family-themes.js');
+    familiesMod.catch(() => { familiesMod = null; });
+  }
+  return familiesMod;
+}
+function surprise() {
+  loadFamilies().then((m) => L.surprise(m.FAMILIES.flatMap((f) => f.themes.map(({ id, c }) => ({ id, c }))))).catch(() => L.surprise());
+}
+const famName = new Map(); // theme id to palette name, filled once the module has loaded
+const themeLabel = (lk) => (lk.theme === 'custom' ? t('appearance.colour.theme_custom') : t('appearance.colour.theme') + (lk.theme.startsWith('fam:') ? `: ${famName.get(lk.theme) || lk.theme.slice(4).replace(/-/g, ' ')}` : ''));
+
+// Hue tabs, then each family as a heading with its palettes as swatches drawn in their own colours.
+// The one palette picker: the colour theme and the widget and tab colours both use it.
+// onPick(theme) gets { id, name, swatch, dark, c }; fk(theme) names the data-fk hook; current is the pressed theme id.
+function familyPicker({ onPick, current = null, fk = (th) => `theme:${th.id}`, label = t('appearance.families.heading') } = {}) {
+  const wrap = h('div', { class: 'family-picker' });
+  loadFamilies().then(({ FAMILIES, FAMILY_HUES }) => {
+    FAMILIES.forEach((f) => f.themes.forEach((th) => famName.set(th.id, th.name)));
+    const hues = text('appearance.families.hues');
+    const own = FAMILIES.find((f) => f.themes.some((th) => th.id === current));
+    let hue = own ? own.hue : FAMILY_HUES[0];
+    const strip = tabStrip({ label, onSelect: (k) => { hue = k; draw(); } });
+    const grid = h('div', { class: 'ident-families' });
+    function draw() {
+      strip.set(FAMILY_HUES.map((k) => ({ key: k, label: hues[k] || k })), hue);
+      grid.replaceChildren(...FAMILIES.filter((f) => f.hue === hue).map((f) => h('div', { class: 'ident-family' },
+        h('h3', {}, f.name),
+        h('div', { class: 'swatches ident-swatches' }, f.themes.map((th) => {
+          const on = th.id === current;
+          const el = h('button', { type: 'button', class: `swatch themed${on ? ' on' : ''}`, 'aria-pressed': String(on), title: th.name, 'aria-label': th.name, 'data-fk': fk(th), onclick: () => onPick(th) });
+          for (const [k, v] of Object.entries(th.c)) el.style.setProperty(`--${k}`, v);
+          return el;
+        })))));
+    }
+    draw();
+    wrap.replaceChildren(strip.el, grid);
+  }).catch(() => wrap.replaceChildren(h('p', { class: 'note' }, t('appearance.ident.load_failed'))));
+  return wrap;
+}
+function familiesSection(lk) {
+  return adv(group(
+    h('h3', {}, t('appearance.families.heading')),
+    h('p', { class: 'hint' }, t('appearance.families.hint')),
+    familyPicker({ current: lk.theme, onPick: (th) => L.change((s, l) => { l.theme = th.id; l.c = { ...th.c }; }) })), lk.theme.startsWith('fam:'));
+}
+
 function accentRow() {
   const lk = look();
   const themeHue = L.THEMES[lk.theme]?.ah;
@@ -131,7 +181,7 @@ export function openLookPanel() {
       h('div', { class: 'opt' }, h('span', {}, t('appearance.colour.accent')), accentRow()),
       sizePresets(),
       h('div', { class: 'row' },
-        button(t('appearance.quick.surprise'), { onclick: () => L.surprise() }),
+        button(t('appearance.quick.surprise'), { onclick: surprise }),
         button(t('appearance.quick.undo'), { disabled: !L.canUndo, onclick: () => L.undo() }),
         h('a', { class: 'primary', href: '#/appearance', onclick: () => dlg.close() }, t('appearance.quick.all_options'))));
   };
@@ -191,7 +241,7 @@ function myThemes() {
     const n = name.value.trim();
     if (!n) { toast(t('appearance.my_themes.need_name'), 'bad'); focusControl(name); return; }
     const id = uid().slice(0, 8);
-    L.change((s, lk) => { s.myThemes.push({ id, name: n, c: { ...lk.c } }); lk.theme = `my:${id}`; });
+    L.change((s, lk) => { s.myThemes.push({ id, name: n, c: { ...lk.c }, strength: lk.strength, colours: JSON.parse(JSON.stringify(lk.colours)) }); lk.theme = `my:${id}`; });
     toast(t('appearance.my_themes.saved', { name: n }));
   };
   return h('div', { class: 'opt' }, h('span', {}, t('appearance.my_themes.heading')),
@@ -288,7 +338,7 @@ function presets() {
   });
   return h('section', { class: 'look-sec' }, h('h2', {}, t('appearance.presets.heading')),
     h('div', { class: 'row' },
-      button(t('appearance.quick.surprise'), { variant: 'primary', 'data-fk': 'surprise', onclick: () => L.surprise() }),
+      button(t('appearance.quick.surprise'), { variant: 'primary', 'data-fk': 'surprise', onclick: surprise }),
       button(t('appearance.quick.undo'), { disabled: !L.canUndo, 'data-fk': 'undo', onclick: () => L.undo() }),
       reset),
     h('p', { class: 'hint' }, t('appearance.presets.hint')),
@@ -306,7 +356,8 @@ function colourSection(lk, d) {
   const fineChanged = lk.theme === 'custom' || ['nh', 'nc', 'wh'].some((k) => lk.c[k] !== theme[k]);
   return h('section', { class: 'look-sec' }, h('h2', {}, t('appearance.colour.heading')),
     modeSeg(),
-    h('div', { class: 'opt' }, h('span', {}, lk.theme === 'custom' ? t('appearance.colour.theme_custom') : t('appearance.colour.theme')), themeSwatches()),
+    h('div', { class: 'opt' }, h('span', {}, themeLabel(lk)), themeSwatches()),
+    familiesSection(lk),
     h('div', { class: 'opt' }, h('span', {}, t('appearance.colour.accent')), accentRow()),
     adv(dial(t('appearance.colour.strength'), { id: 'd-strength', min: 0.3, max: 1.7, step: 0.05, value: lk.strength, def: d.strength, scale: 100, unit: '%', apply: (v, o) => setLook({ strength: v }, o) }), lk.strength !== d.strength),
     adv(group(
@@ -408,41 +459,15 @@ function coloursSection(lk) {
 }
 
 // ---- Widget and tab colours ----
-// A palette is chosen from NOBBIE's list (static/vendor/swatches/swatch_palettes.json, loaded when first needed).
-// The look keeps the palette's step 500 (light mode) and step 300 (dark mode), so it paints before the list loads.
-let palettes = null;
-async function loadPalettes() {
-  if (!palettes) {
-    palettes = fetch('/vendor/swatches/swatch_palettes.json').then((r) => { if (!r.ok) throw new Error('palettes'); return r.json(); });
-    palettes.catch(() => { palettes = null; });
-  }
-  return palettes;
-}
-
-// A dialog with a strip of hues, each family as a heading with its palettes as swatches, and None.
-function openPalettePicker(name, onPick) {
-  const body = h('div', { class: 'ident-pick' });
-  const dlg = openDialog(t('appearance.ident.pick_title', { name }), body, { wide: true });
-  const hues = text('appearance.ident.hues');
-  loadPalettes().then((families) => {
-    const order = [...new Set(families.map((f) => f.hue))];
-    let hue = order[0];
-    const strip = tabStrip({ label: t('appearance.ident.pick', { name }), onSelect: (k) => { hue = k; draw(); } });
-    const grid = h('div', { class: 'ident-families' });
-    const pick = (value) => { onPick(value); dlg.close(); };
-    function draw() {
-      strip.set(order.map((k) => ({ key: k, label: hues[k] || k })), hue);
-      grid.replaceChildren(...families.filter((f) => f.hue === hue).map((f) => h('div', { class: 'ident-family' },
-        h('h3', {}, f.name),
-        h('div', { class: 'swatches ident-swatches' }, f.palettes.map((p) => {
-          const el = h('button', { type: 'button', class: 'ident-swatch', title: p.name, 'aria-label': p.name, 'data-fk': `ident-pick-${p.slug}`, onclick: () => pick({ swatch: p.slug, light: p.steps['500'], dark: p.steps['300'] }) });
-          el.style.setProperty('--swatch', p.steps['500']);
-          return el;
-        })))));
-    }
-    draw();
-    body.replaceChildren(strip.el, grid, button(t('appearance.ident.none'), { 'data-fk': 'ident-pick-none', onclick: () => pick(null) }));
-  }).catch(() => body.replaceChildren(h('p', { class: 'note' }, t('appearance.ident.load_failed'))));
+// A palette is chosen with familyPicker. The look keeps the palette's step 500 (light mode) and step 300 (dark mode), so it paints before the list loads.
+function openPalettePicker(name, current, onPick) {
+  let dlg = null;
+  const pick = (value) => { onPick(value); dlg.close(); };
+  const body = h('div', { class: 'ident-pick' },
+    familyPicker({ current: current ? `fam:${current}` : null, label: t('appearance.ident.pick', { name }), fk: (th) => `ident-pick-${th.id.slice(4)}`,
+      onPick: (th) => pick({ swatch: th.id.slice(4), light: th.swatch, dark: th.dark }) }),
+    button(t('appearance.ident.none'), { 'data-fk': 'ident-pick-none', onclick: () => pick(null) }));
+  dlg = openDialog(t('appearance.ident.pick_title', { name }), body, { wide: true });
 }
 
 function identRow(kind, id, name, lk) {
@@ -451,7 +476,7 @@ function identRow(kind, id, name, lk) {
   const set = (fn, opts) => L.change((s, l) => { fn(l.ident[kind]); }, opts);
   const swatch = h('button', { type: 'button', class: 'ident-swatch', 'data-fk': `ident-${key}-${id}-${e ? e.swatch : 'none'}`, 'aria-label': t('appearance.ident.pick', { name }),
     title: e ? e.swatch.replace(/-/g, ' ') : t('appearance.ident.none'),
-    onclick: () => openPalettePicker(name, (v) => set((m) => {
+    onclick: () => openPalettePicker(name, e && e.swatch, (v) => set((m) => {
       if (!v) delete m[id];
       else m[id] = { ...(m[id] || { op: 100, title: false }), ...v };
     })) }, e ? '' : '-');

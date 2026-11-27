@@ -5,7 +5,7 @@ TEST := docker compose -f docker-compose.test.yml
 BACKUP_DIR := ./backups
 BUN := docker run --rm --user "$$(id -u):$$(id -g)" -e HOME=/tmp -v "$(CURDIR)":/x -w /x/tailwind oven/bun:1-debian
 
-.PHONY: help up down restart-app logs ps health db-backup db-restore confirm css test test-api test-e2e test-down shots lint format
+.PHONY: family-themes help up down restart-app logs ps health db-backup db-restore confirm css test test-api test-e2e test-down shots lint format
 RUFF := docker run --rm -w /srv/xo
 RUFF_PATHS := app scripts tests
 
@@ -17,6 +17,9 @@ up: ## Build the image and start (or update) the stack.
 
 down: ## Stop and remove the containers. Keeps the database volume.
 	$(COMPOSE) down
+
+family-themes: ## Rebuild static/js/family-themes.js from the NOBBIE palettes.
+	python3 scripts/build_family_themes.py
 
 restart-app: ## Restart the app container only.
 	$(COMPOSE) restart app

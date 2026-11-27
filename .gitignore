@@ -9,5 +9,6 @@ tailwind/dist/
 static/tw.css
 static/vendor/*
 !static/vendor/fonts/
+!static/vendor/swatches/
 .claude/settings.local.json
 .claude/handoffs/

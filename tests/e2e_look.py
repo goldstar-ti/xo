@@ -245,6 +245,40 @@ with sync_playwright() as p:
     assert pg.locator("#xo-ident").evaluate("e => e.textContent").count("tasks") >= 2
     pg.get_by_role("button", name="Reset widget and tab colours").click()
     assert pg.evaluate("XOLook.active().look.ident") == {"widgets": {}, "tabs": {}}
+    # theme families: 30 families, 151 themes, every number inside the look's ranges
+    fam = pg.evaluate("""import('/js/family-themes.js').then(m => {
+      const r = XOLook.COLOUR_RANGE, themes = m.FAMILIES.flatMap(f => f.themes);
+      const bad = themes.filter(t => Object.keys(r).some(k => !(t.c[k] >= r[k][0] && t.c[k] <= r[k][1])));
+      return { families: m.FAMILIES.length, themes: themes.length, bad: bad.length, hues: m.FAMILY_HUES };
+    })""")
+    assert fam == {"families": 30, "themes": 151, "bad": 0, "hues": ["Red", "Green", "Blue"]}, fam
+    # choose one through the picker (it sits under the theme swatches, in Advanced)
+    pg.locator('[data-fk="theme:fam:raspberry-tart"]').click()
+    lk = pg.evaluate("XOLook.active().look")
+    assert lk["theme"] == "fam:raspberry-tart" and (0 <= lk["c"]["ah"] <= 40 or lk["c"]["ah"] >= 340), lk
+    assert pg.evaluate(css + "('--ah')").strip() == str(lk["c"]["ah"])
+    expect(pg.locator('[data-fk="theme:fam:raspberry-tart"]')).to_have_attribute("aria-pressed", "true")
+    # complete colour themes: export with one override, reset, import, apply
+    pg.locator('[data-fk="mode:light"]').click()
+    pg.evaluate("XOLook.change((s, l) => { l.colours.light.leaf = '#aa0000'; l.strength = 1.3; })")
+    file = pg.evaluate("XOLook.exportThemes([])")
+    assert file["xo"] == "colour-themes" and file["version"] == 1 and len(file["themes"]) == 1, file
+    assert file["themes"][0]["colours"]["light"] == {"leaf": "#aa0000"} and file["themes"][0]["strength"] == 1.3
+    pg.evaluate("XOLook.change((s, l) => { l.colours = { light: {}, dark: {} }; l.strength = 1; })")
+    before = pg.evaluate("XOLook.state.myThemes.length")
+    r = pg.evaluate("f => XOLook.importThemes(f)", file)
+    assert r == {"added": 1, "skipped": 0}, r
+    assert pg.evaluate("XOLook.state.myThemes.length") == before + 1
+    mine = pg.evaluate("XOLook.state.myThemes[XOLook.state.myThemes.length - 1]")
+    pg.evaluate("id => XOLook.change((s, l) => { const m = s.myThemes.find(x => x.id === id); l.theme = 'my:' + id; l.c = m.c; l.strength = m.strength; l.colours = m.colours; })", mine["id"])
+    got = pg.evaluate("XOLook.active().look")
+    assert got["strength"] == 1.3 and got["colours"]["light"] == {"leaf": "#aa0000"} and got["c"] == file["themes"][0]["c"], got
+    bad = pg.evaluate("XOLook.importThemes({ xo: 'other' })")
+    assert bad["error"] is True and bad["added"] == 0 and pg.evaluate("XOLook.state.myThemes.length") == before + 1
+    pg.evaluate("f => XOLook.importThemes(f)", file)
+    names = pg.evaluate("XOLook.state.myThemes.map(m => m.name)")
+    assert names[-1] == names[-2] + " (2)", names
+    pg.evaluate("XOLook.change((s, l) => { s.myThemes = []; l.colours = { light: {}, dark: {} }; l.strength = 1; })")
     pg.get_by_role("button", name="Reset everything").click()
     pg.get_by_role("button", name="Tap again to reset").click()
     assert pg.evaluate("XOLook.prefs.view") == "standard"
