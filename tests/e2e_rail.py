@@ -31,7 +31,7 @@ with sync_playwright() as p:
 
     # every screen in the side bar has an icon, drawn at once from the core set
     expect(side.locator("nav a .ico svg")).to_have_count(13)
-    assert today.locator(".ico").get_attribute("data-icon") == "sun"
+    assert today.locator(".ico").get_attribute("data-icon") == "tabler/sun"
 
     # Settings: lines in a section are spaced apart (the push buttons are hidden here: no push service)
     pg.goto(BASE + "/#/settings")
@@ -85,6 +85,7 @@ with sync_playwright() as p:
     pg.locator('[data-fk="icon-today"]').click()
     pop = pg.locator(".icon-pop")
     expect(pop).to_be_visible()
+    pop.get_by_role("radio", name="Phosphor").click()  # the default is a Tabler icon now, so the picker opens on Tabler
     pop.locator("#ip-search").fill("rocket")
     pop.locator('.ip-cell[data-name="rocket"]').click()
     expect(today.locator(".ico")).to_have_attribute("data-icon", "rocket")
@@ -103,7 +104,7 @@ with sync_playwright() as p:
     today.click(button="right")
     expect(pop).to_be_visible()
     pop.get_by_role("button", name="Use the default").click()
-    expect(today.locator(".ico")).to_have_attribute("data-icon", "sun")
+    expect(today.locator(".ico")).to_have_attribute("data-icon", "tabler/sun")
     assert pg.evaluate("XOLook.prefs.icons.today === undefined")
     pg.keyboard.press("Escape")
     expect(pop).to_have_count(0)

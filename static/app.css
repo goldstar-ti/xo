@@ -24,8 +24,8 @@
   --weight: 400; --lh: 1.5; --ls: 0em;
   --radius: 10px; --pill: 999px;
   --d: 1; --rule: 1px; --loud: 1;
-  --gap: calc(1.25rem * var(--d));
-  --time-col: 5.25rem;
+  --gap: calc(0.82rem * var(--d));
+  --time-col: 4.47rem;
   --chrome: 1; --zoom: 1; --font-mono: "JetBrains Mono", ui-monospace, monospace;
   --mono-size: 1; --mono-ls: 0em; --radius-dialog: 14px; --glass-alpha: 0; --glass-blur: 14px;
   --glass-paper: color-mix(in oklch, var(--paper) calc(100% - var(--glass-alpha) * 100%), transparent);
@@ -99,8 +99,8 @@ code, kbd, pre { font-family: var(--font-mono); font-size: calc(1em * var(--mono
 h1, h2, h3, p, ul, ol { margin: 0; }
 ul, ol { padding: 0; list-style: none; }
 h1, h2, h3, .brand, .next-head { font-family: var(--font-head); }
-h1 { font-size: calc(var(--fs-page, 1.75rem) * var(--loud)); line-height: 1.15; font-weight: 700; letter-spacing: -0.01em; }
-h2 { font-size: var(--fs-section, 1.125rem); line-height: 1.3; font-weight: 700; }
+h1 { font-size: calc(var(--fs-page, 1.53rem) * var(--loud)); line-height: 1.15; font-weight: 700; letter-spacing: -0.01em; }
+h2 { font-size: var(--fs-section, 0.9375rem); line-height: 1.3; font-weight: 600; }
 h3 { font-size: var(--fs-sub, 1rem); font-weight: 700; }
 small, .meta, .hint { font-size: var(--fs-small, 0.875rem); color: var(--muted); font-weight: 400; }
 a { color: var(--c-link); text-underline-offset: 0.18em; }
@@ -142,26 +142,29 @@ button:disabled { opacity: 0.55; cursor: default; }
 #app { min-height: 100dvh; }
 .loading { padding: 3rem 1.25rem; color: var(--muted); }
 .side { display: none; }
-.brand { font-weight: 800; font-size: calc(var(--fs-brand, 1.125rem) * var(--chrome)); letter-spacing: -0.01em; }
+.brand { font-weight: 700; font-size: calc(var(--fs-brand, 0.94rem) * var(--chrome)); letter-spacing: -0.01em; }
 .top {
   position: sticky; top: 0; z-index: 5;
   display: flex; align-items: center; justify-content: space-between;
   font-size: calc(1rem * var(--chrome));
-  padding: calc(0.6rem * var(--chrome)) calc(1.25rem * var(--chrome)); padding-top: calc(0.6rem * var(--chrome) + env(safe-area-inset-top));
+  min-height: calc(3.3rem * var(--chrome)); box-sizing: border-box;
+  padding: 0 calc(1.18rem * var(--chrome)); padding-top: env(safe-area-inset-top);
   background: color-mix(in oklch, var(--c-top-bg) calc(100% - var(--glass-alpha) * 100%), transparent); color: var(--c-top-ink);
   border-bottom: var(--rule) solid var(--line);
 }
 .plan-btn:not(.tw\:btn) {
-  min-height: 2.5rem; padding: 0.35rem 0.9rem;
-  background: var(--ink); color: var(--paper);
-  border: 0; border-radius: var(--pill); font-weight: 600; font-size: var(--fs-control, 0.9375rem);
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  min-height: 2.1rem; padding: 0 0.7rem;
+  background: var(--surface); color: var(--ink);
+  border: 1.5px solid var(--ink); border-radius: var(--pill); font-weight: 600; font-size: 0.82rem;
 }
-#view { max-width: 44rem; padding: 1.5rem 1.25rem 7rem; outline: none; }
+.plan-btn .ico, .look-btn .ico { width: 1.1rem; height: 1.1rem; }
+#view { max-width: 44rem; padding: calc(0.94rem * var(--d)) 1.18rem 7rem; outline: none; }
 /* Screens that need the whole width: the tracker (its list sits beside an item's details). */
 #view:has(> .tr) { max-width: 90rem; min-width: 0; }
 .main:has(> #view > .tr) { min-width: 0; }
 #view > * + * { margin-top: var(--gap); }
-#view > section, #view > details, #view > .group { margin-top: calc(2.25rem * var(--d)); }
+#view > section, #view > details, #view > .group { margin-top: calc(0.82rem * var(--d)); }
 /* Lines inside a section stand apart: a note, a row of buttons, a tick box, a field. Zero specificity,
    so any screen's own spacing wins. Margins collapse, so the gap under a heading stays one gap. */
 :where(#view > section) > * + * { margin-top: calc(0.75rem * var(--d)); }
@@ -175,11 +178,11 @@ button:disabled { opacity: 0.55; cursor: default; }
 }
 .tabs a {
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.15rem;
-  min-height: calc(3.5rem * var(--chrome)); padding: 0 0.15rem;
-  font-size: calc(var(--fs-nav, 0.8125rem) * var(--chrome)); font-weight: 600; color: var(--c-tabs-ink); text-decoration: none;
+  min-height: calc(3.53rem * var(--chrome)); padding: 0 0.15rem;
+  font-size: calc(var(--fs-nav, 0.82rem) * var(--chrome)); font-weight: 500; color: var(--c-tabs-ink); text-decoration: none;
   border-top: 3px solid transparent; margin-top: -1px;
 }
-.tabs a.on { color: var(--c-tabs-on); border-top-color: var(--c-tabs-on); }
+.tabs a.on { color: var(--c-tabs-on); border-top-color: var(--c-tabs-on); font-weight: 600; }
 
 @media (min-width: 60rem) {
   #app { display: grid; grid-template-columns: var(--side-w, 15rem) 1fr; }
@@ -303,12 +306,12 @@ details > summary { cursor: pointer; padding: 0.6rem 0; color: var(--leaf); font
 .tick.on:not(.tw\:btn) { background: var(--leaf); color: var(--leaf-ink); }
 
 /* ---- lists ---- */
-.list li { display: flex; align-items: center; gap: 0.75rem; padding: calc(0.5rem * var(--d)) 0; border-top: var(--rule) solid var(--c-row-line); }
+.list li { display: flex; align-items: center; gap: 0.75rem; padding: calc(0.59rem * var(--d)) 0; border-top: var(--rule) solid var(--c-row-line); }
 .list li:last-child { border-bottom: var(--rule) solid var(--c-row-line); }
 .list .row-main {
   flex: 1; min-width: 0; min-height: 2.75rem;
   display: flex; flex-direction: column; justify-content: center; align-items: flex-start;
-  padding: 0.15rem 0; background: none; border: 0; text-align: left; font-weight: 500; color: inherit; text-decoration: none;
+  padding: 0.15rem 0; background: none; border: 0; text-align: left; font-weight: 600; color: inherit; text-decoration: none;
 }
 .list .row-main > span { overflow-wrap: anywhere; }
 /* A time box beside a row keeps its own width, so the row's text is not squeezed to one letter a line. */
@@ -457,7 +460,7 @@ dialog.sheet::backdrop { background: color-mix(in srgb, var(--c-backdrop) 55%, t
 
 /* ---- the Look button, quick panel and Appearance screen ---- */
 .head-actions { display: flex; gap: 0.5rem; align-items: center; }
-.look-btn:not(.tw\:btn) { min-height: 2.5rem; padding: 0.35rem 0.9rem; background: transparent; color: var(--ink); border: calc(var(--rule) + 0.5px) solid var(--ink); border-radius: var(--pill); font-weight: 600; font-size: var(--fs-control, 0.9375rem); }
+.look-btn:not(.tw\:btn) { display: inline-flex; align-items: center; gap: 0.4rem; min-height: 2.1rem; padding: 0 0.7rem; background: var(--surface); color: var(--ink); border: 1.5px solid var(--ink); border-radius: var(--pill); font-weight: 600; font-size: 0.82rem; }
 .side .look-btn { align-self: flex-start; }
 .side .head-actions { flex-direction: column; align-items: flex-start; }
 
@@ -696,7 +699,6 @@ input.xo-hex { width: 6.5rem; min-height: 2.5rem; padding: 0.3rem 0.5rem; font-f
 @media (hover: hover) { .xo-icon-btn:hover:not(:disabled) { color: var(--ink); background: var(--leaf-soft); } }
 .xo-icon-btn[aria-pressed="true"] { color: var(--leaf); }
 .xo-icon-btn:disabled { opacity: 0.55; cursor: default; }
-.head-actions .ico { display: none; } /* the Look and plan card buttons show icons only on a collapsed side bar */
 :root[data-nav-icons="off"] :is(.side nav, .tabs, .links) .ico { display: none; }
 .list.links .row-main { flex-direction: row; align-items: center; justify-content: flex-start; gap: 0.65rem; }
 .icon-list { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr)); gap: 0.5rem; }

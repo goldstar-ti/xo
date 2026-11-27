@@ -54,10 +54,10 @@
   const LOUD = { quiet: 0.82, regular: 1, loud: 1.32 };
 
   // Text-size roles: [key, default rem]. Labels live in content/text/appearance.yaml.
-  const FS_ROLES = [['display', 2.25], ['page', 1.75], ['quote', 1.5], ['figure', 1.5], ['dialog', 1.375], ['section', 1.125], ['lead', 1.125],
+  const FS_ROLES = [['display', 2.25], ['page', 1.53], ['quote', 1.5], ['figure', 1.5], ['dialog', 1.375], ['section', 0.9375], ['lead', 1],
     ['brand', 1.125], ['sub', 1], ['body', 1], ['large', 1.0625], ['label', 0.9375], ['control', 0.9375], ['small', 0.875], ['small_btn', 0.875],
     ['nav', 0.8125], ['tag', 0.75], ['tiny', 0.6875]];
-  const FS_STEPS = [0.6875, 0.75, 0.8125, 0.875, 0.9375, 1, 1.0625, 1.125, 1.25, 1.375, 1.5, 1.75, 2, 2.25, 2.75, 3.25];
+  const FS_STEPS = [0.6875, 0.75, 0.8125, 0.875, 0.9375, 1, 1.0625, 1.125, 1.25, 1.375, 1.5, 1.53, 1.75, 2, 2.25, 2.75, 3.25];
   // Colour tokens by group, in the order Appearance shows them: [groupKey, [token, ...]]. The first two groups are the
   // base colours; the rest are component colours (static/app.css) that start as a base colour. Names live in appearance.yaml.
   const COLOUR_GROUPS = [

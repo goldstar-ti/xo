@@ -1,6 +1,6 @@
 // Service worker: keeps the app shell available and shows reminders.
 // Classic script (no imports) so it works in every browser that supports push.
-const CACHE = 'xo-v24';
+const CACHE = 'xo-v25';
 const SHELL = [
   '/', '/app.css', '/tw.css', '/manifest.webmanifest', '/fonts/ahn-latin.woff2', '/icons/icon-192.png',
   '/js/boot.js', '/js/app.js', '/js/store.js', '/js/util.js', '/js/content.js', '/js/lookups.js', '/js/text.js', '/js/ui.js', '/js/kit.js', '/kit-wa.css', '/js/forms.js', '/js/tasks.js', '/js/taskdata.js', '/js/taskfields.js', '/js/palette.js', '/js/keymap.js', '/js/customfields.js', '/js/cleanup.js', '/js/family-themes.js',

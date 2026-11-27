@@ -293,6 +293,23 @@ with sync_playwright() as p:
     page.get_by_role("button", name="Sign in").click()
     expect(page.locator(".dayline .entry.done", has_text="Breakfast")).to_have_count(1, timeout=20000)
 
+    # --- phone rhythm at 390 px: slim header, 14 px tab labels, 26 px page title, no header overflow
+    page.set_viewport_size({"width": 390, "height": 844})
+    expect(page.locator(".top")).to_be_visible()
+    rhythm = page.evaluate(
+        """() => ({
+            top: document.querySelector('.top').getBoundingClientRect().height,
+            tab: parseFloat(getComputedStyle(document.querySelector('.tabs a')).fontSize),
+            h1: parseFloat(getComputedStyle(document.querySelector('#view h1')).fontSize),
+            over: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+        })"""
+    )
+    assert rhythm["top"] <= 57, rhythm
+    assert 13 <= rhythm["tab"] <= 15, rhythm
+    assert 25 <= rhythm["h1"] <= 27, rhythm
+    assert rhythm["over"] <= 0, rhythm
+    page.set_viewport_size({"width": 412, "height": 915})
+
     # --- desktop layout, light and dark
     page.set_viewport_size({"width": 1280, "height": 900})
     expect(page.locator(".side")).to_be_visible()

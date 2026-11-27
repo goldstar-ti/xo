@@ -1,23 +1,23 @@
 // Phosphor and Tabler icons, as in NOBBIE.
 //
 // An icon value is `name` (Phosphor Regular), `name:fill` (Phosphor Fill), `tabler/name`
-// (Tabler outline, stroke 1.5) or `tabler/name:fill` (Tabler filled). The side bar's defaults
+// (Tabler outline, stroke 1.75) or `tabler/name:fill` (Tabler filled). The side bar's defaults
 // are in icon-core.js and draw at once; any other icon loads its set's file from
 // static/vendor/icons/ the first time it is needed (the service worker keeps a copy).
 // scripts/build_icons.py (make icons) writes those files.
 // Exports for buttons: iconButton(value, label, attrs), setIcon(button, value), setLabel(button, label).
-import { CORE } from './icon-core.js';
+import { CORE, TABLER_CORE } from './icon-core.js';
 import { h } from './util.js';
 
 // The default icon for each screen and for the phone's More tab.
 export const DEFAULT_ICONS = {
-  today: 'sun', diary: 'calendar-dots', tasks: 'check-square-offset', notes: 'note-pencil', obligations: 'handshake',
+  today: 'tabler/sun', diary: 'tabler/calendar-event', tasks: 'tabler/list-check', notes: 'note-pencil', obligations: 'tabler/scale',
   routine: 'arrows-clockwise', bills: 'receipt', checkin: 'heartbeat', plan: 'map-trifold', appearance: 'palette',
-  settings: 'gear-six', canvas: 'squares-four', tracker: 'kanban', more: 'dots-three',
+  settings: 'gear-six', canvas: 'squares-four', tracker: 'kanban', more: 'tabler/dots',
 };
 
 // Icons on the side bar's own buttons.
-export const CHROME = { collapse: 'caret-double-left', expand: 'caret-double-right', look: 'paint-brush', plan_card: 'cardholder' };
+export const CHROME = { collapse: 'caret-double-left', expand: 'caret-double-right', look: 'tabler/palette', plan_card: 'tabler/lifebuoy' };
 
 export const VALUE_RE = /^(tabler\/)?[a-z0-9-]{1,60}(:fill)?$/;
 
@@ -59,7 +59,7 @@ export function loadCatalogue() {
 function svg(p, body) {
   if (!body) return '';
   const attrs = p.tabler && !p.fill
-    ? 'viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"'
+    ? 'viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"'
     : `viewBox="${p.tabler ? '0 0 24 24' : '0 0 256 256'}" fill="currentColor"`;
   return `<svg xmlns="http://www.w3.org/2000/svg" ${attrs} aria-hidden="true" focusable="false">${body}</svg>`;
 }
@@ -67,7 +67,8 @@ function svg(p, body) {
 // The markup for a value, or '' when its set has not loaded yet.
 function markup(value) {
   const p = parseIcon(value);
-  const body = p.set === 'phosphor-regular' && CORE[p.name] ? CORE[p.name] : maps[p.set]?.[p.name];
+  const core = p.set === 'phosphor-regular' ? CORE[p.name] : p.set === 'tabler-outline' ? TABLER_CORE[p.name] : '';
+  const body = core || maps[p.set]?.[p.name];
   return svg(p, body);
 }
 
