@@ -2,6 +2,7 @@
 // close and reopen, comments and history. Every field saves when it changes (text fields when the
 // focus leaves them), and each change lands in the item's history.
 import * as M from './model.js';
+import { customEditor } from '../customfields.js';
 import { loadNobbieItem, nobbieLink } from './nobbie.js';
 import { t } from '../text.js';
 import { button, checkbox, field, input, select, textarea } from '../ui.js';
@@ -171,6 +172,7 @@ export function renderDetail(root, ctx, id) {
       button(t('tracker.detail.back'), { class: 'small', 'data-focus': 'back', onclick: () => ctx.select(null) })),
     title,
     fields(it, id),
+    customEditor('pm_item', it.custom || {}, (custom) => M.updateItem(id, { custom }).catch(fail)),
     field(t('tracker.fields.body'), body),
     field(t('tracker.fields.test_steps'), steps),
     checklist(it, id),

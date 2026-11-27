@@ -181,7 +181,7 @@ export async function updateItem(id, changes, { note = '' } = {}) {
     const v = field === 'labels' ? normaliseLabels(value) : value;
     if (JSON.stringify(v ?? '') === before) continue;
     next[field] = v;
-    if (['body', 'test_steps', 'checklist', 'links'].includes(field)) events.push(event('edited', { field }));
+    if (['body', 'test_steps', 'checklist', 'links', 'custom'].includes(field)) events.push(event('edited', { field }));
     else events.push(event('changed', { field, from: fieldText(it[field]), to: fieldText(v) }));
   }
   if (events.length === (it.events || []).length) return;

@@ -67,6 +67,7 @@ tracker:
     project: Project
     body: Description
     test_steps: Test steps
+    custom: Custom fields
     checklist: Checklist
     links: Links
     resolution: Resolution
@@ -251,25 +252,6 @@ tracker:
 
   keys:
     title: Tracker keys
-    new: New item
-    next: Next item
-    prev: Previous item
-    open: Open the first item
-    back: Back to the list
-    edit: Edit the title
-    comment: Write a comment
-    check: Add a checklist step
-    select: Tick or untick the open item
-    field_status: Set status
-    field_priority: Set priority
-    field_kind: Set kind
-    field_area: Set area
-    field_owner: Set owner
-    close: Close the open item
-    tab-prev: Previous view
-    tab-next: Next view
-    search: Search items
-    help: Show these keys
 
   nobbie:
     read_only: This item lives in NOBBIE's tracker. XO shows it but cannot change it.

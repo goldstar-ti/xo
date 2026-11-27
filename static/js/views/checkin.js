@@ -5,6 +5,7 @@ import { addDays, fmtDay, fmtDuration, fmtLong, h, toast, today, withPhoneLinks,
 import { allTasks, pickTask, saveTask } from '../taskdata.js';
 import { button, chip, textarea } from '../ui.js';
 import { t, text } from '../text.js';
+import { customEditor } from '../customfields.js';
 import { checkinId, dayEntries } from './today.js';
 import { openPlanCard } from './plan.js';
 
@@ -57,6 +58,12 @@ function textBox(state, name, label, { rows = 3, placeholder = '' } = {}) {
   return textarea({ rows, placeholder, value: state[name] || '', 'aria-label': label, oninput: (e) => { state[name] = e.target.value; } });
 }
 
+// The custom fields for check-ins, as a section above the save bar. Nothing when none are defined.
+function customSection(state) {
+  const editor = customEditor('checkin', state.custom || {}, (c) => { state.custom = c; });
+  return editor && h('section', { class: 'question' }, h('h2', {}, t('fields.kinds.checkin')), editor);
+}
+
 const q = (label, control, hint) => h('div', { class: 'question' }, h('h2', {}, label), hint && h('p', { class: 'hint' }, hint), control);
 
 function saveBar(type, day, state) {
@@ -83,6 +90,7 @@ function morning(root, day, state) {
     q(t('checkin.morning.goodlife'), textBox(state, 'goodlife', t('checkin.morning.goodlife'), { rows: 2 }),
       plan.answers.good_ways ? t('checkin.morning.from_plan', { text: plan.answers.good_ways }) : ''),
     h('p', { class: 'note' }, picked ? t('checkin.morning.picked', { n: picked }) : t('checkin.morning.none_picked'), h('a', { href: '#/tasks' }, t('checkin.morning.choose_tasks'))),
+    customSection(state),
     saveBar('morning', day, state),
   );
 }
@@ -173,6 +181,7 @@ function evening(root, day, state) {
     store.settings().logSigns && signsBlock(state),
     q(t('checkin.evening.ok'), textBox(state, 'ok', t('checkin.evening.ok'), { rows: 2 }), t('checkin.evening.ok_hint')),
     q(t('checkin.evening.first'), textBox(state, 'first', t('checkin.evening.first'), { rows: 2 })),
+    customSection(state),
     saveBar('evening', day, state),
   );
 }
@@ -185,6 +194,7 @@ function weekly(root, day, state) {
     h('p', { class: 'note' }, t('checkin.weekly.summary', { done: evenings.length, flagged, days: t(flagged === 1 ? 'checkin.weekly.day_one' : 'checkin.weekly.day_other') })),
     WEEKLY_QUESTIONS.map((item, i) => q(t('checkin.numbered', { n: i + 1, text: item.q }), textBox(state, item.k, item.q, { rows: 3 }))),
     store.settings().showGuard && h('p', { class: 'hint' }, GUARD_TEXT),
+    customSection(state),
     saveBar('weekly', day, state),
   );
 }

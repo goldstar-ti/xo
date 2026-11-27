@@ -191,6 +191,43 @@ with sync_playwright() as p:
     expect(dlg).to_have_count(0)
     expect(pg.locator(".list li", has_text="Rent test")).to_contain_text("Shared")
 
+    # 3. Custom fields on tracker items and check-ins.
+    add_field("pm_item", "Sprint", "text")
+    sprint = pg.evaluate("async () => (await import('/js/store.js')).get('fields').data.pm_item[0].id")
+    add_field("checkin", "Weight", "number")
+    weight = pg.evaluate("async () => (await import('/js/store.js')).get('fields').data.checkin[0].id")
+
+    pg.goto(f"{BASE}/#/tracker")
+    pg.get_by_role("button", name="New project").click()
+    dlg = pg.locator("dialog[open]")
+    dlg.locator("#f-name").fill("Field project")
+    dlg.locator("#f-key").fill("FP")
+    dlg.get_by_role("button", name="Create project").click()
+    expect(dlg).to_have_count(0)
+    pg.get_by_role("button", name="New item").click()
+    dlg.locator("#f-title").fill("Field item")
+    dlg.get_by_role("button", name="Create item").click()
+    expect(dlg).to_have_count(0)
+    detail = pg.get_by_role("complementary", name="Item details")
+    detail.locator(f"#cf-{sprint}").fill("S1")
+    detail.locator(f"#cf-{sprint}").press("Tab")
+    expect(detail).to_contain_text("Custom fields")
+    pg.reload()
+    pg.wait_for_selector(".dayline, h1", timeout=20000)
+    detail = pg.get_by_role("complementary", name="Item details")
+    expect(detail.locator(f"#cf-{sprint}")).to_have_value("S1")
+    expect(detail).to_contain_text("Custom fields")
+
+    pg.goto(f"{BASE}/#/checkin/morning")
+    pg.wait_for_selector(f"#cf-{weight}", timeout=20000)
+    set_control(pg.locator(f"#cf-{weight}"), 80)
+    pg.keyboard.press("Tab")
+    pg.get_by_role("button", name="Save check-in").click()
+    pg.wait_for_selector(".dayline", timeout=20000)
+    pg.goto(f"{BASE}/#/checkin/morning")
+    pg.wait_for_selector(f"#cf-{weight}", timeout=20000)
+    expect(pg.locator(f"#cf-{weight}")).to_have_value("80")
+
     b.close()
 
 assert not errors, errors
