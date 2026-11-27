@@ -95,6 +95,7 @@
 17. Open `https://xo.tifunction.com/#/settings` on desktop: collapse the side bar with the arrows at the top, drag its right edge, and right-click Diary to pick a new icon. Checked only in headless Chromium screenshots and `tests/e2e_rail.py`.
 18. `tests/e2e_look.py` line 304 (`Reset Colours: Buttons` not found) fails whenever it runs after the Web Awesome run of `tests/e2e.py`, which is the order `make test-e2e` uses, so the chain stops there. It fails the same way on `7230835`, before 2.20.0. It passes after the XO kit run.
 19. Ticking Appearance in the Widgets popover closes the popover. Cause not found; `tests/e2e_canvas.py` closes it only if still open.
+20. Seen in canvas screenshots (2026-11-27, 2.21.0): the icon picker opened from the New canvas Icon field sits over the popover's Cancel and Create buttons (no room to its right, so it drops below the field), and it has no X in its title bar as the design guide asks. Escape or a pick closes it. Both belong to `static/js/iconpicker.js` placement and chrome.
 
 ## What worked
 
