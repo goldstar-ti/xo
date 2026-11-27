@@ -14,6 +14,9 @@ common:
   save: Save
   cancel: Cancel
   close: Close
+  pin: Pin
+  unpin: Unpin
+  reset_position: Reset position
   clear: Clear
   up: Move up
   down: Move down

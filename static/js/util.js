@@ -1,6 +1,7 @@
 // Small helpers: DOM building, dates, toasts, dialogs.
 import { button, checkbox, field, focusControl, input, notice, select, textarea } from './ui.js';
 import { t } from './text.js';
+import { openPopover } from './popover.js';
 import { micButton } from './voice.js';
 
 export function h(tag, attrs, ...kids) {
@@ -110,15 +111,16 @@ export function openDialog(title, body, { wide = false } = {}) {
   dlg.showModal();
   return dlg;
 }
-export const dialogOpen = () => !!document.querySelector('dialog[open]');
+// A modal dialog or an open form popover counts; a non-form popover (Widgets) does not.
+export const dialogOpen = () => !!document.querySelector('dialog[open]:modal, dialog.xo-pop[open][data-form]');
 
 /**
- * A form in a dialog.
+ * A form in a dialog, or in a popover beside `anchor` when one is given (that adds a Cancel button).
  * fields: [{ name, label, type: text|textarea|date|time|number|select|checkbox|custom, options, hint, required, placeholder, half, more }]
  * A custom field has build(value) returning { node, read }; read() gives its value on save, and filled(value) may say
  * whether the value counts as set. A field with more: true sits under "More options", which opens when one is set.
  */
-export function openForm({ title, fields, values = {}, saveLabel = t('common.save'), onSave, onDelete, note }) {
+export function openForm({ title, fields, values = {}, saveLabel = t('common.save'), onSave, onDelete, note, anchor = null }) {
   const inputs = {};
   const rowOf = (f) => {
     const id = `f-${f.name}`;
@@ -162,9 +164,10 @@ export function openForm({ title, fields, values = {}, saveLabel = t('common.sav
   const error = h('p', { class: 'form-error', role: 'alert' });
   const del = onDelete && button(t('common.delete'), { variant: 'danger' });
   const save = button(saveLabel, { variant: 'primary', type: 'submit', class: 'tw:ml-auto' });
+  const cancel = anchor && button(t('common.cancel'), { variant: 'ghost', onclick: () => dlg.close() });
   const form = h('form', { class: 'form' }, note && h('p', { class: 'note' }, note), h('div', { class: 'fields' }, mainRows), moreBlock, error,
-    h('div', { class: 'form-actions' }, del, save));
-  const dlg = openDialog(title, form);
+    h('div', { class: 'form-actions' }, del, cancel, save));
+  const dlg = anchor ? openPopover({ title, body: form, anchor, form: true }) : openDialog(title, form);
   if (del) {
     let armed = false;
     del.addEventListener('click', async () => {

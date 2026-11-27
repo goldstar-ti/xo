@@ -720,3 +720,19 @@ input.xo-hex { width: 6.5rem; min-height: 2.5rem; padding: 0.3rem 0.5rem; font-f
 .ip-cell:hover { background: var(--leaf-soft); }
 .ip-cell[aria-selected="true"] { border-color: var(--leaf); background: var(--leaf-soft); color: var(--leaf); }
 .ip-status { margin: 0; }
+
+/* Popover: non-modal, opens beside its button, drags by its title bar (static/js/popover.js). */
+dialog.xo-pop {
+  position: fixed; margin: 0; z-index: 60; width: min(26rem, calc(100vw - 2rem)); padding: 0 0.85rem 0.85rem;
+  background: var(--paper); color: var(--ink); border: var(--rule) solid var(--line); border-radius: var(--radius);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.18); overflow: auto;
+}
+dialog.xo-pop.wide { width: min(40rem, calc(100vw - 2rem)); }
+.xo-pop-head {
+  display: flex; align-items: center; gap: 0.25rem; position: sticky; top: 0; z-index: 1;
+  background: var(--paper); cursor: move; padding: 0.5rem 0; margin-bottom: 0.5rem; touch-action: none;
+}
+.xo-pop-head h2 { font-size: 1.0625rem; margin-right: auto; }
+.xo-pop-head button { cursor: pointer; }
+dialog.xo-pop.sheet { width: min(34rem, 100%); max-width: 100%; margin: auto auto 0; border-radius: var(--radius-dialog) var(--radius-dialog) 0 0; }
+@media (min-width: 40rem) { dialog.xo-pop.sheet { margin: auto; border-radius: var(--radius-dialog); } }
