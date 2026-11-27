@@ -28,6 +28,27 @@
 4. Canvas, parked: a resizable side pane, undo that survives a reload, and saved layout presets.
 5. Tasks, parked: manual card order on the board; subtasks as full tasks. Out of scope by the owner's decision: local-first sync and webhooks. OS-wide hotkeys are parked (D-29): a PWA cannot register them.
 
+## Appearance: NOBBIE options (2.19.0)
+
+- Shipped: Standard and Advanced views, six groups, 151 family themes in 30 families, 493 catalogue fonts plus a code font, 18 text roles, 57 colour tokens in 12 groups, component kits' colours, spacing, header size, zoom, radius, glass, figure style, widget and tab colours, theme export and import as XO JSON, `XO2-` JSON look codes. Decision D-30; future options in `docs/ROADMAP.md`.
+- Commits: S1 `59f83b9` fonts, S2 `0073981` engine, S3 `0739e34` Standard/Advanced, S4 `cc830cb` widget and tab colours, S3a `e3d4ff1` components, S3b `3b203ed` component colour tokens, S3b2 `149ba73` family themes and export/import, S3c `348ae01` six groups, fix `7c1513a`.
+- Defaults worth vetoing:
+  1. Density chips removed; Spacing dial plus Size preset replace them.
+  2. Colourful style not copied; Colour strength covers it.
+  3. 18 XO text roles, not NOBBIE's 23.
+  4. Colour overrides are hex only (native colour input, no alpha).
+  5. Radius is per device, not shared.
+  6. Look codes are JSON `XO2-`; `XO1-` still decodes.
+  7. Catalogue fonts are not in the offline shell; offline before first use falls back to system-ui.
+  8. Glass and figure style default off, so the default look is unchanged.
+  9. Widget and tab colours use NOBBIE's palettes (step 500 light, 300 dark).
+  10. Family themes map each palette onto XO's colour numbers, so the fine-tune dials still work; Surprise me picks from them too.
+  11. Theme files are XO's own JSON; NOBBIE's `ng-colours` export is not read; import adds to My themes without switching and renames on a clash.
+  12. Advanced items show in Standard once changed, with a dot.
+  13. 57 colour tokens (not NOBBIE's 98), one per XO element with its own colour.
+  14. Six groups instead of NOBBIE's General and iCandy tabs; the chosen group is remembered per device. Web Awesome's colour picker in the wa kit, native input elsewhere; the font picker is a filterable list that loads fonts only on focus or choice.
+- PJ to-do: (1) open Appearance at desktop and phone width and try Standard and Advanced; (2) veto any default above.
+
 ## Owner to-do
 
 0. To see NOBBIE's tracker in XO: create a NOBBIE reader account (`docker compose exec app python -m app.auth.cli create xo.reader@goldstartransport.com.au --role executive` in the NOBBIE folder, then set its password at first sign-in; executive and hseq are the roles that can open the tracker), add `NOBBIE_URL=https://nobbie.lan.tifunction.com/nobbie`, `NOBBIE_USER` and `NOBBIE_PASSWORD` to XO's `.env`, then `make up`.

@@ -400,3 +400,22 @@ Build one at a time, with tests, and keep each first version small. Each section
 - A re-nudge when a routine item is still unticked 20 minutes after its reminder.
 - Alembic, before the first schema change.
 - More themes, typefaces and layout variants as wanted. See "Styling" in `CLAUDE.md` for what a new dial needs.
+
+## Future Appearance options
+
+NOBBIE's Appearance options that XO has no element for yet. Each needs the element built first; the last column says where XO would use it.
+
+| NOBBIE option | Element XO would need | Suggested use in XO |
+|---|---|---|
+| Help icons (show, style, size, click or hover) | `?` help popovers | Explain check-in, plan and tracker fields |
+| Tooltip delay, rich tooltips and popovers | A tooltip component | Hover detail on tracker items and dayline entries |
+| Right-click menu, item order by use | A context menu | Quick actions on entries, tasks and tracker rows |
+| KPI tile status tone | KPI tiles with a status | Bills due, check-in streaks, tracker counts on Today |
+| Task button colour | Launcher action cards | A Today launcher for frequent actions |
+| Open-in-tab, object type and label icons | An icon set | Side-tab links and icons beside list kinds |
+| Record tabs limit | A tab cap in `tabs.js` | Limit open side tabs |
+| Filter zoom, JSON size | Filter bars, JSON views | Tracker filters; a raw item view |
+| Month palette | Month colours | Diary and calendar months |
+| Discover page | A home page of widgets | A start screen |
+| Iconography | Icon overrides | Once an icon set exists |
+| Identity colours for tiles and pages | Tiles; per-page colours | Nav items and Today blocks |
