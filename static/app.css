@@ -642,3 +642,5 @@ input.xo-hex { width: 6.5rem; min-height: 2.5rem; padding: 0.3rem 0.5rem; font-f
 .md hr { border: 0; border-top: var(--rule) solid var(--line); }
 .md-preview { min-height: 6rem; }
 .list li[aria-current="true"] { background: var(--leaf-soft); }
+.family-picker .xo-tabs { overflow-x: auto; }
+.xo-tab-btn .badge, .xo-tab-btn [class*="badge"] { margin-left: 0.4rem; }
