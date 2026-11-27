@@ -206,12 +206,14 @@ with sync_playwright() as p:
     # The Widgets popover: unticking takes a widget off but leaves its row; search filters the rows.
     pg.get_by_role("button", name="Widgets", exact=True).click()
     w = pop(pg)
+    expect(w.get_by_role("searchbox", name="Find a widget")).to_be_focused()
     expect(w.get_by_role("checkbox", name="Bills", exact=True)).to_be_checked()
     w.get_by_role("checkbox", name="Bills", exact=True).uncheck()
     expect(widget(pg, "bills")).to_have_count(0)
     expect(w.get_by_role("checkbox", name="Bills", exact=True)).not_to_be_checked()
     w.get_by_role("checkbox", name="Bills", exact=True).check()
     expect(widget(pg, "bills")).to_have_count(1)
+    assert w.get_by_role("searchbox", name="Find a widget").evaluate("e => getComputedStyle(e).borderTopWidth") != "0px"
     w.get_by_role("searchbox", name="Find a widget").fill("zzzz")
     expect(w.get_by_text("No widget matches.")).to_be_visible()
     expect(w.locator(".xo-wlist li:visible")).to_have_count(0)

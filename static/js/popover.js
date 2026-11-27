@@ -117,5 +117,9 @@ export function openPopover({ title, body, anchor, form = true, pinKey = null, w
 
   document.body.append(dlg);
   if (phone) dlg.showModal(); else { dlg.show(); place(); }
+  // Focus the first field in the body, never a title bar button; fall back to Close.
+  const first = [...body.querySelectorAll('input:not([type="hidden"]), select, textarea, wa-input, button, [tabindex]:not([tabindex="-1"])')]
+    .find((el) => !el.disabled && !el.hidden);
+  (first || x).focus();
   return dlg;
 }

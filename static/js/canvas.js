@@ -34,7 +34,7 @@ import { VALUE_RE, icon, iconButton, setIcon, setLabel } from './icons.js';
 import { openPopover } from './popover.js';
 import { tabSet, tabStrip } from './tabs.js';
 import { t } from './text.js';
-import { button, checkbox, field, input } from './ui.js';
+import { button, checkbox, field, searchBox } from './ui.js';
 import { dialogOpen, h, openForm, toast, uid } from './util.js';
 import { WIDGETS } from './widgets.js';
 
@@ -690,7 +690,6 @@ export async function mountCanvas(root) {
   }
   function openWidgets(anchor) {
     if (widgetsPop) { widgetsPop.close(); return; }
-    const find = input({ type: 'search', 'aria-label': t('canvas.widgets_search'), placeholder: t('canvas.widgets_search'), autocomplete: 'off' });
     const none = h('p', { class: 'empty', hidden: true }, t('canvas.widgets_none'));
     const rows = Object.values(WIDGETS).map((w) => {
       const cb = checkbox({
@@ -700,15 +699,16 @@ export async function mountCanvas(root) {
       });
       return h('li', { 'data-title': t(w.title).toLowerCase() }, field(t(w.title), cb));
     });
-    find.addEventListener('input', () => {
-      const q = (find.value || '').trim().toLowerCase();
+    const filter = (text) => {
+      const q = (text || '').trim().toLowerCase();
       let shown = 0;
       for (const li of rows) {
         li.hidden = !li.dataset.title.includes(q);
         if (!li.hidden) shown++;
       }
       none.hidden = shown > 0;
-    });
+    };
+    const find = searchBox({ label: t('canvas.widgets_search'), placeholder: t('canvas.widgets_search'), oninput: filter });
     const body = h('div', { class: 'xo-widgets' }, h('p', { class: 'note' }, t('canvas.widgets_note')), find, none, h('ul', { class: 'xo-wlist' }, rows));
     anchor.setAttribute('aria-expanded', 'true');
     widgetsPop = openPopover({

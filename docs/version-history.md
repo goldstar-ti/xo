@@ -4,6 +4,7 @@
 
 | Version | Date | Change |
 |---|---|---|
+| 2.21.2 | 2026-11-27 | The Widgets popover's search box has the app's search style, and opening a popover puts the cursor in its first field instead of on Pin. |
 | 2.21.1 | 2026-11-27 | The font list no longer shows "null" between fonts. |
 | 2.21.0 | 2026-11-27 | The canvas bar and widget title bars use icons. Widgets opens a popover to tick widgets on and off, with search. Redo beside Undo. New canvas and Rename canvas open beside their buttons, and a canvas can have an icon, chosen in the icon picker. Obligations is now called Duties. |
 | 2.20.0 | 2026-11-27 | Icons beside every screen in the side bar, the phone tabs and More, from Phosphor or Tabler. Change one with a right-click on the side bar or in Appearance, Screens, Icons. The side bar collapses to icons and can be dragged wider or narrower. Settings and other screens space their lines apart. |
