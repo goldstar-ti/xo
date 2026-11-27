@@ -28,6 +28,10 @@ RUN mkdir -p /vendor/gridstack \
 RUN mkdir -p /vendor/marked \
     && cd node_modules/marked \
     && cp lib/marked.esm.js LICENSE /vendor/marked/
+# EasyMDE, the Markdown editor for notes: the one-file browser build (it bundles CodeMirror 5), its stylesheet and licence.
+RUN mkdir -p /vendor/easymde \
+    && cd node_modules/easymde \
+    && cp dist/easymde.min.js dist/easymde.min.css LICENSE /vendor/easymde/
 # Phosphor and Tabler icons (static/js/icons.js): the packages go to the app stage, where
 # scripts/build_icons.py turns them into JSON maps under static/vendor/icons/.
 RUN mkdir -p /iconsrc/@tabler/icons \
