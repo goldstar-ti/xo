@@ -28,6 +28,40 @@
 4. Canvas, parked: a resizable side pane, undo that survives a reload, and saved layout presets. Also parked: NOBBIE single-key canvas shortcuts (W Widgets, F Fit, R Reset); Appearance Iconography overrides (swap any app icon) and icons in the rest of XO; widget icons in the Widgets popover and title bars (a registry `icon` per widget); glass effect on popovers.
 5. Tasks, parked: manual card order on the board; subtasks as full tasks. Out of scope by the owner's decision: local-first sync and webhooks. OS-wide hotkeys are parked (D-29): a PWA cannot register them.
 
+## Restyle to the design canvas and EasyMDE (2.21.1 to 2.23.0)
+
+- Shipped and live (2026-11-27, deployed from a clean worktree of `ca9e61a`; `sw.js` cache `xo-v34`): font list "null" rows fixed; theme names inside two-column tiles; tighter shell and page rhythm; Tabler default icons; `tag`, `progress`, `callout`, `linkRow` in `ui.js`; Today restyled with offline and first-run notices; list screens restyled; full-screen phone forms with a pinned footer; check-ins, My plan, plan card, Settings, More and sign-in restyled; EasyMDE (2.21.0, vendored) in every long text box; long text shown as Markdown, one-liners through `plainText()`. Decisions D-33, D-34. Plan: `~/.claude/plans/implement-this-design-in-quirky-teacup-of-759e7242-63e4-4407-9438-bec451419a02.md`.
+- Commits: A1 `4677eb7`; B1 `63f3b4a`; B2 `85769fd`; B3 `8420944`; B4 `29b25eb`; B5 `6986c1b`; B4b `bd41bcd` (tasks test after the Today change); B6 `5f92d59`; cache `e99cddf`; test fixes `cd957db`; C1 `ce1ad13`; C2 `bb76614`; C3 `4b3f135`; C4 `ca9e61a`.
+- Tests on a clean worktree of `ca9e61a`: `make test-api` 15 passed, `make lint` clean, `make test-e2e` full chain passed (e2e per kit, look, rail, canvas, tracker, kits, tasks, extras, data per kit).
+- Defaults worth vetoing:
+  1. Default screen icons are Tabler (sun, calendar-event, list-check, scale, dots, palette, lifebuoy) where the owner has not picked one.
+  2. One tile style for named themes and family themes, names inside, 2 columns on a phone.
+  3. Look and My plan card are a neutral outlined pair; the plan button is no longer ink-filled.
+  4. Today's three: time and "Start with" moved into the task form ("Do it at"); the list shows "allow N min" or "done".
+  5. First-run notification callout shows only while permission is "default" and no ticks exist.
+  6. Missed-day line needs open ticks yesterday and at least one older tick, so a new account never sees it.
+  7. Desktop Today sections are placed by column class, so the Appearance block order applies within a column only.
+  8. Tick and Start keep a 2.5rem hit area through an invisible overlay; in the wa kit they keep Web Awesome's button look.
+  9. `notice()` stays plain text in the xo kit (the toast already draws the box); a callout in daisy and wa.
+  10. Full-screen sheets apply to forms only (`openDialog({ form: true })`); other dialogs keep their look and Close button.
+  11. Warning signs in the evening check-in are a segmented choice, so a tap cannot clear it.
+  12. Sign-in shows "There is no password reset" as a warning callout on the create-account screen (new text).
+  13. More subtitles written by the agent in `content/text/app.yaml` (`app.more_sub.*`).
+  14. The editor's Write/Preview tabs are gone; Preview is a toolbar button (Alt+P still toggles).
+  15. Long boxes lost their placeholder text (EasyMDE has none set).
+  16. Plan card answers show as plain text, not formatted Markdown; tracker reports test steps and comments stay plain.
+  17. Desktop Diary stays single column (there is no month calendar).
+  18. EasyMDE is precached by the service worker.
+- Not checked in a browser by a person: everything above. Screenshots (xo, daisy, wa at 390 and 1280) were checked by eye for Today, Appearance tiles and the task form; the family-theme tiles, More, evening check-in, plan card, offline and first-run states were covered only by the Playwright asserts.
+- Owner to-do:
+  1. Open `https://xo.tifunction.com/#/appearance`, Advanced, Theme families: check the tiles no longer look like switches.
+  2. Open the font list in Appearance, Text: no "null" lines.
+  3. On the phone: add an appointment (full-screen form, Save pinned at the bottom), then write notes with a list and check Preview and Dictate in the editor.
+  4. Turn off Wi-Fi on the phone and open Today: the offline notice shows and Tick is greyed.
+  5. Veto any default above.
+  6. `make shots` failed twice (2 of 6 runs) with "missing text" for every list key, as if `/api/text` failed to load; the full suite and four later shot runs passed on the same commit. `loadText()` in `static/js/text.js` keeps the failed load and never retries. Decide whether to harden it.
+  7. `tests/e2e_tracker.py` checklist flake showed again ("Checklist: 0 of 1 ticked", passed on rerun); see item 10 below.
+
 ## Icons, side bar and section spacing (2.20.0)
 
 - Shipped: Phosphor and Tabler icons on every screen link (side bar, phone tabs, More), a picker popover (Appearance, Screens, Icons, or right-click a screen in the side bar), a side bar that collapses to icons and resizes by drag or arrow keys, spacing between lines inside sections, and a fix for Today's three rows squeezed by the time box at phone width. Decision D-31. Covered by `tests/e2e_rail.py`.
