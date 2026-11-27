@@ -308,6 +308,8 @@ Build one at a time, with tests, and keep each first version small. Each section
 
 ## 12. AI
 
+### 12a. Assisted writing (D-15)
+
 **Goal.** Help with capture parsing, SMART coaching and review drafts, only when the owner turns each use on (D-15).
 
 **Data.** The Claude API (`claude-sonnet-5-5`), with the key in `.env`. One switch per use in Settings, all off by default.
@@ -317,6 +319,74 @@ Build one at a time, with tests, and keep each first version small. Each section
 **Reminders.** None.
 
 **Tests.** Unit test that nothing is sent while a switch is off. Browser test with a stubbed API: the dialog shows the text and cancel sends nothing.
+
+### 12b. Agent (D-23)
+
+**Goal.** A Claude agent that keeps notes about the owner, finds patterns across XO and prompts the owner, once the owner switches it on (D-23).
+
+**Data.**
+
+- Claude API through the official `anthropic` Python SDK (`AsyncAnthropic`), model `claude-sonnet-5-5`. `ANTHROPIC_API_KEY` goes in `.env` and is read in `app/config.py` next to the `NOBBIE_*` keys.
+- New module `app/claude.py`, built like `app/nobbie.py`: an `enabled()` check, a lazy client, a `ClaudeError` that routes turn into a 502, and an injectable client for tests.
+- The settings singleton gains `ai: { enabled: false, reviewAt: "21:00", nudgesPerDay: 2, monthlyTokenCap: 2000000 }`.
+- New kinds (no migration, the items table is generic):
+  - `ai_memory` (`ai_memory:<uuid>`): `{ text, source: "agent" | "owner", updated }`. Notes about the owner, which the owner can read, edit and delete.
+  - `ai_insight` (`ai_insight:<day>:<n>`, `day` set): `{ title, body, evidence: [item ids], type: "pattern" | "question" }`.
+  - `ai_nudge` (`ai_nudge:<day>:<n>`): `{ text, at }`, with one one-off reminder of kind `ai_nudge`.
+  - `ai_chat` (`ai_chat:<uuid>`): `{ title, messages: [{ role, text, at }] }`.
+  - `ai_log` (`ai_log:<YYYY-MM>`): `{ calls: [{ at, use: "review" | "chat", input, output, cache_read, kinds, stop }] }`. The cap reads this.
+- Daily review: `scheduler_loop` in `app/push.py` calls `ai_review_due()` on each tick. The review runs once per local day, after `reviewAt` in the user's `tz`, when the agent is on and under the cap.
+  - One request. The system prompt and the memory notes come first, behind a `cache_control` breakpoint.
+  - Then the last 14 days of every kind as compact JSON, plus `plan`, `settings` (without `ai`) and open tracker items.
+  - Structured output (`output_config.format`) with the JSON schema `{ memory: [{ op: add | update | remove, id?, text? }], insights: [...], nudges: [{ time: "HH:MM", text }] }`, at effort `medium`.
+  - The server applies the result as item writes and writes nudge reminders straight into `reminders`. Nudges must fall later the same day, at most `nudgesPerDay` of them.
+- Chat: `POST /api/ai/chat { chat, text }` runs a tool loop of at most 8 rounds at effort `low`. Tools, all with strict schemas: `find_items(kinds, from_day, to_day, text)`, `get_item(id)`, `save_memory(text, id?)`, `forget_memory(id)`. The reply is stored on the `ai_chat` item.
+- `GET /api/ai/preview` returns the exact request body the next review would send. `GET /api/ai/log` returns this month's calls and the total against the cap.
+- Every request sends `fallbacks: "default"` (beta `server-side-fallback-2026-07-01`) and checks `stop_reason` before reading content. A refusal is logged and skipped, never retried in a loop.
+- Every new route goes through `current_user`. Calls are made only from the server, so the browser makes no off-site requests (`tests/e2e_kits.py`).
+
+**Screens.**
+
+- Insights `#/insights`: recent insights, each linking to its evidence items, and an "About you" list of memory notes with Edit and Delete.
+- Chat `#/chat`: one conversation per `ai_chat` item, and a New chat button.
+- Settings, Claude agent section:
+  - the on and off switch;
+  - review time, nudges per day and monthly cap;
+  - "Show what the next review sends" (a dialog with the preview);
+  - "This month" (the log and the total against the cap).
+- Text in `content/text/ai.yaml`. Both screens are registered in `NAV` (`app.yaml`), `VIEWS` (`app.js`) and `SECTIONS` (`boot.js`). Both views go in `SHELL` in `sw.js`, and `CACHE` is bumped.
+- The agent's prompt applies `docs/voice.md` to what it writes:
+  - Australian English, no praise and no verdicts;
+  - patterns are reported as what the entries show, with dates;
+  - it asks rather than tells.
+
+**Reminders.** Kind `ai_nudge`. Discreet wording is "A note from XO" with the body "Tap to read.", and it opens `#/insights`. Detailed wording is the nudge text. Discreet is the default (D-16).
+
+**Tests.**
+
+- Unit tests with a fake client:
+  - nothing is sent while the switch is off, or once the cap is reached;
+  - a review writes memory, insights and nudge reminders, and drops nudges already in the past;
+  - the chat tool loop stops after 8 rounds;
+  - a refusal is logged and writes nothing.
+- Browser test with the fake client, switched on by `AI_FAKE=true` in `docker-compose.test.yml`:
+  - turn the agent on and open the preview;
+  - run a review through `POST /api/ai/review`, which exists only while `AI_FAKE` is set;
+  - see an insight, edit a memory note and send a chat message.
+
+**Cost.** Sonnet 5.5 is $2 per million input tokens and $10 per million output, with cache reads at $0.10.
+
+- A review of about 25,000 tokens in and 3,000 out costs about 8 cents, so about $2.50 a month.
+- A chat message costs about 1 to 3 cents.
+- The default cap of 2,000,000 tokens is roughly $5 to $8 a month.
+
+**Defaults worth vetoing.**
+
+1. The Messages API, with XO running the loop, rather than Managed Agents. The data stays in XO's database, and the loop is small.
+2. Effort `medium` for the review and `low` for chat.
+3. 14 days of history per review. The memory notes carry the longer view.
+4. Review at 21:00, at most 2 nudges a day, and a cap of 2,000,000 tokens a month.
+5. Agent text appears only on Insights, Chat and in nudges, never on Today or the check-ins.
 
 ---
 

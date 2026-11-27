@@ -23,7 +23,7 @@
    4. Section 3 Life story.
    5. Section 4 Reporting register.
    6. Section 5 GTD core.
-   7. Sections 6 to 12 in the D-18 order: Health and mood (6), People and life admin (7), Legal and sessions (8), Goals and reviews (9), Money (10), Google Calendar (11), AI (12).
+   7. Sections 6 to 12 in the D-18 order: Health and mood (6), People and life admin (7), Legal and sessions (8), Goals and reviews (9), Money (10), Google Calendar (11), AI (12: 12a assisted writing under D-15, 12b the agent under D-23).
 4. Canvas, parked: a resizable side pane, undo that survives a reload, and saved layout presets.
 5. Tasks, parked: manual card order on the board; subtasks as full tasks. Out of scope by the owner's decision: custom fields, Markdown backing, local-first sync, webhooks, voice capture and OS-wide hotkeys (rule 2; a PWA cannot register global hotkeys).
 

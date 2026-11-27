@@ -89,3 +89,7 @@ Actual time is asked for in the evening check-in, not on each tick, so finishing
 ## D-22 (2026-11-27): Command palette and shortcuts
 
 The palette builds its command list each time it opens, from the screens, check-ins, task views and open tasks, so nothing is listed twice. Single-key shortcuts work only on the Tasks page, never in widgets and never while typing. Ctrl+K works on every screen, but the Tracker screen keeps its own `/` and `?` keys, so the palette leaves those two to it there. Why: one place to reach anything by keyboard without a second shortcut list to maintain, and no clash with keys already in use.
+
+## D-23 (2026-11-27): A Claude agent with memory, a daily review and nudges
+
+One switch in Settings, off by default, turns the agent on. Its daily review and chat may read every kind, so there is no dialog before each call. Instead, Settings shows the exact text the next review would send and a log of every call with its time, tokens and the kinds it read. A monthly token cap stops all calls once reached. The agent's own words appear only on the Insights and Chat screens and in nudges, labelled as Claude's, so the rule that the app does not interpret answers still holds everywhere else. D-15 still governs capture, SMART coaching and review drafts. AI stays last in the D-18 order. Why: the owner wants the agent to learn and notice patterns across everything, and a review that runs on its own cannot wait for a dialog.
