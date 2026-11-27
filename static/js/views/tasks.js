@@ -125,6 +125,10 @@ function previewText(raw, meta) {
   return parts.length ? t('lists.tasks.preview', { parts: parts.join(', ') }) : '';
 }
 
+// Text typed into a quick-add box and not yet sent, by box.
+const typed = new Map();
+window.addEventListener('hashchange', () => typed.clear());
+
 /**
  * The quick add form: one line of text, read by parseQuick. extra is merged into the new task and focusKey is its
  * data-focus value (the screen refocuses it after the redraw). With preview: true a line under the field shows what was read.
@@ -136,17 +140,28 @@ export function quickAdd(placeholder, extra, focusKey, { preview = false } = {})
     onsubmit: async (e) => {
       e.preventDefault();
       try {
+        typed.delete(focusKey);
         sessionStorage.setItem('refocus', focusKey);
         await quickTask(box.value, extra);
       } catch (err) { fail(err); }
     },
   }, box, button(t('lists.shared.add'), { variant: 'primary', type: 'submit' }));
+  // A redraw (a save finishing, a dialog closing) replaces this box. Keep what was typed and the focus, so the next key is not lost.
+  box.addEventListener('input', () => { if (box.value) typed.set(focusKey, box.value); else typed.delete(focusKey); });
+  box.addEventListener('focusout', (e) => { if (e.relatedTarget) typed.delete(focusKey); });
+  const kept = typed.get(focusKey);
+  if (kept) {
+    box.value = kept;
+    setTimeout(() => { if (box.isConnected && document.activeElement === document.body) box.focus({ preventScroll: true }); }, 0);
+  }
   if (!preview) return form;
   const note = h('p', { class: 'hint', hidden: true });
-  box.addEventListener('input', () => {
+  const showNote = () => {
     note.textContent = previewText(box.value, taskMeta());
     note.hidden = !note.textContent;
-  });
+  };
+  box.addEventListener('input', showNote);
+  if (kept) showNote();
   return h('div', {}, form, note);
 }
 
