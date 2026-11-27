@@ -7,6 +7,7 @@ backups/*
 tailwind/node_modules/
 tailwind/dist/
 static/tw.css
-static/vendor/
+static/vendor/*
+!static/vendor/fonts/
 .claude/settings.local.json
 .claude/handoffs/

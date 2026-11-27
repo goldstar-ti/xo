@@ -1,0 +1,7133 @@
+[
+ {
+  "family": "Advent Pro",
+  "slug": "advent-pro",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wdth",
+   "wght"
+  ]
+ },
+ {
+  "family": "Afacad",
+  "slug": "afacad",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   400,
+   700
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Afacad Flux",
+  "slug": "afacad-flux",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   1000
+  ],
+  "weights": [],
+  "axes": [
+   "slnt",
+   "wght"
+  ]
+ },
+ {
+  "family": "Akt",
+  "slug": "akt",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Alan Sans",
+  "slug": "alan-sans",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   300,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Albert Sans",
+  "slug": "albert-sans",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Alumni Sans",
+  "slug": "alumni-sans",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Alumni Sans SC",
+  "slug": "alumni-sans-sc",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Amarna",
+  "slug": "amarna",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   700
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Anaheim",
+  "slug": "anaheim",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   400,
+   800
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Ancizar Sans",
+  "slug": "ancizar-sans",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   1000
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Anek Latin",
+  "slug": "anek-latin",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   800
+  ],
+  "weights": [],
+  "axes": [
+   "wdth",
+   "wght"
+  ]
+ },
+ {
+  "family": "Antonio",
+  "slug": "antonio",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   700
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "AR One Sans",
+  "slug": "ar-one-sans",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   400,
+   700
+  ],
+  "weights": [],
+  "axes": [
+   "ARRR",
+   "wght"
+  ]
+ },
+ {
+  "family": "Archivo",
+  "slug": "archivo",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wdth",
+   "wght"
+  ]
+ },
+ {
+  "family": "Archivo Narrow",
+  "slug": "archivo-narrow",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   400,
+   700
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Arimo",
+  "slug": "arimo",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   400,
+   700
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Asap",
+  "slug": "asap",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wdth",
+   "wght"
+  ]
+ },
+ {
+  "family": "Atkinson Hyperlegible Mono",
+  "slug": "atkinson-hyperlegible-mono",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   200,
+   800
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Atkinson Hyperlegible Next",
+  "slug": "atkinson-hyperlegible-next",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   200,
+   800
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Bricolage Grotesque",
+  "slug": "bricolage-grotesque",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   200,
+   800
+  ],
+  "weights": [],
+  "axes": [
+   "opsz",
+   "wdth",
+   "wght"
+  ]
+ },
+ {
+  "family": "Cabin",
+  "slug": "cabin",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   400,
+   700
+  ],
+  "weights": [],
+  "axes": [
+   "wdth",
+   "wght"
+  ]
+ },
+ {
+  "family": "Capriola",
+  "slug": "capriola",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   1,
+   1000
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Cascadia Code",
+  "slug": "cascadia-code",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   200,
+   700
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Cascadia Mono",
+  "slug": "cascadia-mono",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   200,
+   700
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Changa",
+  "slug": "changa",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   200,
+   800
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Chivo",
+  "slug": "chivo",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Comme",
+  "slug": "comme",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Commissioner",
+  "slug": "commissioner",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "FLAR",
+   "VOLM",
+   "slnt",
+   "wght"
+  ]
+ },
+ {
+  "family": "Cuprum",
+  "slug": "cuprum",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   400,
+   700
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Darker Grotesque",
+  "slug": "darker-grotesque",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   300,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "DM Sans",
+  "slug": "dm-sans",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   1000
+  ],
+  "weights": [],
+  "axes": [
+   "opsz",
+   "wght"
+  ]
+ },
+ {
+  "family": "Dosis",
+  "slug": "dosis",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   200,
+   800
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Doto",
+  "slug": "doto",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "ROND",
+   "wght"
+  ]
+ },
+ {
+  "family": "Elms Sans",
+  "slug": "elms-sans",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Encode Sans",
+  "slug": "encode-sans",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wdth",
+   "wght"
+  ]
+ },
+ {
+  "family": "Encode Sans SC",
+  "slug": "encode-sans-sc",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wdth",
+   "wght"
+  ]
+ },
+ {
+  "family": "Epilogue",
+  "slug": "epilogue",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Epunda Sans",
+  "slug": "epunda-sans",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   300,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Exo",
+  "slug": "exo",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Exo 2",
+  "slug": "exo-2",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Familjen Grotesk",
+  "slug": "familjen-grotesk",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   400,
+   700
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Figtree",
+  "slug": "figtree",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   300,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Finlandica Headline",
+  "slug": "finlandica-headline",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Finlandica Text",
+  "slug": "finlandica-text",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Fredoka",
+  "slug": "fredoka",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   300,
+   700
+  ],
+  "weights": [],
+  "axes": [
+   "wdth",
+   "wght"
+  ]
+ },
+ {
+  "family": "Funnel Sans",
+  "slug": "funnel-sans",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   300,
+   800
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Gantari",
+  "slug": "gantari",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Geist",
+  "slug": "geist",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Genos",
+  "slug": "genos",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Geologica",
+  "slug": "geologica",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "CRSV",
+   "SHRP",
+   "slnt",
+   "wght"
+  ]
+ },
+ {
+  "family": "Geom",
+  "slug": "geom",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   300,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Geomini",
+  "slug": "geomini",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   200,
+   800
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Georama",
+  "slug": "georama",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wdth",
+   "wght"
+  ]
+ },
+ {
+  "family": "Glory",
+  "slug": "glory",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   800
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Golos Text",
+  "slug": "golos-text",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   400,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Hanken Grotesk",
+  "slug": "hanken-grotesk",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Host Grotesk",
+  "slug": "host-grotesk",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   300,
+   800
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Hubot Sans",
+  "slug": "hubot-sans",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   200,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wdth",
+   "wght"
+  ]
+ },
+ {
+  "family": "IBM Plex Sans",
+  "slug": "ibm-plex-sans",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   700
+  ],
+  "weights": [],
+  "axes": [
+   "wdth",
+   "wght"
+  ]
+ },
+ {
+  "family": "Inclusive Sans",
+  "slug": "inclusive-sans",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   300,
+   700
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Instrument Sans",
+  "slug": "instrument-sans",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   400,
+   700
+  ],
+  "weights": [],
+  "axes": [
+   "wdth",
+   "wght"
+  ]
+ },
+ {
+  "family": "Inter",
+  "slug": "inter",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "opsz",
+   "wght"
+  ]
+ },
+ {
+  "family": "Inter Tight",
+  "slug": "inter-tight",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Josefin Sans",
+  "slug": "josefin-sans",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   700
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Jost",
+  "slug": "jost",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Jura",
+  "slug": "jura",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   300,
+   700
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Karla",
+  "slug": "karla",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   200,
+   800
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Kumbh Sans",
+  "slug": "kumbh-sans",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "YOPQ",
+   "wght"
+  ]
+ },
+ {
+  "family": "League Spartan",
+  "slug": "league-spartan",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Lexend",
+  "slug": "lexend",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Lexend Deca",
+  "slug": "lexend-deca",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Lexend Exa",
+  "slug": "lexend-exa",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Lexend Giga",
+  "slug": "lexend-giga",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Lexend Mega",
+  "slug": "lexend-mega",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Lexend Peta",
+  "slug": "lexend-peta",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Lexend Tera",
+  "slug": "lexend-tera",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Lexend Zetta",
+  "slug": "lexend-zetta",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Libre Franklin",
+  "slug": "libre-franklin",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "M PLUS Code Latin",
+  "slug": "m-plus-code-latin",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   700
+  ],
+  "weights": [],
+  "axes": [
+   "wdth",
+   "wght"
+  ]
+ },
+ {
+  "family": "Manrope",
+  "slug": "manrope",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   200,
+   800
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Maven Pro",
+  "slug": "maven-pro",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   400,
+   900
+  ],
+  "weights": [
+   400
+  ],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Merriweather Sans",
+  "slug": "merriweather-sans",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   300,
+   800
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Miranda Sans",
+  "slug": "miranda-sans",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   400,
+   700
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Moderustic",
+  "slug": "moderustic",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   300,
+   800
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Mohave",
+  "slug": "mohave",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   300,
+   700
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Momo Trust Sans",
+  "slug": "momo-trust-sans",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   200,
+   800
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Mona Sans",
+  "slug": "mona-sans",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   200,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wdth",
+   "wght"
+  ]
+ },
+ {
+  "family": "Monda",
+  "slug": "monda",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   400,
+   700
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Montserrat",
+  "slug": "montserrat",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Montserrat Underline",
+  "slug": "montserrat-underline",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Mozilla Headline",
+  "slug": "mozilla-headline",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   200,
+   700
+  ],
+  "weights": [],
+  "axes": [
+   "wdth",
+   "wght"
+  ]
+ },
+ {
+  "family": "Mozilla Text",
+  "slug": "mozilla-text",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   200,
+   700
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Mulish",
+  "slug": "mulish",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   200,
+   1000
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Nata Sans",
+  "slug": "nata-sans",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "National Park",
+  "slug": "national-park",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   200,
+   800
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Noto Sans",
+  "slug": "noto-sans",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wdth",
+   "wght"
+  ]
+ },
+ {
+  "family": "Noto Sans Display",
+  "slug": "noto-sans-display",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wdth",
+   "wght"
+  ]
+ },
+ {
+  "family": "Noto Sans Mono",
+  "slug": "noto-sans-mono",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wdth",
+   "wght"
+  ]
+ },
+ {
+  "family": "Noto Sans Symbols",
+  "slug": "noto-sans-symbols",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Nunito",
+  "slug": "nunito",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   200,
+   1000
+  ],
+  "weights": [
+   400
+  ],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Nunito Sans",
+  "slug": "nunito-sans",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   200,
+   1000
+  ],
+  "weights": [],
+  "axes": [
+   "YTLC",
+   "opsz",
+   "wdth",
+   "wght"
+  ]
+ },
+ {
+  "family": "Ojuju",
+  "slug": "ojuju",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   200,
+   800
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Onest",
+  "slug": "onest",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Open Sans",
+  "slug": "open-sans",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   300,
+   800
+  ],
+  "weights": [],
+  "axes": [
+   "wdth",
+   "wght"
+  ]
+ },
+ {
+  "family": "Orbitron",
+  "slug": "orbitron",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   400,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Oswald",
+  "slug": "oswald",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   200,
+   700
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Outfit",
+  "slug": "outfit",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Overpass",
+  "slug": "overpass",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Parkinsans",
+  "slug": "parkinsans",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   300,
+   800
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Pathway Extreme",
+  "slug": "pathway-extreme",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "opsz",
+   "wdth",
+   "wght"
+  ]
+ },
+ {
+  "family": "Pliant",
+  "slug": "pliant",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wdth",
+   "wght"
+  ]
+ },
+ {
+  "family": "Plus Jakarta Sans",
+  "slug": "plus-jakarta-sans",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   200,
+   800
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Pontano Sans",
+  "slug": "pontano-sans",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   300,
+   700
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Public Sans",
+  "slug": "public-sans",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Quicksand",
+  "slug": "quicksand",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   300,
+   700
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Radio Canada",
+  "slug": "radio-canada",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   300,
+   700
+  ],
+  "weights": [],
+  "axes": [
+   "wdth",
+   "wght"
+  ]
+ },
+ {
+  "family": "Radio Canada Big",
+  "slug": "radio-canada-big",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   400,
+   700
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Raleway",
+  "slug": "raleway",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Recursive",
+  "slug": "recursive",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   300,
+   1000
+  ],
+  "weights": [],
+  "axes": [
+   "CASL",
+   "CRSV",
+   "MONO",
+   "slnt",
+   "wght"
+  ]
+ },
+ {
+  "family": "Red Hat Display",
+  "slug": "red-hat-display",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   300,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Red Hat Text",
+  "slug": "red-hat-text",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   300,
+   700
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Reddit Sans",
+  "slug": "reddit-sans",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   200,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Reddit Sans Condensed",
+  "slug": "reddit-sans-condensed",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   200,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "REM",
+  "slug": "rem",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Rethink Sans",
+  "slug": "rethink-sans",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   400,
+   800
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Roboto",
+  "slug": "roboto",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wdth",
+   "wght"
+  ]
+ },
+ {
+  "family": "Roboto Condensed",
+  "slug": "roboto-condensed",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Roboto Flex",
+  "slug": "roboto-flex",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   1000
+  ],
+  "weights": [],
+  "axes": [
+   "GRAD",
+   "XOPQ",
+   "XTRA",
+   "YOPQ",
+   "YTAS",
+   "YTDE",
+   "YTFI",
+   "YTLC",
+   "YTUC",
+   "opsz",
+   "slnt",
+   "wdth",
+   "wght"
+  ]
+ },
+ {
+  "family": "Rosario",
+  "slug": "rosario",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   300,
+   700
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Rubik",
+  "slug": "rubik",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   300,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Ruda",
+  "slug": "ruda",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   400,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Saira",
+  "slug": "saira",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wdth",
+   "wght"
+  ]
+ },
+ {
+  "family": "Savate",
+  "slug": "savate",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   200,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Schibsted Grotesk",
+  "slug": "schibsted-grotesk",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   400,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Science Gothic",
+  "slug": "science-gothic",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "CTRS",
+   "slnt",
+   "wdth",
+   "wght"
+  ]
+ },
+ {
+  "family": "Sen",
+  "slug": "sen",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   400,
+   800
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Signika",
+  "slug": "signika",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   300,
+   700
+  ],
+  "weights": [],
+  "axes": [
+   "GRAD",
+   "wght"
+  ]
+ },
+ {
+  "family": "Signika Negative",
+  "slug": "signika-negative",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   300,
+   700
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Smooch Sans",
+  "slug": "smooch-sans",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "SN Pro",
+  "slug": "sn-pro",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   200,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Sofia Sans",
+  "slug": "sofia-sans",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   1,
+   1000
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Sofia Sans Condensed",
+  "slug": "sofia-sans-condensed",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   1,
+   1000
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Sofia Sans Extra Condensed",
+  "slug": "sofia-sans-extra-condensed",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   1,
+   1000
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Sofia Sans Semi Condensed",
+  "slug": "sofia-sans-semi-condensed",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   1,
+   1000
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Sono",
+  "slug": "sono",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   200,
+   800
+  ],
+  "weights": [],
+  "axes": [
+   "MONO",
+   "wght"
+  ]
+ },
+ {
+  "family": "Sora",
+  "slug": "sora",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   800
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Sour Gummy",
+  "slug": "sour-gummy",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wdth",
+   "wght"
+  ]
+ },
+ {
+  "family": "Source Sans 3",
+  "slug": "source-sans-3",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   200,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Space Grotesk",
+  "slug": "space-grotesk",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   300,
+   700
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Special Gothic",
+  "slug": "special-gothic",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   400,
+   700
+  ],
+  "weights": [],
+  "axes": [
+   "wdth",
+   "wght"
+  ]
+ },
+ {
+  "family": "Spline Sans",
+  "slug": "spline-sans",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   300,
+   700
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Stack Sans Headline",
+  "slug": "stack-sans-headline",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   200,
+   700
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Stack Sans Notch",
+  "slug": "stack-sans-notch",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   200,
+   700
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Stack Sans Text",
+  "slug": "stack-sans-text",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   200,
+   700
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Stick No Bills",
+  "slug": "stick-no-bills",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   200,
+   800
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Strichpunkt Sans",
+  "slug": "strichpunkt-sans",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   400,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wdth",
+   "wght"
+  ]
+ },
+ {
+  "family": "SUSE",
+  "slug": "suse",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "SUSE Mono",
+  "slug": "suse-mono",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   800
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Syne",
+  "slug": "syne",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   400,
+   800
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "TASA Explorer",
+  "slug": "tasa-explorer",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   400,
+   800
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "TASA Orbiter",
+  "slug": "tasa-orbiter",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   400,
+   800
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Teachers",
+  "slug": "teachers",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   400,
+   800
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "TikTok Sans",
+  "slug": "tiktok-sans",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   300,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "opsz",
+   "slnt",
+   "wdth",
+   "wght"
+  ]
+ },
+ {
+  "family": "Trispace",
+  "slug": "trispace",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   800
+  ],
+  "weights": [],
+  "axes": [
+   "wdth",
+   "wght"
+  ]
+ },
+ {
+  "family": "Truculenta",
+  "slug": "truculenta",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "opsz",
+   "wdth",
+   "wght"
+  ]
+ },
+ {
+  "family": "Ubuntu Sans",
+  "slug": "ubuntu-sans",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   800
+  ],
+  "weights": [],
+  "axes": [
+   "wdth",
+   "wght"
+  ]
+ },
+ {
+  "family": "Unbounded",
+  "slug": "unbounded",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   200,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Urbanist",
+  "slug": "urbanist",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Varta",
+  "slug": "varta",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   300,
+   700
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Vend Sans",
+  "slug": "vend-sans",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   300,
+   700
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Winky Rough",
+  "slug": "winky-rough",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   300,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Winky Sans",
+  "slug": "winky-sans",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   300,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Wix Madefor Display",
+  "slug": "wix-madefor-display",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   400,
+   800
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Wix Madefor Text",
+  "slug": "wix-madefor-text",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   400,
+   800
+  ],
+  "weights": [
+   400,
+   500,
+   600,
+   700,
+   800
+  ],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Work Sans",
+  "slug": "work-sans",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Yanone Kaffeesatz",
+  "slug": "yanone-kaffeesatz",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   200,
+   700
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Ysabeau",
+  "slug": "ysabeau",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   1,
+   1000
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Ysabeau Infant",
+  "slug": "ysabeau-infant",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   1,
+   1000
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Ysabeau Office",
+  "slug": "ysabeau-office",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   1,
+   1000
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Ysabeau SC",
+  "slug": "ysabeau-sc",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   1,
+   1000
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Zalando Sans",
+  "slug": "zalando-sans",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   200,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wdth",
+   "wght"
+  ]
+ },
+ {
+  "family": "Zalando Sans Expanded",
+  "slug": "zalando-sans-expanded",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   200,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Zalando Sans SemiExpanded",
+  "slug": "zalando-sans-semiexpanded",
+  "group": "Variable: Sans Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   200,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Alegreya",
+  "slug": "alegreya",
+  "group": "Variable: Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   400,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Aleo",
+  "slug": "aleo",
+  "group": "Variable: Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Ancizar Serif",
+  "slug": "ancizar-serif",
+  "group": "Variable: Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   300,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Andada Pro",
+  "slug": "andada-pro",
+  "group": "Variable: Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   400,
+   840
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Baskervville",
+  "slug": "baskervville",
+  "group": "Variable: Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   400,
+   700
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Baskervville SC",
+  "slug": "baskervville-sc",
+  "group": "Variable: Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   400,
+   700
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Besley",
+  "slug": "besley",
+  "group": "Variable: Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   400,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "BioRhyme",
+  "slug": "biorhyme",
+  "group": "Variable: Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   200,
+   800
+  ],
+  "weights": [],
+  "axes": [
+   "wdth",
+   "wght"
+  ]
+ },
+ {
+  "family": "Bitter",
+  "slug": "bitter",
+  "group": "Variable: Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Bodoni Moda",
+  "slug": "bodoni-moda",
+  "group": "Variable: Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   400,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "opsz",
+   "wght"
+  ]
+ },
+ {
+  "family": "Bodoni Moda SC",
+  "slug": "bodoni-moda-sc",
+  "group": "Variable: Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   400,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "opsz",
+   "wght"
+  ]
+ },
+ {
+  "family": "Brygada 1918",
+  "slug": "brygada-1918",
+  "group": "Variable: Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   400,
+   700
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Buenard",
+  "slug": "buenard",
+  "group": "Variable: Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   400,
+   700
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Cinzel",
+  "slug": "cinzel",
+  "group": "Variable: Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   400,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Cormorant",
+  "slug": "cormorant",
+  "group": "Variable: Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   300,
+   700
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Cormorant Garamond",
+  "slug": "cormorant-garamond",
+  "group": "Variable: Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   300,
+   700
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Cormorant Infant",
+  "slug": "cormorant-infant",
+  "group": "Variable: Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   300,
+   700
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Crimson Pro",
+  "slug": "crimson-pro",
+  "group": "Variable: Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   200,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Domine",
+  "slug": "domine",
+  "group": "Variable: Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   400,
+   700
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "EB Garamond",
+  "slug": "eb-garamond",
+  "group": "Variable: Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   400,
+   800
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Epunda Slab",
+  "slug": "epunda-slab",
+  "group": "Variable: Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   300,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Faustina",
+  "slug": "faustina",
+  "group": "Variable: Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   300,
+   800
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Fraunces",
+  "slug": "fraunces",
+  "group": "Variable: Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "SOFT",
+   "WONK",
+   "opsz",
+   "wght"
+  ]
+ },
+ {
+  "family": "Gelasio",
+  "slug": "gelasio",
+  "group": "Variable: Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   400,
+   700
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Grenze",
+  "slug": "grenze",
+  "group": "Variable: Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Hepta Slab",
+  "slug": "hepta-slab",
+  "group": "Variable: Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   1,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Ibarra Real Nova",
+  "slug": "ibarra-real-nova",
+  "group": "Variable: Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   400,
+   700
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Imbue",
+  "slug": "imbue",
+  "group": "Variable: Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "opsz",
+   "wght"
+  ]
+ },
+ {
+  "family": "Josefin Slab",
+  "slug": "josefin-slab",
+  "group": "Variable: Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   700
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Kalnia",
+  "slug": "kalnia",
+  "group": "Variable: Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   700
+  ],
+  "weights": [],
+  "axes": [
+   "wdth",
+   "wght"
+  ]
+ },
+ {
+  "family": "Kameron",
+  "slug": "kameron",
+  "group": "Variable: Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   400,
+   700
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Kreon",
+  "slug": "kreon",
+  "group": "Variable: Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   300,
+   700
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Labrada",
+  "slug": "labrada",
+  "group": "Variable: Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Libre Baskerville",
+  "slug": "libre-baskerville",
+  "group": "Variable: Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   400,
+   700
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Libre Bodoni",
+  "slug": "libre-bodoni",
+  "group": "Variable: Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   400,
+   700
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Libre Caslon Text",
+  "slug": "libre-caslon-text",
+  "group": "Variable: Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   1,
+   1000
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Literata",
+  "slug": "literata",
+  "group": "Variable: Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   200,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "opsz",
+   "wght"
+  ]
+ },
+ {
+  "family": "Lora",
+  "slug": "lora",
+  "group": "Variable: Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   400,
+   700
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Manuale",
+  "slug": "manuale",
+  "group": "Variable: Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   300,
+   800
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Merriweather",
+  "slug": "merriweather",
+  "group": "Variable: Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   300,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "opsz",
+   "wdth",
+   "wght"
+  ]
+ },
+ {
+  "family": "Montagu Slab",
+  "slug": "montagu-slab",
+  "group": "Variable: Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   700
+  ],
+  "weights": [],
+  "axes": [
+   "opsz",
+   "wght"
+  ]
+ },
+ {
+  "family": "Newsreader",
+  "slug": "newsreader",
+  "group": "Variable: Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   200,
+   800
+  ],
+  "weights": [],
+  "axes": [
+   "opsz",
+   "wght"
+  ]
+ },
+ {
+  "family": "Noto Serif",
+  "slug": "noto-serif",
+  "group": "Variable: Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wdth",
+   "wght"
+  ]
+ },
+ {
+  "family": "Noto Serif Display",
+  "slug": "noto-serif-display",
+  "group": "Variable: Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wdth",
+   "wght"
+  ]
+ },
+ {
+  "family": "Noto Serif Hentaigana",
+  "slug": "noto-serif-hentaigana",
+  "group": "Variable: Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   200,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Petrona",
+  "slug": "petrona",
+  "group": "Variable: Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Piazzolla",
+  "slug": "piazzolla",
+  "group": "Variable: Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "opsz",
+   "wght"
+  ]
+ },
+ {
+  "family": "Platypi",
+  "slug": "platypi",
+  "group": "Variable: Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   300,
+   800
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Playfair",
+  "slug": "playfair",
+  "group": "Variable: Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   300,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "opsz",
+   "wdth",
+   "wght"
+  ]
+ },
+ {
+  "family": "Playfair Display",
+  "slug": "playfair-display",
+  "group": "Variable: Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   400,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Podkova",
+  "slug": "podkova",
+  "group": "Variable: Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   400,
+   800
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Poltawski Nowy",
+  "slug": "poltawski-nowy",
+  "group": "Variable: Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   400,
+   700
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Roboto Serif",
+  "slug": "roboto-serif",
+  "group": "Variable: Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "GRAD",
+   "opsz",
+   "wdth",
+   "wght"
+  ]
+ },
+ {
+  "family": "Roboto Slab",
+  "slug": "roboto-slab",
+  "group": "Variable: Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Rokkitt",
+  "slug": "rokkitt",
+  "group": "Variable: Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   900
+  ],
+  "weights": [
+   400
+  ],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Source Serif 4",
+  "slug": "source-serif-4",
+  "group": "Variable: Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   200,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "opsz",
+   "wght"
+  ]
+ },
+ {
+  "family": "STIX Two Text",
+  "slug": "stix-two-text",
+  "group": "Variable: Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   400,
+   700
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Texturina",
+  "slug": "texturina",
+  "group": "Variable: Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   100,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "opsz",
+   "wght"
+  ]
+ },
+ {
+  "family": "Vollkorn",
+  "slug": "vollkorn",
+  "group": "Variable: Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   400,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Wittgenstein",
+  "slug": "wittgenstein",
+  "group": "Variable: Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   400,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Yrsa",
+  "slug": "yrsa",
+  "group": "Variable: Serif",
+  "mono": false,
+  "variable": true,
+  "wght": [
+   300,
+   700
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "ABeeZee",
+  "slug": "abeezee",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Abel",
+  "slug": "abel",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Aclonica",
+  "slug": "aclonica",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Acme",
+  "slug": "acme",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Actor",
+  "slug": "actor",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Agdasima",
+  "slug": "agdasima",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400,
+   700
+  ],
+  "axes": []
+ },
+ {
+  "family": "Alata",
+  "slug": "alata",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Alatsi",
+  "slug": "alatsi",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Aldrich",
+  "slug": "aldrich",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Alegreya Sans",
+  "slug": "alegreya-sans",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   100,
+   300,
+   400,
+   500,
+   700,
+   800,
+   900
+  ],
+  "axes": []
+ },
+ {
+  "family": "Alegreya Sans SC",
+  "slug": "alegreya-sans-sc",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   100,
+   300,
+   400,
+   500,
+   700,
+   800,
+   900
+  ],
+  "axes": []
+ },
+ {
+  "family": "Allerta",
+  "slug": "allerta",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Allerta Stencil",
+  "slug": "allerta-stencil",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Alumni Sans Collegiate One",
+  "slug": "alumni-sans-collegiate-one",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Alumni Sans Pinstripe",
+  "slug": "alumni-sans-pinstripe",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Amaranth",
+  "slug": "amaranth",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400,
+   700
+  ],
+  "axes": []
+ },
+ {
+  "family": "Andika",
+  "slug": "andika",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400,
+   700
+  ],
+  "axes": []
+ },
+ {
+  "family": "Anta",
+  "slug": "anta",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Antic",
+  "slug": "antic",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Anton",
+  "slug": "anton",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Anton SC",
+  "slug": "anton-sc",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Archivo Black",
+  "slug": "archivo-black",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Armata",
+  "slug": "armata",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Arsenal",
+  "slug": "arsenal",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400,
+   700
+  ],
+  "axes": []
+ },
+ {
+  "family": "Arsenal SC",
+  "slug": "arsenal-sc",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400,
+   700
+  ],
+  "axes": []
+ },
+ {
+  "family": "Asap Condensed",
+  "slug": "asap-condensed",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   200,
+   300,
+   400,
+   500,
+   600,
+   700,
+   800,
+   900
+  ],
+  "axes": []
+ },
+ {
+  "family": "Asimovian",
+  "slug": "asimovian",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Atkinson Hyperlegible",
+  "slug": "atkinson-hyperlegible",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400,
+   700
+  ],
+  "axes": []
+ },
+ {
+  "family": "Average Sans",
+  "slug": "average-sans",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "B612",
+  "slug": "b612",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400,
+   700
+  ],
+  "axes": []
+ },
+ {
+  "family": "Barlow",
+  "slug": "barlow",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   100,
+   200,
+   300,
+   400,
+   500,
+   600,
+   700,
+   800,
+   900
+  ],
+  "axes": []
+ },
+ {
+  "family": "Barlow Condensed",
+  "slug": "barlow-condensed",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   100,
+   200,
+   300,
+   400,
+   500,
+   600,
+   700,
+   800,
+   900
+  ],
+  "axes": []
+ },
+ {
+  "family": "Barlow Semi Condensed",
+  "slug": "barlow-semi-condensed",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   100,
+   200,
+   300,
+   400,
+   500,
+   600,
+   700,
+   800,
+   900
+  ],
+  "axes": []
+ },
+ {
+  "family": "Basic",
+  "slug": "basic",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "BBH Bartle",
+  "slug": "bbh-bartle",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "BBH Bogle",
+  "slug": "bbh-bogle",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "BBH Hegarty",
+  "slug": "bbh-hegarty",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Be Vietnam Pro",
+  "slug": "be-vietnam-pro",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   100,
+   200,
+   300,
+   400,
+   500,
+   600,
+   700,
+   800,
+   900
+  ],
+  "axes": []
+ },
+ {
+  "family": "Bebas Neue",
+  "slug": "bebas-neue",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Belanosima",
+  "slug": "belanosima",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400,
+   600,
+   700
+  ],
+  "axes": []
+ },
+ {
+  "family": "Belleza",
+  "slug": "belleza",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "BenchNine",
+  "slug": "benchnine",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   300,
+   400,
+   700
+  ],
+  "axes": []
+ },
+ {
+  "family": "Blinker",
+  "slug": "blinker",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   100,
+   200,
+   300,
+   400,
+   600,
+   700,
+   800,
+   900
+  ],
+  "axes": []
+ },
+ {
+  "family": "Bubbler One",
+  "slug": "bubbler-one",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Bytesized",
+  "slug": "bytesized",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Cabin Condensed",
+  "slug": "cabin-condensed",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400,
+   500,
+   600,
+   700
+  ],
+  "axes": []
+ },
+ {
+  "family": "Cagliostro",
+  "slug": "cagliostro",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Cal Sans",
+  "slug": "cal-sans",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Candal",
+  "slug": "candal",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Cantarell",
+  "slug": "cantarell",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400,
+   700
+  ],
+  "axes": []
+ },
+ {
+  "family": "Cantora One",
+  "slug": "cantora-one",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Carlito",
+  "slug": "carlito",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400,
+   700
+  ],
+  "axes": []
+ },
+ {
+  "family": "Carme",
+  "slug": "carme",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Carrois Gothic",
+  "slug": "carrois-gothic",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Carrois Gothic SC",
+  "slug": "carrois-gothic-sc",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Chau Philomene One",
+  "slug": "chau-philomene-one",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Convergence",
+  "slug": "convergence",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Cossette Texte",
+  "slug": "cossette-texte",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400,
+   700
+  ],
+  "axes": []
+ },
+ {
+  "family": "Cossette Titre",
+  "slug": "cossette-titre",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400,
+   700
+  ],
+  "axes": []
+ },
+ {
+  "family": "Days One",
+  "slug": "days-one",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Denk One",
+  "slug": "denk-one",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Didact Gothic",
+  "slug": "didact-gothic",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Doppio One",
+  "slug": "doppio-one",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Dorsa",
+  "slug": "dorsa",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Duru Sans",
+  "slug": "duru-sans",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Economica",
+  "slug": "economica",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400,
+   700
+  ],
+  "axes": []
+ },
+ {
+  "family": "Electrolize",
+  "slug": "electrolize",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Encode Sans Condensed",
+  "slug": "encode-sans-condensed",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   100,
+   200,
+   300,
+   400,
+   500,
+   600,
+   700,
+   800,
+   900
+  ],
+  "axes": []
+ },
+ {
+  "family": "Encode Sans Expanded",
+  "slug": "encode-sans-expanded",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   100,
+   200,
+   300,
+   400,
+   500,
+   600,
+   700,
+   800,
+   900
+  ],
+  "axes": []
+ },
+ {
+  "family": "Encode Sans Semi Condensed",
+  "slug": "encode-sans-semi-condensed",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   100,
+   200,
+   300,
+   400,
+   500,
+   600,
+   700,
+   800,
+   900
+  ],
+  "axes": []
+ },
+ {
+  "family": "Encode Sans Semi Expanded",
+  "slug": "encode-sans-semi-expanded",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   100,
+   200,
+   300,
+   400,
+   500,
+   600,
+   700,
+   800,
+   900
+  ],
+  "axes": []
+ },
+ {
+  "family": "Englebert",
+  "slug": "englebert",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Faculty Glyphic",
+  "slug": "faculty-glyphic",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Farro",
+  "slug": "farro",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   300,
+   400,
+   500,
+   700
+  ],
+  "axes": []
+ },
+ {
+  "family": "Federo",
+  "slug": "federo",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Fira Sans",
+  "slug": "fira-sans",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   100,
+   200,
+   300,
+   400,
+   500,
+   600,
+   700,
+   800,
+   900
+  ],
+  "axes": []
+ },
+ {
+  "family": "Fira Sans Condensed",
+  "slug": "fira-sans-condensed",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   100,
+   200,
+   300,
+   400,
+   500,
+   600,
+   700,
+   800,
+   900
+  ],
+  "axes": []
+ },
+ {
+  "family": "Fira Sans Extra Condensed",
+  "slug": "fira-sans-extra-condensed",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   100,
+   200,
+   300,
+   400,
+   500,
+   600,
+   700,
+   800,
+   900
+  ],
+  "axes": []
+ },
+ {
+  "family": "Fjalla One",
+  "slug": "fjalla-one",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Francois One",
+  "slug": "francois-one",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Fresca",
+  "slug": "fresca",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Gafata",
+  "slug": "gafata",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Galdeano",
+  "slug": "galdeano",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Geo",
+  "slug": "geo",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "GFS Neohellenic",
+  "slug": "gfs-neohellenic",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Gidole",
+  "slug": "gidole",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Gruppo",
+  "slug": "gruppo",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Gudea",
+  "slug": "gudea",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400,
+   700
+  ],
+  "axes": []
+ },
+ {
+  "family": "Hammersmith One",
+  "slug": "hammersmith-one",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Hedvig Letters Sans",
+  "slug": "hedvig-letters-sans",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Homenaje",
+  "slug": "homenaje",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "IBM Plex Sans Condensed",
+  "slug": "ibm-plex-sans-condensed",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   100,
+   200,
+   300,
+   400,
+   500,
+   600,
+   700
+  ],
+  "axes": []
+ },
+ {
+  "family": "Imprima",
+  "slug": "imprima",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Inder",
+  "slug": "inder",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Inria Sans",
+  "slug": "inria-sans",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   300,
+   400,
+   700
+  ],
+  "axes": []
+ },
+ {
+  "family": "Istok Web",
+  "slug": "istok-web",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400,
+   700
+  ],
+  "axes": []
+ },
+ {
+  "family": "Italiana",
+  "slug": "italiana",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Jaro",
+  "slug": "jaro",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": [
+   "opsz"
+  ]
+ },
+ {
+  "family": "Jockey One",
+  "slug": "jockey-one",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Julius Sans One",
+  "slug": "julius-sans-one",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Kedebideri",
+  "slug": "kedebideri",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400,
+   500,
+   600,
+   700,
+   800,
+   900
+  ],
+  "axes": []
+ },
+ {
+  "family": "Kite One",
+  "slug": "kite-one",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Krona One",
+  "slug": "krona-one",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Kulim Park",
+  "slug": "kulim-park",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   200,
+   300,
+   400,
+   600,
+   700
+  ],
+  "axes": []
+ },
+ {
+  "family": "Lato",
+  "slug": "lato",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   100,
+   200,
+   300,
+   400,
+   500,
+   600,
+   700,
+   800,
+   900
+  ],
+  "axes": []
+ },
+ {
+  "family": "League Gothic",
+  "slug": "league-gothic",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": [
+   "wdth"
+  ]
+ },
+ {
+  "family": "Libertinus Sans",
+  "slug": "libertinus-sans",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400,
+   700
+  ],
+  "axes": []
+ },
+ {
+  "family": "Liter",
+  "slug": "liter",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Livvic",
+  "slug": "livvic",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   100,
+   200,
+   300,
+   400,
+   500,
+   600,
+   700,
+   900
+  ],
+  "axes": []
+ },
+ {
+  "family": "Lunasima",
+  "slug": "lunasima",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400,
+   700
+  ],
+  "axes": []
+ },
+ {
+  "family": "Madimi One",
+  "slug": "madimi-one",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Magra",
+  "slug": "magra",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400,
+   700
+  ],
+  "axes": []
+ },
+ {
+  "family": "Mako",
+  "slug": "mako",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Marmelad",
+  "slug": "marmelad",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Marvel",
+  "slug": "marvel",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400,
+   700
+  ],
+  "axes": []
+ },
+ {
+  "family": "Matemasie",
+  "slug": "matemasie",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Metrophobic",
+  "slug": "metrophobic",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Michroma",
+  "slug": "michroma",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Molengo",
+  "slug": "molengo",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Momo Signature",
+  "slug": "momo-signature",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Momo Trust Display",
+  "slug": "momo-trust-display",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Montserrat Alternates",
+  "slug": "montserrat-alternates",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   100,
+   200,
+   300,
+   400,
+   500,
+   600,
+   700,
+   800,
+   900
+  ],
+  "axes": []
+ },
+ {
+  "family": "Mooli",
+  "slug": "mooli",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Mouse Memoirs",
+  "slug": "mouse-memoirs",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "New Amsterdam",
+  "slug": "new-amsterdam",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "News Cycle",
+  "slug": "news-cycle",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400,
+   700
+  ],
+  "axes": []
+ },
+ {
+  "family": "Nobile",
+  "slug": "nobile",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400,
+   500,
+   700
+  ],
+  "axes": []
+ },
+ {
+  "family": "Notable",
+  "slug": "notable",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Noto Music",
+  "slug": "noto-music",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Noto Sans Caucasian Albanian",
+  "slug": "noto-sans-caucasian-albanian",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Noto Sans Cypro Minoan",
+  "slug": "noto-sans-cypro-minoan",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Noto Sans Elymaic",
+  "slug": "noto-sans-elymaic",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Noto Sans Indic Siyaq Numbers",
+  "slug": "noto-sans-indic-siyaq-numbers",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Noto Sans Mayan Numerals",
+  "slug": "noto-sans-mayan-numerals",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Noto Sans Nushu",
+  "slug": "noto-sans-nushu",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Noto Sans Old Hungarian",
+  "slug": "noto-sans-old-hungarian",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Noto Sans Pau Cin Hau",
+  "slug": "noto-sans-pau-cin-hau",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Noto Sans SignWriting",
+  "slug": "noto-sans-signwriting",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Noto Znamenny Musical Notation",
+  "slug": "noto-znamenny-musical-notation",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Numans",
+  "slug": "numans",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Orienta",
+  "slug": "orienta",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Oxygen",
+  "slug": "oxygen",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   300,
+   400,
+   700
+  ],
+  "axes": []
+ },
+ {
+  "family": "Pathway Gothic One",
+  "slug": "pathway-gothic-one",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Paytone One",
+  "slug": "paytone-one",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Philosopher",
+  "slug": "philosopher",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400,
+   700
+  ],
+  "axes": []
+ },
+ {
+  "family": "Play",
+  "slug": "play",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400,
+   700
+  ],
+  "axes": []
+ },
+ {
+  "family": "Port Lligat Sans",
+  "slug": "port-lligat-sans",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Proza Libre",
+  "slug": "proza-libre",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400,
+   500,
+   600,
+   700,
+   800
+  ],
+  "axes": []
+ },
+ {
+  "family": "PT Sans",
+  "slug": "pt-sans",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400,
+   700
+  ],
+  "axes": []
+ },
+ {
+  "family": "PT Sans Caption",
+  "slug": "pt-sans-caption",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400,
+   700
+  ],
+  "axes": []
+ },
+ {
+  "family": "PT Sans Narrow",
+  "slug": "pt-sans-narrow",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400,
+   700
+  ],
+  "axes": []
+ },
+ {
+  "family": "Puritan",
+  "slug": "puritan",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400,
+   700
+  ],
+  "axes": []
+ },
+ {
+  "family": "Quantico",
+  "slug": "quantico",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400,
+   700
+  ],
+  "axes": []
+ },
+ {
+  "family": "Quattrocento Sans",
+  "slug": "quattrocento-sans",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400,
+   700
+  ],
+  "axes": []
+ },
+ {
+  "family": "Questrial",
+  "slug": "questrial",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Rambla",
+  "slug": "rambla",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400,
+   700
+  ],
+  "axes": []
+ },
+ {
+  "family": "Rationale",
+  "slug": "rationale",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Ropa Sans",
+  "slug": "ropa-sans",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Rubik Mono One",
+  "slug": "rubik-mono-one",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Ruluko",
+  "slug": "ruluko",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Rum Raisin",
+  "slug": "rum-raisin",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Russo One",
+  "slug": "russo-one",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Saira Condensed",
+  "slug": "saira-condensed",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   100,
+   200,
+   300,
+   400,
+   500,
+   600,
+   700,
+   800,
+   900
+  ],
+  "axes": []
+ },
+ {
+  "family": "Saira Extra Condensed",
+  "slug": "saira-extra-condensed",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   100,
+   200,
+   300,
+   400,
+   500,
+   600,
+   700,
+   800,
+   900
+  ],
+  "axes": []
+ },
+ {
+  "family": "Saira Semi Condensed",
+  "slug": "saira-semi-condensed",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   100,
+   200,
+   300,
+   400,
+   500,
+   600,
+   700,
+   800,
+   900
+  ],
+  "axes": []
+ },
+ {
+  "family": "Sankofa Display",
+  "slug": "sankofa-display",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Sansation",
+  "slug": "sansation",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   300,
+   400,
+   700
+  ],
+  "axes": []
+ },
+ {
+  "family": "Sansita",
+  "slug": "sansita",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400,
+   700,
+   800,
+   900
+  ],
+  "axes": []
+ },
+ {
+  "family": "Scada",
+  "slug": "scada",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400,
+   700
+  ],
+  "axes": []
+ },
+ {
+  "family": "Seymour One",
+  "slug": "seymour-one",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Shanti",
+  "slug": "shanti",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Share",
+  "slug": "share",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400,
+   700
+  ],
+  "axes": []
+ },
+ {
+  "family": "Share Tech",
+  "slug": "share-tech",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Sintony",
+  "slug": "sintony",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400,
+   700
+  ],
+  "axes": []
+ },
+ {
+  "family": "Six Caps",
+  "slug": "six-caps",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Snippet",
+  "slug": "snippet",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Special Gothic Condensed One",
+  "slug": "special-gothic-condensed-one",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Special Gothic Expanded One",
+  "slug": "special-gothic-expanded-one",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Spinnaker",
+  "slug": "spinnaker",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Story Script",
+  "slug": "story-script",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Strait",
+  "slug": "strait",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Sulphur Point",
+  "slug": "sulphur-point",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   300,
+   400,
+   700
+  ],
+  "axes": []
+ },
+ {
+  "family": "Syncopate",
+  "slug": "syncopate",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400,
+   700
+  ],
+  "axes": []
+ },
+ {
+  "family": "Tac One",
+  "slug": "tac-one",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Tauri",
+  "slug": "tauri",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Telex",
+  "slug": "telex",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Tenor Sans",
+  "slug": "tenor-sans",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Text Me One",
+  "slug": "text-me-one",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Titillium Web",
+  "slug": "titillium-web",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   200,
+   300,
+   400,
+   600,
+   700,
+   900
+  ],
+  "axes": []
+ },
+ {
+  "family": "Tomorrow",
+  "slug": "tomorrow",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   100,
+   200,
+   300,
+   400,
+   500,
+   600,
+   700,
+   800,
+   900
+  ],
+  "axes": []
+ },
+ {
+  "family": "Tuffy",
+  "slug": "tuffy",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400,
+   700
+  ],
+  "axes": []
+ },
+ {
+  "family": "Ubuntu",
+  "slug": "ubuntu",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   300,
+   400,
+   500,
+   700
+  ],
+  "axes": []
+ },
+ {
+  "family": "Ubuntu Condensed",
+  "slug": "ubuntu-condensed",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Varela",
+  "slug": "varela",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Varela Round",
+  "slug": "varela-round",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Viga",
+  "slug": "viga",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Voces",
+  "slug": "voces",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Voltaire",
+  "slug": "voltaire",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Wendy One",
+  "slug": "wendy-one",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Wire One",
+  "slug": "wire-one",
+  "group": "Static: Sans Serif",
+  "mono": false,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Azeret Mono",
+  "slug": "azeret-mono",
+  "group": "Variable",
+  "mono": true,
+  "variable": true,
+  "wght": [
+   100,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Chivo Mono",
+  "slug": "chivo-mono",
+  "group": "Variable",
+  "mono": true,
+  "variable": true,
+  "wght": [
+   100,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Datatype",
+  "slug": "datatype",
+  "group": "Variable",
+  "mono": true,
+  "variable": true,
+  "wght": [
+   100,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wdth",
+   "wght"
+  ]
+ },
+ {
+  "family": "Fira Code",
+  "slug": "fira-code",
+  "group": "Variable",
+  "mono": true,
+  "variable": true,
+  "wght": [
+   300,
+   700
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Geist Mono",
+  "slug": "geist-mono",
+  "group": "Variable",
+  "mono": true,
+  "variable": true,
+  "wght": [
+   100,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Google Sans Code",
+  "slug": "google-sans-code",
+  "group": "Variable",
+  "mono": true,
+  "variable": true,
+  "wght": [
+   300,
+   800
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Inconsolata",
+  "slug": "inconsolata",
+  "group": "Variable",
+  "mono": true,
+  "variable": true,
+  "wght": [
+   200,
+   900
+  ],
+  "weights": [
+   200,
+   300,
+   400,
+   500,
+   600,
+   700,
+   800,
+   900
+  ],
+  "axes": [
+   "wdth",
+   "wght"
+  ]
+ },
+ {
+  "family": "Intel One Mono",
+  "slug": "intel-one-mono",
+  "group": "Variable",
+  "mono": true,
+  "variable": true,
+  "wght": [
+   300,
+   700
+  ],
+  "weights": [
+   300,
+   400,
+   500,
+   600,
+   700
+  ],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "JetBrains Mono",
+  "slug": "jetbrains-mono",
+  "group": "Variable",
+  "mono": true,
+  "variable": true,
+  "wght": [
+   100,
+   800
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Kode Mono",
+  "slug": "kode-mono",
+  "group": "Variable",
+  "mono": true,
+  "variable": true,
+  "wght": [
+   400,
+   700
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Lilex",
+  "slug": "lilex",
+  "group": "Variable",
+  "mono": true,
+  "variable": true,
+  "wght": [
+   100,
+   700
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Martian Mono",
+  "slug": "martian-mono",
+  "group": "Variable",
+  "mono": true,
+  "variable": true,
+  "wght": [
+   100,
+   800
+  ],
+  "weights": [],
+  "axes": [
+   "wdth",
+   "wght"
+  ]
+ },
+ {
+  "family": "Overpass Mono",
+  "slug": "overpass-mono",
+  "group": "Variable",
+  "mono": true,
+  "variable": true,
+  "wght": [
+   300,
+   700
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Red Hat Mono",
+  "slug": "red-hat-mono",
+  "group": "Variable",
+  "mono": true,
+  "variable": true,
+  "wght": [
+   300,
+   700
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Reddit Mono",
+  "slug": "reddit-mono",
+  "group": "Variable",
+  "mono": true,
+  "variable": true,
+  "wght": [
+   200,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Roboto Mono",
+  "slug": "roboto-mono",
+  "group": "Variable",
+  "mono": true,
+  "variable": true,
+  "wght": [
+   100,
+   700
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Sometype Mono",
+  "slug": "sometype-mono",
+  "group": "Variable",
+  "mono": true,
+  "variable": true,
+  "wght": [
+   400,
+   700
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Source Code Pro",
+  "slug": "source-code-pro",
+  "group": "Variable",
+  "mono": true,
+  "variable": true,
+  "wght": [
+   200,
+   900
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Spline Sans Mono",
+  "slug": "spline-sans-mono",
+  "group": "Variable",
+  "mono": true,
+  "variable": true,
+  "wght": [
+   300,
+   700
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Ubuntu Sans Mono",
+  "slug": "ubuntu-sans-mono",
+  "group": "Variable",
+  "mono": true,
+  "variable": true,
+  "wght": [
+   400,
+   700
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Victor Mono",
+  "slug": "victor-mono",
+  "group": "Variable",
+  "mono": true,
+  "variable": true,
+  "wght": [
+   100,
+   700
+  ],
+  "weights": [],
+  "axes": [
+   "wght"
+  ]
+ },
+ {
+  "family": "Anonymous Pro",
+  "slug": "anonymous-pro",
+  "group": "Static",
+  "mono": true,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400,
+   700
+  ],
+  "axes": []
+ },
+ {
+  "family": "B612 Mono",
+  "slug": "b612-mono",
+  "group": "Static",
+  "mono": true,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400,
+   700
+  ],
+  "axes": []
+ },
+ {
+  "family": "Courier Prime",
+  "slug": "courier-prime",
+  "group": "Static",
+  "mono": true,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400,
+   700
+  ],
+  "axes": []
+ },
+ {
+  "family": "Cousine",
+  "slug": "cousine",
+  "group": "Static",
+  "mono": true,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400,
+   700
+  ],
+  "axes": []
+ },
+ {
+  "family": "Cutive Mono",
+  "slug": "cutive-mono",
+  "group": "Static",
+  "mono": true,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "DM Mono",
+  "slug": "dm-mono",
+  "group": "Static",
+  "mono": true,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   300,
+   400,
+   500
+  ],
+  "axes": []
+ },
+ {
+  "family": "Fira Mono",
+  "slug": "fira-mono",
+  "group": "Static",
+  "mono": true,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400,
+   500,
+   700
+  ],
+  "axes": []
+ },
+ {
+  "family": "Fragment Mono",
+  "slug": "fragment-mono",
+  "group": "Static",
+  "mono": true,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "IBM Plex Mono",
+  "slug": "ibm-plex-mono",
+  "group": "Static",
+  "mono": true,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   100,
+   200,
+   300,
+   400,
+   500,
+   600,
+   700
+  ],
+  "axes": []
+ },
+ {
+  "family": "Iosevka Charon",
+  "slug": "iosevka-charon",
+  "group": "Static",
+  "mono": true,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   300,
+   400,
+   500,
+   700
+  ],
+  "axes": []
+ },
+ {
+  "family": "Iosevka Charon Mono",
+  "slug": "iosevka-charon-mono",
+  "group": "Static",
+  "mono": true,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   300,
+   400,
+   500,
+   700
+  ],
+  "axes": []
+ },
+ {
+  "family": "Lekton",
+  "slug": "lekton",
+  "group": "Static",
+  "mono": true,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400,
+   700
+  ],
+  "axes": []
+ },
+ {
+  "family": "Libertinus Mono",
+  "slug": "libertinus-mono",
+  "group": "Static",
+  "mono": true,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Major Mono Display",
+  "slug": "major-mono-display",
+  "group": "Static",
+  "mono": true,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Monofett",
+  "slug": "monofett",
+  "group": "Static",
+  "mono": true,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Nova Mono",
+  "slug": "nova-mono",
+  "group": "Static",
+  "mono": true,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Oxygen Mono",
+  "slug": "oxygen-mono",
+  "group": "Static",
+  "mono": true,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "PT Mono",
+  "slug": "pt-mono",
+  "group": "Static",
+  "mono": true,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Share Tech Mono",
+  "slug": "share-tech-mono",
+  "group": "Static",
+  "mono": true,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Sixtyfour",
+  "slug": "sixtyfour",
+  "group": "Static",
+  "mono": true,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": [
+   "BLED",
+   "SCAN"
+  ]
+ },
+ {
+  "family": "Sixtyfour Convergence",
+  "slug": "sixtyfour-convergence",
+  "group": "Static",
+  "mono": true,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": [
+   "BLED",
+   "SCAN",
+   "XELA",
+   "YELA"
+  ]
+ },
+ {
+  "family": "Space Mono",
+  "slug": "space-mono",
+  "group": "Static",
+  "mono": true,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400,
+   700
+  ],
+  "axes": []
+ },
+ {
+  "family": "Syne Mono",
+  "slug": "syne-mono",
+  "group": "Static",
+  "mono": true,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Ubuntu Mono",
+  "slug": "ubuntu-mono",
+  "group": "Static",
+  "mono": true,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400,
+   700
+  ],
+  "axes": []
+ },
+ {
+  "family": "VT323",
+  "slug": "vt323",
+  "group": "Static",
+  "mono": true,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ },
+ {
+  "family": "Workbench",
+  "slug": "workbench",
+  "group": "Static",
+  "mono": true,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": [
+   "BLED",
+   "SCAN"
+  ]
+ },
+ {
+  "family": "Xanh Mono",
+  "slug": "xanh-mono",
+  "group": "Static",
+  "mono": true,
+  "variable": false,
+  "wght": null,
+  "weights": [
+   400
+  ],
+  "axes": []
+ }
+]
