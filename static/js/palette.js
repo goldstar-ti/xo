@@ -1,25 +1,28 @@
-// The command palette (Ctrl+K or /) and the keyboard shortcut list (?). One document keydown listener.
-// A screen may register single-key shortcuts with setScreenKeys(fn); fn(event) returns true when it used the key.
+// The command palette and the keyboard shortcut list. One document keydown listener; the keys come from keymap.js.
+// A screen may register shortcuts with setScreenKeys(fn, scope); fn(event) returns true when it used the key.
 import { editTask } from './forms.js';
 import { allTasks, quickTask } from './taskdata.js';
+import { actionLabel, activeScopes, actions, boundInActive, comboOf, keyFor, keyLabel, matchKey, setScope } from './keymap.js';
 import { fuzzyScore } from './tasks.js';
 import { t, text } from './text.js';
 import { focusControl, input } from './ui.js';
 import { dialogOpen, h, openDialog, toast } from './util.js';
 
-const TYPING = 'input, textarea, select, [contenteditable], wa-input, wa-textarea, wa-select';
 const MAX = 12;
 const TASKS_KEY = 'xo-tasks';
 
 let screenKeys = null;
+let screenScope = null;
 let installed = false;
 let current = null;
 
-/** Registers the current screen's key handler, or clears it with null. */
-export function setScreenKeys(fn) { screenKeys = fn || null; }
-
-// The Tracker screen binds its own `/` and `?` keys, so the palette leaves those to it (Ctrl+K still works there).
-const onTracker = () => location.hash.startsWith('#/tracker');
+/** Registers the current screen's key handler and its keymap scope, or clears both with null. */
+export function setScreenKeys(fn, scope) {
+  if (screenScope) setScope(screenScope, false);
+  screenKeys = fn || null;
+  screenScope = fn && scope ? scope : null;
+  if (screenScope) setScope(screenScope, true);
+}
 
 function setTasksView(view) {
   try {
@@ -81,30 +84,36 @@ export function openPalette() {
       if (shown[active]) run(shown[active]);
     }
   });
-  current = openDialog(t('palette.heading'), h('div', {}, box, list, h('p', { class: 'hint' }, t('palette.hint'))));
+  current = openDialog(t('palette.heading'), h('div', {}, box, list, h('p', { class: 'hint' }, t('palette.hint', { palette: keyLabel(keyFor('global.palette')), alt: keyLabel(keyFor('global.palette_alt')) }))));
   current.addEventListener('close', () => { current = null; });
   draw();
   focusControl(box);
 }
 
-/** Opens the list of keyboard shortcuts. */
+/** Opens the list of keyboard shortcuts: the global keys, then the keys of the screen showing. */
 export function openShortcuts() {
   if (dialogOpen()) return;
-  openDialog(t('palette.shortcuts_heading'), h('ul', {}, Object.values(text('palette.shortcuts')).map((line) => h('li', {}, line))));
+  const shown = new Set(['global', ...activeScopes()]);
+  const rows = actions().filter((a) => shown.has(a.scope) && keyFor(a.id));
+  const dlg = openDialog(t('palette.shortcuts_heading'), h('div', {},
+    h('table', { class: 'tw:text-sm' },
+      h('thead', {}, h('tr', {}, h('th', { class: 'tw:p-1 tw:pr-4 tw:text-left' }, t('keys.table.action')), h('th', { class: 'tw:p-1 tw:text-left' }, t('keys.table.key')))),
+      h('tbody', {}, rows.map((a) => h('tr', {},
+        h('td', { class: 'tw:p-1 tw:pr-4' }, actionLabel(a.id)),
+        h('td', { class: 'tw:p-1' }, h('kbd', {}, keyLabel(keyFor(a.id)))))))),
+    h('p', { class: 'hint' }, h('a', { href: '#/settings', onclick: () => dlg.close() }, t('keys.change_link')))));
 }
 
 function onKey(e) {
-  const ctrl = e.ctrlKey || e.metaKey;
-  if (ctrl && !e.altKey && e.key.toLowerCase() === 'k') {
-    e.preventDefault();
-    openPalette();
-    return;
-  }
-  if (ctrl || e.altKey || e.defaultPrevented) return;
-  if (e.target.closest?.(TYPING) || dialogOpen() || onTracker()) return;
-  if (e.key === '/') { e.preventDefault(); openPalette(); return; }
-  if (e.key === '?') { e.preventDefault(); openShortcuts(); return; }
-  if (screenKeys && screenKeys(e)) e.preventDefault();
+  if (e.defaultPrevented) return;
+  if (screenKeys && screenKeys(e)) { e.preventDefault(); return; }
+  const id = matchKey('global', e);
+  if (!id || boundInActive(comboOf(e))) return;
+  if (id === 'global.palette' || id === 'global.palette_alt') openPalette();
+  else if (id === 'global.shortcuts') openShortcuts();
+  else if (id.startsWith('global.go_')) location.hash = `#/${id.slice('global.go_'.length)}`;
+  else return;
+  e.preventDefault();
 }
 
 /** Starts listening for keys. Safe to call more than once. */

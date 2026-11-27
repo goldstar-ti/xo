@@ -467,3 +467,11 @@ html[data-kit="daisy"] .field.tw\:fieldset { font-size: inherit; }
 html[data-kit="daisy"] :is(.tw\:input, .tw\:textarea, .tw\:select) { font-size: inherit; font-family: inherit; }
 /* daisyUI's label does not wrap, which pushed long hints past a phone's width. */
 html[data-kit="daisy"] .field small.tw\:label { white-space: normal; }
+
+/* Keys in the shortcut list and Settings. */
+kbd { border: var(--rule) solid var(--line); border-radius: var(--radius); font-family: var(--font-num); padding: 0 0.35em; background: var(--surface); }
+.keys-table { width: 100%; border-collapse: collapse; margin-top: 0.75rem; }
+.keys-table td { padding: 0.25rem 0.4rem 0.25rem 0; border-top: var(--rule) solid var(--line); vertical-align: middle; }
+.keys-table td.text { width: 100%; }
+.keys-table td.tools { white-space: nowrap; }
+.keys-table td.tools button { min-width: 2.5rem; min-height: 2.5rem; padding: 0 0.5rem; }

@@ -83,6 +83,7 @@ services:
         && python tests/e2e_tracker.py http://localhost:8000
         && python tests/e2e_kits.py http://localhost:8000
         && python tests/reset_db.py && python tests/e2e_tasks.py http://localhost:8000
+        && python tests/reset_db.py && python tests/e2e_extras.py http://localhost:8000
 
   # Screenshots of every screen in every kit (make shots). Not part of the tests.
   # Runs as root so pip can install, then makes the files readable by everyone.

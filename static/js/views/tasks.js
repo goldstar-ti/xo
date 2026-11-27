@@ -3,6 +3,7 @@
 // Task table widgets. The chosen view and the filters are per browser, in localStorage `xo-tasks`.
 import * as store from '../store.js';
 import { editTask } from '../forms.js';
+import { matchKey } from '../keymap.js';
 import { openPalette, setScreenKeys } from '../palette.js';
 import { allTasks, pickTask, quickTask, saveMeta, saveTask, setStatus, taskMeta, toggleTask } from '../taskdata.js';
 import { ENERGIES, PRIORITIES, STATUSES, compareTasks, isBlocked, isStale, pace, parseQuick } from '../tasks.js';
@@ -396,25 +397,26 @@ function stepFocus(root, dir) {
   focusRow(els[at < 0 ? (dir > 0 ? 0 : els.length - 1) : Math.min(els.length - 1, Math.max(0, at + dir))]);
 }
 
-// Single-key shortcuts for the Tasks page. Returns true when the key was used.
+// Shortcuts for the Tasks page: the keys come from keymap.js. Returns true when the key was used.
 function taskKeys(root, e) {
-  const k = e.key;
-  if (k === 'n') { focusControl(root.querySelector('[data-focus="task"]')); return true; }
-  if (k === 'j' || k === 'ArrowDown') { stepFocus(root, 1); return true; }
-  if (k === 'k' || k === 'ArrowUp') { stepFocus(root, -1); return true; }
-  const view = { 1: 'list', 2: 'board', 3: 'table' }[k];
+  const action = matchKey('tasks', e);
+  if (!action) return false;
+  if (action === 'tasks.new') { focusControl(root.querySelector('[data-focus="task"]')); return true; }
+  if (action === 'tasks.next' || action === 'tasks.next_alt') { stepFocus(root, 1); return true; }
+  if (action === 'tasks.prev' || action === 'tasks.prev_alt') { stepFocus(root, -1); return true; }
+  const view = { 'tasks.view_list': 'list', 'tasks.view_board': 'board', 'tasks.view_table': 'table' }[action];
   if (view) { savePrefs({ view }); location.hash = `#/tasks/${view}`; return true; }
-  if (k === 'Enter' && e.target.closest?.('button, a, summary, [role="button"]')) return false;
+  if (action === 'tasks.edit_alt' && e.target.closest?.('button, a, summary, [role="button"]')) return false;
   const id = currentId(root);
   const item = id && allTasks().find((i) => i.id === id);
   if (!item) return false;
   const d = item.data;
-  if (k === 'e' || k === 'Enter') editTask(item);
-  else if (k === 'x') toggleTask(item).catch(fail);
-  else if (k === 't') pickTask(item).catch(fail);
-  else if (k === 'p') saveTask(item.id, { ...d, priority: PRIORITIES[(PRIORITIES.indexOf(d.priority) + 1) % PRIORITIES.length] }).catch(fail);
-  else if (k === '[' || k === ']') {
-    const to = STATUSES[STATUSES.indexOf(d.status) + (k === ']' ? 1 : -1)];
+  if (action === 'tasks.edit' || action === 'tasks.edit_alt') editTask(item);
+  else if (action === 'tasks.done') toggleTask(item).catch(fail);
+  else if (action === 'tasks.pick') pickTask(item).catch(fail);
+  else if (action === 'tasks.priority') saveTask(item.id, { ...d, priority: PRIORITIES[(PRIORITIES.indexOf(d.priority) + 1) % PRIORITIES.length] }).catch(fail);
+  else if (action === 'tasks.left' || action === 'tasks.right') {
+    const to = STATUSES[STATUSES.indexOf(d.status) + (action === 'tasks.right' ? 1 : -1)];
     if (to) setStatus(item, to).catch(fail);
   } else return false;
   return true;
@@ -466,7 +468,7 @@ export function render(root, param) {
     hidden > 0 && h('p', { class: 'note' }, t('lists.tasks.filter.hidden', { count: hidden })),
     body);
   if (page) {
-    setScreenKeys((e) => taskKeys(root, e));
+    setScreenKeys((e) => taskKeys(root, e), 'tasks');
     if (focused && focused.hash !== location.hash) focused = null;
     const el = focused && document.activeElement === document.body && rowById(root, focused.id);
     if (el) el.focus({ preventScroll: true });

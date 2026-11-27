@@ -45,6 +45,25 @@ settings:
     shutdown_hint: Carry unfinished tasks forward, note how long finished ones took and pick tomorrow’s three.
     pace_none: 'XO allows 1.5 times your guess until {n} finished tasks have an actual time.'
     pace: 'Your finished tasks took about {ratio} times your guess, from {n} tasks. XO allows that much.'
+  keys:
+    heading: Keyboard shortcuts
+    hint: Choose a key for anything XO can do from the keyboard. Keys without Ctrl or Alt do nothing while you are typing.
+    scope: Where
+    scopes:
+      global: Everywhere
+      tasks: Tasks
+      tracker: Tracker
+      canvas: Canvas
+    change: Change
+    change_aria: 'Change the key for: {action}'
+    press: Press a key, or Esc to cancel
+    clear: Clear
+    clear_aria: 'Remove the key for: {action}'
+    reset: Reset
+    reset_aria: 'Put back the original key for: {action}'
+    reset_all: Put back every original key here
+    reset_all_confirm: Tap again to put back every original key
+    clash: '{key} is already used for "{action}". Choose another key or change that one first.'
   evening:
     heading: Evening check-in
     log_signs: Ask about my early warning signs

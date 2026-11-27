@@ -22,18 +22,5 @@ palette:
   checkin_morning: Start the morning check-in
   checkin_evening: Start the evening check-in
   checkin_weekly: Start the weekly review
-  hint: 'Ctrl+K or / opens this list. Up and Down choose, Enter runs it, Esc closes it.'
+  hint: '{palette} or {alt} opens this list. Up and Down choose, Enter runs it, Esc closes it.'
   shortcuts_heading: Keyboard shortcuts
-  shortcuts:
-    palette: 'Ctrl+K or /: commands'
-    new: 'n: add a task'
-    next: 'j or Down: next task'
-    prev: 'k or Up: previous task'
-    edit: 'e or Enter: edit the task'
-    done: 'x: mark done, or not done'
-    pick: 't: pick for today'
-    priority: 'p: change the priority'
-    left: '[: move to the column on the left'
-    right: ']: move to the column on the right'
-    views: '1, 2 or 3: list, board or table'
-    help: '?: this list'

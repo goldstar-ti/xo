@@ -26,6 +26,7 @@
 // The active canvas is remembered per device in localStorage under `xo-canvas`.
 import * as store from './store.js';
 import { loadGridStack } from './grid.js';
+import { ariaKeys, keyFor, matchKey, setScope } from './keymap.js';
 import { tabSet, tabStrip } from './tabs.js';
 import { t } from './text.js';
 import { button } from './ui.js';
@@ -107,7 +108,7 @@ export async function mountCanvas(root) {
   const addBtn = tool(t('canvas.add_widget'), () => openAdd());
   const fitAllBtn = tool(t('canvas.fit_all'), () => fitAll());
   const resetBtn = tool(t('canvas.reset_layout'), () => resetLayout());
-  const undoBtn = tool(t('canvas.undo'), () => undo(), { 'aria-keyshortcuts': 'Control+Z' });
+  const undoBtn = tool(t('canvas.undo'), () => undo(), { 'aria-keyshortcuts': ariaKeys(keyFor('canvas.undo')) });
   const leaveBtn = tool('', () => (zoomedId ? unzoom() : unfocus()));
   const deskOnly = [addBtn, fitAllBtn, resetBtn, undoBtn];
   const toolbar = h('div', { class: 'xo-canvas-tools' },
@@ -588,12 +589,13 @@ export async function mountCanvas(root) {
     if (dialogOpen() || menu) return;
     if (e.key === 'Escape' && zoomedId) { e.preventDefault(); unzoom(); return; }
     const typing = e.target.closest?.('input, textarea, select, [contenteditable], wa-input, wa-textarea');
-    if ((e.ctrlKey || e.metaKey) && !e.shiftKey && e.key.toLowerCase() === 'z' && !typing && undoStack.length) {
+    if (matchKey('canvas', e) === 'canvas.undo' && !typing && undoStack.length) {
       e.preventDefault();
       undo();
     }
   }
   document.addEventListener('keydown', onDocKey);
+  setScope('canvas', true);
 
   // ---- dialogs ----
   function openAdd() {
@@ -670,6 +672,7 @@ export async function mountCanvas(root) {
       phone.removeEventListener('change', onPhone);
       board.removeEventListener('keydown', onBoardKey);
       document.removeEventListener('keydown', onDocKey);
+      setScope('canvas', false);
       closeMenu();
       if (dirty.size) await flush();
       teardown();

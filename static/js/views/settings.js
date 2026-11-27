@@ -1,10 +1,11 @@
 import * as store from '../store.js';
 import { h, kvSet, toast, today, put } from '../util.js';
-import { button, checkbox, field, input, select, textarea } from '../ui.js';
+import { button, checkbox, field, focusControl, input, select, textarea } from '../ui.js';
 import { t, text } from '../text.js';
 import * as lookups from '../lookups.js';
 import { allTasks } from '../taskdata.js';
 import { pace } from '../tasks.js';
+import { actionLabel, actions, clashFor, comboOf, keyFor, keyLabel, resetKeys, saveKey, scopes } from '../keymap.js';
 
 export const live = false;
 
@@ -121,6 +122,70 @@ function lookupEditor(s, saveSettings) {
     field(t('settings.lookups.headings'), checkbox({ id: 's-groupHeadings', checked: !!s.groupHeadings, onchange: (e) => saveSettings({ groupHeadings: e.target.checked }) }), t('settings.lookups.headings_hint')));
 }
 
+// The keyboard shortcuts table: pick where, then change, clear or reset each key. Every change saves to settings.keys.
+function keysEditor(s) {
+  let scope = 'global';
+  let recording = null;
+  const note = h('p', { class: 'note late', role: 'status' });
+  const body = h('tbody');
+  const own = (id) => Object.prototype.hasOwnProperty.call(store.settings().keys || {}, id);
+  const done = async (fn, focusId) => {
+    try {
+      await fn();
+      s.keys = store.settings().keys || {};
+      note.textContent = '';
+      toast(t('forms.saved'));
+    } catch (err) { toast(err.message, 'bad'); }
+    draw(focusId);
+  };
+  const onDown = (id) => (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.key === 'Tab') return;
+    if (e.key === 'Escape') { recording = null; note.textContent = ''; draw(id); return; }
+    const combo = comboOf(e);
+    if (!combo) return;
+    const other = clashFor(id, combo);
+    if (other) { note.textContent = t('settings.keys.clash', { key: keyLabel(combo), action: actionLabel(other) }); return; }
+    recording = null;
+    done(() => saveKey(id, combo), id);
+  };
+  const row = (a) => {
+    const name = actionLabel(a.id);
+    const change = button(recording === a.id ? t('settings.keys.press') : t('settings.keys.change'), {
+      variant: 'row', class: 'kb-change', 'data-action': a.id, 'aria-label': t('settings.keys.change_aria', { action: name }),
+      onclick: () => { recording = a.id; note.textContent = ''; draw(a.id); },
+    });
+    if (recording === a.id) change.addEventListener('keydown', onDown(a.id), { capture: true });
+    return h('tr', {},
+      h('td', { class: 'text' }, name),
+      h('td', {}, h('kbd', {}, keyLabel(keyFor(a.id)))),
+      h('td', { class: 'tools' }, change,
+        button(t('settings.keys.clear'), { variant: 'row', 'aria-label': t('settings.keys.clear_aria', { action: name }), disabled: !keyFor(a.id), onclick: () => done(() => saveKey(a.id, ''), a.id) }),
+        button(t('settings.keys.reset'), { variant: 'row', 'aria-label': t('settings.keys.reset_aria', { action: name }), disabled: !own(a.id), onclick: () => done(() => resetKeys([a.id]), a.id) })));
+  };
+  function draw(focusId) {
+    body.replaceChildren(...actions().filter((a) => a.scope === scope).map(row));
+    if (focusId) focusControl(body.querySelector(`[data-action="${focusId}"]`));
+  }
+  const picker = select(scopes().map((sc) => [sc, t(`settings.keys.scopes.${sc}`)]), { id: 's-key-scope', value: scope, onchange: (e) => { scope = e.target.value; recording = null; note.textContent = ''; draw(); } });
+  const reset = button(t('settings.keys.reset_all'), { variant: 'danger' });
+  let armed = false;
+  reset.addEventListener('click', () => {
+    if (!armed) { armed = true; reset.textContent = t('settings.keys.reset_all_confirm'); return; }
+    armed = false;
+    reset.textContent = t('settings.keys.reset_all');
+    done(() => resetKeys(actions().filter((a) => a.scope === scope).map((a) => a.id)));
+  });
+  draw();
+  return h('section', {}, h('h2', {}, t('settings.keys.heading')),
+    h('p', { class: 'hint' }, t('settings.keys.hint')),
+    field(t('settings.keys.scope'), picker, null, { half: true }),
+    note,
+    h('table', { class: 'keys-table' }, body),
+    h('div', { class: 'row' }, reset));
+}
+
 function paceLine() {
   const p = pace(allTasks().map((i) => i.data));
   return p.samples >= 5 ? t('settings.tasks.pace', { ratio: p.ratio, n: p.samples }) : t('settings.tasks.pace_none', { n: 5 });
@@ -178,6 +243,7 @@ export function render(root) {
       field(t('settings.tasks.stale_days'), input({ id: 's-staleDays', type: 'number', min: '0', value: String(s.staleDays ?? 30), onchange: (e) => saveSettings({ staleDays: Math.max(0, Math.floor(Number(e.target.value) || 0)) }) }), t('settings.tasks.stale_hint'), { half: true }),
       toggle('shutdown', t('settings.tasks.shutdown'), t('settings.tasks.shutdown_hint')),
       h('p', { class: 'note' }, paceLine())),
+    keysEditor(s),
     h('section', {}, h('h2', {}, t('settings.evening.heading')),
       toggle('logSigns', t('settings.evening.log_signs'), t('settings.evening.log_signs_hint'))),
     lookupEditor(s, saveSettings),

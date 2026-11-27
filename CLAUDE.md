@@ -54,6 +54,7 @@ static/js/tasks.js         pure task logic: normalise, sort, repeats, blocking, 
 static/js/taskdata.js      store-bound task actions: taskMeta, saveTask, setStatus, pickTask, quickTask
 static/js/taskfields.js    task form controls: chipSet, subtaskEditor, blockedEditor, repeatEditor
 static/js/palette.js       command palette (Ctrl+K, /), shortcut list (?), setScreenKeys for screen keys
+static/js/keymap.js        shortcut registry, owner's keys from settings, matchKey()
 static/js/text.js          loadText(), t(key, vars), text(key): the editable wording from /api/text
 static/js/content.js       thin module: reads plan, check-in, daily-line and default data through text()
 static/js/views/*.js       one module per screen; each exports render(root, ...params) and `live`
@@ -67,6 +68,7 @@ Conventions:
 - Build DOM with `h(tag, attrs, ...children)`. To append a mixed list (arrays, `false`, `null`), use `put(parent, ...)`, never `parent.append(...)`, which prints `false` and `[object ...]`.
 - A view with `live = true` is redrawn when the store changes. Views with free-text inputs set `live = false` and save with `{ silent: true }` so typing is never interrupted.
 - Routes are hash routes (`#/today`). Add a screen in three places in `app.js` (`NAV`, `VIEWS`, import) and in `SECTIONS` in `boot.js` plus `SECTION_NAMES` in `views/appearance.js` so it can sit on the bottom bar.
+- A new shortcut is one entry in `ACTIONS` in `static/js/keymap.js` plus its wording in `keys.yaml`; screens use `matchKey(scope, e)`, never a raw key test.
 - New files the app must work offline with go in `SHELL` in `static/sw.js`; bump `CACHE` when you change that list.
 
 ## Text and prose

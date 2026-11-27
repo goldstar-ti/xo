@@ -44,3 +44,4 @@ defaults:
     groupHeadings: true
     staleDays: 30
     shutdown: true
+    keys: {}

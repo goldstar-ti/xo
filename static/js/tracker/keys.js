@@ -1,38 +1,15 @@
 // Tracker keys, after NOBBIE's. Active on the Tracker screen while the focus is not in a field
-// and no dialog is open. KEYS is the one list: the handler reads `action`, the Keys dialog reads
-// the text keys under tracker.keys.
+// and no dialog is open. The keys are the `tracker` scope in keymap.js; the Keys dialog reads them from there.
 import * as M from './model.js';
+import { actionLabel, actions, keyFor, keyLabel, matchKey, setScope } from '../keymap.js';
 import { t } from '../text.js';
-import { dialogOpen, h, openDialog } from '../util.js';
-
-export const KEYS = [
-  { key: 'n', action: 'new' },
-  { key: 'j', action: 'next' },
-  { key: 'k', action: 'prev' },
-  { key: 'Enter', action: 'open' },
-  { key: 'Escape', action: 'back' },
-  { key: 'e', action: 'edit' },
-  { key: 'm', action: 'comment' },
-  { key: 'c', action: 'check' },
-  { key: 'x', action: 'select' },
-  { key: 'S', action: 'field:status' },
-  { key: 'P', action: 'field:priority' },
-  { key: 'K', action: 'field:kind' },
-  { key: 'A', action: 'field:area' },
-  { key: 'O', action: 'field:owner' },
-  { key: 'D', action: 'close' },
-  { key: 'h', action: 'tab-prev' },
-  { key: 'l', action: 'tab-next' },
-  { key: '/', action: 'search' },
-  { key: '?', action: 'help' },
-];
-
-const label = (k) => ({ Enter: 'Enter', Escape: 'Esc' }[k.key] || (k.key.length === 1 && k.key !== k.key.toLowerCase() ? `Shift+${k.key.toLowerCase()}` : k.key));
+import { h, openDialog } from '../util.js';
 
 function showHelp() {
-  openDialog(t('tracker.keys.title'), h('table', { class: 'tw:text-sm' }, h('tbody', {}, KEYS.map((k) => h('tr', {},
-    h('td', { class: 'tw:p-1 tw:pr-4' }, h('kbd', { class: 'tw:font-figures tw:font-semibold' }, label(k))),
-    h('td', { class: 'tw:p-1' }, t(`tracker.keys.${k.action.replace(':', '_')}`)))))));
+  const rows = actions().filter((a) => a.scope === 'tracker' && keyFor(a.id));
+  openDialog(t('tracker.keys.title'), h('table', { class: 'tw:text-sm' }, h('tbody', {}, rows.map((a) => h('tr', {},
+    h('td', { class: 'tw:p-1 tw:pr-4' }, h('kbd', { class: 'tw:font-figures tw:font-semibold' }, keyLabel(keyFor(a.id)))),
+    h('td', { class: 'tw:p-1' }, actionLabel(a.id)))))));
 }
 
 // Installs the keys; returns the function that removes them.
@@ -69,20 +46,21 @@ export function installKeys(ctx, wrap) {
     help: showHelp,
   };
   const onKey = (e) => {
-    if (e.ctrlKey || e.metaKey || e.altKey || dialogOpen() || !wrap.isConnected) return;
-    if (e.target.closest?.('input, textarea, select, button[role="tab"], wa-input, wa-textarea, wa-select, [contenteditable]') && e.key !== 'Escape') return;
-    if (e.key === 'Escape' && e.target.closest?.('input, textarea')) return;
-    const k = KEYS.find((x) => x.key === e.key);
-    if (!k) return;
-    if (k.action.startsWith('field:')) {
+    if (!wrap.isConnected) return;
+    const id = matchKey('tracker', e);
+    if (!id) return;
+    if (e.target.closest?.('button[role="tab"]') && id !== 'tracker.back') return;
+    const action = id.slice('tracker.'.length).replace(/^field_/, 'field:').replace(/^tab_/, 'tab-');
+    if (action.startsWith('field:')) {
       if (!ui.selected) return;
       e.preventDefault();
-      focusIn(`[data-field="${k.action.slice(6)}"]`);
+      focusIn(`[data-field="${action.slice(6)}"]`);
       return;
     }
     e.preventDefault();
-    run[k.action]?.();
+    run[action]?.();
   };
+  setScope('tracker', true);
   document.addEventListener('keydown', onKey);
-  return () => document.removeEventListener('keydown', onKey);
+  return () => { document.removeEventListener('keydown', onKey); setScope('tracker', false); };
 }
