@@ -1,11 +1,12 @@
 import * as store from '../store.js';
-import { h, kvSet, toast, today, put } from '../util.js';
+import { h, kvSet, toast, today, put, uid } from '../util.js';
 import { button, checkbox, field, focusControl, input, select, textarea } from '../ui.js';
 import { t, text } from '../text.js';
 import * as lookups from '../lookups.js';
 import { allTasks } from '../taskdata.js';
 import { pace } from '../tasks.js';
 import { actionLabel, actions, clashFor, comboOf, keyFor, keyLabel, resetKeys, saveKey, scopes } from '../keymap.js';
+import { FIELD_KINDS, TYPES, allDefs, defs, saveDefs } from '../customfields.js';
 
 export const live = false;
 
@@ -186,6 +187,82 @@ function keysEditor(s) {
     h('div', { class: 'row' }, reset));
 }
 
+// The custom fields table: pick a kind of record, then edit its fields in place. Every change saves all the definitions.
+function fieldsEditor() {
+  let kind = FIELD_KINDS[0][0];
+  let rows = [];
+  let armed = '';
+  const body = h('tbody');
+  const empty = h('p', { class: 'empty' }, t('settings.fields.empty'));
+  const persist = async () => {
+    const clean = rows.map((r) => ({ id: r.id, name: r.name.trim() || t('settings.fields.new_name'), type: r.type, options: r.options, show: r.show }));
+    try { await saveDefs({ ...allDefs(), [kind]: clean }); toast(t('forms.saved')); } catch (err) { toast(err.message, 'bad'); }
+  };
+  const move = (i, by, focus) => {
+    const j = i + by;
+    if (j < 0 || j >= rows.length) return;
+    [rows[i], rows[j]] = [rows[j], rows[i]];
+    draw(focus);
+    persist();
+  };
+  const cell = (...kids) => h('td', { class: 'tw:p-1 tw:align-middle' }, kids);
+  const aria = (key, r) => t(`settings.fields.${key}`, { name: r.name });
+  function draw(focus) {
+    empty.hidden = rows.length > 0;
+    body.replaceChildren(...rows.map((r, i) => {
+      const isChoice = r.type === 'choice' || r.type === 'choices';
+      const removeBtn = button(armed === r.id ? t('settings.fields.remove_confirm') : t('settings.lookups.cross'), {
+        variant: 'row', 'data-f': `remove-${r.id}`, 'aria-label': aria('remove_aria', r), title: aria('remove_aria', r),
+        onclick: () => {
+          if (armed !== r.id) { armed = r.id; draw(`remove-${r.id}`); return; }
+          armed = '';
+          rows.splice(i, 1);
+          draw();
+          persist();
+        },
+      });
+      return h('tr', {},
+        cell(input({ value: r.name, 'data-f': `name-${r.id}`, 'aria-label': t('settings.fields.name_aria'), onchange: (e) => { r.name = e.target.value; persist(); } })),
+        cell(select(TYPES.map((ty) => [ty, t(`fields.types.${ty}`)]), {
+          value: r.type, 'data-f': `type-${r.id}`, 'aria-label': t('settings.fields.type'),
+          onchange: (e) => { r.type = e.target.value; draw(`type-${r.id}`); persist(); },
+        })),
+        cell(isChoice && input({
+          value: r.options.join(', '), placeholder: t('settings.fields.options_placeholder'), 'aria-label': t('settings.fields.options'),
+          onchange: (e) => { r.options = e.target.value.split(',').map((x) => x.trim()).filter(Boolean); persist(); },
+        })),
+        cell(checkbox({ checked: r.show !== false, 'aria-label': t('settings.fields.show'), onchange: (e) => { r.show = e.target.checked; persist(); } })),
+        cell(
+          button(t('settings.lookups.up'), { variant: 'row', 'data-f': `up-${r.id}`, 'aria-label': aria('up_aria', r), title: aria('up_aria', r), disabled: i === 0, onclick: () => move(i, -1, `up-${r.id}`) }),
+          button(t('settings.lookups.down'), { variant: 'row', 'data-f': `down-${r.id}`, 'aria-label': aria('down_aria', r), title: aria('down_aria', r), disabled: i === rows.length - 1, onclick: () => move(i, 1, `down-${r.id}`) }),
+          removeBtn));
+    }));
+    if (focus) focusControl(body.querySelector(`[data-f="${focus}"]`));
+  }
+  const load = () => {
+    armed = '';
+    rows = defs(kind).map((d) => ({ ...d, options: [...(d.options || [])] }));
+    draw();
+  };
+  const picker = select(FIELD_KINDS.map(([k, key]) => [k, t(key)]), { id: 's-field-kind', value: kind, onchange: (e) => { kind = e.target.value; load(); } });
+  const add = button(t('settings.fields.add'), { onclick: () => {
+    const row = { id: uid(), name: t('settings.fields.new_name'), type: 'text', options: [], show: true };
+    rows.push(row);
+    armed = '';
+    draw(`name-${row.id}`);
+    persist();
+  } });
+  load();
+  return h('section', {}, h('h2', {}, t('settings.fields.heading')),
+    h('p', { class: 'hint' }, t('settings.fields.hint')),
+    field(t('settings.fields.kind'), picker, null, { half: true }),
+    h('div', { class: 'tw:overflow-x-auto' }, h('table', { class: 'fields-table tw:w-full' },
+      h('thead', {}, h('tr', {}, ['name', 'type', 'options', 'show'].map((c) => h('th', { class: 'tw:text-left tw:p-1' }, t(`settings.fields.${c}`))), h('th', {}))), body)),
+    empty,
+    h('div', { class: 'row' }, add),
+    h('p', { class: 'hint' }, t('settings.fields.removed_note')));
+}
+
 function paceLine() {
   const p = pace(allTasks().map((i) => i.data));
   return p.samples >= 5 ? t('settings.tasks.pace', { ratio: p.ratio, n: p.samples }) : t('settings.tasks.pace_none', { n: 5 });
@@ -244,6 +321,7 @@ export function render(root) {
       toggle('shutdown', t('settings.tasks.shutdown'), t('settings.tasks.shutdown_hint')),
       h('p', { class: 'note' }, paceLine())),
     keysEditor(s),
+    fieldsEditor(),
     h('section', {}, h('h2', {}, t('settings.evening.heading')),
       toggle('logSigns', t('settings.evening.log_signs'), t('settings.evening.log_signs_hint'))),
     lookupEditor(s, saveSettings),

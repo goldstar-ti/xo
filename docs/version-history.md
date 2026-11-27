@@ -4,6 +4,7 @@
 
 | Version | Date | Change |
 |---|---|---|
+| 2.14.0 | 2026-11-27 | Custom fields: add your own fields to appointments, tasks, routine, bills, obligations and reports in Settings. Tasks can show them as table columns and filter by them. |
 | 2.12.0 | 2026-11-27 | Every keyboard shortcut can be changed in Settings, Keyboard shortcuts. The shortcut list shows the keys you chose. |
 | 2.11.0 | 2026-11-27 | A command palette (Ctrl+K) and keyboard shortcuts on the Tasks screen. |
 | 2.10.0 | 2026-11-27 | Tasks can take a time on Today's day line. The evening check-in closes the day: carry tasks forward, note actual times, pick tomorrow's three. Time allowed follows your own pacing. |

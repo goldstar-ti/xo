@@ -97,3 +97,7 @@ One switch in Settings, off by default, turns the agent on. Its daily review and
 ## D-24 (2026-11-27): Every keyboard shortcut is configurable
 
 All shortcuts are entries in one registry, `ACTIONS` in `static/js/keymap.js`, and a screen asks `matchKey(scope, event)` for an action id instead of testing keys. The owner's changes live in the settings item as `settings.keys`, so they follow the owner across devices, unlike the look. A key without Ctrl or Alt never fires while typing, and a combo already used in the same scope, or in the global scope against any scope, is refused. OS-wide hotkeys are parked: a PWA cannot register them. Why: the owner wants to choose every key, and one registry keeps the shortcut list, the Tracker keys table and Settings from drifting apart.
+
+## D-26 (2026-11-27): Custom fields on every record
+
+The owner defines extra fields per kind of record in Settings, Custom fields. The definitions are one item (`fields`, kind `fields`) and the values sit on each record as `payload.custom`, keyed by the field's id. Removing a field hides its values and leaves them saved. Form fields go in the main part of the form, after the built-in ones. `static/js/customfields.js` owns both, and a new kind that takes custom fields is one entry in `FIELD_KINDS`. Why: the owner wants to track things XO has no field for, without a code change for each one.

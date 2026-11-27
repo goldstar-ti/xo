@@ -127,6 +127,70 @@ with sync_playwright() as p:
     pg.keyboard.press("Escape")
     expect(pg.locator("dialog[open]")).to_have_count(0)
 
+    # 2. Custom fields.
+    def commit(ctrl, value):
+        set_control(ctrl, value)
+        pg.keyboard.press("Tab")
+
+    def add_field(kind, name, kind_type, choices=None):
+        pg.goto(f"{BASE}/#/settings")
+        pg.wait_for_selector("#s-field-kind", timeout=20000)
+        set_control(pg.locator("#s-field-kind"), kind)
+        rows = pg.locator("table.fields-table tbody tr")
+        before = rows.count()
+        pg.get_by_role("button", name="Add field").click()
+        expect(rows).to_have_count(before + 1)
+        row = rows.nth(before)
+        commit(row.locator('[data-f^="name-"]'), name)
+        set_control(row.locator('[data-f^="type-"]'), kind_type)
+        if choices:
+            commit(row.locator("td").nth(2).locator("> *").first, choices)
+
+    add_field("task", "Cost", "number")
+    add_field("task", "Who", "choice", "Me, Partner")
+    task_defs = pg.evaluate("async () => (await import('/js/store.js')).get('fields').data.task")
+    ids = {d["name"]: d["id"] for d in task_defs}
+    assert set(ids) == {"Cost", "Who"}, ids
+
+    pg.goto(f"{BASE}/#/tasks")
+    pg.wait_for_selector('[data-focus="task"]', timeout=20000)
+    for title in ("Field test", "Other field task"):
+        set_control(pg.locator('[data-focus="task"]'), title)
+        pg.keyboard.press("Enter")
+        expect(pg.locator(".list li", has_text=title)).to_have_count(1)
+    pg.locator(".list li", has_text="Field test").locator(".row-main").first.click()
+    dlg = pg.locator("dialog[open]")
+    expect(dlg.get_by_text("Cost", exact=True).first).to_be_visible()
+    expect(dlg.get_by_text("Who", exact=True).first).to_be_visible()
+    set_control(dlg.locator(f"#f-cf_{ids['Cost']}"), 12)
+    set_control(dlg.locator(f"#f-cf_{ids['Who']}"), "Partner")
+    dlg.get_by_role("button", name="Save").click()
+    expect(dlg).to_have_count(0)
+    row = pg.locator(".list li", has_text="Field test")
+    expect(row).to_contain_text("Cost: 12")
+    expect(row).to_contain_text("Who: Partner")
+
+    views = pg.locator('[role="group"][aria-label="Show tasks as"]')
+    views.get_by_role("button", name="Table", exact=True).click()
+    expect(pg.get_by_role("button", name="Sort by Cost", exact=True)).to_be_visible()
+    views.get_by_role("button", name="List", exact=True).click()
+    pg.get_by_role("group", name="Who").get_by_role("button", name="Partner", exact=True).click()
+    expect(pg.locator(".list li", has_text="Field test")).to_have_count(1)
+    expect(pg.locator(".list li", has_text="Other field task")).to_have_count(0)
+    pg.get_by_role("button", name="Clear filters").click()
+    expect(pg.locator(".list li", has_text="Other field task")).to_have_count(1)
+
+    add_field("bill", "Shared", "yesno")
+    shared = pg.evaluate("async () => (await import('/js/store.js')).get('fields').data.bill[0].id")
+    pg.goto(f"{BASE}/#/bills")
+    pg.get_by_role("button", name="Add bill").first.click()
+    dlg = pg.locator("dialog[open]")
+    set_control(dlg.locator("#f-name"), "Rent test")
+    set_control(dlg.locator(f"#f-cf_{shared}"), True)
+    dlg.get_by_role("button", name="Save").click()
+    expect(dlg).to_have_count(0)
+    expect(pg.locator(".list li", has_text="Rent test")).to_contain_text("Shared")
+
     b.close()
 
 assert not errors, errors

@@ -106,3 +106,21 @@ settings:
     download: Download everything
     sign_out: Sign out of this device
     hint: A JSON file with every entry you have saved.
+  fields:
+    heading: Custom fields
+    hint: Add your own fields to any kind of record. They show in its form, and in its list when Show in lists is ticked.
+    kind: Records
+    name: Name
+    name_aria: Field name
+    type: Type
+    options: Choices
+    options_placeholder: Choices, separated by commas
+    show: Show in lists
+    new_name: New field
+    add: Add field
+    up_aria: 'Move up: {name}'
+    down_aria: 'Move down: {name}'
+    remove_aria: 'Remove: {name}'
+    remove_confirm: Tap again to remove
+    removed_note: Removing a field hides its values. They stay saved on the records.
+    empty: No custom fields for these records yet.

@@ -1,4 +1,5 @@
 // The plain list screens: diary, routine, bills, obligations. Tasks has its own screen (views/tasks.js).
+import { customMeta } from '../customfields.js';
 import * as store from '../store.js';
 import { calendarLink, editAppointment, editBill, editObligation, editReport, editRoutine, payBill } from '../forms.js';
 import { t, text } from '../text.js';
@@ -23,7 +24,7 @@ function apptRow(a) {
     h('span', { class: 't' }, fmtTime(d.time)),
     rowMain([
       h('span', {}, d.title, d.court && h('span', { class: 'tag' }, t('lists.shared.court'))),
-      h('small', {}, [d.where, cap(bits.join(', '))].filter(Boolean).join('. ')),
+      h('small', {}, [d.where, cap(bits.join(', ')), ...customMeta('appointment', d.custom)].filter(Boolean).join('. ')),
       d.notes && h('small', { class: 'pre' }, d.notes),
     ], () => editAppointment(a)),
     h('a', { class: 'ghost small', href: calendarLink(d), target: '_blank', rel: 'noopener noreferrer', title: t('lists.diary.calendar_tip') }, t('lists.diary.to_calendar')));
@@ -61,7 +62,8 @@ export const routine = {
       h('p', { class: 'note' }, t('lists.routine.note')),
       list.length ? h('ul', { class: 'list timed' }, list.map((r) => h('li', { class: r.data.active === false ? 'off' : '' },
         h('span', { class: 't' }, fmtTime(r.data.time)),
-        rowMain([h('span', {}, r.data.label), r.data.active === false && h('small', {}, t('lists.routine.reminder_off'))], () => editRoutine(r)),
+        rowMain([h('span', {}, r.data.label), r.data.active === false && h('small', {}, t('lists.routine.reminder_off')),
+          customMeta('routine', r.data.custom).length > 0 && h('small', {}, customMeta('routine', r.data.custom).join(', '))], () => editRoutine(r)),
         h('span', { class: 'dots', 'aria-label': t('lists.routine.ticked', { count: days.filter((d) => store.isTicked(r.id, d)).length }) },
           days.map((d) => h('i', { class: store.isTicked(r.id, d) ? 'on' : '' }))))))
         : h('p', { class: 'empty' }, t('lists.routine.empty')),
@@ -86,7 +88,7 @@ export const bills = {
           rowMain([
             h('span', {}, d.name, d.amount > 0 && h('span', { class: 'meta' }, fmtMoney(d.amount))),
             h('small', {}, [late ? t('lists.bills.overdue_since', { day: fmtDay(d.due) }) : due,
-              d.autopay && t('lists.bills.paid_automatically'), d.repeat !== 'none' && d.repeat].filter(Boolean).join(', ')),
+              d.autopay && t('lists.bills.paid_automatically'), d.repeat !== 'none' && d.repeat, ...customMeta('bill', d.custom)].filter(Boolean).join(', ')),
           ], () => editBill(b)),
           button(t('lists.shared.paid'), { class: 'small', onclick: () => payBill(b).catch(fail) }));
       })) : h('p', { class: 'empty' }, t('lists.bills.empty')),
@@ -117,13 +119,14 @@ export const obligations = {
           rowMain([
             h('span', {}, o.data.title),
             o.data.detail && h('small', { class: 'pre' }, o.data.detail),
-            [when(o.data), o.data.contact].filter(Boolean).length > 0 && h('small', {}, [when(o.data), o.data.contact].filter(Boolean).join('. ')),
+            [when(o.data), o.data.contact, ...customMeta('obligation', o.data.custom)].filter(Boolean).length > 0 && h('small', {}, [when(o.data), o.data.contact, ...customMeta('obligation', o.data.custom)].filter(Boolean).join('. ')),
           ], () => editObligation(o)))))
           : h('p', { class: 'empty' }, t('lists.obligations.conditions_empty'))),
       h('section', {}, h('div', { class: 'sec-head' }, h('h2', {}, t('lists.obligations.reports_heading')), addBtn(t('lists.obligations.reports_add'), () => editReport())),
         reports.length ? h('ul', { class: 'list timed' }, reports.map((r) => h('li', {},
           h('span', { class: 't' }, fmtDay(r.data.date)),
-          rowMain([h('span', { class: 'pre' }, r.data.what), r.data.who && h('small', {}, t('lists.obligations.told', { who: r.data.who }))], () => editReport(r)))))
+          rowMain([h('span', { class: 'pre' }, r.data.what), r.data.who && h('small', {}, t('lists.obligations.told', { who: r.data.who })),
+            customMeta('report', r.data.custom).length > 0 && h('small', {}, customMeta('report', r.data.custom).join(', '))], () => editReport(r)))))
           : h('p', { class: 'empty' }, t('lists.obligations.reports_empty'))),
     );
   },

@@ -1,6 +1,7 @@
 // The Tasks screen: a list, a To do / Doing / Done board or a table, with filters, a review of stale tasks
 // and the categories and places dialog. The same module draws the page and the Tasks, Task board and
 // Task table widgets. The chosen view and the filters are per browser, in localStorage `xo-tasks`.
+import { customMeta, defs, valueText } from '../customfields.js';
 import * as store from '../store.js';
 import { editTask } from '../forms.js';
 import { matchKey } from '../keymap.js';
@@ -15,7 +16,7 @@ export const live = true;
 
 const KEY = 'xo-tasks';
 const VIEWS = ['list', 'board', 'table'];
-const DEFAULT_PREFS = { view: 'list', tags: [], focus: '', places: [], readyOnly: false };
+const DEFAULT_PREFS = { view: 'list', tags: [], focus: '', places: [], readyOnly: false, custom: {} };
 const FOCUS_OK = { low: ['', 'low'], medium: ['', 'low', 'medium'] };
 const COLUMNS = ['done', 'title', 'priority', 'status', 'due', 'tags', 'energy', 'est', 'subtasks'];
 const BOARD_DAYS = 14;
@@ -38,6 +39,7 @@ function prefs() {
     focus: ['low', 'medium', 'high'].includes(saved.focus) ? saved.focus : '',
     places: list(saved.places),
     readyOnly: !!saved.readyOnly,
+    custom: Object.fromEntries(Object.entries(saved.custom && typeof saved.custom === 'object' ? saved.custom : {}).map(([id, v]) => [id, list(v)]).filter(([, v]) => v.length)),
   };
 }
 
@@ -45,7 +47,7 @@ function savePrefs(patch) {
   try { localStorage.setItem(KEY, JSON.stringify({ ...prefs(), ...patch })); } catch { /* storage blocked */ }
 }
 
-const anyFilter = (p) => p.tags.length > 0 || p.focus !== '' || p.places.length > 0 || p.readyOnly;
+const anyFilter = (p) => p.tags.length > 0 || p.focus !== '' || p.places.length > 0 || p.readyOnly || Object.keys(p.custom).length > 0;
 
 function matches(d, p, byId) {
   if (p.tags.length && !d.tags.some((x) => p.tags.includes(x))) return false;
@@ -53,6 +55,12 @@ function matches(d, p, byId) {
   if (ok && !ok.includes(d.energy)) return false;
   if (p.places.length && d.places.length && !d.places.some((x) => p.places.includes(x))) return false;
   if (p.readyOnly && isBlocked(d, byId)) return false;
+  for (const [id, chosen] of Object.entries(p.custom)) {
+    const def = defs('task').find((x) => x.id === id);
+    if (!def) continue;
+    const v = d.custom?.[id];
+    if (!chosen.includes(def.type === 'yesno' ? (v === true ? 'yes' : 'no') : v ?? '')) return false;
+  }
   return true;
 }
 
@@ -82,6 +90,7 @@ function metaParts(d, ctx) {
   if (d.subtasks.length) parts.push(t('lists.tasks.subtasks', { done: d.subtasks.filter((s) => s.done).length, total: d.subtasks.length }));
   const waiting = d.blockedBy.map((id) => ctx.byId.get(id)).filter((o) => o && o.status !== 'done').map((o) => o.title);
   if (waiting.length) parts.push(t('lists.tasks.waiting', { titles: waiting.join(', ') }));
+  parts.push(...customMeta('task', d.custom));
   return parts;
 }
 
@@ -270,7 +279,11 @@ const SORTS = {
 function tableView(visible, ctx, redraw) {
   const day = today();
   const rows = visible.filter((i) => i.data.status !== 'done' || recentlyDone(i.data, day));
-  const key = SORTS[tableSort.key];
+  const shown = defs('task').filter((d) => d.show !== false);
+  const custom = shown.find((d) => `cf_${d.id}` === tableSort.key);
+  const key = custom
+    ? (d) => (custom.type === 'number' ? Number(d.custom?.[custom.id]) || 0 : valueText(custom, d.custom?.[custom.id]).toLowerCase())
+    : SORTS[tableSort.key];
   rows.sort((a, b) => {
     if (key) {
       const x = key(a.data, ctx);
@@ -281,10 +294,11 @@ function tableView(visible, ctx, redraw) {
   });
   const priorities = text('forms.task.priorities');
   const energies = text('forms.task.energies');
-  const head = COLUMNS.map((c) => h('th', { scope: 'col', class: 'tw:text-left', 'aria-sort': tableSort.key === c ? (tableSort.dir > 0 ? 'ascending' : 'descending') : null },
-    button(t(`lists.tasks.table.${c}`), {
+  const columns = [...COLUMNS.map((c) => [c, t(`lists.tasks.table.${c}`)]), ...shown.map((d) => [`cf_${d.id}`, d.name])];
+  const head = columns.map(([c, label]) => h('th', { scope: 'col', class: 'tw:text-left', 'aria-sort': tableSort.key === c ? (tableSort.dir > 0 ? 'ascending' : 'descending') : null },
+    button(label, {
       variant: 'row',
-      'aria-label': t('lists.tasks.table.sort', { column: t(`lists.tasks.table.${c}`) }),
+      'aria-label': t('lists.tasks.table.sort', { column: label }),
       onclick: () => { tableSort = { key: c, dir: tableSort.key === c ? -tableSort.dir : 1 }; redraw(); },
     })));
   const body = rows.map((item) => {
@@ -298,7 +312,8 @@ function tableView(visible, ctx, redraw) {
       h('td', {}, names(ctx.meta.tags, d.tags).join(', ')),
       h('td', {}, energies[d.energy] && d.energy ? energies[d.energy] : ''),
       h('td', {}, d.est > 0 ? fmtDuration(d.est) : ''),
-      h('td', {}, d.subtasks.length ? `${d.subtasks.filter((s) => s.done).length}/${d.subtasks.length}` : ''));
+      h('td', {}, d.subtasks.length ? `${d.subtasks.filter((s) => s.done).length}/${d.subtasks.length}` : ''),
+      shown.map((def) => h('td', {}, valueText(def, d.custom?.[def.id]))));
   });
   return h('div', { class: 'tw:overflow-x-auto' },
     h('table', { class: 'tw:w-full tw:text-sm' }, h('thead', {}, h('tr', {}, head)), h('tbody', {}, body)));
@@ -312,6 +327,7 @@ function filterBar(p, ctx, redraw) {
   const group = (label, chips) => h('div', { role: 'group', 'aria-label': label, class: 'tw:flex tw:flex-wrap tw:items-center tw:gap-2' },
     h('small', { class: 'tw:text-muted' }, label), h('div', { class: 'chips' }, chips));
   const focusOptions = [['', 'any'], ['low', 'low'], ['medium', 'medium'], ['high', 'high']];
+  const customFilters = defs('task').filter((d) => d.show !== false && (d.type === 'choice' || d.type === 'yesno'));
   const ready = checkbox({ id: 'tf-ready', checked: p.readyOnly, onchange: (e) => set({ readyOnly: !!e.target.checked }) });
   return h('div', { class: 'tw:grid tw:gap-2 tw:my-3' },
     ctx.meta.tags.length > 0 && group(t('lists.tasks.filter.tags'), ctx.meta.tags.map((x) =>
@@ -320,8 +336,12 @@ function filterBar(p, ctx, redraw) {
       chip(t(`lists.tasks.filter.focus_${key}`), { pressed: p.focus === value, onclick: () => set({ focus: value }) }))),
     ctx.meta.places.length > 0 && group(t('lists.tasks.filter.places'), ctx.meta.places.map((x) =>
       chip(x.name, { pressed: p.places.includes(x.id), onclick: () => set({ places: toggle(p.places, x.id) }) }))),
+    customFilters.map((def) => group(def.name, (def.type === 'yesno' ? [['yes', t('fields.yes')], ['no', t('fields.no')]] : (def.options || []).map((o) => [o, o])).map(([value, label]) => {
+      const chosen = p.custom[def.id] || [];
+      return chip(label, { pressed: chosen.includes(value), onclick: () => set({ custom: { ...p.custom, [def.id]: toggle(chosen, value) } }) });
+    }))),
     field(t('lists.tasks.filter.ready_only'), ready),
-    anyFilter(p) && h('div', {}, button(t('lists.tasks.filter.clear'), { class: 'small', onclick: () => set({ tags: [], focus: '', places: [], readyOnly: false }) })));
+    anyFilter(p) && h('div', {}, button(t('lists.tasks.filter.clear'), { class: 'small', onclick: () => set({ tags: [], focus: '', places: [], readyOnly: false, custom: {} }) })));
 }
 
 // ---- categories and places ----

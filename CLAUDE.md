@@ -28,7 +28,7 @@ Security is the owner's responsibility, handled outside this codebase (owner's d
 ## How the data works
 
 - One generic table, `items`: `(user_id, id, kind, day, payload, deleted)`. `payload` is a JSONB value (object, array, string or number; null for ticks).
-- Kinds in use: `appointment`, `task`, `routine`, `tick`, `bill`, `obligation`, `report`, `checkin`, `plan`, `settings`, `canvas`, `project`, `pm_item`, `tracker`, `taskmeta`.
+- Kinds in use: `appointment`, `task`, `routine`, `tick`, `bill`, `obligation`, `report`, `checkin`, `plan`, `settings`, `canvas`, `project`, `pm_item`, `tracker`, `taskmeta`, `fields`.
 - Task payload fields are listed in `normaliseTask()` in `static/js/tasks.js`; every task write goes through `saveTask()` in `static/js/taskdata.js`.
 - The tracker (`static/js/tracker/model.js` documents its shapes): `project:<uuid>` holds a project and its own pick lists, `pm:<uuid>` an item with its comments, checklist, links and history. NOBBIE's tracker joins it read-only through `app/nobbie.py` (GET only, `NOBBIE_*` in `.env`).
 - Singletons use fixed ids: `plan`, `settings`. Ticks use `tick:<ref>:<YYYY-MM-DD>` with a null payload. Check-ins use `checkin:<type>:<day>`.
@@ -55,6 +55,7 @@ static/js/taskdata.js      store-bound task actions: taskMeta, saveTask, setStat
 static/js/taskfields.js    task form controls: chipSet, subtaskEditor, blockedEditor, repeatEditor
 static/js/palette.js       command palette (Ctrl+K, /), shortcut list (?), setScreenKeys for screen keys
 static/js/keymap.js        shortcut registry, owner's keys from settings, matchKey()
+static/js/customfields.js  custom field definitions and values: FIELD_KINDS, defs, formFields, readCustom, customMeta, customEditor
 static/js/text.js          loadText(), t(key, vars), text(key): the editable wording from /api/text
 static/js/content.js       thin module: reads plan, check-in, daily-line and default data through text()
 static/js/views/*.js       one module per screen; each exports render(root, ...params) and `live`
@@ -68,6 +69,7 @@ Conventions:
 - Build DOM with `h(tag, attrs, ...children)`. To append a mixed list (arrays, `false`, `null`), use `put(parent, ...)`, never `parent.append(...)`, which prints `false` and `[object ...]`.
 - A view with `live = true` is redrawn when the store changes. Views with free-text inputs set `live = false` and save with `{ silent: true }` so typing is never interrupted.
 - Routes are hash routes (`#/today`). Add a screen in three places in `app.js` (`NAV`, `VIEWS`, import) and in `SECTIONS` in `boot.js` plus `SECTION_NAMES` in `views/appearance.js` so it can sit on the bottom bar.
+- Custom field definitions are in the `fields` item and values in `payload.custom`; `static/js/customfields.js` owns both. A new kind that takes custom fields is one entry in `FIELD_KINDS`.
 - A new shortcut is one entry in `ACTIONS` in `static/js/keymap.js` plus its wording in `keys.yaml`; screens use `matchKey(scope, e)`, never a raw key test.
 - New files the app must work offline with go in `SHELL` in `static/sw.js`; bump `CACHE` when you change that list.
 
