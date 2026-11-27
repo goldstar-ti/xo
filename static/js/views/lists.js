@@ -3,14 +3,15 @@ import { customMeta } from '../customfields.js';
 import * as store from '../store.js';
 import { calendarLink, editAppointment, editBill, editObligation, editReport, editRoutine, payBill } from '../forms.js';
 import { t, text } from '../text.js';
-import { button } from '../ui.js';
+import { icon } from '../icons.js';
+import { button, callout, disclosure } from '../ui.js';
 import { quickAdd, taskRow } from './tasks.js';
 import { addDays, daysBetween, fmtDay, fmtLong, fmtMoney, fmtTime, h, relDay, toast, today, put } from '../util.js';
 
 const fail = (err) => toast(err.message, 'bad');
 const cap = (value) => value.charAt(0).toUpperCase() + value.slice(1);
 const head = (title, ...actions) => h('header', { class: 'page-head' }, h('h1', {}, title), h('div', { class: 'actions' }, actions));
-const addBtn = (label, onclick) => button(label, { variant: 'primary', onclick });
+const addBtn = (label, onclick) => button([icon('tabler/plus'), label], { variant: 'ghost', class: 'small add-btn', onclick });
 const rowMain = (kids, onclick) => button(kids, { variant: 'row', class: 'row-main', onclick });
 const sortAppts = (a, b) => (a.data.date + a.data.time).localeCompare(b.data.date + b.data.time);
 
@@ -27,7 +28,7 @@ function apptRow(a) {
       h('small', {}, [d.where, cap(bits.join(', ')), ...customMeta('appointment', d.custom)].filter(Boolean).join('. ')),
       d.notes && h('small', { class: 'pre' }, d.notes),
     ], () => editAppointment(a)),
-    h('a', { class: 'ghost small', href: calendarLink(d), target: '_blank', rel: 'noopener noreferrer', title: t('lists.diary.calendar_tip') }, t('lists.diary.to_calendar')));
+    h('a', { class: 'xo-icon-btn', href: calendarLink(d), target: '_blank', rel: 'noopener noreferrer', 'aria-label': t('lists.diary.to_calendar'), title: t('lists.diary.calendar_tip') }, icon('tabler/calendar-plus')));
 }
 
 function apptGroups(list) {
@@ -47,7 +48,7 @@ export const diary = {
     put(root,
       head(t('lists.diary.heading'), addBtn(t('lists.diary.add'), () => editAppointment())),
       upcoming.length ? apptGroups(upcoming) : h('p', { class: 'empty' }, t('lists.diary.empty')),
-      past.length > 0 && h('details', {}, h('summary', {}, t('lists.diary.past', { count: past.length })), apptGroups(past)),
+      past.length > 0 && disclosure(t('lists.diary.past', { count: past.length }), apptGroups(past)),
     );
   },
 };
@@ -80,16 +81,17 @@ export const bills = {
     put(root,
       head(t('lists.bills.heading'), addBtn(t('lists.bills.add'), () => editBill())),
       open.length > 0 && h('p', { class: 'figure' }, h('strong', {}, fmtMoney(total)), ' ', t('lists.bills.due_next_30')),
-      open.length ? h('ul', { class: 'list' }, open.map((b) => {
+      open.length ? h('ul', { class: 'list bills' }, open.map((b) => {
         const d = b.data;
         const late = d.due < day;
         const due = t('lists.bills.due', { when: relDay(d.due) }) + (daysBetween(day, d.due) > 6 ? '' : `, ${fmtDay(d.due)}`);
         return h('li', { class: late ? 'late' : '' },
           rowMain([
-            h('span', {}, d.name, d.amount > 0 && h('span', { class: 'meta' }, fmtMoney(d.amount))),
+            h('span', {}, d.name),
             h('small', {}, [late ? t('lists.bills.overdue_since', { day: fmtDay(d.due) }) : due,
               d.autopay && t('lists.bills.paid_automatically'), d.repeat !== 'none' && d.repeat, ...customMeta('bill', d.custom)].filter(Boolean).join(', ')),
           ], () => editBill(b)),
+          h('span', { class: 'amount' }, d.amount > 0 ? fmtMoney(d.amount) : ''),
           button(t('lists.shared.paid'), { class: 'small', onclick: () => payBill(b).catch(fail) }));
       })) : h('p', { class: 'empty' }, t('lists.bills.empty')),
     );
@@ -108,7 +110,7 @@ export const obligations = {
       : d.schedule === 'weekly' ? t('lists.obligations.every_weekday', { weekday: text('forms.weekdays')[String(Number(d.weekday))], time: fmtTime(d.time) }) : '';
     put(root,
       head(t('lists.obligations.heading')),
-      h('p', { class: 'note' }, t('lists.obligations.note')),
+      callout(t('lists.obligations.note'), { kind: 'neutral', icon: 'tabler/info-circle' }),
       h('section', {}, h('div', { class: 'sec-head' }, h('h2', {}, t('lists.obligations.court_heading')), addBtn(t('lists.obligations.court_add'), () => editAppointment(null, { court: true, prep: 45, travel: 45 }))),
         court.length ? apptGroups(court) : h('p', { class: 'empty' }, t('lists.obligations.court_empty'))),
       h('section', {}, h('div', { class: 'sec-head' }, h('h2', {}, t('lists.obligations.tasks_heading'))),

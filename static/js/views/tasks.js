@@ -102,7 +102,7 @@ function pickChip(item, d) {
   const tomorrow = addDays(day, 1);
   const label = d.today === day ? t('lists.tasks.today') : d.today === tomorrow ? t('lists.tasks.tomorrow') : t('lists.tasks.pick');
   const pressed = d.today === day || d.today === tomorrow;
-  return chip(label, { pressed, class: 'small', onclick: () => pickTask(item, d.today === tomorrow ? tomorrow : day).catch(fail) });
+  return button(label, { variant: pressed ? 'primary' : 'ghost', class: 'small pill', 'aria-pressed': String(pressed), onclick: () => pickTask(item, d.today === tomorrow ? tomorrow : day).catch(fail) });
 }
 
 /**

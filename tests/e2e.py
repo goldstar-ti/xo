@@ -126,6 +126,7 @@ with sync_playwright() as p:
     )
     expect(page.locator(".tag")).to_have_text("Court")
     page.goto(f"{BASE}/#/diary")
+    expect(page.locator(".list li a[aria-label='Copy to Google Calendar']").first).to_be_visible()
     assert "false" not in page.locator("#view").inner_text() and "[object" not in page.locator("#view").inner_text()
     page.goto(f"{BASE}/#/obligations")
 

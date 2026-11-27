@@ -360,10 +360,22 @@ details > summary { cursor: pointer; padding: 0.6rem 0; color: var(--leaf); font
 .list li.done .row-main > span { text-decoration: line-through; color: var(--muted); }
 .list li.late small:last-of-type, .list li.late .meta { color: var(--c-late); font-weight: 600; }
 .list li.off .row-main { color: var(--muted); }
-.list.timed .t { font-family: var(--font-num); flex: none; width: var(--time-col); font-variant-numeric: tabular-nums; color: var(--muted); font-size: var(--fs-label, 0.9375rem); }
+.list.timed li { display: grid; grid-template-columns: var(--time-col) 1fr auto; column-gap: 0.47rem; }
+.list.timed .t { align-self: start; padding-top: calc(0.15rem + 0.1rem); text-align: right; font-family: var(--font-num); font-variant-numeric: tabular-nums; color: var(--muted); font-size: 0.82rem; }
+.list .row-main > small { margin-top: 2px; font-size: 0.82rem; }
 .list.links .row-main { font-weight: 600; font-size: var(--fs-large, 1.0625rem); color: var(--c-row-link); min-height: 3.25rem; }
-.dots { display: inline-flex; gap: 4px; flex: none; }
-.dots i { width: 10px; height: 10px; border-radius: 50%; border: 1.5px solid var(--muted); }
+.list.bills li { display: grid; grid-template-columns: 1fr auto auto; column-gap: 0.75rem; }
+.list.bills .amount { font-family: var(--font-num); font-variant-numeric: tabular-nums; font-weight: 600; text-align: right; }
+.list.bills li.late .amount { color: var(--c-late); }
+body[data-view="bills"] .figure strong { font-size: 2.12rem; }
+.group > h2 { font-size: 0.94rem; font-weight: 600; }
+.group > h2 .meta { font-family: var(--font-body); font-size: 0.82rem; }
+.add-btn { display: inline-flex; align-items: center; gap: 0.3rem; }
+.add-btn .ico { width: 1.1rem; height: 1.1rem; }
+a.xo-icon-btn { text-decoration: none; }
+.pill { border-radius: var(--pill); }
+.dots { display: inline-flex; gap: 0.24rem; flex: none; }
+.dots i { width: 0.53rem; height: 0.53rem; border-radius: 50%; border: 1.5px solid var(--muted); }
 .dots i.on { background: var(--leaf); border-color: var(--leaf); }
 .quick { display: flex; gap: 0.6rem; }
 .quick input { flex: 1; }
@@ -780,3 +792,11 @@ dialog.xo-pop.wide { width: min(40rem, calc(100vw - 2rem)); }
 .xo-pop-head button { cursor: pointer; }
 dialog.xo-pop.sheet { width: min(34rem, 100%); max-width: 100%; margin: auto auto 0; border-radius: var(--radius-dialog) var(--radius-dialog) 0 0; }
 @media (min-width: 40rem) { dialog.xo-pop.sheet { margin: auto; border-radius: var(--radius-dialog); } }
+
+/* Duties on a wide screen: sections in two columns, each under a heavy ink rule. */
+@media (min-width: 64rem) {
+  body[data-view="obligations"] #view { max-width: 84rem; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 2.82rem; row-gap: 2.35rem; align-content: start; }
+  body[data-view="obligations"] #view > * { margin-top: 0; }
+  body[data-view="obligations"] #view > :is(.page-head, .callout) { grid-column: 1 / -1; }
+  body[data-view="obligations"] #view > section { border-top: 3px solid var(--ink); padding-top: 0.6rem; }
+}
