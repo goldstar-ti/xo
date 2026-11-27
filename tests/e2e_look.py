@@ -74,7 +74,7 @@ with sync_playwright() as p:
     pg.get_by_role("button", name="Save current colours").click()
     expect(pg.locator(".swatch.on")).to_have_text("Tuesday Brain")
     code = pg.locator("textarea.code").input_value()
-    assert code.startswith("XO1-")
+    assert code.startswith("XO2-")
     pg.get_by_role("button", name="Undo", exact=True).click()
     pg.get_by_role("button", name="Undo", exact=True).click()
     pg.fill('[data-fk="paste"]', code)
@@ -128,6 +128,42 @@ with sync_playwright() as p:
         and st["myThemes"] == []
         and st["prefs"]["title"] == "XO"
     ), st
+    # engine: text-size roles, colour overrides, catalogue fonts, look code, reload
+    css = "getComputedStyle(document.documentElement).getPropertyValue"
+    before = pg.evaluate("parseFloat(getComputedStyle(document.querySelector('h2')).fontSize)")
+    pg.evaluate("XOLook.change((s, lk) => { lk.fs.section = 1.5; lk.mode = 'light'; })")
+    assert pg.evaluate(css + "('--fs-section')") == "1.5rem"
+    assert pg.evaluate("parseFloat(getComputedStyle(document.querySelector('h2')).fontSize)") > before
+    pg.evaluate("XOLook.change((s, lk) => { lk.colours.light.leaf = '#ff0000'; })")
+    assert pg.evaluate(css + "('--leaf')").strip() == "#ff0000"
+    pg.evaluate("XOLook.change((s, lk) => { lk.mode = 'dark'; })")
+    assert pg.evaluate(css + "('--leaf')").strip() != "#ff0000"
+    pg.evaluate("XOLook.change((s, lk) => { lk.mode = 'light'; lk.body = 'g:lora|Lora'; })")
+    assert pg.locator('link[data-xo-font="lora"]').count() == 1
+    assert "Lora" in pg.evaluate(css + "('--font-body')")
+    pg.evaluate("XOLook.change((s, lk) => { lk.zoom = 110; lk.glassAlpha = 30; lk.figure = 'tint'; })")
+    assert pg.evaluate("document.documentElement.dataset.figure") == "tint"
+    assert pg.evaluate(css + "('--glass-alpha')").strip() == "0.3"
+    pg.evaluate("XOLook.change((s, lk) => { lk.zoom = 100; lk.glassAlpha = 0; lk.figure = 'plain'; })")
+    same = pg.evaluate(
+        "(() => { const l = XOLook.active().look;"
+        " return JSON.stringify(XOLook.decode(XOLook.encode(l))) === JSON.stringify(l); })()"
+    )
+    assert same
+    old = pg.evaluate("XOLook.encode(XOLook.defaultLook())")
+    assert old.startswith("XO2-")
+    v1 = "XO1-foliage.150.6.165.75.75.42.80.965.100.0.0.0.100.400.150.20.2.0.0.0.0.0.0.1.0.0"
+    assert pg.evaluate("(c) => XOLook.decode(c)", v1)["space"] == 0.7
+    assert pg.evaluate("XOLook.decode('XO2-@@@')") is None
+    pg.evaluate(
+        "XOLook.change((s, lk) => { lk.fs.section = 1.5; lk.colours.light.leaf = '#ff0000'; lk.mode = 'light'; })"
+    )
+    pg.reload()
+    pg.wait_for_selector("h1")
+    assert pg.evaluate(css + "('--fs-section')") == "1.5rem"
+    assert pg.evaluate(css + "('--leaf')").strip() == "#ff0000"
+    pg.evaluate("XOLook.reset()")
+    assert pg.evaluate(css + "('--fs-section')") == ""
     b.close()
 print("errors:", errs or "none")
 assert not errs

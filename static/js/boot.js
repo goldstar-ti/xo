@@ -45,26 +45,74 @@
     loud: ['quiet', 'regular', 'loud'],
     line: ['plain', 'quote', 'hidden'],
     kit: ['xo', 'daisy', 'wa'],
+    figure: ['plain', 'tint', 'accent', 'inset'],
   };
   const CORNERS = { square: ['0px', '0px'], soft: ['6px', '8px'], round: ['10px', '999px'], pill: ['20px', '999px'] };
+  const DIALOG_RADIUS = { square: '0px', soft: '10px', round: '14px', pill: '20px' };
   const DENSITY = { compact: 0.7, regular: 1, roomy: 1.4 };
   const RULE = { fine: '1px', medium: '2px', heavy: '3px' };
   const LOUD = { quiet: 0.82, regular: 1, loud: 1.32 };
+
+  // Text-size roles: [key, default rem]. Labels live in content/text/appearance.yaml.
+  const FS_ROLES = [['display', 2.25], ['page', 1.75], ['quote', 1.5], ['figure', 1.5], ['dialog', 1.375], ['section', 1.125], ['lead', 1.125],
+    ['brand', 1.125], ['sub', 1], ['body', 1], ['large', 1.0625], ['label', 0.9375], ['control', 0.9375], ['small', 0.875], ['small_btn', 0.875],
+    ['nav', 0.8125], ['tag', 0.75], ['tiny', 0.6875]];
+  const FS_STEPS = [0.6875, 0.75, 0.8125, 0.875, 0.9375, 1, 1.0625, 1.125, 1.25, 1.375, 1.5, 1.75, 2, 2.25, 2.75, 3.25];
+  const COLOUR_TOKENS = ['paper', 'surface', 'ink', 'muted', 'line', 'leaf', 'leaf-ink', 'leaf-soft', 'ochre', 'ochre-soft', 'danger'];
+  const SIZE_PRESETS = {
+    compact: { size: 92, space: 0.75, chrome: 0.9 }, regular: { size: 100, space: 1, chrome: 1 },
+    comfortable: { size: 106, space: 1, chrome: 1 }, large: { size: 114, space: 1, chrome: 1.1 },
+  };
+  const presetOf = (look) => Object.keys(SIZE_PRESETS).find((k) => {
+    const p = SIZE_PRESETS[k];
+    return look.size === p.size && look.space === p.space && look.chrome === p.chrome;
+  }) || 'custom';
+  const CATALOGUE_FONT = /^g:[a-z0-9-]{1,60}\|[A-Za-z0-9 ]{1,60}$/;
+  const isFont = (v) => typeof v === 'string' && (!!FONTS[v] || CATALOGUE_FONT.test(v));
+  // A font value is a built-in key, or g:<slug>|<Family> for a font from the on-demand catalogue.
+  function stackOf(id, mono) {
+    if (FONTS[id]) return FONTS[id].stack;
+    if (typeof id === 'string' && CATALOGUE_FONT.test(id)) return "'" + id.split('|')[1] + "', " + (mono ? 'ui-monospace, monospace' : 'system-ui, sans-serif');
+    return FONTS[mono ? 'mono' : 'atkinson'].stack;
+  }
+  function ensureFont(id) {
+    if (typeof id !== 'string' || !CATALOGUE_FONT.test(id)) return;
+    const slug = id.slice(2).split('|')[0];
+    if (document.head.querySelector('link[data-xo-font="' + slug + '"]')) return;
+    const link = document.createElement('link');
+    link.rel = 'stylesheet'; link.dataset.xoFont = slug; link.href = '/vendor/fonts/css/' + slug + '.css';
+    document.head.appendChild(link);
+  }
 
   const colourOf = (id) => { const t = THEMES[id] || THEMES.foliage; const c = {}; COLOUR_KEYS.forEach((k) => { c[k] = t[k]; }); return c; };
 
   const DEFAULT_LOOK = {
     mode: 'auto', theme: 'foliage', c: colourOf('foliage'), strength: 1,
     body: 'atkinson', head: 'same', num: 'same', size: 100, weight: 400, lh: 1.5, ls: 0,
+    space: 1, chrome: 1, zoom: 100, mono: 'mono', monoSize: 100, monoLs: 0,
+    fs: {}, colours: { light: {}, dark: {} }, rCard: null, rPill: null, rDialog: null,
+    glassAlpha: 0, glassBlur: 14, figure: 'plain', ident: { widgets: {}, tabs: {} },
     corners: 'round', density: 'regular', rule: 'fine', texture: 'none',
     hero: 'plain', dayline: 'line', loud: 'regular', line: 'plain', kit: 'xo',
   };
   const SECTIONS = ['today', 'diary', 'tasks', 'obligations', 'routine', 'bills', 'checkin', 'plan', 'settings', 'appearance', 'canvas', 'tracker'];
   const BLOCKS = ['line', 'next', 'three', 'day', 'coming', 'plan'];
-  const DEFAULT_PREFS = { clock24: false, tabs: ['today', 'diary', 'tasks', 'obligations'], blocks: BLOCKS.slice(), hidden: [], title: 'XO', callMe: '', pop: true };
+  const DEFAULT_PREFS = { clock24: false, tabs: ['today', 'diary', 'tasks', 'obligations'], blocks: BLOCKS.slice(), hidden: [], title: 'XO', callMe: '', pop: true, view: 'standard' };
 
   const clamp = (n, lo, hi, fallback) => { n = Number(n); return Number.isFinite(n) ? Math.min(hi, Math.max(lo, n)) : fallback; };
   const text = (v, max, fallback) => (typeof v === 'string' ? v.slice(0, max) : fallback);
+
+  // Identity colours: a map of widget or tab key to { hue, op, title }, rebuilt entry by entry.
+  function cleanIdent(raw) {
+    const out = {};
+    if (!raw || typeof raw !== 'object') return out;
+    Object.keys(raw).slice(0, 200).forEach((k) => {
+      const v = raw[k];
+      if (!/^[a-z0-9:_-]{1,60}$/i.test(k) || !v || typeof v !== 'object') return;
+      out[k] = { hue: Math.round(clamp(v.hue, 0, 360, 0)), op: Math.round(clamp(v.op, 20, 100, 100) / 5) * 5, title: v.title === true };
+    });
+    return out;
+  }
 
   // Never trust what comes out of storage or a pasted look code: rebuild it field by field.
   function cleanLook(raw) {
@@ -77,13 +125,35 @@
     const rc = raw.c && typeof raw.c === 'object' ? raw.c : {};
     COLOUR_KEYS.forEach((k) => { out.c[k] = clamp(rc[k], COLOUR_RANGE[k][0], COLOUR_RANGE[k][1], d.c[k]); });
     out.strength = clamp(raw.strength, 0.3, 1.7, 1);
-    out.body = FONTS[raw.body] ? raw.body : d.body;
-    out.head = raw.head === 'same' || FONTS[raw.head] ? raw.head : d.head;
-    out.num = raw.num === 'same' || FONTS[raw.num] ? raw.num : d.num;
+    out.body = isFont(raw.body) ? raw.body : d.body;
+    out.head = raw.head === 'same' || isFont(raw.head) ? raw.head : d.head;
+    out.num = raw.num === 'same' || isFont(raw.num) ? raw.num : d.num;
+    out.mono = isFont(raw.mono) ? raw.mono : d.mono;
     out.size = clamp(raw.size, 85, 135, 100);
-    out.weight = clamp(raw.weight, 300, 550, 400);
+    out.weight = clamp(raw.weight, 100, 900, 400);
     out.lh = clamp(raw.lh, 1.25, 1.9, 1.5);
-    out.ls = clamp(raw.ls, -0.02, 0.08, 0);
+    out.ls = clamp(raw.ls, -0.05, 0.15, 0);
+    // Spacing replaces the three density steps: an older look or XO1 code keeps its spacing.
+    out.space = clamp(raw.space !== undefined ? raw.space : DENSITY[raw.density], 0.5, 1.6, 1);
+    out.chrome = clamp(raw.chrome, 0.5, 1.5, 1);
+    out.zoom = clamp(raw.zoom, 25, 175, 100);
+    out.monoSize = clamp(raw.monoSize, 70, 150, 100);
+    out.monoLs = clamp(raw.monoLs, -0.05, 0.15, 0);
+    out.glassAlpha = clamp(raw.glassAlpha, 0, 60, 0);
+    out.glassBlur = clamp(raw.glassBlur, 0, 30, 14);
+    out.rCard = raw.rCard === null || raw.rCard === undefined ? null : clamp(raw.rCard, 0, 32, null);
+    out.rPill = raw.rPill === null || raw.rPill === undefined ? null : clamp(raw.rPill, 0, 40, null);
+    out.rDialog = raw.rDialog === null || raw.rDialog === undefined ? null : clamp(raw.rDialog, 0, 32, null);
+    out.fs = {};
+    const rf = raw.fs && typeof raw.fs === 'object' ? raw.fs : {};
+    FS_ROLES.forEach(([k, def]) => { if (FS_STEPS.includes(rf[k]) && rf[k] !== def) out.fs[k] = rf[k]; });
+    out.colours = { light: {}, dark: {} };
+    const rcol = raw.colours && typeof raw.colours === 'object' ? raw.colours : {};
+    ['light', 'dark'].forEach((m) => {
+      const mm = rcol[m] && typeof rcol[m] === 'object' ? rcol[m] : {};
+      COLOUR_TOKENS.forEach((k) => { if (typeof mm[k] === 'string' && /^#[0-9a-f]{6}$/i.test(mm[k])) out.colours[m][k] = mm[k].toLowerCase(); });
+    });
+    out.ident = { widgets: cleanIdent(raw.ident && raw.ident.widgets), tabs: cleanIdent(raw.ident && raw.ident.tabs) };
     return out;
   }
   function cleanPrefs(raw) {
@@ -100,6 +170,7 @@
       title: text(raw.title, 24, 'XO').trim() || 'XO',
       callMe: text(raw.callMe, 30, '').trim(),
       pop: raw.pop !== false,
+      view: raw.view === 'advanced' ? 'advanced' : 'standard',
     };
   }
   const isTime = (v) => typeof v === 'string' && /^([01]\d|2[0-3]):[0-5]\d$/.test(v);
@@ -137,6 +208,16 @@
     return item ? { look: item.look, item } : { look: state.base, item: null };
   }
 
+  // Colours the reader picked replace the derived ones, per mode, in one style element.
+  function colourOverrides(colours) {
+    let el = document.getElementById('xo-colour-overrides');
+    if (!el) { el = document.createElement('style'); el.id = 'xo-colour-overrides'; document.head.appendChild(el); }
+    el.textContent = ['light', 'dark'].map((m) => {
+      const rules = COLOUR_TOKENS.filter((k) => colours[m][k]).map((k) => '--' + k + ':' + colours[m][k] + ';').join('');
+      return rules ? ':root[data-scheme="' + m + '"]{' + rules + '}' : '';
+    }).join('');
+  }
+
   function apply() {
     const { look, item } = active();
     const root = document.documentElement;
@@ -146,14 +227,27 @@
     set('--ah', c.ah); set('--ac', (c.ac * look.strength).toFixed(4));
     set('--wh', c.wh); set('--wc', (0.12 * Math.min(1.25, Math.max(0.6, look.strength))).toFixed(4));
     set('--al', c.al); set('--ad', c.ad); set('--pl', c.pl);
-    const body = FONTS[look.body].stack;
+    [look.body, look.head, look.num, look.mono].forEach(ensureFont);
+    const body = stackOf(look.body);
     set('--font-body', body);
-    set('--font-head', look.head === 'same' ? body : FONTS[look.head].stack);
-    set('--font-num', look.num === 'same' ? body : FONTS[look.num].stack);
+    set('--font-head', look.head === 'same' ? body : stackOf(look.head));
+    set('--font-num', look.num === 'same' ? body : stackOf(look.num));
+    set('--font-mono', stackOf(look.mono, true));
+    set('--mono-size', look.monoSize / 100); set('--mono-ls', look.monoLs + 'em');
     root.style.fontSize = (106.25 * look.size / 100).toFixed(2) + '%';
     set('--weight', look.weight); set('--lh', look.lh); set('--ls', look.ls + 'em');
     set('--radius', CORNERS[look.corners][0]); set('--pill', CORNERS[look.corners][1]);
-    set('--d', DENSITY[look.density]); set('--rule', RULE[look.rule]); set('--loud', LOUD[look.loud]);
+    if (look.rCard !== null) set('--radius', look.rCard + 'px');
+    if (look.rPill !== null) set('--pill', look.rPill >= 40 ? '999px' : look.rPill + 'px');
+    set('--radius-dialog', look.rDialog !== null ? look.rDialog + 'px' : DIALOG_RADIUS[look.corners]);
+    set('--d', look.space); set('--chrome', look.chrome); set('--zoom', look.zoom / 100);
+    set('--glass-alpha', look.glassAlpha / 100); set('--glass-blur', look.glassBlur + 'px');
+    root.dataset.glass = look.glassAlpha > 0 ? 'on' : 'off';
+    FS_ROLES.forEach(([k]) => {
+      const prop = '--fs-' + k.replace(/_/g, '-');
+      if (look.fs[k]) set(prop, look.fs[k] + 'rem'); else root.style.removeProperty(prop);
+    });
+    set('--rule', RULE[look.rule]); set('--loud', LOUD[look.loud]);
     const dark = look.mode === 'dark' || (look.mode === 'auto' && matchMedia('(prefers-color-scheme: dark)').matches);
     root.dataset.scheme = dark ? 'dark' : 'light';
     root.dataset.texture = look.texture;
@@ -161,6 +255,8 @@
     root.dataset.dayline = look.dayline;
     root.dataset.line = look.line;
     root.dataset.kit = look.kit;
+    root.dataset.figure = look.figure;
+    colourOverrides(look.colours);
     root.dataset.pop = state.prefs.pop ? 'on' : 'off';
     lastKey = (item ? item.id : 'base') + '|' + root.dataset.scheme;
   }
@@ -188,20 +284,36 @@
     return true;
   }
 
-  // A look as a short code you can copy, keep, or type into another device:
-  // XO1- followed by the settings as numbers separated by dots.
+  // A look as a short code you can copy, keep, or type into another device.
+  // XO2- is the settings as JSON (leaving out anything at its default), made URL-safe.
+  // XO1- (older codes, one number per setting) still decodes.
   const FONT_IDS = Object.keys(FONTS).concat('same');
   // New options go on the end, so codes made before them still decode (the missing ones take their default).
-  const ENUMS = ['mode', 'corners', 'density', 'rule', 'texture', 'hero', 'dayline', 'loud', 'line', 'kit'];
+  const ENUMS = ['mode', 'corners', 'density', 'rule', 'texture', 'hero', 'dayline', 'loud', 'line', 'kit', 'figure'];
   function encode(look) {
-    const l = cleanLook(look), c = l.c;
-    const theme = THEMES[l.theme] ? l.theme : 'custom'; // saved themes are per device, so only their colours travel
-    const parts = [theme, c.nh, c.nc * 1000, c.ah, c.ac * 1000, c.wh, c.al * 100, c.ad * 100, c.pl * 1000, l.strength * 100,
-      FONT_IDS.indexOf(l.body), FONT_IDS.indexOf(l.head), FONT_IDS.indexOf(l.num), l.size, l.weight, l.lh * 100, l.ls * 1000 + 20]
-      .concat(ENUMS.map((k) => CHOICES[k].indexOf(l[k])));
-    return 'XO1-' + parts.map((v) => (typeof v === 'number' ? Math.round(v) : v)).join('.');
+    const l = cleanLook(look), d = cleanLook({});
+    const out = {};
+    Object.keys(l).forEach((k) => { if (JSON.stringify(l[k]) !== JSON.stringify(d[k])) out[k] = l[k]; });
+    out.space = l.space; delete out.density; // spacing always travels; density is only read from XO1 codes
+    const bytes = new TextEncoder().encode(JSON.stringify(out));
+    let bin = '';
+    bytes.forEach((b) => { bin += String.fromCharCode(b); });
+    return 'XO2-' + btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
   }
   function decode(code) {
+    const text2 = String(code || '').trim();
+    try {
+      if (/^XO2-[A-Za-z0-9_-]+$/.test(text2)) {
+        const b64 = text2.slice(4).replace(/-/g, '+').replace(/_/g, '/');
+        const bin = atob(b64 + '='.repeat((4 - (b64.length % 4)) % 4));
+        const raw = JSON.parse(new TextDecoder().decode(Uint8Array.from(bin, (ch) => ch.charCodeAt(0))));
+        if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return null;
+        return cleanLook(raw);
+      }
+      return decodeV1(text2);
+    } catch (e) { return null; }
+  }
+  function decodeV1(code) {
     const m = /^\s*XO1-([a-z]+)((?:\.\d{1,4}){25,26})\s*$/i.exec(code || '');
     if (!m) return null;
     const n = m[2].slice(1).split('.').map(Number);
@@ -228,12 +340,13 @@
         body: fonts[0], head: fonts[1], num: fonts[2],
         corners: pick(CHOICES.corners), rule: pick(CHOICES.rule), texture: pick(CHOICES.texture),
         hero: pick(CHOICES.hero), dayline: pick(CHOICES.dayline), loud: pick(CHOICES.loud), line: pick(['plain', 'quote']),
-      }); // size, weight, spacing, density and mode are left as you set them
+      }); // size, weight, spacing, chrome, zoom, text sizes, colours, identity colours and mode are left as you set them
     });
   }
 
   window.XOLook = {
     THEMES, FONTS, CHOICES, SECTIONS, BLOCKS, COLOUR_RANGE, DEFAULT_LOOK,
+    FS_ROLES, FS_STEPS, COLOUR_TOKENS, SIZE_PRESETS, presetOf, stackOf, ensureFont,
     get state() { return state; },
     get prefs() { return state.prefs; },
     get canUndo() { return undoStack.length > 0; },

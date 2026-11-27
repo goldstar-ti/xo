@@ -67,7 +67,7 @@ async def security_headers(request: Request, call_next):
         response.headers["Cache-Control"] = "no-cache"  # the service worker keeps a copy for offline use
     elif path.startswith("/api/"):
         response.headers["Cache-Control"] = "no-store"
-    elif path.startswith("/fonts/") or path.startswith("/icons/"):
+    elif path.startswith("/fonts/") or path.startswith("/icons/") or path.startswith("/vendor/fonts/"):
         response.headers["Cache-Control"] = "public, max-age=2592000"
     else:
         response.headers["Cache-Control"] = "no-cache"  # always revalidate app files
