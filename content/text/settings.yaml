@@ -115,7 +115,44 @@ settings:
     note: Your entries are stored on the server and you sign in with your password.
     download: Download everything
     sign_out: Sign out of this device
+    review: Review and delete entries
     hint: A JSON file with every entry you have saved.
+  cleanup:
+    heading: Delete entries
+    note: Pick the entries you no longer need and delete them. Deleted entries leave every screen and cannot be brought back here, so download everything first if you might want them later.
+    singletons: Deleting Settings, My plan or Categories and places puts that one back to the original.
+    kind: Kind
+    all_kinds: 'All kinds ({n})'
+    kind_count: '{name} ({n})'
+    search: Search
+    search_hint: Words in the title or the id
+    select_all: Select all shown
+    entry: Entry
+    day: Day
+    changed: Last changed
+    showing: 'Showing {shown} of {n}. Pick a kind or search to see the rest.'
+    empty: No entries match.
+    delete: 'Delete {n} selected'
+    delete_confirm: 'Tap again to delete {n}'
+    deleted_one: Deleted 1 entry.
+    deleted_many: 'Deleted {n} entries.'
+    loading: Loading entries.
+    kinds:
+      appointment: Appointments
+      task: Tasks
+      routine: Routine
+      tick: Done marks
+      bill: Bills
+      obligation: Obligations
+      report: Reports
+      checkin: Check-ins
+      plan: My plan
+      settings: Settings
+      canvas: Canvases
+      project: Tracker projects
+      pm_item: Tracker items
+      tracker: Tracker views
+      taskmeta: Categories and places
   fields:
     heading: Custom fields
     hint: Add your own fields to any kind of record. They show in its form, and in its list when Show in lists is ticked.

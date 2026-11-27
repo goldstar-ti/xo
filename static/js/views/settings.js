@@ -6,6 +6,7 @@ import * as lookups from '../lookups.js';
 import { allTasks } from '../taskdata.js';
 import { pace } from '../tasks.js';
 import { actionLabel, actions, clashFor, comboOf, keyFor, keyLabel, resetKeys, saveKey, scopes } from '../keymap.js';
+import { openCleanup } from '../cleanup.js';
 import { FIELD_KINDS, TYPES, allDefs, defs, saveDefs } from '../customfields.js';
 
 export const live = false;
@@ -343,6 +344,7 @@ export function render(root) {
       h('p', { class: 'note' }, t('settings.data.note')),
       h('div', { class: 'row' },
         button(t('settings.data.download'), { onclick: () => exportAll().catch((err) => toast(err.message, 'bad')) }),
+        button(t('settings.data.review'), { onclick: () => openCleanup({ download: exportAll }) }),
         button(t('settings.data.sign_out'), { onclick: () => window.dispatchEvent(new Event('xo:sign-out')) })),
       h('p', { class: 'hint' }, t('settings.data.hint'))),
   );

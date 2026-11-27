@@ -4,6 +4,7 @@
 
 | Version | Date | Change |
 |---|---|---|
+| 2.18.0 | 2026-11-27 | Settings, My data, Review and delete entries: list every saved entry, narrow by kind or search, tick the ones you no longer need and delete them together. |
 | 2.17.0 | 2026-11-27 | Dictation: a microphone button in quick add, the command list, notes and long text boxes, and Alt+V in any text box. It can be turned off in Settings. |
 | 2.16.0 | 2026-11-27 | The Notes screen: notes in Markdown with a toolbar, preview, search and pinning. Tasks have a Notes field with the same editor. |
 | 2.15.0 | 2026-11-27 | Custom fields on tracker items and check-ins: add your own fields in Settings. Items show them in the details pane and record changes in the history. |
