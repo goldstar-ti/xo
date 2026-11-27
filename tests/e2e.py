@@ -29,6 +29,12 @@ errors = []
 def set_control(el, value):
     """Fill one form control, whichever kit built it (Web Awesome controls are custom elements)."""
     tag = el.evaluate("e => e.tagName")
+    if el.evaluate("e => e.classList.contains('md-text')"):
+        # A long text box is the Markdown editor: its real text area is hidden, so type through CodeMirror.
+        ed = el.locator("xpath=ancestor::div[contains(@class,'md-editor')]")
+        expect(ed.locator(".CodeMirror")).to_be_visible(timeout=15000)
+        ed.locator(".CodeMirror").evaluate("(e, v) => e.CodeMirror.setValue(v)", str(value))
+        return
     if tag.startswith("WA-"):
         if tag == "WA-CHECKBOX":
             el.evaluate("(e, v) => { e.checked = v; e.dispatchEvent(new Event('change', { bubbles: true })); }", value)
@@ -216,7 +222,7 @@ with sync_playwright() as p:
     page.get_by_role("radio", name="yes", exact=True).click()
     expect(page.locator(".reveal")).to_contain_text("Message Sam")
     page.screenshot(path=SHOTS / "08-evening.png", full_page=True)
-    set_control(page.locator(".reveal textarea, .reveal wa-textarea").first, "Messaged Sam at 8 pm.")
+    set_control(page.locator(".reveal .md-text").first, "Messaged Sam at 8 pm.")
     page.get_by_role("button", name="Save check-in").click()
     expect(page.locator(".dayline .k-checkin.done")).to_have_count(2)
 

@@ -3,7 +3,8 @@
 import * as store from './store.js';
 import { chipSet } from './taskfields.js';
 import { t } from './text.js';
-import { checkbox, field, input, select, textarea } from './ui.js';
+import { checkbox, field, input, select } from './ui.js';
+import { mdEditor, mdField } from './mdeditor.js';
 import { fmtDay, h } from './util.js';
 
 /** The one list of kinds that take custom fields: [kind, text key for its name]. */
@@ -110,7 +111,11 @@ export function customEditor(kind, custom, onChange) {
       const opts = [['', t('fields.none')], ...(d.options || []).map((o) => [o, o])];
       return field(d.name, select(opts, { id, value: v ?? '', onchange: (e) => report(d.id, e.target.value) }));
     }
-    if (d.type === 'long') return field(d.name, textarea({ id, rows: 3, value: v ?? '', onchange: (e) => report(d.id, e.target.value.trim()) }));
+    if (d.type === 'long') {
+      const ed = mdEditor({ id, rows: 3, value: v ?? '', label: d.name });
+      ed.node.addEventListener('focusout', () => report(d.id, ed.read().trim()));
+      return mdField(d.name, ed);
+    }
     if (d.type === 'number') {
       return field(d.name, input({ id, type: 'number', min: 0, inputmode: 'decimal', autocomplete: 'off', value: v ?? '', onchange: (e) => report(d.id, e.target.value === '' ? 0 : Number(e.target.value)) }), null, { half: true });
     }

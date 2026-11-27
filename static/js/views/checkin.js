@@ -3,7 +3,8 @@ import { GUARD_TEXT, WEEKLY_QUESTIONS } from '../content.js';
 import * as lookups from '../lookups.js';
 import { addDays, fmtDay, fmtDuration, fmtLong, h, toast, today, withPhoneLinks, ymd, put } from '../util.js';
 import { allTasks, pickTask, saveTask } from '../taskdata.js';
-import { button, callout, checkbox, chip, field, segmented, tag, textarea } from '../ui.js';
+import { button, callout, checkbox, chip, field, segmented, tag } from '../ui.js';
+import { mdEditor } from '../mdeditor.js';
 import { t, text } from '../text.js';
 import { customEditor } from '../customfields.js';
 import { checkinId, dayEntries } from './today.js';
@@ -72,8 +73,8 @@ function lookupChips(key, state, name, opts = {}) {
     h('div', { class: 'chip-group' }, h('h3', {}, label), as(list, state, name, opts))));
 }
 
-function textBox(state, name, label, { rows = 3, placeholder = '' } = {}) {
-  return textarea({ rows, placeholder, value: state[name] || '', 'aria-label': label, oninput: (e) => { state[name] = e.target.value; } });
+function textBox(state, name, label, { rows = 3 } = {}) {
+  return mdEditor({ rows, value: state[name] || '', label, onInput: (v) => { state[name] = v; } }).node;
 }
 
 // The custom fields for check-ins, as a section above the save bar. Nothing when none are defined.

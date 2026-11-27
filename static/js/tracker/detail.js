@@ -6,6 +6,7 @@ import { customEditor } from '../customfields.js';
 import { loadNobbieItem, nobbieLink } from './nobbie.js';
 import { t } from '../text.js';
 import { button, checkbox, field, input, select, textarea } from '../ui.js';
+import { mdEditor, mdField } from '../mdeditor.js';
 import { fmtDay, fmtTime, h, hm, toast } from '../util.js';
 
 const fail = (err) => toast(err.message, 'bad');
@@ -18,6 +19,7 @@ function saving(control, save) {
   const commit = () => { if (control.value !== last) { last = control.value; save(control.value).catch(fail); } };
   control.addEventListener('change', commit);
   control.addEventListener('blur', commit);
+  control.addEventListener('focusout', commit);
   return control;
 }
 
@@ -157,8 +159,10 @@ export function renderDetail(root, ctx, id) {
   const title = saving(input({ value: it.title, 'aria-label': t('tracker.fields.title'), 'data-focus': 'title', class: 'tw:text-lg tw:font-semibold' }),
     (v) => M.updateItem(id, { title: v.trim() }));
   title.addEventListener('keydown', (e) => { if (e.key === 'Enter') title.blur(); });
-  const body = saving(textarea({ id: 'tr-f-body', rows: 5, value: it.body || '' }), (v) => M.updateItem(id, { body: v }));
-  const steps = saving(textarea({ id: 'tr-f-steps', rows: 3, value: it.test_steps || '' }), (v) => M.updateItem(id, { test_steps: v }));
+  const bodyEd = mdEditor({ id: 'tr-f-body', rows: 5, value: it.body || '', label: t('tracker.fields.body') });
+  const stepsEd = mdEditor({ id: 'tr-f-steps', rows: 3, value: it.test_steps || '', label: t('tracker.fields.test_steps') });
+  saving(bodyEd.node, (v) => M.updateItem(id, { body: v }));
+  saving(stepsEd.node, (v) => M.updateItem(id, { test_steps: v }));
   let armed = false;
   const del = button(t('tracker.detail.delete'), { variant: 'danger', class: 'small' });
   del.addEventListener('click', async () => {
@@ -173,8 +177,8 @@ export function renderDetail(root, ctx, id) {
     title,
     fields(it, id),
     customEditor('pm_item', it.custom || {}, (custom) => M.updateItem(id, { custom }).catch(fail)),
-    field(t('tracker.fields.body'), body),
-    field(t('tracker.fields.test_steps'), steps),
+    mdField(t('tracker.fields.body'), bodyEd),
+    mdField(t('tracker.fields.test_steps'), stepsEd),
     checklist(it, id),
     links(it, id, ctx),
     section(t('tracker.detail.state'), closing(it, id)),

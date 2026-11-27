@@ -8,6 +8,7 @@ python tests/e2e_extras.py [base_url]
 import os
 import re
 import sys
+from datetime import date
 from urllib.parse import urlparse
 
 from playwright.sync_api import expect, sync_playwright
@@ -36,6 +37,12 @@ def md_preview(scope, on):
 def set_control(el, value):
     """Fill one form control, whichever kit built it (Web Awesome controls are custom elements)."""
     tag = el.evaluate("e => e.tagName")
+    if el.evaluate("e => e.classList.contains('md-text')"):
+        # A long text box is the Markdown editor: its real text area is hidden, so type through CodeMirror.
+        ed = el.locator("xpath=ancestor::div[contains(@class,'md-editor')]")
+        expect(ed.locator(".CodeMirror")).to_be_visible(timeout=15000)
+        ed.locator(".CodeMirror").evaluate("(e, v) => e.CodeMirror.setValue(v)", str(value))
+        return
     if tag.startswith("WA-"):
         if tag == "WA-CHECKBOX":
             el.evaluate("(e, v) => { e.checked = v; e.dispatchEvent(new Event('change', { bubbles: true })); }", value)
@@ -240,6 +247,27 @@ with sync_playwright() as p:
     pg.goto(f"{BASE}/#/checkin/morning")
     pg.wait_for_selector(f"#cf-{weight}", timeout=20000)
     expect(pg.locator(f"#cf-{weight}")).to_have_value("80")
+
+    # 3b. Long text boxes are the Markdown editor: appointment notes show in the Diary, plan answers survive a reload.
+    pg.goto(f"{BASE}/#/diary")
+    pg.get_by_role("button", name="Add appointment").first.click()
+    dlg = pg.locator("dialog[open]")
+    set_control(dlg.locator("#f-title"), "Markdown visit")
+    set_control(dlg.locator("#f-date"), date.today().isoformat())
+    set_control(dlg.locator("#f-time"), "15:00")
+    set_control(dlg.locator("#f-notes"), "- a")
+    expect(dlg.locator("textarea.md-text").first).to_have_value("- a")
+    dlg.get_by_role("button", name="Save").click()
+    expect(dlg).to_have_count(0)
+    expect(pg.locator(".list li", has_text="Markdown visit").locator("small").last).to_contain_text("a")
+
+    pg.goto(f"{BASE}/#/plan")
+    pg.get_by_role("button", name="Plan with internet and device sections").click()
+    set_control(pg.locator("#box-good_matters"), "Being someone my family can rely on.")
+    expect(pg.locator(".page-head [role=status]")).to_have_text("Saved", timeout=5000)
+    pg.reload()
+    pg.wait_for_selector("#box-good_matters", state="attached", timeout=20000)
+    expect(pg.locator("#box-good_matters")).to_have_value("Being someone my family can rely on.")
 
     # 4. Notes.
     pg.goto(f"{BASE}/#/notes")

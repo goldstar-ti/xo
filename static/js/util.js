@@ -1,10 +1,10 @@
 // Small helpers: DOM building, dates, toasts, dialogs.
-import { button, checkbox, field, focusControl, input, notice, select, textarea } from './ui.js';
+import { button, checkbox, field, focusControl, input, notice, select } from './ui.js';
 import { t } from './text.js';
 import { openPopover } from './popover.js';
 import { icon, paintIcon, parseIcon } from './icons.js';
 import { openIconPicker } from './iconpicker.js';
-import { micButton } from './voice.js';
+import { mdEditor, mdField } from './mdeditor.js';
 
 export function h(tag, attrs, ...kids) {
   const el = document.createElement(tag);
@@ -159,8 +159,13 @@ export function openForm({ title, fields, values = {}, saveLabel = t('common.sav
       inputs[f.name] = built;
       return h('fieldset', { class: ['field', f.half && 'half'].filter(Boolean).join(' ') }, h('legend', {}, f.label), built.node, f.hint && h('small', {}, f.hint));
     }
-    if (f.type === 'textarea') control = textarea({ id, rows: f.rows || 3, placeholder: f.placeholder, value: v ?? '' });
-    else if (f.type === 'select') control = select(f.options, { id, value: v ?? f.options[0][0] });
+    if (f.type === 'textarea') {
+      // A long text box is the Markdown editor: it has its own Dictate button, and its node reads like a textarea.
+      const ed = mdEditor({ id, rows: f.rows || 3, value: v ?? '', label: f.label });
+      inputs[f.name] = ed.node;
+      return mdField(f.label, ed, f.hint, { half: f.half });
+    }
+    if (f.type === 'select') control = select(f.options, { id, value: v ?? f.options[0][0] });
     else if (f.type === 'checkbox') control = checkbox({ id, checked: !!v });
     else
       control = input({
@@ -170,14 +175,6 @@ export function openForm({ title, fields, values = {}, saveLabel = t('common.sav
       });
     inputs[f.name] = control;
     const row = field(f.label, control, f.hint, { half: f.half });
-    // A long text box gets a Dictate button beside it. The label and hint stay tied to the control.
-    const mic = f.type === 'textarea' && micButton(control);
-    if (mic) {
-      control.classList.add('tw:flex-1', 'tw:min-w-0');
-      const side = h('div', { class: 'tw:flex tw:gap-2 tw:items-start' });
-      control.replaceWith(side);
-      side.append(control, mic);
-    }
     return row;
   };
   const mainRows = fields.filter((f) => !f.more).map(rowOf);

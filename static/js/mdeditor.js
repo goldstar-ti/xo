@@ -137,7 +137,8 @@ export function mdEditor({ value = '', label = '', rows = 8, onInput, id } = {})
     if (ed && combo && combo === keyFor('notes.preview')) { e.preventDefault(); window.EasyMDE.togglePreview(ed); }
   });
 
-  return {
+  node.focus = () => api.focus();
+  const api = {
     node,
     read: () => node.value,
     textarea: ta,
@@ -149,4 +150,11 @@ export function mdEditor({ value = '', label = '', rows = 8, onInput, id } = {})
       } else ta.focus();
     },
   };
+  return api;
+}
+
+// A labelled form row around an editor, like field() in ui.js. The label points at the real text area.
+export function mdField(label, ed, hint, { half = false } = {}) {
+  return h('div', { class: ['field', half && 'half'].filter(Boolean).join(' ') },
+    h('label', { for: ed.textarea.id }, label), ed.node, hint && h('small', {}, hint));
 }

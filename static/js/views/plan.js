@@ -1,6 +1,7 @@
 import * as store from '../store.js';
 import { GUARD_TEXT, PLAN, PLAN_FIRST, PLAN_VARIANTS, SERVICES } from '../content.js';
-import { button, callout, disclosure, field, progress, select, textarea } from '../ui.js';
+import { button, callout, disclosure, field, progress, select } from '../ui.js';
+import { mdEditor, mdField } from '../mdeditor.js';
 import { t } from '../text.js';
 import { h, openDialog, toast, withPhoneLinks, put } from '../util.js';
 
@@ -58,6 +59,7 @@ export function render(root) {
     id: 'plan-jump', 'aria-label': t('plan.jump'),
     onchange: (e) => document.getElementById(`sec-${e.target.value}`)?.scrollIntoView({ block: 'start' }),
   });
+  const editors = {};
   const next = [...PLAN_FIRST.map((k) => boxes.find((b) => b.k === k)).filter(Boolean), ...boxes].find((b) => !(plan.answers[b.k] || '').trim());
 
   put(root, 
@@ -65,15 +67,19 @@ export function render(root) {
     bar,
     field(t('plan.jump'), jump, null, { half: true }),
     h('p', { class: 'note' }, t('plan.fill_intro')),
-    next && h('p', { class: 'nudge' }, t('plan.next_box'), h('a', { href: `#box-${next.k}`, onclick: (e) => { e.preventDefault(); const el = document.getElementById(`box-${next.k}`); el.scrollIntoView({ block: 'center' }); el.focus(); } }, next.q)),
+    next && h('p', { class: 'nudge' }, t('plan.next_box'), h('a', { href: `#box-${next.k}`, onclick: (e) => { e.preventDefault(); const ed = editors[next.k]; ed.node.scrollIntoView({ block: 'center' }); ed.focus(); } }, next.q)),
     sections.map((s) => h('section', { class: 'plan-sec', id: `sec-${s.n}` },
       h('h2', {}, t('plan.section_heading', { n: s.n, title: s.title })),
       s.note && h('p', { class: 'hint' }, s.note),
       s.guard && store.settings().showGuard && callout(GUARD_TEXT, { kind: 'neutral', icon: 'tabler/lock' }),
-      s.boxes.map((b) => field(b.q, textarea({
-        id: `box-${b.k}`, rows: 4, value: plan.answers[b.k] || '',
-        oninput: (e) => { plan.answers[b.k] = e.target.value; recount(); queueSave(plan, status); },
-      }), b.eg && t('plan.example', { eg: b.eg }))))),
+      s.boxes.map((b) => {
+        const ed = mdEditor({
+          id: `box-${b.k}`, rows: 4, value: plan.answers[b.k] || '', label: b.q,
+          onInput: (v) => { plan.answers[b.k] = v; recount(); queueSave(plan, status); },
+        });
+        editors[b.k] = ed;
+        return mdField(b.q, ed, b.eg && t('plan.example', { eg: b.eg }));
+      }))),
     h('p', { class: 'note' }, t('plan.review')),
     h('p', {}, button(t('plan.switch'), {
       onclick: async () => { await store.save('plan', 'plan', { ...plan, variant: '' }, { silent: true }); render(root); },
