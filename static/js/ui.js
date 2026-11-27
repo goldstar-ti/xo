@@ -6,6 +6,7 @@
 // Tailwind compiles only the classes it finds written out in full under static/, so every
 // daisyUI class below is a complete literal string. Never build one from pieces.
 import { t } from './text.js';
+import { icon } from './icons.js';
 import { h } from './util.js';
 
 export const kit = () => document.documentElement.dataset.kit || 'xo';
@@ -114,12 +115,61 @@ export function field(label, control, hint, { half = false } = {}) {
   return h('div', { class: cls }, h('label', { for: control.id || null, class: k === 'daisy' ? 'tw:label' : null }, label), control, small);
 }
 
-// The message inside the toast. kind is '' or 'bad'. XO keeps plain text in its own box.
-export function notice(text, kind = '') {
+// A highlighted note with an optional icon. kind: 'brand' (default) | 'warning' | 'neutral' | 'danger'.
+// body is a string or nodes; ic is an icon value for icon(), e.g. 'tabler/info-circle'.
+const CALLOUT = {
+  brand: { wa: 'brand', daisy: 'tw:alert tw:alert-info' },
+  warning: { wa: 'warning', daisy: 'tw:alert tw:alert-warning' },
+  neutral: { wa: 'neutral', daisy: 'tw:alert' },
+  danger: { wa: 'danger', daisy: 'tw:alert tw:alert-error' },
+};
+export function callout(body, { kind = 'brand', icon: ic = null } = {}) {
   const k = kit();
-  if (k === 'wa') return h('wa-callout', { variant: kind === 'bad' ? 'danger' : 'brand' }, text);
-  if (k === 'daisy') return h('div', { role: 'alert', class: kind === 'bad' ? 'tw:alert tw:alert-error' : 'tw:alert tw:alert-info' }, text);
-  return document.createTextNode(text);
+  const m = CALLOUT[kind] || CALLOUT.brand;
+  const nodes = Array.isArray(body) ? body : [body];
+  if (k === 'wa') return h('wa-callout', { variant: m.wa }, ic ? h('span', { slot: 'icon' }, icon(ic)) : null, ...nodes);
+  const text = h('div', { class: 'callout-body' }, ...nodes);
+  if (k === 'daisy') return h('div', { role: 'alert', class: join('callout', kind, m.daisy) }, ic ? icon(ic) : null, text);
+  return h('div', { class: join('callout', kind) }, ic ? icon(ic) : null, text);
+}
+
+// The message inside the toast. kind is '' or 'bad'. XO keeps plain text in its own box, so
+// only Web Awesome and daisyUI wrap it in a callout.
+export function notice(text, kind = '') {
+  if (kit() === 'xo') return document.createTextNode(text);
+  return callout(text, { kind: kind === 'bad' ? 'danger' : 'brand' });
+}
+
+// A status pill. kind: 'accent' (default) | 'neutral' | 'warning' | 'danger' | 'success'.
+const TAG = {
+  accent: { wa: 'brand', daisy: 'tw:badge tw:badge-soft tw:badge-primary' },
+  neutral: { wa: 'neutral', daisy: 'tw:badge tw:badge-soft' },
+  warning: { wa: 'warning', daisy: 'tw:badge tw:badge-soft tw:badge-warning' },
+  danger: { wa: 'danger', daisy: 'tw:badge tw:badge-soft tw:badge-error' },
+  success: { wa: 'success', daisy: 'tw:badge tw:badge-soft tw:badge-success' },
+};
+export function tag(text, kind = 'accent') {
+  const k = kit();
+  const m = TAG[kind] || TAG.accent;
+  if (k === 'wa') return h('wa-tag', { pill: true, size: 'small', variant: m.wa }, text);
+  if (k === 'daisy') return h('span', { class: join('tag', kind, m.daisy) }, text);
+  return h('span', { class: join('tag', kind) }, text);
+}
+
+// A progress bar. value is a fraction from 0 to 1 (not a percentage); label is its accessible name.
+export function progress(value, label) {
+  const k = kit();
+  const pct = Math.round(Math.min(1, Math.max(0, Number(value) || 0)) * 100);
+  if (k === 'wa') return h('wa-progress-bar', { value: pct, label });
+  return h('progress', { max: 100, value: pct, 'aria-label': label, class: join('xo-progress', k === 'daisy' && 'tw:progress tw:progress-primary tw:w-full') });
+}
+
+// A list row that is a link: leaf icon, title, one muted line, and a chevron at the end.
+export function linkRow({ icon: ic, title, sub, href } = {}) {
+  return h('a', { class: 'link-row', href },
+    ic ? icon(ic, 'link-row-ico') : null,
+    h('span', { class: 'link-row-text' }, h('span', { class: 'link-row-title' }, title), sub ? h('span', { class: 'link-row-sub' }, sub) : null),
+    icon('tabler/chevron-right', 'link-row-go'));
 }
 
 // The real text field inside a control. Web Awesome keeps it in an open shadow root; the other kits' controls are the field.

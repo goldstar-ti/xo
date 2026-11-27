@@ -77,10 +77,15 @@ with sync_playwright() as p:
         ui.field('Tick it', ui.checkbox({ id: 'k-cb', checked: true }), 'Another hint'),
         ui.chip('Chosen', { pressed: true, onclick: count }),
         ui.chip('Spare', { pressed: false }),
+        ui.tag('Due soon', 'warning'),
+        ui.progress(0.4, 'Boxes written'),
+        ui.callout('Read this first', { kind: 'warning', icon: 'tabler/info-circle' }),
+        ui.linkRow({ icon: 'tabler/calendar', title: 'My plan', sub: 'Week at a glance', href: '/plan' }),
       );
       document.body.append(host);
       if (kit === 'wa') {
-        const tags = ['wa-button', 'wa-input', 'wa-textarea', 'wa-select', 'wa-checkbox', 'wa-tag'];
+        const tags = ['wa-button', 'wa-input', 'wa-textarea', 'wa-select', 'wa-checkbox', 'wa-tag',
+          'wa-progress-bar', 'wa-callout'];
         await Promise.all(tags.map((t) => customElements.whenDefined(t)));
       }
       return document.documentElement.dataset.kit;
@@ -153,6 +158,17 @@ with sync_playwright() as p:
         expect(host.get_by_role("button", name="Chosen")).to_have_attribute("aria-pressed", "true")
         expect(host.get_by_role("button", name="Spare")).to_have_attribute("aria-pressed", "false")
         expect(host.get_by_text("A hint")).to_have_count(1)
+        # New controls render in every kit.
+        expect(host.get_by_text("Due soon")).to_be_visible()
+        expect(host.get_by_text("Read this first")).to_be_visible()
+        prog = host.locator("wa-progress-bar" if kit == "wa" else "progress")
+        expect(prog).to_have_attribute("value", "40")
+        expect(prog).to_have_attribute("aria-label" if kit != "wa" else "label", "Boxes written")
+        row = host.locator("a.link-row")
+        expect(row).to_have_attribute("href", "/plan")
+        expect(row).to_contain_text("Week at a glance")
+        expect(row.locator(".link-row-go")).to_have_count(1)
+        assert row.evaluate("(e) => e.getBoundingClientRect().height") >= 40, "link row tap target"
         if kit == "daisy":
             assert page.evaluate(PRIMARY_BG) != "rgba(0, 0, 0, 0)", "daisyUI classes did not compile into tw.css"
         page.evaluate("document.getElementById('kit-host').remove()")

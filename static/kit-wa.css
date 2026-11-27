@@ -104,3 +104,7 @@ wa-button.icon-pick::part(base) { justify-content: flex-start; }
 wa-button.icon-pick::part(label) { display: inline-flex; align-items: center; gap: 0.55rem; }
 .xo-opt:has(wa-card) { padding: 0.2rem; }
 wa-color-picker { --grid-width: 14rem; }
+
+/* ui.js tag, progress and callout: keep Web Awesome's pill and bar on the XO tokens. */
+wa-progress-bar { --indicator-color: var(--leaf); --track-color: var(--line); }
+wa-callout [slot="icon"] { display: inline-flex; }
