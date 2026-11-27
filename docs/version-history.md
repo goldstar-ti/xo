@@ -4,6 +4,7 @@
 
 | Version | Date | Change |
 |---|---|---|
+| 2.23.0 | 2026-11-27 | Every long text box is now a Markdown editor with a toolbar, preview and dictation, and long text shows formatted. |
 | 2.22.0 | 2026-11-27 | Screens restyled to the design canvas: tighter spacing, Tabler icons, theme names inside two-column tiles, full-screen forms on a phone, offline and first-run notices on Today. |
 | 2.21.3 | 2026-11-27 | In the Web Awesome kit, popovers put the cursor in their first field, and the Widgets search box no longer shows its name twice. |
 | 2.21.2 | 2026-11-27 | The Widgets popover's search box has the app's search style, and opening a popover puts the cursor in its first field instead of on Pin. |

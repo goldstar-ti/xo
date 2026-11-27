@@ -5,6 +5,7 @@ import { addDays, fmtDay, fmtDuration, fmtLong, h, toast, today, withPhoneLinks,
 import { allTasks, pickTask, saveTask } from '../taskdata.js';
 import { button, callout, checkbox, chip, field, segmented, tag } from '../ui.js';
 import { mdEditor } from '../mdeditor.js';
+import { plainText } from '../markdown.js';
 import { t, text } from '../text.js';
 import { customEditor } from '../customfields.js';
 import { checkinId, dayEntries } from './today.js';
@@ -107,7 +108,7 @@ function morning(root, day, state) {
     q(t('checkin.morning.body'), lookupChips('body', state, 'body'), t('checkin.morning.body_hint')),
     q(t('checkin.morning.fuel'), chips(FUEL, state, 'fuel', { multi: false }), t('checkin.morning.fuel_hint')),
     q(t('checkin.morning.goodlife'), textBox(state, 'goodlife', t('checkin.morning.goodlife'), { rows: 2 }),
-      plan.answers.good_ways ? t('checkin.morning.from_plan', { text: plan.answers.good_ways }) : ''),
+      plan.answers.good_ways ? t('checkin.morning.from_plan', { text: plainText(plan.answers.good_ways) }) : ''),
     h('p', { class: 'note' }, picked ? t('checkin.morning.picked', { n: picked }) : t('checkin.morning.none_picked'), h('a', { href: '#/tasks' }, t('checkin.morning.choose_tasks'))),
     customSection(state),
     saveBar('morning', day, state),
@@ -123,9 +124,9 @@ function signsBlock(state) {
   const draw = () => {
     extra.replaceChildren();
     if (state.signs !== SIGNS[1] && state.signs !== SIGNS[2]) return;
-    const team = (plan.answers.team || '').trim();
+    const team = plainText(plan.answers.team).trim();
     put(extra, 
-      callout([h('strong', {}, t('checkin.signs.instead')), h('p', { class: 'own' }, (plan.answers.instead || '').trim() || t('checkin.signs.instead_missing'))], { kind: 'brand', icon: 'tabler/lifebuoy' }),
+      callout([h('strong', {}, t('checkin.signs.instead')), h('p', { class: 'own' }, plainText(plan.answers.instead).trim() || t('checkin.signs.instead_missing'))], { kind: 'brand', icon: 'tabler/lifebuoy' }),
       h('h3', {}, t('checkin.signs.people')),
       h('p', { class: 'own' }, team ? withPhoneLinks(team) : t('checkin.signs.people_missing')),
       button(t('checkin.signs.open_card'), { onclick: openPlanCard }),

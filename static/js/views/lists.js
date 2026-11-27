@@ -4,6 +4,7 @@ import * as store from '../store.js';
 import { calendarLink, editAppointment, editBill, editObligation, editReport, editRoutine, payBill } from '../forms.js';
 import { t, text } from '../text.js';
 import { icon } from '../icons.js';
+import { renderMarkdown } from '../markdown.js';
 import { button, callout, disclosure } from '../ui.js';
 import { quickAdd, taskRow } from './tasks.js';
 import { addDays, daysBetween, fmtDay, fmtLong, fmtMoney, fmtTime, h, relDay, toast, today, put } from '../util.js';
@@ -26,7 +27,7 @@ function apptRow(a) {
     rowMain([
       h('span', {}, d.title, d.court && h('span', { class: 'tag' }, t('lists.shared.court'))),
       h('small', {}, [d.where, cap(bits.join(', ')), ...customMeta('appointment', d.custom)].filter(Boolean).join('. ')),
-      d.notes && h('small', { class: 'pre' }, d.notes),
+      d.notes && h('small', { class: 'md compact' }, renderMarkdown(d.notes)),
     ], () => editAppointment(a)),
     h('a', { class: 'xo-icon-btn', href: calendarLink(d), target: '_blank', rel: 'noopener noreferrer', 'aria-label': t('lists.diary.to_calendar'), title: t('lists.diary.calendar_tip') }, icon('tabler/calendar-plus')));
 }
@@ -120,14 +121,14 @@ export const obligations = {
         conditions.length ? h('ul', { class: 'list' }, conditions.map((o) => h('li', {},
           rowMain([
             h('span', {}, o.data.title),
-            o.data.detail && h('small', { class: 'pre' }, o.data.detail),
+            o.data.detail && h('small', { class: 'md compact' }, renderMarkdown(o.data.detail)),
             [when(o.data), o.data.contact, ...customMeta('obligation', o.data.custom)].filter(Boolean).length > 0 && h('small', {}, [when(o.data), o.data.contact, ...customMeta('obligation', o.data.custom)].filter(Boolean).join('. ')),
           ], () => editObligation(o)))))
           : h('p', { class: 'empty' }, t('lists.obligations.conditions_empty'))),
       h('section', {}, h('div', { class: 'sec-head' }, h('h2', {}, t('lists.obligations.reports_heading')), addBtn(t('lists.obligations.reports_add'), () => editReport())),
         reports.length ? h('ul', { class: 'list timed' }, reports.map((r) => h('li', {},
           h('span', { class: 't' }, fmtDay(r.data.date)),
-          rowMain([h('span', { class: 'pre' }, r.data.what), r.data.who && h('small', {}, t('lists.obligations.told', { who: r.data.who })),
+          rowMain([h('span', { class: 'md compact' }, renderMarkdown(r.data.what)), r.data.who && h('small', {}, t('lists.obligations.told', { who: r.data.who })),
             customMeta('report', r.data.custom).length > 0 && h('small', {}, customMeta('report', r.data.custom).join(', '))], () => editReport(r)))))
           : h('p', { class: 'empty' }, t('lists.obligations.reports_empty'))),
     );

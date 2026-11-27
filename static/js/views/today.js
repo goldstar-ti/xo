@@ -4,6 +4,7 @@ import { editAppointment, editBill, editTask, payBill } from '../forms.js';
 import { allTasks, currentPace, toggleTask } from '../taskdata.js';
 import { t } from '../text.js';
 import { icon } from '../icons.js';
+import { plainText } from '../markdown.js';
 import { button, callout, checkbox, tag } from '../ui.js';
 import { enablePush } from './settings.js';
 import { addDays, daysBetween, fmtDay, fmtDuration, fmtLong, fmtMoney, fmtTime, h, hm, relDay, toast, today, toDate, put } from '../util.js';
@@ -15,7 +16,7 @@ const trackerRef = (it) => `${store.get(it.data.project)?.data?.key || '?'}-${it
 
 function lineForToday() {
   const own = store.settings().lines.split('\n').map((s) => s.trim()).filter(Boolean);
-  const matters = (store.plan().answers.good_matters || '').trim();
+  const matters = plainText(store.plan().answers.good_matters).trim();
   const pool = [...LINES, ...own, ...own]; // your own lines come up twice as often
   const start = new Date(new Date().getFullYear(), 0, 0);
   const dayOfYear = Math.floor((new Date() - start) / 86400000);

@@ -7,6 +7,7 @@ import { loadNobbieItem, nobbieLink } from './nobbie.js';
 import { t } from '../text.js';
 import { button, checkbox, field, input, select, textarea } from '../ui.js';
 import { mdEditor, mdField } from '../mdeditor.js';
+import { renderMarkdown } from '../markdown.js';
 import { fmtDay, fmtTime, h, hm, toast } from '../util.js';
 
 const fail = (err) => toast(err.message, 'bad');
@@ -142,8 +143,8 @@ function renderReadOnly(root, ctx, it) {
     h('h2', { class: 'tw:text-lg' }, it.title),
     h('p', { class: 'note' }, t('tracker.nobbie.read_only'), ' ', link ? h('a', { href: link, target: '_blank', rel: 'noopener' }, t('tracker.nobbie.open')) : null),
     h('dl', { class: 'tw:flex tw:flex-col tw:gap-1 tw:text-sm' }, ...M.FIELDS.map(row), it.source ? h('div', { class: 'tw:flex tw:gap-2' }, h('dt', { class: 'tw:w-24 tw:flex-none tw:text-muted' }, t('tracker.nobbie.source')), h('dd', {}, it.source)) : null),
-    it.body ? section(t('tracker.fields.body'), h('p', { class: 'pre tw:text-sm' }, it.body)) : null,
-    it.test_steps ? section(t('tracker.fields.test_steps'), h('p', { class: 'pre tw:text-sm' }, it.test_steps)) : null,
+    it.body ? section(t('tracker.fields.body'), h('div', { class: 'md compact tw:text-sm' }, renderMarkdown(it.body))) : null,
+    it.test_steps ? section(t('tracker.fields.test_steps'), h('div', { class: 'md compact tw:text-sm' }, renderMarkdown(it.test_steps))) : null,
     section(t('tracker.detail.comments'), (it.comments || []).length
       ? (it.comments || []).map((c) => h('div', { class: 'tw:rounded-xo tw:bg-paper tw:p-2' },
         h('p', { class: 'tw:text-muted tw:text-xs' }, c.at ? when(c.at) : '', c.by ? ` \u00b7 ${c.by}` : ''), h('p', { class: 'pre' }, c.text)))

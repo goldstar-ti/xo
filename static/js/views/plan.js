@@ -2,6 +2,7 @@ import * as store from '../store.js';
 import { GUARD_TEXT, PLAN, PLAN_FIRST, PLAN_VARIANTS, SERVICES } from '../content.js';
 import { button, callout, disclosure, field, progress, select } from '../ui.js';
 import { mdEditor, mdField } from '../mdeditor.js';
+import { plainText } from '../markdown.js';
 import { t } from '../text.js';
 import { h, openDialog, toast, withPhoneLinks, put } from '../util.js';
 
@@ -92,8 +93,8 @@ export function openPlanCard() {
   const a = store.plan().answers;
   const block = (title, text, { phones = false } = {}) => h('section', {},
     h('h3', {}, title),
-    (text || '').trim()
-      ? h('p', { class: 'own' }, phones ? withPhoneLinks(text.trim()) : text.trim())
+    plainText(text).trim()
+      ? h('p', { class: 'own' }, phones ? withPhoneLinks(plainText(text).trim()) : plainText(text).trim())
       : h('p', { class: 'empty' }, t('plan.card.empty')));
   const body = h('div', { class: 'card-body' },
     block(t('plan.card.signs'), a.signs),

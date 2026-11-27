@@ -29,3 +29,14 @@ export function renderMarkdown(text) {
   el.innerHTML = marked.parse(String(text ?? ''), { async: false });
   return el;
 }
+
+/** The text without Markdown marks, for a one-line display or a search: headings, emphasis, quotes, list marks, code ticks and link addresses go. */
+export function plainText(text) {
+  return String(text ?? '').split('\n').map((line) => line
+    .replace(/^\s*#{1,6}\s+/, '')
+    .replace(/^\s*>+\s?/, '')
+    .replace(/^\s*(?:[-*+]|\d+[.)])\s+(?:\[[ xX]\]\s+)?/, '')
+    .replace(/!?\[([^\]]*)\]\([^)]*\)/g, '$1')
+    .replace(/(\*\*|__|\*|_|`)/g, '')
+    .replace(/\s+/g, ' ').trim()).join('\n');
+}

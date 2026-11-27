@@ -259,7 +259,7 @@ with sync_playwright() as p:
     expect(dlg.locator("textarea.md-text").first).to_have_value("- a")
     dlg.get_by_role("button", name="Save").click()
     expect(dlg).to_have_count(0)
-    expect(pg.locator(".list li", has_text="Markdown visit").locator("small").last).to_contain_text("a")
+    expect(pg.locator(".list li", has_text="Markdown visit").locator(".md li")).to_have_text("a")
 
     pg.goto(f"{BASE}/#/plan")
     pg.get_by_role("button", name="Plan with internet and device sections").click()
@@ -303,6 +303,11 @@ with sync_playwright() as p:
     pg.get_by_role("button", name="Pin to the top").click()
     expect(pg.locator(".list li", has_text="Shopping")).to_contain_text("Pinned")
     expect(pg.locator("p.hint[role=status]")).to_have_text("Saved")
+
+    # The list shows the first line without Markdown marks.
+    md_preview(pg, False)
+    set_md(pg, "# Title\n- eggs")
+    expect(pg.locator(".list li", has_text="Shopping").locator("small").first).to_have_text("Title", timeout=10000)
 
     pg.goto(f"{BASE}/#/today")
     pg.wait_for_selector(".dayline", timeout=20000)

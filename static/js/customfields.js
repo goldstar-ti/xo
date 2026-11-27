@@ -5,6 +5,7 @@ import { chipSet } from './taskfields.js';
 import { t } from './text.js';
 import { checkbox, field, input, select } from './ui.js';
 import { mdEditor, mdField } from './mdeditor.js';
+import { plainText } from './markdown.js';
 import { fmtDay, h } from './util.js';
 
 /** The one list of kinds that take custom fields: [kind, text key for its name]. */
@@ -45,7 +46,7 @@ export function valueText(def, v) {
   if (def.type === 'choices') return (Array.isArray(v) ? v : []).join(', ');
   if (def.type === 'date') return fmtDay(v);
   if (def.type === 'yesno') return v === true ? def.name : '';
-  return String(v);
+  return plainText(v);
 }
 
 /** Strings for a list row: `Name: value` for each shown field that has a value (a yes shows the name alone). */

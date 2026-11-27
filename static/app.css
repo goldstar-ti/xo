@@ -735,6 +735,9 @@ input.xo-hex { width: 6.5rem; min-height: 2.5rem; padding: 0.3rem 0.5rem; font-f
 .md th, .md td { border: var(--rule) solid var(--line); padding: 0.3rem 0.6rem; text-align: left; }
 .md hr { border: 0; border-top: var(--rule) solid var(--line); }
 .md-note { color: var(--muted); margin: 0; }
+.md.compact { max-width: none; font-size: inherit; }
+.md.compact > * + * { margin-top: 0.25rem; }
+.md.compact h1, .md.compact h2, .md.compact h3, .md.compact h4 { font-size: inherit; }
 textarea.md-text { width: 100%; box-sizing: border-box; padding: 0.6rem 0.8rem; border: var(--rule) solid var(--line); border-radius: var(--radius); background: var(--surface); color: var(--ink); font: inherit; }
 .EasyMDEContainer { color: var(--ink); font-family: var(--font-body); }
 .EasyMDEContainer .editor-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 0.2rem; padding: 0.3rem; background: var(--paper); border: var(--rule) solid var(--line); border-bottom: 0; border-radius: var(--radius) var(--radius) 0 0; opacity: 1; }

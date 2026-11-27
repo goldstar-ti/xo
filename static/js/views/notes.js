@@ -8,6 +8,7 @@
 import * as store from '../store.js';
 import { customEditor } from '../customfields.js';
 import { mdEditor } from '../mdeditor.js';
+import { plainText } from '../markdown.js';
 import { matchKey } from '../keymap.js';
 import { setScreenKeys } from '../palette.js';
 import { t } from '../text.js';
@@ -35,7 +36,7 @@ export async function createNote() {
   return id;
 }
 
-const firstLine = (body) => (String(body || '').split('\n').find((l) => l.trim()) || '').trim().slice(0, 120);
+const firstLine = (body) => (plainText(body).split('\n').find((l) => l.trim()) || '').trim().slice(0, 120);
 
 let mounted = null;
 
@@ -88,7 +89,7 @@ export function mount(root, refParam, { embedded = false } = {}) {
 
   function drawList() {
     const all = allNotes();
-    const shown = ui.q ? all.filter((n) => `${n.title}\n${n.body}`.toLowerCase().includes(ui.q)) : all;
+    const shown = ui.q ? all.filter((n) => `${n.title}\n${plainText(n.body)}`.toLowerCase().includes(ui.q)) : all;
     rowsEl.replaceChildren(shown.length
       ? h('ul', { class: 'list', 'aria-label': t('notes.list_aria') }, shown.map((n) => h('li', { 'aria-current': n.id === ui.selected ? 'true' : null },
         button([
