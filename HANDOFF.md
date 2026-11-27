@@ -49,6 +49,23 @@
   14. Six groups instead of NOBBIE's General and iCandy tabs; the chosen group is remembered per device. Web Awesome's colour picker in the wa kit, native input elsewhere; the font picker is a filterable list that loads fonts only on focus or choice.
 - PJ to-do: (1) open Appearance at desktop and phone width and try Standard and Advanced; (2) veto any default above.
 
+### Orchestrator final report (2026-11-27)
+
+- Outcome: the whole plan is committed; S3a to S4 were done by a parallel run, this run did S5, S6 and two fixes.
+- Live: the app serves HEAD after a page reload (no build step; `sw.js` cache `xo-v19`). Not pushed.
+- Commits (this run): S5 `ef41097` docs, version 2.19.0, D-30, roadmap; `cbd4af0` lint wrap in browser tests; `6f05a93` daisyUI segmented and accordion arrow fix.
+- Tests passed: `make test-api` 15; `make test-e2e` full (e2e per kit, look, canvas, tracker, kits, tasks, extras, data per kit); `make lint` clean.
+- Flaky: `tests/e2e_tracker.py:104` "Checklist: 0 of 2 ticked" failed twice (load 17; once on a reverted tree), passed on rerun. Second checklist step lost; likely Enter racing the redraw. Not caused by this plan.
+- Test clashes: two sessions share the `xo-test` compose project; runs collided. This run used `COMPOSE_PROJECT_NAME=xo-s6`.
+- Deviations: version 2.19.0 and D-30 (plan said 2.8.0); 57 tokens, not 55; the daisyUI fix is folded into 2.19.0 with no patch bump.
+- Defaults worth vetoing (new): daisyUI fix folded into 2.19.0; disclosure uses the xo chevron in all kits (dropped `tw:collapse-arrow`).
+- Screenshots checked by eye: Appearance in xo, daisy and wa at 1280 and 390 px; Today at 390 px. Not checked: dark mode, Advanced view, every group tab, the family picker, export and import.
+- PJ to-do:
+  1. Open Appearance, switch to Advanced, walk all six groups in light and dark.
+  2. Try My themes: Export, then Import from file.
+  3. Decide whether to fix the tracker checklist flake (`tests/e2e_tracker.py:104`).
+  4. Consider a unique `COMPOSE_PROJECT_NAME` per run in the Makefile test targets, so parallel sessions stop colliding.
+
 ## Owner to-do
 
 0. To see NOBBIE's tracker in XO: create a NOBBIE reader account (`docker compose exec app python -m app.auth.cli create xo.reader@goldstartransport.com.au --role executive` in the NOBBIE folder, then set its password at first sign-in; executive and hseq are the roles that can open the tracker), add `NOBBIE_URL=https://nobbie.lan.tifunction.com/nobbie`, `NOBBIE_USER` and `NOBBIE_PASSWORD` to XO's `.env`, then `make up`.
