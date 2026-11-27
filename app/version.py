@@ -5,4 +5,4 @@ Every shipped feature bumps the minor number and adds a row at the top of
 number changes only with the owner's say-so.
 """
 
-VERSION = "2.20.0"
+VERSION = "2.21.0"
