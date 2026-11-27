@@ -209,7 +209,10 @@ with sync_playwright() as p:
     page.get_by_role("button", name="Save check-in").click()
     expect(page.locator("h1")).to_contain_text(now.strftime("%-d %B"))
     page.goto(f"{BASE}/#/checkin/evening")
-    (page.locator("wa-checkbox", has_text="went outside") if KIT == "wa" else page.get_by_role("checkbox", name="went outside")).click()
+    if KIT == "wa":
+        page.locator("wa-checkbox", has_text="went outside").click()
+    else:
+        page.get_by_role("checkbox", name="went outside").click()
     page.get_by_role("radio", name="yes", exact=True).click()
     expect(page.locator(".reveal")).to_contain_text("Message Sam")
     page.screenshot(path=SHOTS / "08-evening.png", full_page=True)

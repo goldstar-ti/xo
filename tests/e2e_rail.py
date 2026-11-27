@@ -42,7 +42,7 @@ with sync_playwright() as p:
         return z["y"] - (a["y"] + a["height"])
 
     notif, voice = pg.locator("#view > section").nth(0), pg.locator("#view > section").nth(1)
-    assert gap(notif, "> p.note", "> .field.check") >= 8
+    assert gap(notif, "> .push-status", "> .field.check") >= 8
     assert gap(voice, "> .field.check", "> .field:not(.check)") >= 8
 
     # collapse to icons, kept after a reload, names as tooltips; then open again
