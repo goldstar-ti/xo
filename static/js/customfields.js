@@ -16,6 +16,7 @@ export const FIELD_KINDS = [
   ['report', 'fields.kinds.report'],
   ['checkin', 'fields.kinds.checkin'],
   ['pm_item', 'fields.kinds.pm_item'],
+  ['note', 'fields.kinds.note'],
 ];
 
 export const TYPES = ['text', 'long', 'number', 'date', 'choice', 'choices', 'yesno'];

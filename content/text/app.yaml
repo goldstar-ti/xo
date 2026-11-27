@@ -20,6 +20,7 @@ app:
     today: Today
     diary: Diary
     tasks: Tasks
+    notes: Notes
     obligations: Obligations
     routine: Routine
     bills: Bills

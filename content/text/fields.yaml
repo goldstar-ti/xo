@@ -23,6 +23,7 @@ fields:
     report: Reports
     checkin: Check-ins
     pm_item: Tracker items
+    note: Notes
   types:
     text: Short text
     long: Long text

@@ -122,6 +122,9 @@ export function notice(text, kind = '') {
   return document.createTextNode(text);
 }
 
+// The real text field inside a control. Web Awesome keeps it in an open shadow root; the other kits' controls are the field.
+export const nativeField = (el) => el.shadowRoot?.querySelector('textarea, input') || el;
+
 // Focuses a control. A Web Awesome one is loaded lazily and draws its inner field a moment
 // later, so wait for that first.
 export async function focusControl(el) {

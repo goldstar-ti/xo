@@ -24,6 +24,10 @@ RUN mkdir -p /vendor/webawesome /vendor/fontawesome \
 RUN mkdir -p /vendor/gridstack \
     && cd node_modules/gridstack \
     && cp dist/gridstack-all.js dist/gridstack.min.css LICENSE /vendor/gridstack/
+# marked, for the Markdown in notes (static/js/markdown.js): the ES module build and its licence.
+RUN mkdir -p /vendor/marked \
+    && cd node_modules/marked \
+    && cp lib/marked.esm.js LICENSE /vendor/marked/
 COPY tailwind/src ./src
 COPY static /static
 RUN bun run build

@@ -21,6 +21,7 @@ import * as appearanceView from './views/appearance.js';
 import { bills, diary, obligations, routine } from './views/lists.js';
 import * as tasksView from './views/tasks.js';
 import * as trackerView from './views/tracker.js';
+import * as notesView from './views/notes.js';
 import * as trackerWidgets from './tracker/widgets.js';
 
 export const WIDGETS = {};
@@ -88,6 +89,12 @@ registerWidget('tracker', {
   w: 16,
   h: 28,
   render: (body) => trackerView.mount(body, null, { embedded: true }),
+});
+registerWidget('notes', {
+  title: 'canvas.widgets.notes',
+  w: 16,
+  h: 24,
+  render: (body) => notesView.mount(body, null, { embedded: true }).stop,
 });
 registerWidget('tracker-due', { title: 'canvas.widgets.tracker-due', w: 8, h: 12, render: trackerWidgets.due });
 registerWidget('tracker-summary', { title: 'canvas.widgets.tracker-summary', w: 8, h: 10, render: trackerWidgets.summary });

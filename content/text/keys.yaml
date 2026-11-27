@@ -64,4 +64,9 @@ keys:
     tracker_tab_next: Next view
     tracker_search: Search items
     tracker_help: Show these keys
+    notes_new: New note
+    notes_search: Search notes
+    notes_bold: Bold
+    notes_italic: Italic
+    notes_preview: Switch between Write and Preview
     canvas_undo: Undo the last layout change

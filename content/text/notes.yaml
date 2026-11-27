@@ -1,0 +1,46 @@
+# Notes: the Notes screen and the Markdown editor.
+#
+# How to edit this file
+# - Save the file and reload the page. There is no build and no restart.
+# - Change the words after a colon. Keep the keys (the words before a colon) as they are:
+#   the app looks the text up by key, and a missing key shows the key itself.
+# - Keep the indentation. It uses two spaces and never tabs.
+# - Put quote marks around any text that starts with a special character
+#   (" ' { [ * & ! % @ #) or that contains a colon followed by a space, and around times such as '09:00'.
+# - Write {name} where the app fills something in. Keep the same {name} in your wording.
+# - If a file has a mistake, the app keeps the last good version of that file and logs a note.
+notes:
+  heading: Notes
+  new: New note
+  untitled: Untitled note
+  title_aria: Note title
+  body_aria: Note text
+  list_aria: Notes
+  detail_aria: Open note
+  search: Search notes
+  empty: No notes yet. New note starts one.
+  no_match: No notes match that search.
+  pinned: Pinned
+  pin: Pin to the top
+  unpin: Unpin
+  saved: Saved
+  saving: Saving
+  delete: Delete note
+  delete_confirm: Tap again to delete this note
+  back: All notes
+  editor:
+    write: Write
+    preview: Preview
+    empty_preview: Nothing to preview yet.
+    tabs_aria: Write or preview
+    tools_aria: Formatting
+    link_text: text
+    bold: Bold
+    italic: Italic
+    heading: Heading
+    bullets: Bulleted list
+    numbers: Numbered list
+    checklist: Checklist
+    link: Link
+    code: Code
+    quote: Quote

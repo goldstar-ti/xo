@@ -50,6 +50,11 @@ const ACTIONS = [
   { id: 'tracker.tab_next', scope: 'tracker', key: 'l' },
   { id: 'tracker.search', scope: 'tracker', key: '/' },
   { id: 'tracker.help', scope: 'tracker', key: '?' },
+  { id: 'notes.new', scope: 'notes', key: 'n' },
+  { id: 'notes.search', scope: 'notes', key: 's' },
+  { id: 'notes.bold', scope: 'notes', key: 'Ctrl+b' },
+  { id: 'notes.italic', scope: 'notes', key: 'Ctrl+i' },
+  { id: 'notes.preview', scope: 'notes', key: 'Alt+p' },
   { id: 'canvas.undo', scope: 'canvas', key: 'Ctrl+z' },
 ];
 

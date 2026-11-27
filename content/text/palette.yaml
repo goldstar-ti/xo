@@ -18,6 +18,8 @@ palette:
   add_task: 'Add task: {title}'
   go: 'Go to {screen}'
   open_task: 'Open task: {title}'
+  new_note: New note
+  open_note: 'Open note: {title}'
   view: 'Show tasks as {view}'
   checkin_morning: Start the morning check-in
   checkin_evening: Start the evening check-in

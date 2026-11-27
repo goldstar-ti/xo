@@ -58,6 +58,7 @@ lists:
       high: High priority
       low: Low priority
     subtasks: '{done} of {total} subtasks'
+    has_notes: Notes
     waiting: 'Waiting on {titles}'
     tomorrow: Tomorrow
     doing_heading: Doing

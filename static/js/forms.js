@@ -1,5 +1,6 @@
 // Add and edit dialogs for each kind of item.
 import { customValues, formFields, readCustom } from './customfields.js';
+import { mdEditor } from './mdeditor.js';
 import * as store from './store.js';
 import { saveTask, taskMeta } from './taskdata.js';
 import { blockedEditor, chipSet, repeatEditor, subtaskEditor } from './taskfields.js';
@@ -66,6 +67,7 @@ export function editTask(item, preset = {}) {
       { name: 'blockedBy', label: t('forms.task.labels.blocked_by'), hint: t('forms.task.hints.blocked_by'), type: 'custom', more: true, build: (v) => blockedEditor(v, item?.id) },
       fld('task', 'project', { more: true, placeholder: t('forms.task.placeholders.project') }),
       fld('task', 'actual', { type: 'number', more: true, half: true, hint: true }),
+      fld('task', 'notes', { type: 'custom', more: true, hint: true, build: (v) => mdEditor({ value: v || '', label: t('forms.task.labels.notes'), rows: 5 }) }),
       ...formFields('task', values.custom),
     ],
     async onSave(v) {

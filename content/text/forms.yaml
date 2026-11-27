@@ -58,8 +58,10 @@ forms:
       repeat_nth: Which one
       blocked_by: Waiting on
       actual: Actual time, minutes
+      notes: Notes
     hints:
       step: Small enough to start in two minutes.
+      notes: 'Markdown works here: **bold**, _italic_, lists and links.'
       est: The app adds half again.
       subtasks: Break it into small pieces and tick them off as you go.
       repeat: When you mark it done, XO adds the next one.

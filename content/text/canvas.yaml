@@ -84,6 +84,7 @@ canvas:
     settings: Settings
     appearance: Appearance
     tracker: Tracker
+    notes: Notes
     tracker-due: Tracker due
     tracker-summary: Tracker summary
     tracker-board: Tracker board

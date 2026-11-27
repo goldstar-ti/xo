@@ -101,3 +101,7 @@ All shortcuts are entries in one registry, `ACTIONS` in `static/js/keymap.js`, a
 ## D-26 (2026-11-27): Custom fields on every record
 
 The owner defines extra fields per kind of record in Settings, Custom fields. The definitions are one item (`fields`, kind `fields`) and the values sit on each record as `payload.custom`, keyed by the field's id. Removing a field hides its values and leaves them saved. Form fields go in the main part of the form, after the built-in ones. `static/js/customfields.js` owns both, and a new kind that takes custom fields is one entry in `FIELD_KINDS`. Why: the owner wants to track things XO has no field for, without a code change for each one.
+
+## D-27 (2026-11-27): Notes in Markdown
+
+Notes are items of kind `note` (`{ title, body, pinned, custom, created, updated }`), written in Markdown and stored as plain text. The editor (`static/js/mdeditor.js`) is a toolbar over a text area with Write and Preview tabs, and the same editor is the Notes field on a task. `marked` is vendored from npm into `static/vendor/marked` at image build, so there is no CDN (rule 3) and notes render offline. Raw HTML is shown as text and images are shown as links, because XO stores text only (rule 2). Why: the owner wants longer notes with lists and headings, kept next to the tasks, without a second place to keep them.

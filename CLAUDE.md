@@ -28,7 +28,7 @@ Security is the owner's responsibility, handled outside this codebase (owner's d
 ## How the data works
 
 - One generic table, `items`: `(user_id, id, kind, day, payload, deleted)`. `payload` is a JSONB value (object, array, string or number; null for ticks).
-- Kinds in use: `appointment`, `task`, `routine`, `tick`, `bill`, `obligation`, `report`, `checkin`, `plan`, `settings`, `canvas`, `project`, `pm_item`, `tracker`, `taskmeta`, `fields`.
+- Kinds in use: `appointment`, `task`, `routine`, `tick`, `bill`, `obligation`, `report`, `checkin`, `plan`, `settings`, `canvas`, `project`, `pm_item`, `tracker`, `taskmeta`, `fields`, `note`.
 - Task payload fields are listed in `normaliseTask()` in `static/js/tasks.js`; every task write goes through `saveTask()` in `static/js/taskdata.js`.
 - The tracker (`static/js/tracker/model.js` documents its shapes): `project:<uuid>` holds a project and its own pick lists, `pm:<uuid>` an item with its comments, checklist, links and history. NOBBIE's tracker joins it read-only through `app/nobbie.py` (GET only, `NOBBIE_*` in `.env`).
 - Singletons use fixed ids: `plan`, `settings`. Ticks use `tick:<ref>:<YYYY-MM-DD>` with a null payload. Check-ins use `checkin:<type>:<day>`.
@@ -56,9 +56,12 @@ static/js/taskfields.js    task form controls: chipSet, subtaskEditor, blockedEd
 static/js/palette.js       command palette (Ctrl+K, /), shortcut list (?), setScreenKeys for screen keys
 static/js/keymap.js        shortcut registry, owner's keys from settings, matchKey()
 static/js/customfields.js  custom field definitions and values: FIELD_KINDS, defs, formFields, readCustom, customMeta, customEditor
+static/js/markdown.js      renderMarkdown(text): Markdown to a div.md, with marked from static/vendor/marked (raw HTML shown as text, images as links)
+static/js/mdeditor.js      mdEditor({ value, label, rows, onInput }): toolbar, Write and Preview tabs; returns { node, read, focus, textarea }
 static/js/text.js          loadText(), t(key, vars), text(key): the editable wording from /api/text
 static/js/content.js       thin module: reads plan, check-in, daily-line and default data through text()
 static/js/views/*.js       one module per screen; each exports render(root, ...params) and `live`
+static/js/views/notes.js   the Notes screen: notes in Markdown (kind `note`), search, pinning, autosave; exports render, live, mount, allNotes, createNote
 static/js/views/tasks.js   the Tasks screen: list, board, table, filters, stale review; exports render, live, taskRow, quickAdd
 static/sw.js               offline shell + notifications (classic script, no imports)
 static/app.css             all styles
@@ -75,7 +78,7 @@ Conventions:
 
 ## Text and prose
 
-- All user-facing wording lives in YAML files in `content/text/` (`common.yaml`, `plan.yaml`, `checkin.yaml`, `today.yaml`, `lists.yaml`, `forms.yaml`, `defaults.yaml`). The top-level key of a file is its name, so `plan.yaml` holds `plan:` and keys read `plan.guard`.
+- All user-facing wording lives in YAML files in `content/text/` (`common.yaml`, `plan.yaml`, `checkin.yaml`, `today.yaml`, `lists.yaml`, `forms.yaml`, `defaults.yaml`, `keys.yaml`, `fields.yaml`, `notes.yaml`). The top-level key of a file is its name, so `plan.yaml` holds `plan:` and keys read `plan.guard`.
 - `app/text.py` loads every file with `yaml.safe_load`, caches each by modification time and keeps a file's last good version if an edit breaks it. `GET /api/text` serves the merged object, no sign-in. The folder is bind-mounted read-only into `xo-app`, so a saved edit shows on the next page load with no rebuild or restart.
 - In the browser, `static/js/text.js` loads it once at boot. `t('common.save')` returns a string; `t('x.y', { name })` fills `{name}` placeholders. `text('plan.services')` returns a list or map as written. A missing key returns the key and logs `missing text: <key>` to the console once, so the browser tests fail on it.
 - Rule, from now on: a user-facing string goes in YAML, never inline in a view or template. A new screen adds its keys to a file (or a new file named after its top-level key) in the same commit.

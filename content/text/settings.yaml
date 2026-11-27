@@ -53,6 +53,7 @@ settings:
       global: Everywhere
       tasks: Tasks
       tracker: Tracker
+      notes: Notes
       canvas: Canvas
     change: Change
     change_aria: 'Change the key for: {action}'

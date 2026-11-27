@@ -7,6 +7,7 @@ import { fuzzyScore } from './tasks.js';
 import { t, text } from './text.js';
 import { focusControl, input } from './ui.js';
 import { dialogOpen, h, openDialog, toast } from './util.js';
+import { allNotes, createNote } from './views/notes.js';
 
 const MAX = 12;
 const TASKS_KEY = 'xo-tasks';
@@ -40,7 +41,9 @@ function COMMANDS() {
   const open = allTasks()
     .filter((i) => i.data.status !== 'done' && !i.data.archived)
     .map((i) => ({ label: t('palette.open_task', { title: i.data.title }), run: () => editTask(i) }));
-  return [...go, ...checkins, ...views, ...open];
+  const newNote = { label: t('palette.new_note'), run: () => createNote().then((id) => { location.hash = `#/notes/${id}`; }).catch((err) => toast(err.message, 'bad')) };
+  const notes = allNotes().map((n) => ({ label: t('palette.open_note', { title: n.title || t('notes.untitled') }), run: () => { location.hash = `#/notes/${n.id}`; } }));
+  return [...go, newNote, ...checkins, ...views, ...open, ...notes];
 }
 
 const addCommand = (raw) => ({

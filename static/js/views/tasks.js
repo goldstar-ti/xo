@@ -87,6 +87,7 @@ function metaParts(d, ctx) {
   if (d.est > 0 && open) parts.push(t('lists.shared.allow', { duration: fmtDuration(d.est * ctx.pace) }));
   if (d.priority === 'high' || d.priority === 'low') parts.push(t(`lists.tasks.priority.${d.priority}`));
   parts.push(...names(ctx.meta.tags, d.tags));
+  if (d.notes) parts.push(t('lists.tasks.has_notes'));
   if (d.subtasks.length) parts.push(t('lists.tasks.subtasks', { done: d.subtasks.filter((s) => s.done).length, total: d.subtasks.length }));
   const waiting = d.blockedBy.map((id) => ctx.byId.get(id)).filter((o) => o && o.status !== 'done').map((o) => o.title);
   if (waiting.length) parts.push(t('lists.tasks.waiting', { titles: waiting.join(', ') }));
