@@ -5,6 +5,7 @@
 // are in icon-core.js and draw at once; any other icon loads its set's file from
 // static/vendor/icons/ the first time it is needed (the service worker keeps a copy).
 // scripts/build_icons.py (make icons) writes those files.
+// Exports for buttons: iconButton(value, label, attrs), setIcon(button, value), setLabel(button, label).
 import { CORE } from './icon-core.js';
 import { h } from './util.js';
 
@@ -83,4 +84,27 @@ export function paintIcon(el, value) {
 // A decorative icon: a span.ico the screen reader skips. Label it with nearby text.
 export function icon(value, cls = '') {
   return paintIcon(h('span', { class: cls ? `ico ${cls}` : 'ico', 'aria-hidden': 'true' }), value);
+}
+
+// A labelled icon-only button. Raw button on purpose: canvas chrome, not a kit form control.
+// attrs.class adds to xo-icon-btn (pass 'xo-w-btn' for a title-bar button); other attrs go on the button.
+export function iconButton(value, label, attrs = {}) {
+  const { class: cls, ...rest } = attrs;
+  return h('button', {
+    type: 'button', class: cls ? `xo-icon-btn ${cls}` : 'xo-icon-btn', 'aria-label': label, title: label, ...rest,
+  }, icon(value));
+}
+
+// Repaints the icon inside an iconButton (Roll up, Pin).
+export function setIcon(button, value) {
+  const ico = button.querySelector('.ico');
+  if (ico) paintIcon(ico, value); else button.append(icon(value));
+  return button;
+}
+
+// Sets both the accessible name and the tooltip.
+export function setLabel(button, label) {
+  button.setAttribute('aria-label', label);
+  button.title = label;
+  return button;
 }
