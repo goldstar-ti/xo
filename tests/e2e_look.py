@@ -29,35 +29,67 @@ with sync_playwright() as p:
     pg.get_by_role("button", name="Sign in").click()
     pg.wait_for_selector(".dayline", timeout=20000)
     # quick panel
+    def tab(key):
+        pg.locator(f'[data-key="{key}"]').click()
+
+    def acc(key):
+        """Open an accordion (xo kit) if it is closed."""
+        box = pg.locator(f"#acc-{key}")
+        expect(box).to_be_visible()
+        if box.get_attribute("open") is None:
+            box.locator("summary").first.click()
+
+    def fresh():
+        pg.goto(BASE + "/#/appearance")
+        pg.wait_for_selector(".look-screen")
+
     pg.locator(".top .look-btn").click()
     d = pg.locator("dialog[open]")
     d.get_by_role("button", name="Deep Space").click()
     expect(d.locator(".swatch.on")).to_have_text("Deep Space")
-    d.get_by_role("button", name="Dark", exact=True).click()
+    d.locator('[data-fk="mode:dark"]').click()
     assert pg.evaluate("document.documentElement.dataset.scheme") == "dark"
     pg.screenshot(path=SHOTS / "look-panel.png")
     d.get_by_role("link", name="All appearance options").click()
     expect(pg.locator("h1")).to_have_text("Appearance")
-    # Standard hides the advanced sections; Advanced shows them
+    # opens on the Colour group in Standard; Text sizes is an Advanced accordion
     assert pg.evaluate("XOLook.prefs.view") == "standard"
-    expect(pg.get_by_role("heading", name="Text sizes")).to_be_hidden()
+    assert pg.evaluate("XOLook.prefs.lookTab") == "theme"
+    expect(pg.locator('[data-key="theme"]')).to_have_attribute("aria-selected", "true")
+    tab("text")
+    assert pg.evaluate("XOLook.prefs.lookTab") == "text"
+    expect(pg.locator("#acc-text_sizes")).to_have_count(0)
     pg.locator('[data-fk="view:advanced"]').click()
-    expect(pg.get_by_role("heading", name="Text sizes")).to_be_visible()
-    # full screen: a few dials
-    pg.get_by_role("button", name="Banner").click()
-    pg.get_by_role("button", name="Cards", exact=True).click()
-    pg.select_option("#f-head", "fraunces")
-    pg.select_option("#f-num", "mono")
-    pg.get_by_role("button", name="Grid paper").click()
-    pg.get_by_role("button", name="24-hour (14:30)").click()
+    expect(pg.locator("#acc-text_sizes")).to_be_visible()
+    pg.wait_for_selector('.look-screen[data-fonts="ready"]')
+    # full screen: choices, fonts, dials
+    tab("layout")
+    acc("today_layout")
+    pg.locator('[data-fk="hero:banner"]').click()
+    pg.locator('[data-fk="dayline:cards"]').click()
+    acc("lines_texture")
+    pg.locator('[data-fk="texture:grid"]').click()
+    tab("text")
+    acc("fonts")
+    pg.locator("#f-head").fill("Fraunces")
+    pg.locator("#f-head").press("Enter")
+    pg.locator("#f-num").fill("JetBrains")
+    pg.locator("#f-num").press("Enter")
+    tab("screens")
+    pg.locator('[data-fk="clock:24"]').click()
     pg.fill("#p-call", "Captain")
     pg.locator("#p-call").blur()
+    tab("layout")
+    acc("spacing_size")
     pg.locator("#d-size").fill("110")
     pg.locator("#d-size").dispatch_event("change")
     st = pg.evaluate("JSON.parse(localStorage.getItem('xo-look'))")
     assert (
         st["base"]["hero"] == "banner"
         and st["base"]["dayline"] == "cards"
+        and st["base"]["head"] == "fraunces"
+        and st["base"]["num"] == "mono"
+        and st["base"]["texture"] == "grid"
         and st["prefs"]["clock24"]
         and st["prefs"]["callMe"] == "Captain"
         and st["base"]["size"] == 110
@@ -73,15 +105,20 @@ with sync_playwright() as p:
     pg.locator("#d-size").fill("110")
     pg.locator("#d-size").dispatch_event("change")
     # my theme + look code round trip
+    tab("theme")
+    acc("fine_tune")
     pg.locator("#c-ah").fill("200")
     pg.locator("#c-ah").dispatch_event("change")
+    acc("my_themes")
     pg.fill('[data-fk="mytheme-name"]', "Tuesday Brain")
     pg.get_by_role("button", name="Save current colours").click()
-    expect(pg.locator(".swatch.on")).to_have_text("Tuesday Brain")
-    code = pg.locator("textarea.code").input_value()
+    expect(pg.locator(".swatches .swatch.on")).to_have_text("Tuesday Brain")
+    tab("share")
+    code = pg.locator("textarea[readonly]").input_value()
     assert code.startswith("XO2-")
-    pg.get_by_role("button", name="Undo", exact=True).click()
-    pg.get_by_role("button", name="Undo", exact=True).click()
+    pg.locator('[data-fk="undo"]').click()
+    pg.locator('[data-fk="undo"]').click()
+    tab("share")  # Undo restores the group that was showing then
     pg.fill('[data-fk="paste"]', code)
     pg.get_by_role("button", name="Apply code").click()
     assert pg.evaluate("JSON.parse(localStorage.getItem('xo-look')).base.c.ah") == 200
@@ -89,11 +126,14 @@ with sync_playwright() as p:
     pg.get_by_role("button", name="Apply code").click()
     expect(pg.locator("#toast")).to_contain_text("look code is incomplete")
     # tabs: put Bills in position 2 (swaps with wherever it was)
+    tab("screens")
+    acc("bottom_tabs")
     pg.select_option("#tab-1", "bills")
     assert pg.locator(".tabs a").nth(1).inner_text() == "Bills"
     # hide a Today block and move one
+    acc("blocks")
     pg.locator('[data-fk="blk:coming"]').uncheck()
-    pg.locator('[data-fk="up:day"]').click()
+    pg.locator(".xo-sort-row", has_text="The day").locator(".xo-sort-up").click()
     pg.screenshot(path=SHOTS / "look-appearance.png", full_page=True)
     pg.goto(BASE + "/#/today")
     pg.wait_for_selector(".dayline")
@@ -108,37 +148,44 @@ with sync_playwright() as p:
     pg.wait_for_selector(".dayline")
     assert pg.evaluate("document.documentElement.dataset.hero") == "banner"
     # scheduled look covering now
-    pg.goto(BASE + "/#/appearance")
+    fresh()
+    tab("theme")
+    acc("scheduled")
     pg.fill("#sch-name", "Night")
     pg.fill("#sch-from", "00:00")
     pg.fill("#sch-to", "23:59")
     pg.get_by_role("button", name="Add scheduled look").click()
     expect(pg.locator(".banner")).to_contain_text("Night")
-    pg.get_by_role("button", name="Wasabi").click()
-    pg.get_by_role("button", name="Light", exact=True).click()
+    pg.locator('[data-fk="theme:wasabi"]').click()
+    pg.locator('[data-fk="mode:light"]').click()
     st = pg.evaluate("JSON.parse(localStorage.getItem('xo-look'))")
     assert st["scheduled"][0]["look"]["theme"] == "wasabi" and st["base"]["theme"] != "wasabi"
     pg.goto(BASE + "/#/today")
     pg.wait_for_selector(".dayline")
     pg.screenshot(path=SHOTS / "look-today-wasabi.png")
-    # surprise and reset
-    pg.goto(BASE + "/#/appearance")
-    pg.get_by_role("button", name="Surprise me").click()
-    pg.get_by_role("button", name="Reset everything").click()
-    pg.get_by_role("button", name="Tap again to reset").click()
+    # surprise and reset (through the confirm dialog)
+    fresh()
+    tab("share")
+    pg.locator('[data-fk="surprise"]').click()
+    pg.locator('[data-fk="reset-all"]').click()
+    expect(pg.locator("dialog[open]")).to_contain_text("Reset every appearance setting on this device?")
+    pg.locator('[data-fk="reset-confirm"]').click()
+    expect(pg.locator("dialog[open]")).to_have_count(0)
     st = pg.evaluate("JSON.parse(localStorage.getItem('xo-look'))")
     assert (
         st["base"]["theme"] == "foliage"
         and st["scheduled"] == []
         and st["myThemes"] == []
         and st["prefs"]["title"] == "XO"
+        and st["prefs"]["lookTab"] == "theme"
     ), st
     # engine: text-size roles, colour overrides, catalogue fonts, look code, reload
     css = "getComputedStyle(document.documentElement).getPropertyValue"
-    before = pg.evaluate("parseFloat(getComputedStyle(document.querySelector('h2')).fontSize)")
+    pg.evaluate("document.body.insertAdjacentHTML('beforeend', '<section><h2 id=\"h2-probe\">x</h2></section>')")
+    before = pg.evaluate("parseFloat(getComputedStyle(document.getElementById('h2-probe')).fontSize)")
     pg.evaluate("XOLook.change((s, lk) => { lk.fs.section = 1.5; lk.mode = 'light'; })")
     assert pg.evaluate(css + "('--fs-section')") == "1.5rem"
-    assert pg.evaluate("parseFloat(getComputedStyle(document.querySelector('h2')).fontSize)") > before
+    assert pg.evaluate("parseFloat(getComputedStyle(document.getElementById('h2-probe')).fontSize)") > before
     pg.evaluate("XOLook.change((s, lk) => { lk.colours.light.leaf = '#ff0000'; })")
     assert pg.evaluate(css + "('--leaf')").strip() == "#ff0000"
     pg.evaluate("XOLook.change((s, lk) => { lk.mode = 'dark'; })")
@@ -185,54 +232,110 @@ with sync_playwright() as p:
     assert pg.evaluate(css + "('--leaf')").strip() == leaf
     pg.evaluate("document.getElementById('c-probe').remove(); XOLook.reset()")
     # screen: Standard and Advanced
-    pg.goto(BASE + "/#/appearance")
-    pg.wait_for_selector("h1")
-    expect(pg.get_by_role("heading", name="Text sizes")).to_be_hidden()
+    fresh()
+    expect(pg.locator('[data-key="theme"]')).to_have_attribute("aria-selected", "true")
+    tab("text")
+    expect(pg.locator("#acc-text_sizes")).to_have_count(0)
     pg.locator('[data-fk="view:advanced"]').click()
-    expect(pg.get_by_role("heading", name="Text sizes")).to_be_visible()
+    pg.wait_for_selector('.look-screen[data-fonts="ready"]')
+    acc("text_sizes")
     pg.locator("#fs-section").select_option("1.5")
     assert pg.evaluate("XOLook.active().look.fs.section") == 1.5
+    expect(pg.locator('[data-key="text"] .badge')).to_have_text("1")
     pg.locator('[data-fk="view:standard"]').click()
     expect(pg.locator("#fs-section")).to_be_visible()
-    expect(pg.locator("#fs-page")).to_be_hidden()
+    expect(pg.locator("#fs-page")).to_have_count(0)
     expect(pg.locator('[data-fk="view:advanced"]')).to_have_text("Advanced (1 changed)")
     pg.locator('[data-fk="view:advanced"]').click()
-    pg.get_by_role("button", name="Reset text sizes").click()
+    pg.get_by_role("button", name="Reset Text sizes").click()
     assert pg.evaluate("XOLook.active().look.fs") == {}
+    expect(pg.locator('[data-key="text"] .badge')).to_have_count(0)
     # size presets: Large sets three fields; moving the Text size dial makes it Custom
     pg.locator('[data-fk="size:large"]').click()
     assert pg.evaluate("XOLook.active().look.size") == 114
-    expect(pg.locator('[data-fk="size:custom"]')).to_have_attribute("aria-pressed", "false")
+    expect(pg.locator('[data-fk="size:custom"]')).to_have_count(0)
+    tab("layout")
+    acc("spacing_size")
     pg.locator("#d-size").fill("110")
     pg.locator("#d-size").dispatch_event("change")
-    expect(pg.locator('[data-fk="size:custom"]')).to_have_attribute("aria-pressed", "true")
+    tab("text")
+    expect(pg.locator('[data-fk="size:custom"]')).to_have_attribute("aria-checked", "true")
     pg.locator('[data-fk="size:regular"]').click()
     assert pg.evaluate("XOLook.presetOf(XOLook.active().look)") == "regular"
-    # a catalogue font from the grouped select
-    pg.locator("#f-body").select_option("g:lora|Lora")
+    # a catalogue font from the font picker
+    pg.locator("#f-body").fill("lora")
+    pg.locator("#f-body").press("Enter")
     expect(pg.locator('link[data-xo-font="lora"]')).to_have_count(1)
+    assert pg.evaluate("XOLook.active().look.body") == "g:lora|Lora"
     fam = pg.evaluate("getComputedStyle(document.body).fontFamily").replace("'", "").replace('"', "")
     assert fam.startswith("Lora"), fam
-    pg.locator("#f-mono option").nth(1).wait_for(state="attached")
-    assert pg.locator("#f-mono option").count() > 7
-    pg.get_by_role("button", name="Reset type").click()
-    assert pg.evaluate("XOLook.active().look.body") == "atkinson"
-    # colour overrides from the table
+    acc("fonts")
+    pg.locator("#f-mono").focus()
+    expect(pg.locator("#f-mono ~ ul li[role=option]").first).to_be_visible()
+    assert pg.locator("#f-mono ~ ul li[role=option]").count() > 7
+    pg.locator("#f-mono").press("Escape")
+    pg.evaluate("XOLook.change((s, lk) => { lk.body = 'atkinson'; })")
+    # search: the Glass item is found under Effects; Clear returns to the group
+    pg.locator("#look-search").fill("glass")
+    expect(pg.locator(".look-panel h3", has_text="Effects")).to_be_visible()
+    expect(pg.locator('[data-fk="glass-on"]')).to_be_visible()
+    expect(pg.locator('[data-key="text"]')).not_to_have_attribute("aria-selected", "true")
+    pg.locator(".xo-search-x").click()
+    expect(pg.locator('[data-fk="glass-on"]')).to_have_count(0)
+    expect(pg.locator('[data-key="text"]')).to_have_attribute("aria-selected", "true")
+    pg.locator("#look-search").fill("zzzz")
+    expect(pg.locator(".look-panel")).to_contain_text("Nothing matches.")
+    pg.locator("#look-search").press("Escape")
+    expect(pg.locator(".look-panel")).not_to_contain_text("Nothing matches.")
+    # colour overrides: one token, in its own accordion; the preview follows
+    tab("theme")
     pg.locator('[data-fk="mode:light"]').click()
-    pg.locator('[data-fk="col-leaf-light"]').fill("#aa0000")
-    assert pg.evaluate(css + "('--leaf')").strip() == "#aa0000"
-    pg.get_by_role("button", name="Reset light colours").click()
-    assert pg.evaluate(css + "('--leaf')").strip() != "#aa0000"
+    acc("colours-buttons")
+    pg.locator('[data-fk="col-c-primary-bg-light"] input.xo-hex').fill("#aa0000")
+    pg.locator('[data-fk="col-c-primary-bg-light"] input.xo-hex').press("Enter")
+    assert pg.evaluate("XOLook.active().look.colours.light['c-primary-bg']") == "#aa0000"
+    assert (
+        pg.evaluate("getComputedStyle(document.querySelector('.look-preview-body .primary')).backgroundColor")
+        == "rgb(170, 0, 0)"
+    )
+    expect(pg.locator('[data-key="theme"] .badge')).to_have_text("2")  # Mode (light) and the colour
+    pg.get_by_role("button", name="Reset Colours: Buttons").click()
     assert pg.evaluate("XOLook.active().look.colours.light") == {}
-    # desktop width
+    # my themes: save, export to a file, delete, import it back, then a bad paste
+    acc("my_themes")
+    pg.fill('[data-fk="mytheme-name"]', "e2e theme")
+    pg.get_by_role("button", name="Save current colours").click()
+    expect(pg.locator(".theme-list li")).to_have_count(1)
+    with pg.expect_download() as dl:
+        pg.locator('.theme-list [data-fk^="export-"]').click()
+    saved = Path(dl.value.path())
+    assert dl.value.suggested_filename == "e2e-theme.xo-theme.json"
+    import json
+
+    file = json.loads(saved.read_text())
+    assert file["xo"] == "colour-themes" and len(file["themes"]) == 1 and file["themes"][0]["name"] == "e2e theme"
+    pg.locator('.theme-list [data-fk^="delete-"]').click()
+    expect(pg.locator(".theme-list li")).to_have_count(0)
+    pg.set_input_files('[data-fk="theme-file"]', str(saved))
+    expect(pg.locator("#toast")).to_contain_text("1 imported, 0 skipped.")
+    expect(pg.locator(".theme-list li")).to_have_count(1)
+    pg.locator("#acc-paste-theme summary").click()
+    pg.fill('[data-fk="theme-paste"]', "{}")
+    pg.locator('[data-fk="theme-import"]').click()
+    expect(pg.locator("#toast")).to_contain_text("not an XO colour theme")
+    expect(pg.locator(".theme-list li")).to_have_count(1)
+    pg.evaluate("XOLook.change((s, l) => { s.myThemes = []; })")
+    # desktop width: three columns, with the preview beside the settings
     pg.set_viewport_size({"width": 1280, "height": 900})
-    pg.goto(BASE + "/#/appearance")
-    expect(pg.get_by_role("heading", name="Colours", exact=True)).to_be_visible()
-    expect(pg.locator(".colour-table")).to_be_visible()
-    pg.screenshot(path=SHOTS / "look-advanced-desktop.png", full_page=True)
+    fresh()
+    expect(pg.locator(".xo-tabs-v")).to_be_visible()
+    expect(pg.locator("aside.look-preview")).to_be_visible()
+    cols = pg.evaluate("getComputedStyle(document.querySelector('.look-cols')).gridTemplateColumns.split(' ').length")
+    assert cols == 3, cols
+    pg.screenshot(path=SHOTS / "look-theme-desktop.png", full_page=True)
     # widget and tab colours: pick a palette for a widget on the screen, tune it, reset
-    pg.locator('[data-fk="view:advanced"]').click()
-    expect(pg.get_by_role("heading", name="Widget and tab colours")).to_be_visible()
+    tab("screens")
+    acc("ident")
     pg.locator('[data-fk="ident-w-tasks-none"]').click()
     pg.locator('[data-fk="ident-pick-raspberry-tart"]').click()
     ident = pg.evaluate("XOLook.active().look.ident.widgets.tasks")
@@ -243,7 +346,7 @@ with sync_playwright() as p:
     pg.locator('[data-fk="ident-title-tasks"]').check()
     assert pg.evaluate("XOLook.active().look.ident.widgets.tasks.title") is True
     assert pg.locator("#xo-ident").evaluate("e => e.textContent").count("tasks") >= 2
-    pg.get_by_role("button", name="Reset widget and tab colours").click()
+    pg.get_by_role("button", name="Reset Widget and tab colours").click()
     assert pg.evaluate("XOLook.active().look.ident") == {"widgets": {}, "tabs": {}}
     # theme families: 30 families, 151 themes, every number inside the look's ranges
     fam = pg.evaluate("""import('/js/family-themes.js').then(m => {
@@ -252,7 +355,9 @@ with sync_playwright() as p:
       return { families: m.FAMILIES.length, themes: themes.length, bad: bad.length, hues: m.FAMILY_HUES };
     })""")
     assert fam == {"families": 30, "themes": 151, "bad": 0, "hues": ["Red", "Green", "Blue"]}, fam
-    # choose one through the picker (it sits under the theme swatches, in Advanced)
+    # choose one through the picker (it sits in the Theme families accordion)
+    tab("theme")
+    acc("families")
     pg.locator('[data-fk="theme:fam:raspberry-tart"]').click()
     lk = pg.evaluate("XOLook.active().look")
     assert lk["theme"] == "fam:raspberry-tart" and (0 <= lk["c"]["ah"] <= 40 or lk["c"]["ah"] >= 340), lk
@@ -279,10 +384,31 @@ with sync_playwright() as p:
     names = pg.evaluate("XOLook.state.myThemes.map(m => m.name)")
     assert names[-1] == names[-2] + " (2)", names
     pg.evaluate("XOLook.change((s, l) => { s.myThemes = []; l.colours = { light: {}, dark: {} }; l.strength = 1; })")
-    pg.get_by_role("button", name="Reset everything").click()
-    pg.get_by_role("button", name="Tap again to reset").click()
+    # screenshots for a look at layout: 1280 and 412 wide, light and dark, Advanced
+    for width, height in ((1280, 900), (412, 880)):
+        pg.set_viewport_size({"width": width, "height": height})
+        fresh()
+        for mode in ("light", "dark"):
+            pg.evaluate("m => XOLook.change((s, l) => { l.mode = m; })", mode)
+            for key in ("theme", "text", "layout", "screens"):
+                tab(key)
+                pg.screenshot(path=SHOTS / f"s3c-{width}-{mode}-{key}.png", full_page=True)
+    # a phone-width strip scrolls and the preview starts closed
+    pg.set_viewport_size({"width": 360, "height": 800})
+    fresh()
+    assert pg.evaluate("getComputedStyle(document.querySelector('.look-cols > .xo-tabs')).overflowX") == "auto"
+    assert pg.locator("aside.look-preview").count() == 0
+    assert pg.evaluate("document.querySelector('#acc-preview').open") is False
+    assert pg.evaluate("document.documentElement.scrollWidth <= window.innerWidth + 1")
+    pg.evaluate("XOLook.change((s, l) => { l.mode = 'auto'; })")
+    # reset everything through the confirm dialog; the view goes back to Standard
+    tab("share")
+    pg.locator('[data-fk="reset-all"]').click()
+    pg.locator('[data-fk="reset-confirm"]').click()
+    expect(pg.locator("dialog[open]")).to_have_count(0)
     assert pg.evaluate("XOLook.prefs.view") == "standard"
-    expect(pg.get_by_role("heading", name="Text sizes")).to_be_hidden()
+    tab("text")
+    expect(pg.locator("#acc-text_sizes")).to_have_count(0)
     b.close()
 print("errors:", errs or "none")
 assert not errs

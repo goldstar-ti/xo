@@ -112,8 +112,9 @@
     hero: 'plain', dayline: 'line', loud: 'regular', line: 'plain', kit: 'xo',
   };
   const SECTIONS = ['today', 'diary', 'tasks', 'obligations', 'routine', 'bills', 'checkin', 'plan', 'settings', 'appearance', 'canvas', 'tracker', 'notes'];
+  const LOOK_TABS = ['theme', 'text', 'layout', 'effects', 'screens', 'share']; // the Appearance screen's groups
   const BLOCKS = ['line', 'next', 'three', 'day', 'coming', 'plan'];
-  const DEFAULT_PREFS = { clock24: false, tabs: ['today', 'diary', 'tasks', 'obligations'], blocks: BLOCKS.slice(), hidden: [], title: 'XO', callMe: '', pop: true, view: 'standard' };
+  const DEFAULT_PREFS = { clock24: false, tabs: ['today', 'diary', 'tasks', 'obligations'], blocks: BLOCKS.slice(), hidden: [], title: 'XO', callMe: '', pop: true, view: 'standard', lookTab: 'theme' };
 
   const clamp = (n, lo, hi, fallback) => { n = Number(n); return Number.isFinite(n) ? Math.min(hi, Math.max(lo, n)) : fallback; };
   const text = (v, max, fallback) => (typeof v === 'string' ? v.slice(0, max) : fallback);
@@ -191,6 +192,7 @@
       callMe: text(raw.callMe, 30, '').trim(),
       pop: raw.pop !== false,
       view: raw.view === 'advanced' ? 'advanced' : 'standard',
+      lookTab: LOOK_TABS.includes(raw.lookTab) ? raw.lookTab : 'theme',
     };
   }
   const isTime = (v) => typeof v === 'string' && /^([01]\d|2[0-3]):[0-5]\d$/.test(v);

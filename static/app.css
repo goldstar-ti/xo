@@ -458,8 +458,7 @@ input[type="range"] { width: 100%; min-height: 2.25rem; accent-color: var(--c-ch
 .look-sec h3 { margin-top: 1.5rem; }
 .look-sec .chips { margin-top: 0.35rem; }
 .opt > span, .opt > label { display: block; font-weight: 600; font-size: var(--fs-label, 0.9375rem); }
-/* Standard shows the everyday options; an Advanced one that was changed stays, with a dot. */
-[data-view="standard"] [data-level="advanced"]:not([data-changed]) { display: none; }
+/* Standard shows the everyday options; an Advanced one that was changed stays, with a dot (appearance.js decides what shows). */
 [data-view="standard"] [data-changed] > :is(label, span, h2, th):first-child::after { content: ''; display: inline-block; width: 0.5rem; height: 0.5rem; margin-left: 0.4rem; border-radius: 50%; background: var(--ochre); vertical-align: middle; }
 .view-switch { margin-bottom: 1.25rem; }
 .view-switch .hint { margin-top: 0.5rem; }
@@ -576,6 +575,50 @@ input.xo-hex { width: 6.5rem; min-height: 2.5rem; padding: 0.3rem 0.5rem; font-f
 .xo-sort-grip { cursor: grab; touch-action: none; letter-spacing: -0.15em; }
 .figure-label { display: block; font-size: var(--fs-small, 0.875rem); font-weight: 400; color: var(--muted); }
 :root[data-figure="accent"] .figure .figure-label { color: inherit; }
+
+/* ---- Appearance screen: six groups, accordions, search and a preview ---- */
+#view:has(> .look-screen) { max-width: 90rem; min-width: 0; }
+.main:has(> #view > .look-screen) { min-width: 0; }
+.look-screen > * + * { margin-top: 1rem; }
+.look-bar { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 0.75rem 1rem; }
+.look-bar .xo-search, .look-bar wa-input { flex: 1 1 14rem; max-width: 24rem; }
+.look-cols { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.25rem; }
+.look-cols > .xo-tabs { min-width: 0; overflow-x: auto; }
+.look-panel { min-width: 0; }
+.look-panel > * + * { margin-top: 1rem; }
+.look-acc { display: grid; grid-template-columns: 1fr 1fr; gap: 0.9rem 0.75rem; align-items: start; }
+.look-acc > * { grid-column: 1 / -1; min-width: 0; }
+.look-acc > .field.half { grid-column: auto; }
+.look-acc > h3, .look-sub { margin: 0.5rem 0 0; font-size: var(--fs-small, 0.875rem); font-weight: 700; color: var(--muted); text-transform: none; }
+.look-acc > .look-reset { text-align: left; }
+.look-results { font-size: var(--fs-small, 0.875rem); color: var(--muted); }
+.look-tools > * + * { margin-top: 0.9rem; }
+.look-preview { min-width: 0; }
+.look-preview > h2 { font-size: var(--fs-small, 0.875rem); color: var(--muted); margin-bottom: 0.5rem; }
+.look-preview-body > * + * { margin-top: 0.9rem; }
+.look-w { min-height: 5.5rem; }
+@media (min-width: 72rem) {
+  .look-cols { grid-template-columns: 11rem minmax(0, 1fr) 18rem; align-items: start; gap: 1.5rem; }
+  .look-preview { position: sticky; top: 1.5rem; }
+}
+@media (max-width: 40rem) { .look-acc { grid-template-columns: 1fr; } .look-acc > .field.half { grid-column: 1 / -1; } }
+.colour-row { display: grid; grid-template-columns: 1fr 1fr; align-items: center; gap: 0.5rem 0.9rem; padding: 0.35rem 0; border-bottom: 1px solid var(--line); }
+.colour-name { grid-column: 1 / -1; font-size: var(--fs-label, 0.9375rem); font-weight: 500; }
+.colour-cell { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 0.3rem 0.4rem; }
+.colour-mode { flex-basis: 100%; color: var(--muted); font-size: var(--fs-small, 0.875rem); }
+.theme-list li { flex-wrap: wrap; }
+.theme-dot { display: inline-block; min-height: 0; width: 1.75rem; height: 1.75rem; padding: 0; border-radius: 50%; }
+.theme-name { flex: 1; min-width: 6rem; }
+.corner-sample { display: block; width: 100%; height: 2.25rem; border: 2px solid var(--ink); background: var(--leaf-soft); }
+.tex-sample { display: block; width: 100%; height: 2.25rem; border: 1px solid var(--line); background-color: var(--paper); }
+.tex-sample-grid { background-image: linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px); background-size: 12px 12px; }
+.tex-sample-dots { background-image: radial-gradient(var(--muted) 1px, transparent 1.5px); background-size: 10px 10px; }
+.tex-sample-ruled { background-image: linear-gradient(var(--line) 1px, transparent 1px); background-size: 100% 10px; }
+.tex-sample-diagonal { background-image: repeating-linear-gradient(45deg, var(--line) 0 1px, transparent 1px 9px); }
+.fig-sample { display: block; width: 100%; padding: 0.4rem 0.6rem; border-radius: var(--radius); font-weight: 700; font-family: var(--font-num); font-size: 1.25rem; }
+.fig-sample-tint { background: var(--leaf-soft); }
+.fig-sample-accent { background: var(--leaf); color: var(--leaf-ink); }
+.fig-sample-inset { background: var(--surface); box-shadow: inset 0 0 0 var(--rule) var(--line); }
 
 /* ---- Notes: Markdown text (static/js/markdown.js) and the editor (static/js/mdeditor.js) ---- */
 .md { overflow-wrap: anywhere; max-width: 46rem; }

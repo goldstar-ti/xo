@@ -71,6 +71,26 @@ appearance:
     remove: Remove
     need_name: Give the theme a name first.
     saved: 'Saved “{name}”'
+    save_hint: Saves the colours, strength and every colour you set by hand.
+    apply: Apply
+    rename: Rename
+    export: Export
+    delete: Delete
+    export_all: Export all
+    copy_text: Copy as text
+    copied: Themes copied.
+    copy_failed: Select the text and copy it by hand.
+    import_file: Import from file
+    paste_heading: Paste a theme
+    paste_label: Theme text
+    import: Import
+    imported: '{added} imported, {skipped} skipped.'
+    import_bad: That file is not an XO colour theme.
+    hint: A theme keeps its colours, strength and every colour you set by hand. Export one to keep it or use it on another device.
+    none: You have no saved themes yet.
+    new_name: New name
+    name_aria: 'Name for {name}'
+    swatch: 'Colours of {name}'
   scheduled:
     heading: Scheduled looks
     note: A scheduled look takes over between two times each day, for example a dimmer one late at night. It starts as a copy of what is on screen now; then you change it.
@@ -95,7 +115,7 @@ appearance:
     tabs_hint: Four sections, left to right. Everything else sits under More.
     position: 'Position {n}'
     blocks_heading: Today blocks
-    blocks_hint: Reorder with the arrows. Untick to hide. The daily line is shown or hidden under Layout.
+    blocks_hint: Reorder by dragging the handle or with the arrows. Switch a block off to hide it. The daily line is shown or hidden under Layout.
     line_aria: 'Daily line: set under Layout'
     show_aria: 'Show {block}'
     up: Up
@@ -241,6 +261,52 @@ appearance:
       ochre: Attention
       ochre-soft: Attention tint
       danger: Warning
+      c-top-bg: Header background
+      c-top-ink: Header text
+      c-side-bg: Side menu background
+      c-side-ink: Side menu text
+      c-side-on: Side menu current item
+      c-tabs-bg: Bottom tabs background
+      c-tabs-ink: Bottom tabs text
+      c-tabs-on: Bottom tabs current tab
+      c-primary-bg: Main button
+      c-primary-ink: Main button text
+      c-ghost-ink: Plain button text
+      c-ghost-border: Plain button border
+      c-danger-ink: Delete button text
+      c-chip-bg: Chip
+      c-chip-border: Chip border
+      c-chip-on-bg: Chosen chip
+      c-chip-on-ink: Chosen chip text
+      c-tag: Tag
+      c-field-bg: Field
+      c-field-border: Field border
+      c-field-focus: Field when typing
+      c-check: Ticks and sliders
+      c-sheet-bg: Dialog
+      c-sheet-top: Dialog top edge
+      c-backdrop: Behind a dialog
+      c-next-head: Next-up heading
+      c-next-rule: Next-up top edge
+      c-urgent: Leave now
+      c-now: Now line
+      c-time: Times
+      c-done: Done
+      c-missed: Missed
+      c-appt: Appointment
+      c-row-link: Link rows
+      c-row-line: Row lines
+      c-late: Late
+      c-nudge-bg: Nudge
+      c-guard-bg: Warning note
+      c-guard-rule: Warning note edge
+      c-reveal-bg: Opened detail
+      c-banner-bg: Banner
+      c-link: Links
+      c-focus: Focus ring
+      c-w-bg: Widget
+      c-w-title: Widget title
+      c-w-border: Widget edge
   families:
     heading: Theme families
     hint: Every palette from NOBBIE, grouped by colour. Fine-tune any of them below.
@@ -272,3 +338,100 @@ appearance:
   figure:
     heading: Figures
     label: Figure style
+  groups:
+    theme: Colour
+    text: Text
+    layout: Layout
+    effects: Effects
+    screens: Screens
+    share: Share and reset
+  search:
+    label: Find a setting
+    placeholder: Find a setting
+    results: Settings that match
+    none: Nothing matches.
+  colour_groups:
+    page: Page
+    accent: Accent and attention
+    bars: Header and bars
+    buttons: Buttons
+    chips: Chips and tags
+    fields: Fields
+    dialogs: Dialogs
+    today: Today
+    lists: Lists
+    notes: Notes and banners
+    links: Links and focus
+    widgets: Widgets
+  acc:
+    families: Theme families
+    fine_tune: Strength and fine-tune
+    my_themes: My themes
+    colours_prefix: 'Colours: {group}'
+    scheduled: Scheduled looks
+    fonts: Fonts
+    weight_spacing: Weight and spacing
+    text_sizes: Text sizes
+    ts_headlines: Headlines
+    ts_headings: Headings
+    ts_body: Body
+    ts_small: Small
+    spacing_size: Spacing and size
+    radius: Radius
+    lines_texture: Lines and texture
+    today_layout: Today layout
+    glass: Glass
+    figures: Figures
+    bottom_tabs: Bottom tabs
+    blocks: Today blocks
+    ident: Widget and tab colours
+    reset_one: 'Reset {name}'
+    changed: '{n} changed'
+  preview_label: Preview
+  preview_figure: Done today
+  preview_widget: Sample widget
+  preview_widget_body: A widget looks like this.
+  reset_all_confirm: Reset every appearance setting on this device? Undo can bring it back.
+  glass_toggle: Glass
+  glass_off: Glass is off.
+  hints:
+    corners:
+      square: Sharp corners everywhere.
+      soft: A small curve on cards and buttons.
+      round: Rounder cards, pill-shaped buttons.
+      pill: The roundest of all.
+    texture:
+      none: A plain page.
+      grid: Faint squares, like graph paper.
+      dots: Faint dots across the page.
+      ruled: Faint lines, like a notebook.
+      diagonal: Faint slanted lines.
+    hero:
+      plain: The next appointment sits on the page.
+      banner: The next appointment fills a coloured banner.
+      boxed: The next appointment sits in a box.
+    dayline:
+      line: Times down the left, one line each.
+      cards: Each item is its own card.
+      rows: Each item is a ruled row.
+    loud:
+      quiet: Headings stay small and calm.
+      regular: Headings at their usual size.
+      loud: Headings are big and bold.
+    line:
+      plain: The daily line shows as plain text.
+      quote: The daily line shows as a pull-quote.
+      hidden: The daily line is not shown.
+    figure:
+      plain: Figures with no background.
+      tint: Figures on a soft tint.
+      accent: Figures on the accent colour.
+      inset: Figures in an outlined tile.
+    kit:
+      xo: The original look.
+      daisy: daisyUI buttons and fields.
+      wa: Web Awesome buttons and fields.
+  share:
+    surprise_hint: Surprise me changes theme, typefaces, shape and layout. It leaves text size, weight, spacing and mode alone.
+    reset_all: Reset everything
+    reset_cancel: Cancel

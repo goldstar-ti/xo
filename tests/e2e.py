@@ -261,11 +261,17 @@ with sync_playwright() as p:
     page.goto(f"{BASE}/#/appearance")
     expect(page.locator("h1")).to_have_text("Appearance")
     page.locator('[data-fk="view:advanced"]').click()
-    page.get_by_role("button", name="Banner", exact=True).click()
+    # a setting is found through the search box, whichever group or accordion it sits in
+    set_control(page.locator("#look-search"), "next-up")
+    page.locator('[data-fk="hero:banner"]').click()
     assert page.evaluate("document.documentElement.dataset.hero") == "banner"
-    set_control(page.locator("#f-head"), "fraunces")
+    set_control(page.locator("#look-search"), "what xo calls you")
     set_control(page.locator("#p-call"), "Captain")
+    page.locator("#p-call").blur()
+    page.wait_for_timeout(400)  # the change redraws the screen; type in the new search box
+    set_control(page.locator("#look-search"), "scheduled")
     set_control(page.locator("#sch-name"), "Evening")
+    set_control(page.locator("#look-search"), "next-up")
     page.locator('[data-fk="hero:plain"]').click()
     assert page.evaluate("document.documentElement.dataset.hero") == "plain"
     page.screenshot(path=SHOTS / "10-appearance.png", full_page=True)
