@@ -22,7 +22,7 @@ These win over anything below.
 3. **Start with what the reader sees or wants to do**, not with how the app works inside.
 4. **Be specific.** Give the number, the name, the place to tap. `Reminder in 15 minutes` beats `Reminder soon`.
 5. **Use the words on the screen.** Name a control exactly as it is labelled.
-6. **One name per thing.** The kinds are appointment, task, routine, bill, obligation, check-in, plan. Do not rename them in prose.
+6. **One name per thing.** The kinds are appointment, task, routine, bill, duty, check-in, plan. Do not rename them in prose.
 7. **The reader is not stupid.** Do not explain what a clearly named control does. Say a thing once, where the reader will look for it. Do not tell them to "click the button".
 8. **Give the reason only when it changes what the reader does:** warnings, anything that cannot be undone, anything that looks wrong but is not.
 9. **Say the next step.** An error or an empty state ends with what to do, when there is something to do.

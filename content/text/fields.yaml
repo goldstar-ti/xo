@@ -19,7 +19,7 @@ fields:
     task: Tasks
     routine: Routine
     bill: Bills
-    obligation: Obligations
+    obligation: Duties
     report: Reports
     checkin: Check-ins
     pm_item: Tracker items

@@ -25,7 +25,7 @@ app:
     diary: Diary
     tasks: Tasks
     notes: Notes
-    obligations: Obligations
+    obligations: Duties
     routine: Routine
     bills: Bills
     checkin: Check-ins

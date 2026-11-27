@@ -10,7 +10,7 @@
 - Tracker screen `#/tracker` (D-10, 2.5.0): `static/js/views/tracker.js` and `static/js/tracker/` (model, list, detail, board, reports, projects, keys, widgets, nobbie). NOBBIE's tracker shows read-only once `NOBBIE_URL`, `NOBBIE_USER` and `NOBBIE_PASSWORD` are in `.env` (`app/nobbie.py`). Covered by `tests/e2e_tracker.py` and two API tests.
 - Tasks (2.8.0 to 2.11.0, D-19 to D-22): priority, categories, subtasks, repeats, dependencies, board and table views, filters, stale review, time blocks, pacing, close the day, command palette. Logic in `static/js/tasks.js`, data in `static/js/taskdata.js`, screen in `static/js/views/tasks.js`, palette in `static/js/palette.js`. Covered by `tests/e2e_tasks.py`.
 - Shortcuts, custom fields, Notes and dictation (2.12.0 to 2.17.0, D-24 and D-26 to D-29): every keyboard shortcut is configurable in Settings (`static/js/keymap.js`); custom fields on every kind of record (`static/js/customfields.js`); a Notes screen in Markdown with a toolbar and preview (`static/js/views/notes.js`, `mdeditor.js`, `markdown.js`, marked 18.2.0 vendored); dictation through the browser's speech service (`static/js/voice.js`). Covered by `tests/e2e_extras.py`.
-- Version 1 screens are built (Today, Diary, Tasks, Routine, Bills, Obligations, Check-ins, My plan, Appearance). Specs for the rest are in `docs/ROADMAP.md`.
+- Version 1 screens are built (Today, Diary, Tasks, Routine, Bills, Duties, Check-ins, My plan, Appearance). Specs for the rest are in `docs/ROADMAP.md`.
 - House style brought in from the owner's other project: `ruff.toml`, `docs/voice.md`, the Code style section of `CLAUDE.md`, `.claude/` skills, commands and guides, and `docs/decisions.md`.
 
 ## Next steps

@@ -28,7 +28,7 @@ Security is the owner's responsibility, handled outside this codebase (owner's d
 ## How the data works
 
 - One generic table, `items`: `(user_id, id, kind, day, payload, deleted)`. `payload` is a JSONB value (object, array, string or number; null for ticks).
-- Kinds in use: `appointment`, `task`, `routine`, `tick`, `bill`, `obligation`, `report`, `checkin`, `plan`, `settings`, `canvas`, `project`, `pm_item`, `tracker`, `taskmeta`, `fields`, `note`.
+- Kinds in use: `appointment`, `task`, `routine`, `tick`, `bill`, `obligation` (shown as Duties), `report`, `checkin`, `plan`, `settings`, `canvas`, `project`, `pm_item`, `tracker`, `taskmeta`, `fields`, `note`.
 - Task payload fields are listed in `normaliseTask()` in `static/js/tasks.js`; every task write goes through `saveTask()` in `static/js/taskdata.js`.
 - The tracker (`static/js/tracker/model.js` documents its shapes): `project:<uuid>` holds a project and its own pick lists, `pm:<uuid>` an item with its comments, checklist, links and history. NOBBIE's tracker joins it read-only through `app/nobbie.py` (GET only, `NOBBIE_*` in `.env`).
 - Singletons use fixed ids: `plan`, `settings`. Ticks use `tick:<ref>:<YYYY-MM-DD>` with a null payload. Check-ins use `checkin:<type>:<day>`.

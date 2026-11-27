@@ -1,6 +1,6 @@
 # Roadmap
 
-What exists: Today, Diary, Tasks (as a list, board or table, with filters and a review of stale tasks), Routine, Bills, Obligations, Check-ins, My plan and plan card,
+What exists: Today, Diary, Tasks (as a list, board or table, with filters and a review of stale tasks), Routine, Bills, Duties, Check-ins, My plan and plan card,
 Settings, Canvas, Tracker, Notes (in Markdown), and the full Appearance system (quick Look panel plus the Appearance screen).
 
 What follows are the next features, in build order: Records (the first smaller items), sections 1 to 3, then the Reporting register (4), GTD core (5), and sections 6 to 12 in the order set by D-18. Each is specced from decisions already made.
@@ -240,7 +240,7 @@ Build one at a time, with tests, and keep each first version small. Each section
 
 **Data**
 
-- `matter`: timeline (hearings, outcomes, orders, conditions linked to Obligations), an "ask my lawyer" list, costs and payments, and a documents list (what, where kept, date).
+- `matter`: timeline (hearings, outcomes, orders, conditions linked to Duties), an "ask my lawyer" list, costs and payments, and a documents list (what, where kept, date).
 - `session`, one per psychologist visit: prep list ("raise at session"), notes, homework as tasks, fees.
 - `compliance`, the evidence log: condition, date, time, place, who saw it. It feeds Outputs.
 

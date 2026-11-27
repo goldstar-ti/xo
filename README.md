@@ -12,7 +12,7 @@ Version 1 covers:
 - **Tasks**: first small step, time guess (the app allows half again), due dates, three picks a day
 - **Routine**: meals, water, sleep, medication, each with a daily reminder and a tick
 - **Bills**: due dates, repeats, a Paid button that sets the next one
-- **Obligations**: court dates, court tasks, conditions with recurring reminders, a reporting record
+- **Duties**: court dates, court tasks, conditions with recurring reminders, a reporting record
 - **Check-ins**: morning, evening, and a weekly review built from the five questions in Concept 17. The body, "Today I…" and sleep choices are grouped and editable in Settings, Check-in choices
 - **My plan**: the Relapse Prevention Plan, one box at a time, and a plan card one tap from every screen
 - **Appearance**: Standard and Advanced views in six groups (Colour, Text, Layout, Effects, Screens, Share and reset). Standard has the common choices; Advanced adds 151 colour themes, 493 fonts, sizes for each kind of text, colours for every element, spacing, zoom, shape, texture, layout variants, widget and tab colours, scheduled looks and look codes. A "Look" button in the header opens the quick panel on any screen
