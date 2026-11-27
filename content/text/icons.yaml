@@ -1,0 +1,30 @@
+# The icon picker: the popover for choosing a screen's icon.
+#
+# How to edit this file
+# - Save the file and reload the page. There is no build and no restart.
+# - Change the words after a colon. Keep the keys (the words before a colon) as they are:
+#   the app looks the text up by key, and a missing key shows the key itself.
+# - Keep the indentation. It uses two spaces and never tabs.
+# - Put quote marks around any text that starts with a special character
+#   (" ' { [ * & ! % @ #) or that contains a colon followed by a space, and around times such as '09:00'.
+# - Write {name} where the app fills something in. Keep the same {name} in your wording.
+# - If a file has a mistake, the app keeps the last good version of that file and logs a note.
+#
+icons:
+  picker_label: 'Choose an icon for {name}'
+  grid_aria: Icons
+  set: Icon set
+  phosphor: Phosphor
+  tabler: Tabler
+  weight: Style
+  regular: Regular
+  fill: Fill
+  search: Search icons
+  category: Category
+  all: All categories
+  loading: Loading icons…
+  none: No icon matches. Try a shorter word.
+  showing: 'Showing {n} of {total}. Search or pick a category to see the rest.'
+  count: '{n} icons'
+  default: Use the default
+  offline: The icons could not load. Check your connection and try again.

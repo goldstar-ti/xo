@@ -4,6 +4,7 @@
 
 | Version | Date | Change |
 |---|---|---|
+| 2.20.0 | 2026-11-27 | Icons beside every screen in the side bar, the phone tabs and More, from Phosphor or Tabler. Change one with a right-click on the side bar or in Appearance, Screens, Icons. The side bar collapses to icons and can be dragged wider or narrower. Settings and other screens space their lines apart. |
 | 2.19.0 | 2026-11-27 | Appearance has Standard and Advanced views. Advanced adds every NOBBIE option XO can use: 151 colour themes in 30 families, 493 fonts and a code font, sizes for 18 kinds of text, light and dark colours for 57 elements, spacing, header size, zoom, radius, glass, figure style, and widget and tab colours. Look codes now start XO2 and carry every setting. |
 | 2.18.0 | 2026-11-27 | Settings, My data, Review and delete entries: list every saved entry, narrow by kind or search, tick the ones you no longer need and delete them together. |
 | 2.17.0 | 2026-11-27 | Dictation: a microphone button in quick add, the command list, notes and long text boxes, and Alt+V in any text box. It can be turned off in Settings. |

@@ -106,6 +106,10 @@ appearance:
     add: Add scheduled look
     need_times: Set a start and an end time that differ.
     added: Added. You are now editing it.
+  icons:
+    show: Show icons in the side bar and tabs
+    hint: Choose any Phosphor or Tabler icon for each screen. You can also right-click a screen in the side bar. Hold Shift when you right-click to get the browser's own menu.
+    change: 'Change the icon for {name}'
   behaviour:
     heading: Behaviour
     clock: Clock
@@ -383,6 +387,7 @@ appearance:
     glass: Glass
     figures: Figures
     bottom_tabs: Bottom tabs
+    icons: Icons
     blocks: Today blocks
     ident: Widget and tab colours
     reset_one: 'Reset {name}'

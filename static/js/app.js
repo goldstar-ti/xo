@@ -16,16 +16,93 @@ import { bills, diary, obligations, routine } from './views/lists.js';
 import * as tasksView from './views/tasks.js';
 import * as notesView from './views/notes.js';
 import { installPalette, setScreenKeys } from './palette.js';
+import { CHROME, DEFAULT_ICONS, icon, paintIcon } from './icons.js';
+import { pickScreenIcon } from './iconpicker.js';
 
 const NAV = Object.entries(text('app.nav')); // [key, label] in the order the sidebar lists them
 const L = window.XOLook;
 const tabs = () => L.prefs.tabs; // the four sections on the phone's bottom bar: chosen in Appearance
 
+const iconOf = (k) => L.prefs.icons[k] || DEFAULT_ICONS[k];
+const labelOf = (k) => (k === 'more' ? t('app.more') : text('app.nav')[k]);
+
+// A screen's link: its icon and its name. Right-click changes the icon (Shift+right-click
+// keeps the browser's own menu).
+function navLink(k) {
+  const a = h('a', { href: `#/${k}`, 'data-nav': k }, icon(iconOf(k)), h('span', { class: 'nav-label' }, labelOf(k)));
+  a.addEventListener('contextmenu', (e) => {
+    if (e.shiftKey) return;
+    e.preventDefault();
+    // Where the menu opens while the button is still down (Linux, macOS), wait for its release,
+    // or that release would dismiss the popover at once.
+    const open = () => pickScreenIcon(a, k);
+    if (e.buttons & 2) window.addEventListener('pointerup', () => setTimeout(open), { once: true }); else open();
+  });
+  return a;
+}
+
+// The side bar's state: collapsed to icons or open, its button's wording, and tooltips on icon-only links.
+function refreshSide() {
+  const collapsed = L.prefs.side === 'icons';
+  document.querySelectorAll('[data-nav]').forEach((a) => {
+    const ico = a.querySelector('.ico');
+    if (ico && ico.dataset.icon !== iconOf(a.dataset.nav)) paintIcon(ico, iconOf(a.dataset.nav));
+    if (a.closest('.side') && collapsed) a.title = labelOf(a.dataset.nav); else a.removeAttribute('title');
+  });
+  const btn = document.querySelector('.side-toggle');
+  if (btn) {
+    const label = collapsed ? t('app.side.expand') : t('app.side.collapse');
+    btn.setAttribute('aria-label', label);
+    btn.title = label;
+    btn.setAttribute('aria-expanded', String(!collapsed));
+    paintIcon(btn.querySelector('.ico'), collapsed ? CHROME.expand : CHROME.collapse);
+  }
+  const grip = document.querySelector('.side-grip');
+  if (grip) grip.setAttribute('aria-valuenow', String(L.prefs.sideW));
+}
+
+// The handle on the side bar's right edge: drag, or focus it and use the arrow keys. Double-click resets.
+function sideGrip() {
+  const root = document.documentElement;
+  const clampW = (w) => Math.round(Math.min(420, Math.max(180, w)));
+  const commit = (w) => L.change((s) => { s.prefs.sideW = clampW(w); }, { quiet: true });
+  const grip = h('div', {
+    class: 'side-grip', role: 'separator', tabindex: '0', 'aria-orientation': 'vertical',
+    'aria-label': t('app.side.resize'), title: t('app.side.resize'), 'aria-valuemin': '180', 'aria-valuemax': '420', 'aria-valuenow': String(L.prefs.sideW),
+  });
+  grip.addEventListener('pointerdown', (e) => {
+    if (e.button !== 0) return;
+    e.preventDefault();
+    grip.setPointerCapture(e.pointerId);
+    const left = grip.parentElement.getBoundingClientRect().left;
+    const zoom = parseFloat(getComputedStyle(root).getPropertyValue('--zoom')) || 1;
+    let w = L.prefs.sideW;
+    root.classList.add('side-dragging');
+    const move = (ev) => { w = clampW((ev.clientX - left) / zoom); root.style.setProperty('--side-w', `${w}px`); grip.setAttribute('aria-valuenow', String(w)); };
+    const up = () => {
+      grip.removeEventListener('pointermove', move);
+      root.classList.remove('side-dragging');
+      commit(w);
+    };
+    grip.addEventListener('pointermove', move);
+    grip.addEventListener('pointerup', up, { once: true });
+    grip.addEventListener('pointercancel', up, { once: true });
+  });
+  grip.addEventListener('keydown', (e) => {
+    const step = { ArrowLeft: -16, ArrowRight: 16, Home: -999, End: 999 }[e.key];
+    if (step === undefined) return;
+    e.preventDefault();
+    commit(L.prefs.sideW + step);
+  });
+  grip.addEventListener('dblclick', () => commit(240));
+  return grip;
+}
+
 const more = {
   live: false,
   render(root) {
     put(root, h('header', { class: 'page-head' }, h('h1', {}, t('app.more'))),
-      h('ul', { class: 'list links' }, NAV.filter(([k]) => !tabs().includes(k)).map(([k, label]) => h('li', {}, h('a', { class: 'row-main', href: `#/${k}` }, label)))));
+      h('ul', { class: 'list links' }, NAV.filter(([k]) => !tabs().includes(k)).map(([k, label]) => h('li', {}, h('a', { class: 'row-main', href: `#/${k}` }, icon(iconOf(k)), label)))));
   },
 };
 const VIEWS = { today: todayView, diary, tasks: tasksView, notes: notesView, obligations, routine, bills, checkin: checkinView, plan: planView, settings: settingsView, appearance: appearanceView, canvas: canvasView, tracker: trackerView, more };
@@ -72,18 +149,20 @@ function draw({ keepScroll = false, keepFocus = false } = {}) {
 
 function shell() {
   installPalette();
-  const link = ([k, label]) => h('a', { href: `#/${k}`, 'data-nav': k }, label);
+  const withIcon = (key, label) => [icon(CHROME[key]), h('span', { class: 'btn-label' }, label)];
   const actions = () => h('div', { class: 'head-actions' },
-    button(t('app.look'), { class: 'look-btn', onclick: appearanceView.openLookPanel }),
-    button(t('app.plan_card'), { class: 'plan-btn', onclick: planView.openPlanCard }));
+    button(withIcon('look', t('app.look')), { class: 'look-btn', onclick: appearanceView.openLookPanel }),
+    button(withIcon('plan_card', t('app.plan_card')), { class: 'plan-btn', onclick: planView.openPlanCard }));
   const brand = () => h('p', { class: 'brand' }, L.prefs.title);
+  const toggleSide = h('button', { type: 'button', class: 'side-toggle', onclick: () => L.change((s) => { s.prefs.side = s.prefs.side === 'icons' ? 'open' : 'icons'; }, { quiet: true }) }, icon(CHROME.collapse));
   app.replaceChildren(
-    h('aside', { class: 'side' }, brand(), h('nav', { 'aria-label': t('app.sections_aria') }, NAV.map(link)), actions()),
+    h('aside', { class: 'side' }, h('div', { class: 'side-head' }, brand(), toggleSide), h('nav', { 'aria-label': t('app.sections_aria') }, NAV.map(([k]) => navLink(k))), actions(), sideGrip()),
     h('div', { class: 'main' },
       h('header', { class: 'top' }, brand(), actions()),
       h('main', { id: 'view', tabindex: '-1' })),
-    h('nav', { class: 'tabs', 'aria-label': t('app.sections_aria'), 'data-tabs': tabs().join(',') }, tabs().map((k) => link(NAV.find(([n]) => n === k))), h('a', { href: '#/more', 'data-nav': 'more' }, t('app.more'))),
+    h('nav', { class: 'tabs', 'aria-label': t('app.sections_aria'), 'data-tabs': tabs().join(',') }, tabs().map(navLink), navLink('more')),
   );
+  refreshSide();
   draw();
 }
 
@@ -93,10 +172,10 @@ window.addEventListener('xo:look', async (e) => {
   document.querySelectorAll('.brand').forEach((el) => { el.textContent = L.prefs.title; });
   const bar = document.querySelector('.tabs');
   if (bar && bar.dataset.tabs !== tabs().join(',')) {
-    const link = (k) => { const [, label] = NAV.find(([n]) => n === k); return h('a', { href: `#/${k}`, 'data-nav': k }, label); };
     bar.dataset.tabs = tabs().join(',');
-    bar.replaceChildren(...tabs().map(link), h('a', { href: '#/more', 'data-nav': 'more' }, t('app.more')));
+    bar.replaceChildren(...tabs().map(navLink), navLink('more'));
   }
+  refreshSide();
   if (e.detail.quiet) return;
   await ensureKit();
   if (dialogOpen()) pending = true; else draw({ keepScroll: true, keepFocus: true });

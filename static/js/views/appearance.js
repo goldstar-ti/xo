@@ -5,6 +5,8 @@ import { badge, button, checkbox, colourField, disclosure, field, focusControl, 
 import { tabStrip } from '../tabs.js';
 import * as store from '../store.js';
 import { WIDGETS } from '../widgets.js';
+import { DEFAULT_ICONS, icon, paintIcon } from '../icons.js';
+import { pickScreenIcon } from '../iconpicker.js';
 import { fmtTime, h, kvSet, openDialog, put, toast, uid } from '../util.js';
 
 export const live = false;
@@ -547,6 +549,16 @@ function build(lk, d) {
   defAcc('bottom_tabs', 'screens', A('bottom_tabs'), { reset: () => L.change((s) => { s.prefs.tabs = defTabs.slice(); }) });
   p.tabs.forEach((tab, i) => reg('screens', 'bottom_tabs', t('appearance.behaviour.position', { n: i + 1 }), field(t('appearance.behaviour.position', { n: i + 1 }),
     select(L.SECTIONS.map((sec) => [sec, sections[sec]]), { id: `tab-${i}`, 'data-fk': `tab-${i}`, value: tab, onchange: (e) => swapTab(i, e.target.value) }), null, { half: true }), { adv: true, changed: tab !== defTabs[i] }));
+  defAcc('icons', 'screens', A('icons'), { reset: () => L.change((s) => { s.prefs.icons = {}; s.prefs.navIcons = true; }) });
+  reg('screens', 'icons', t('appearance.icons.show'), h('div', { class: 'opt' }, toggle(t('appearance.icons.show'), { checked: p.navIcons, 'data-fk': 'p-navicons', onchange: (on) => setPrefs({ navIcons: on }) }),
+    h('p', { class: 'hint' }, t('appearance.icons.hint'))), { changed: !p.navIcons });
+  reg('screens', 'icons', A('icons'), h('ul', { class: 'icon-list' }, [...L.SECTIONS, 'more'].map((k) => {
+    const ico = icon(p.icons[k] || DEFAULT_ICONS[k]);
+    const name = k === 'more' ? t('app.more') : sections[k];
+    const btn = button([ico, h('span', {}, name)], { class: 'icon-pick', 'data-fk': `icon-${k}`, 'aria-label': t('appearance.icons.change', { name }),
+      onclick: (e) => pickScreenIcon(e.currentTarget, k, (v) => paintIcon(ico, v)) });
+    return h('li', {}, btn);
+  })), { changed: Object.keys(p.icons).length > 0 });
   const blockNames = text('appearance.blocks');
   defAcc('blocks', 'screens', A('blocks'), { reset: () => L.change((s) => { s.prefs.blocks = L.BLOCKS.slice(); s.prefs.hidden = []; }) });
   reg('screens', 'blocks', A('blocks'), h('div', { class: 'look-tools' }, h('p', { class: 'hint' }, t('appearance.behaviour.blocks_hint')),

@@ -28,6 +28,12 @@ RUN mkdir -p /vendor/gridstack \
 RUN mkdir -p /vendor/marked \
     && cd node_modules/marked \
     && cp lib/marked.esm.js LICENSE /vendor/marked/
+# Phosphor and Tabler icons (static/js/icons.js): the packages go to the app stage, where
+# scripts/build_icons.py turns them into JSON maps under static/vendor/icons/.
+RUN mkdir -p /iconsrc/@tabler/icons \
+    && cp -r node_modules/@phosphor-icons /iconsrc/ \
+    && cp -r node_modules/@tabler/icons/icons node_modules/@tabler/icons/icons.json \
+         node_modules/@tabler/icons/package.json node_modules/@tabler/icons/LICENSE /iconsrc/@tabler/icons/
 COPY tailwind/src ./src
 COPY static /static
 RUN bun run build
@@ -49,6 +55,8 @@ COPY static ./static
 COPY --from=css /tailwind/dist/tw.css ./static/tw.css
 COPY --from=css /vendor ./static/vendor
 COPY scripts ./scripts
+COPY --from=css /iconsrc /tmp/iconsrc
+RUN python scripts/build_icons.py /tmp/iconsrc && rm -rf /tmp/iconsrc
 COPY content ./content
 
 # Readable by the app user whatever modes the files had on the build host

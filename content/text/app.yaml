@@ -16,6 +16,10 @@ app:
   more: More
   look: Look
   plan_card: My plan card
+  side:
+    collapse: Collapse the side bar
+    expand: Expand the side bar
+    resize: Drag to change the side bar width. Arrow keys work too. Double-click to reset.
   nav:
     today: Today
     diary: Diary

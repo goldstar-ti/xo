@@ -28,6 +28,12 @@
 4. Canvas, parked: a resizable side pane, undo that survives a reload, and saved layout presets.
 5. Tasks, parked: manual card order on the board; subtasks as full tasks. Out of scope by the owner's decision: local-first sync and webhooks. OS-wide hotkeys are parked (D-29): a PWA cannot register them.
 
+## Icons, side bar and section spacing (2.20.0)
+
+- Shipped: Phosphor and Tabler icons on every screen link (side bar, phone tabs, More), a picker popover (Appearance, Screens, Icons, or right-click a screen in the side bar), a side bar that collapses to icons and resizes by drag or arrow keys, spacing between lines inside sections, and a fix for Today's three rows squeezed by the time box at phone width. Decision D-31. Covered by `tests/e2e_rail.py`.
+- Icon packages are pinned in `tailwind/package.json`; the image build makes `static/vendor/icons/`. To change the default icons, edit `CORE` in `scripts/build_icons.py` and `DEFAULT_ICONS` in `static/js/icons.js`, run `make icons` (reads NOBBIE's `frontend/node_modules`) to regenerate the committed `static/js/icon-core.js`, and bump `CACHE` in `static/sw.js`.
+- Defaults worth vetoing: default icons per screen (`DEFAULT_ICONS` in `static/js/icons.js`); Phosphor thin, light, bold and duotone left out; side bar width 180 to 420 px, default 240; right-click on a side bar link opens the picker (Shift+right-click for the browser menu); Look and My plan card buttons show icons only when the side bar is collapsed.
+
 ## Appearance: NOBBIE options (2.19.0)
 
 - Shipped: Standard and Advanced views, six groups, 151 family themes in 30 families, 493 catalogue fonts plus a code font, 18 text roles, 57 colour tokens in 12 groups, component kits' colours, spacing, header size, zoom, radius, glass, figure style, widget and tab colours, theme export and import as XO JSON, `XO2-` JSON look codes. Decision D-30; future options in `docs/ROADMAP.md`.
@@ -86,6 +92,7 @@
 14. On your phone and desktop, tap Dictate once and allow the microphone. Nothing here was checked on a phone or with a real microphone; the tests use a fake speech engine.
 15. `tests/e2e_look.py` line 116 (the banner should read "Night") failed once on 2026-11-27 and passed on rerun. Not diagnosed.
 16. Another session's Settings, My data, "Review and delete entries" button (it claims 2.13.0 and D-25) was uncommitted at deploy time and is not in the deployed app. Commit it and run `make db-backup` then `docker compose up -d --build app` when that work is finished.
+17. Open `https://xo.tifunction.com/#/settings` on desktop: collapse the side bar with the arrows at the top, drag its right edge, and right-click Diary to pick a new icon. Checked only in headless Chromium screenshots and `tests/e2e_rail.py`.
 
 ## What worked
 

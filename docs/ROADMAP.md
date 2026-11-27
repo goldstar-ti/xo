@@ -412,10 +412,10 @@ NOBBIE's Appearance options that XO has no element for yet. Each needs the eleme
 | Right-click menu, item order by use | A context menu | Quick actions on entries, tasks and tracker rows |
 | KPI tile status tone | KPI tiles with a status | Bills due, check-in streaks, tracker counts on Today |
 | Task button colour | Launcher action cards | A Today launcher for frequent actions |
-| Open-in-tab, object type and label icons | An icon set | Side-tab links and icons beside list kinds |
+| Open-in-tab, object type and label icons | Icons on those elements (the icon set exists: `static/js/icons.js`, D-31) | Side-tab links and icons beside list kinds |
 | Record tabs limit | A tab cap in `tabs.js` | Limit open side tabs |
 | Filter zoom, JSON size | Filter bars, JSON views | Tracker filters; a raw item view |
 | Month palette | Month colours | Diary and calendar months |
 | Discover page | A home page of widgets | A start screen |
-| Iconography | Icon overrides | Once an icon set exists |
+| Iconography | Icon overrides beyond the screen icons | Screen icons are built (D-31); next, icons on widgets and list kinds |
 | Identity colours for tiles and pages | Tiles; per-page colours | Nav items and Today blocks |

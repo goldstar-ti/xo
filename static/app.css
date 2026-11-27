@@ -162,6 +162,9 @@ button:disabled { opacity: 0.55; cursor: default; }
 .main:has(> #view > .tr) { min-width: 0; }
 #view > * + * { margin-top: var(--gap); }
 #view > section, #view > details, #view > .group { margin-top: calc(2.25rem * var(--d)); }
+/* Lines inside a section stand apart: a note, a row of buttons, a tick box, a field. Zero specificity,
+   so any screen's own spacing wins. Margins collapse, so the gap under a heading stays one gap. */
+:where(#view > section) > * + * { margin-top: calc(0.75rem * var(--d)); }
 
 .tabs {
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 5;
@@ -171,7 +174,7 @@ button:disabled { opacity: 0.55; cursor: default; }
   padding-bottom: env(safe-area-inset-bottom);
 }
 .tabs a {
-  display: flex; align-items: center; justify-content: center;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.15rem;
   min-height: calc(3.5rem * var(--chrome)); padding: 0 0.15rem;
   font-size: calc(var(--fs-nav, 0.8125rem) * var(--chrome)); font-weight: 600; color: var(--c-tabs-ink); text-decoration: none;
   border-top: 3px solid transparent; margin-top: -1px;
@@ -179,7 +182,9 @@ button:disabled { opacity: 0.55; cursor: default; }
 .tabs a.on { color: var(--c-tabs-on); border-top-color: var(--c-tabs-on); }
 
 @media (min-width: 60rem) {
-  #app { display: grid; grid-template-columns: 15rem 1fr; }
+  #app { display: grid; grid-template-columns: var(--side-w, 15rem) 1fr; }
+  :root[data-side="icons"] #app { grid-template-columns: calc(4.25rem * var(--chrome)) 1fr; }
+  :root:not(.side-dragging) #app { transition: grid-template-columns 200ms ease; }
   .top, .tabs { display: none; }
   .side {
     display: flex; flex-direction: column; gap: 1.5rem;
@@ -190,14 +195,44 @@ button:disabled { opacity: 0.55; cursor: default; }
   }
   .side nav { display: flex; flex-direction: column; }
   .side nav a {
+    display: flex; align-items: center; gap: 0.65rem; min-width: 0;
     padding: calc(0.5rem * var(--chrome)) 0.75rem; margin-left: -0.75rem;
     color: var(--c-side-ink); text-decoration: none; font-weight: 500;
     border-left: 3px solid transparent;
   }
   .side nav a.on { border-left-color: var(--c-side-on); color: var(--c-side-on); font-weight: 700; }
   .side .plan-btn { align-self: flex-start; }
+  .side .nav-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .side-head { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; min-width: 0; }
+  .side-head .brand { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .side-toggle {
+    display: inline-flex; align-items: center; justify-content: center; flex: none;
+    min-width: 2.5rem; min-height: 2.5rem; padding: 0; margin-right: -0.5rem;
+    background: transparent; border: 0; border-radius: var(--radius); color: var(--muted);
+  }
+  .side-toggle:hover { color: var(--ink); background: var(--leaf-soft); }
+  .side-grip { position: absolute; top: 0; right: -5px; width: 10px; height: 100%; cursor: col-resize; touch-action: none; z-index: 6; }
+  .side-grip::after { content: ''; position: absolute; top: 0; bottom: 0; left: 4px; width: 2px; background: transparent; transition: background-color 120ms ease; }
+  .side-grip:is(:hover, :focus-visible)::after, :root.side-dragging .side-grip::after { background: var(--leaf); }
+  .side-grip:focus-visible { outline: none; }
+  :root.side-dragging { cursor: col-resize; user-select: none; }
+  /* Collapsed: icons only. Names stay for screen readers and show as tooltips. */
+  :root[data-side="icons"] .side { padding-inline: calc(0.5rem * var(--chrome)); align-items: center; overflow: hidden; }
+  :root[data-side="icons"] .side-head { flex-direction: column; }
+  :root[data-side="icons"] .side-head .brand { display: none; }
+  :root[data-side="icons"] .side-toggle { margin-right: 0; }
+  :root[data-side="icons"] .side-grip { display: none; }
+  :root[data-side="icons"] .side nav { align-items: center; }
+  :root[data-side="icons"] .side nav a { justify-content: center; margin-left: 0; padding-inline: 0.5rem; min-width: 2.75rem; min-height: 2.75rem; border-left-width: 0; border-radius: var(--radius); }
+  :root[data-side="icons"] .side nav a.on { background: var(--leaf-soft); }
+  :root[data-side="icons"][data-nav-icons="off"] .side nav .ico { display: inline-flex; }
+  :root[data-side="icons"] .side :is(.nav-label, .btn-label) { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  :root[data-side="icons"] .side .head-actions { align-items: center; }
+  :root[data-side="icons"] .side .head-actions .ico { display: inline-flex; }
+  :root[data-side="icons"] .side .head-actions :is(button, wa-button) { min-width: 2.5rem; padding-inline: 0.5rem; }
   #view { padding: 2.5rem 3rem 4rem; }
 }
+@media (min-width: 60rem) and (prefers-reduced-motion: reduce) { :root #app { transition: none; } }
 
 /* ---- page parts ---- */
 .page-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.75rem; }
@@ -276,6 +311,8 @@ details > summary { cursor: pointer; padding: 0.6rem 0; color: var(--leaf); font
   padding: 0.15rem 0; background: none; border: 0; text-align: left; font-weight: 500; color: inherit; text-decoration: none;
 }
 .list .row-main > span { overflow-wrap: anywhere; }
+/* A time box beside a row keeps its own width, so the row's text is not squeezed to one letter a line. */
+.list li > :is(input[type="time"], wa-input[type="time"]) { width: auto; flex: none; max-width: 9.5rem; }
 .list .row-main .meta { margin-left: 0.6rem; }
 .list li.done .row-main > span { text-decoration: line-through; color: var(--muted); }
 .list li.late small:last-of-type, .list li.late .meta { color: var(--c-late); font-weight: 600; }
@@ -648,3 +685,33 @@ input.xo-hex { width: 6.5rem; min-height: 2.5rem; padding: 0.3rem 0.5rem; font-f
 /* ---- Dictation ---- */
 .voice-live { color: var(--muted); font-size: var(--fs-small, 0.875rem); }
 .voice-btn.listening { background: var(--ochre-soft); border-color: var(--ochre); }
+
+/* ---- icons (Phosphor and Tabler, static/js/icons.js) ---- */
+.ico { display: inline-flex; flex: none; width: 1.25rem; height: 1.25rem; }
+.ico svg { width: 100%; height: 100%; display: block; }
+.head-actions .ico { display: none; } /* the Look and plan card buttons show icons only on a collapsed side bar */
+:root[data-nav-icons="off"] :is(.side nav, .tabs, .links) .ico { display: none; }
+.list.links .row-main { flex-direction: row; align-items: center; justify-content: flex-start; gap: 0.65rem; }
+.icon-list { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr)); gap: 0.5rem; }
+.icon-pick { display: inline-flex; align-items: center; gap: 0.55rem; width: 100%; justify-content: flex-start; }
+.icon-pop {
+  position: fixed; inset: auto; margin: 0; padding: 0.9rem;
+  width: min(23rem, calc(100vw - 1rem)); height: min(32rem, calc(100dvh - 1rem));
+  display: none; flex-direction: column; gap: 0.6rem;
+  background: var(--surface); color: var(--ink); border: var(--rule) solid var(--line); border-radius: var(--radius-dialog, var(--radius));
+  box-shadow: 0 12px 32px color-mix(in oklch, var(--ink) 18%, transparent);
+}
+.icon-pop:popover-open { display: flex; }
+.ip-head { display: flex; align-items: center; gap: 0.7rem; }
+.ip-preview { width: 2.25rem; height: 2.25rem; padding: 0.35rem; border-radius: var(--radius); background: var(--leaf-soft); }
+.ip-title { display: flex; flex-direction: column; min-width: 0; flex: 1; line-height: 1.25; }
+.ip-name { font-size: var(--fs-small, 0.875rem); color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ip-controls { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
+.ip-controls > * { flex: 1 1 auto; min-width: 0; }
+.ip-controls > input { flex-basis: 9rem; }
+.ip-grid { flex: 1; min-height: 0; overflow-y: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(2.75rem, 1fr)); gap: 0.25rem; align-content: start; }
+.ip-cell { display: flex; align-items: center; justify-content: center; min-height: 2.75rem; padding: 0; background: transparent; border: var(--rule) solid transparent; border-radius: var(--radius); color: var(--ink); }
+.ip-cell .ico { width: 1.4rem; height: 1.4rem; }
+.ip-cell:hover { background: var(--leaf-soft); }
+.ip-cell[aria-selected="true"] { border-color: var(--leaf); background: var(--leaf-soft); color: var(--leaf); }
+.ip-status { margin: 0; }

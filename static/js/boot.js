@@ -114,7 +114,9 @@
   const SECTIONS = ['today', 'diary', 'tasks', 'obligations', 'routine', 'bills', 'checkin', 'plan', 'settings', 'appearance', 'canvas', 'tracker', 'notes'];
   const LOOK_TABS = ['theme', 'text', 'layout', 'effects', 'screens', 'share']; // the Appearance screen's groups
   const BLOCKS = ['line', 'next', 'three', 'day', 'coming', 'plan'];
-  const DEFAULT_PREFS = { clock24: false, tabs: ['today', 'diary', 'tasks', 'obligations'], blocks: BLOCKS.slice(), hidden: [], title: 'XO', callMe: '', pop: true, view: 'standard', lookTab: 'theme' };
+  const DEFAULT_PREFS = { clock24: false, tabs: ['today', 'diary', 'tasks', 'obligations'], blocks: BLOCKS.slice(), hidden: [], title: 'XO', callMe: '', pop: true, view: 'standard', lookTab: 'theme', navIcons: true, icons: {}, sideW: 240, side: 'open' };
+  const ICON_KEYS = SECTIONS.concat(['more']); // screens whose icon the owner can change
+  const ICON_RE = /^(tabler\/)?[a-z0-9-]{1,60}(:fill)?$/;
 
   const clamp = (n, lo, hi, fallback) => { n = Number(n); return Number.isFinite(n) ? Math.min(hi, Math.max(lo, n)) : fallback; };
   const text = (v, max, fallback) => (typeof v === 'string' ? v.slice(0, max) : fallback);
@@ -193,6 +195,10 @@
       pop: raw.pop !== false,
       view: raw.view === 'advanced' ? 'advanced' : 'standard',
       lookTab: LOOK_TABS.includes(raw.lookTab) ? raw.lookTab : 'theme',
+      navIcons: raw.navIcons !== false,
+      icons: Object.fromEntries(ICON_KEYS.filter((k) => raw.icons && typeof raw.icons[k] === 'string' && ICON_RE.test(raw.icons[k])).map((k) => [k, raw.icons[k]])),
+      sideW: Math.round(clamp(raw.sideW, 180, 420, 240)),
+      side: raw.side === 'icons' ? 'icons' : 'open',
     };
   }
   const isTime = (v) => typeof v === 'string' && /^([01]\d|2[0-3]):[0-5]\d$/.test(v);
@@ -304,6 +310,9 @@
     colourOverrides(look.colours);
     identStyle(look.ident);
     root.dataset.pop = state.prefs.pop ? 'on' : 'off';
+    root.dataset.navIcons = state.prefs.navIcons ? 'on' : 'off';
+    root.dataset.side = state.prefs.side;
+    set('--side-w', state.prefs.sideW + 'px');
     lastKey = (item ? item.id : 'base') + '|' + root.dataset.scheme;
   }
 
