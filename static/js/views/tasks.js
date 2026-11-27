@@ -125,9 +125,9 @@ function previewText(raw, meta) {
   return parts.length ? t('lists.tasks.preview', { parts: parts.join(', ') }) : '';
 }
 
-// Text typed into a quick-add box and not yet sent, by box.
+// Text typed into a quick-add box and not yet sent, by box: { text, screen }. It comes back only on the same screen.
 const typed = new Map();
-window.addEventListener('hashchange', () => typed.clear());
+const screenNow = () => location.hash.split('/')[1] || '';
 
 /**
  * The quick add form: one line of text, read by parseQuick. extra is merged into the new task and focusKey is its
@@ -147,9 +147,9 @@ export function quickAdd(placeholder, extra, focusKey, { preview = false } = {})
     },
   }, box, button(t('lists.shared.add'), { variant: 'primary', type: 'submit' }));
   // A redraw (a save finishing, a dialog closing) replaces this box. Keep what was typed and the focus, so the next key is not lost.
-  box.addEventListener('input', () => { if (box.value) typed.set(focusKey, box.value); else typed.delete(focusKey); });
+  box.addEventListener('input', () => { if (box.value) typed.set(focusKey, { text: box.value, screen: screenNow() }); else typed.delete(focusKey); });
   box.addEventListener('focusout', (e) => { if (e.relatedTarget) typed.delete(focusKey); });
-  const kept = typed.get(focusKey);
+  const kept = typed.get(focusKey)?.screen === screenNow() ? typed.get(focusKey).text : '';
   if (kept) {
     box.value = kept;
     setTimeout(() => { if (box.isConnected && document.activeElement === document.body) box.focus({ preventScroll: true }); }, 0);
