@@ -85,6 +85,44 @@ with sync_playwright() as p:
       }
       return document.documentElement.dataset.kit;
     }"""
+    COMPONENTS = """async (kit) => {
+      const { loadText } = await import('/js/text.js');
+      await loadText();
+      const ui = await import('/js/ui.js');
+      const { tabStrip } = await import('/js/tabs.js');
+      const w = window;
+      w.__seg = null; w.__tog = null; w.__card = null; w.__font = null; w.__q = null; w.__moved = null;
+      w.__tab = null; w.__col = null;
+      const host = document.createElement('div');
+      host.id = 'cmp-host';
+      const fonts = [
+        ['Built in', [['atkinson', 'Atkinson'], ['mono', 'Mono']]],
+        ['Static serif', [['g:lora|Lora', 'Lora'], ['g:lato|Lato', 'Lato']]],
+      ];
+      const one = (id, el) => { const d = document.createElement('div'); d.id = id; d.append(el); return d; };
+      const strip = tabStrip({ label: 'Groups', vertical: true, active: 'a', onSelect: (k) => { w.__tab = k; },
+        items: [{ key: 'a', label: 'Alpha', badge: 2 }, { key: 'b', label: 'Beta' }] });
+      host.append(
+        one('cmp-seg', ui.segmented('Pick', [['a', 'One'], ['b', 'Two'], ['c', 'Three']], { value: 'a', onchange: (v) => { w.__seg = v; } })),
+        one('cmp-tog', ui.toggle('Glass', { checked: false, onchange: (v) => { w.__tog = v; } })),
+        one('cmp-disc', ui.disclosure('Section', document.createTextNode('Inside'), { open: false, badge: ui.badge('3', 'accent') })),
+        one('cmp-cards', ui.optionCards('Style', [
+          { value: 'a', title: 'Card A', hint: 'First' }, { value: 'b', title: 'Card B', hint: 'Second' },
+        ], { value: 'a', onchange: (v) => { w.__card = v; } })),
+        one('cmp-search', ui.searchBox({ placeholder: 'Find', oninput: (v) => { w.__q = v; } })),
+        one('cmp-font', ui.fontPicker({ value: 'atkinson', fonts, label: 'Body font', onchange: (v) => { w.__font = v; } })),
+        one('cmp-col', ui.colourField({ value: '#336699', label: 'Ink', onchange: (v) => { w.__col = v; } })),
+        one('cmp-sort', ui.sortList(['first', 'second', 'third'], { render: (x) => document.createTextNode(x), onmove: (a, b) => { w.__moved = [a, b]; } })),
+        one('cmp-stat', ui.stat('Due', '12')),
+        one('cmp-tabs', strip.el),
+      );
+      document.body.append(host);
+      if (kit === 'wa') {
+        const tags = ['wa-radio-group', 'wa-radio', 'wa-switch', 'wa-details', 'wa-badge', 'wa-card', 'wa-input', 'wa-color-picker'];
+        await Promise.all(tags.map((t) => customElements.whenDefined(t)));
+      }
+      return true;
+    }"""
     PRIMARY_BG = "getComputedStyle(document.querySelector('#kit-host button, #kit-host wa-button')).backgroundColor"
     for kit in ("xo", "daisy", "wa"):
         assert page.evaluate(BUILD, kit) == kit
@@ -113,6 +151,60 @@ with sync_playwright() as p:
         if kit == "daisy":
             assert page.evaluate(PRIMARY_BG) != "rgba(0, 0, 0, 0)", "daisyUI classes did not compile into tw.css"
         page.evaluate("document.getElementById('kit-host').remove()")
+
+        # Appearance components (segmented, toggle, disclosure, option cards, search, font picker, colour, sort, stat).
+        assert page.evaluate(COMPONENTS, kit)
+        cmp = page.locator("#cmp-host")
+        cmp.get_by_role("radio", name="Two").click()
+        assert page.evaluate("window.__seg") == "b", "segmented click"
+        page.keyboard.press("ArrowRight")
+        assert page.evaluate("window.__seg") == "c", "segmented arrow key"
+        sw = page.locator("#cmp-tog wa-switch") if kit == "wa" else cmp.get_by_role("switch")
+        sw.click()
+        assert page.evaluate("window.__tog") is True, "toggle on"
+        sw = page.locator("#cmp-tog wa-switch") if kit == "wa" else cmp.get_by_role("switch")
+        sw.click()
+        assert page.evaluate("window.__tog") is False, "toggle off"
+        disc = page.locator("#cmp-disc > *")
+        assert not disc.evaluate("(e) => e.open")
+        page.locator("#cmp-disc").get_by_text("Section").click()
+        assert disc.evaluate("(e) => e.open"), "disclosure opens"
+        page.locator("#cmp-disc").get_by_text("Section").click()
+        page.wait_for_function("!document.querySelector('#cmp-disc > *').open")
+        page.locator("#cmp-cards button", has_text="Card B").click()
+        assert page.evaluate("window.__card") == "b", "option card"
+        expect(page.locator("#cmp-cards button", has_text="Card B")).to_have_attribute("aria-checked", "true")
+        search_in = page.locator("#cmp-search input")
+        search_in.fill("abc")
+        assert page.evaluate("window.__q") == "abc", "search input"
+        if kit != "wa":
+            page.locator("#cmp-search .xo-search-x").click()
+            assert page.evaluate("window.__q") == "", "search clear"
+        font_in = page.locator("#cmp-font input")
+        font_in.click()
+        font_in.fill("lora")
+        expect(page.locator("#cmp-font [role=option]")).to_have_count(1)
+        font_in.press("Enter")
+        assert page.evaluate("window.__font") == "g:lora|Lora", "font picker"
+        assert page.evaluate("!!document.head.querySelector('link[data-xo-font=lora]')"), "font loaded on choose"
+        assert not page.evaluate("!!document.head.querySelector('link[data-xo-font=lato]')"), "unchosen font not loaded"
+        if kit != "wa":
+            hexbox = page.locator("#cmp-col input.xo-hex")
+            hexbox.fill("#112233")
+            hexbox.press("Enter")
+            assert page.evaluate("window.__col") == "#112233", "colour hex box"
+        else:
+            expect(page.locator("#cmp-col wa-color-picker")).to_have_count(1)
+        page.locator("#cmp-sort li").first.get_by_label("Move down").click()
+        assert page.evaluate("window.__moved") == [0, 1], "sort list down"
+        assert page.locator("#cmp-sort .xo-sort-body").all_inner_texts() == ["second", "first", "third"]
+        expect(page.locator("#cmp-stat .figure")).to_contain_text("12")
+        expect(page.locator("#cmp-tabs [role=tablist]")).to_have_attribute("aria-orientation", "vertical")
+        page.locator("#cmp-tabs [role=tab]").first.focus()
+        page.keyboard.press("ArrowDown")
+        assert page.evaluate("window.__tab") == "b", "vertical tabs arrow down"
+        page.evaluate("document.getElementById('cmp-host').remove()")
+        print("appearance components ok:", kit)
         print("ui.js controls ok:", kit)
     browser.close()
 

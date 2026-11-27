@@ -8,11 +8,12 @@
 // stays open, so a half-typed field survives a switch. The caller saves keys() and active()
 // through onChange if the open tabs should come back after a reload.
 //
-// Keyboard: Left and Right move between tabs and show the one reached, Home and End go to the
+// Keyboard: Left and Right (Up and Down when vertical) move between tabs and show the one reached, Home and End go to the
 // ends, Delete closes a closable tab. Tab and close buttons are plain buttons styled in
 // static/canvas.css: they are part of the strip's look, not form controls, so ui.js and the
 // Kit choice leave them alone.
 import { t } from './text.js';
+import { badge } from './ui.js';
 import { h } from './util.js';
 
 let seq = 0;
@@ -27,14 +28,16 @@ function styles() {
   document.head.append(link);
 }
 
-// items: [{ key, label, closable, controls }] (controls: id of that tab's own panel). active: the selected key.
+// items: [{ key, label, closable, controls, badge }] (controls: id of that tab's own panel; badge: a short count or word
+// shown beside the label, left off when empty). active: the selected key.
+// vertical: stack the tabs in a column (aria-orientation=vertical, Up and Down keys).
 // onSelect(key), onClose(key): called on a click or key press; the caller updates and calls set().
 // label: the strip's accessible name. panelId: id of the panel the tabs control, if one.
-export function tabStrip({ items = [], active = null, label, onSelect, onClose, panelId } = {}) {
+export function tabStrip({ items = [], active = null, label, onSelect, onClose, panelId, vertical = false } = {}) {
   styles();
   const base = `xt${++seq}`;
-  const list = h('div', { class: 'xo-tablist', role: 'tablist', 'aria-label': label });
-  const el = h('div', { class: 'xo-tabs' }, list);
+  const list = h('div', { class: 'xo-tablist', role: 'tablist', 'aria-label': label, 'aria-orientation': vertical ? 'vertical' : null });
+  const el = h('div', { class: vertical ? 'xo-tabs xo-tabs-v' : 'xo-tabs' }, list);
   let current = { items, active };
 
   const tabId = (key) => `${base}-${key}`.replace(/[^A-Za-z0-9_-]/g, '_');
@@ -55,7 +58,7 @@ export function tabStrip({ items = [], active = null, label, onSelect, onClose, 
         'aria-controls': item.controls ?? panelId,
         tabindex: on ? '0' : '-1',
         onclick: () => onSelect?.(item.key),
-      }, item.label);
+      }, item.label, item.badge != null && item.badge !== '' ? badge(String(item.badge), 'accent') : null);
       const close = item.closable && onClose
         ? h('button', {
           type: 'button',
@@ -77,8 +80,9 @@ export function tabStrip({ items = [], active = null, label, onSelect, onClose, 
     const keys = current.items.map((i) => i.key);
     const at = keys.indexOf(tab.dataset.key);
     let next = null;
-    if (e.key === 'ArrowRight') next = keys[(at + 1) % keys.length];
-    else if (e.key === 'ArrowLeft') next = keys[(at - 1 + keys.length) % keys.length];
+    const [fwd, back] = vertical ? ['ArrowDown', 'ArrowUp'] : ['ArrowRight', 'ArrowLeft'];
+    if (e.key === fwd) next = keys[(at + 1) % keys.length];
+    else if (e.key === back) next = keys[(at - 1 + keys.length) % keys.length];
     else if (e.key === 'Home') next = keys[0];
     else if (e.key === 'End') next = keys[keys.length - 1];
     else if (e.key === 'Delete') {

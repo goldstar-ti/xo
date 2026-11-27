@@ -14,6 +14,12 @@ common:
   save: Save
   cancel: Cancel
   close: Close
+  clear: Clear
+  up: Move up
+  down: Move down
+  drag: Drag to reorder
+  no_match: Nothing matches.
+  font_sample: The quick brown fox jumps over the lazy dog.
   delete: Delete
   delete_confirm: Tap again to delete
   not_saved: Not saved.
