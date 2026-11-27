@@ -1,6 +1,6 @@
 import * as store from '../store.js';
 import { h, kvSet, toast, today, put, uid } from '../util.js';
-import { button, checkbox, field, focusControl, input, select, textarea } from '../ui.js';
+import { button, callout, checkbox, field, focusControl, input, select, textarea } from '../ui.js';
 import { t, text } from '../text.js';
 import * as lookups from '../lookups.js';
 import { allTasks } from '../taskdata.js';
@@ -289,12 +289,14 @@ export function render(root) {
     } catch (err) { toast(err.message, 'bad'); }
   };
 
-  const pushLine = h('p', { class: 'note' }, t('settings.checking'));
+  const showPush = (msg, kind) => pushLine.replaceChildren(callout(msg, { kind, icon: 'tabler/bell' }));
+  const pushLine = h('div', { class: 'push-status', role: 'status' });
+  showPush(t('settings.checking'), 'neutral');
   const pushBtn = button(t('settings.push.turn_on'), { variant: 'primary' });
   const testBtn = button(t('settings.push.test'));
   const drawPush = async () => {
     const state = await pushState().catch(() => 'unsupported');
-    pushLine.textContent = t(`settings.push.${state}`);
+    showPush(t(`settings.push.${state}`), state === 'on' ? 'brand' : state === 'off' ? 'neutral' : 'warning');
     pushBtn.textContent = state === 'on' ? t('settings.push.turn_off') : t('settings.push.turn_on');
     pushBtn.hidden = state === 'denied' || state === 'unsupported';
     testBtn.hidden = state !== 'on';

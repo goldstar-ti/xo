@@ -100,13 +100,16 @@ export function toast(text, kind = '') {
 }
 
 // ---- dialogs ----
-export function openDialog(title, body, { wide = false } = {}) {
-  const dlg = h('dialog', { class: wide ? 'sheet wide' : 'sheet' });
+export function openDialog(title, body, { wide = false, form = false } = {}) {
+  const dlg = h('dialog', { class: ['sheet', wide && 'wide', form && 'form-sheet'].filter(Boolean).join(' ') });
   const close = () => dlg.close();
-  dlg.append(
-    h('div', { class: 'sheet-head' }, h('h2', {}, title), button(t('common.close'), { onclick: close })),
-    body,
-  );
+  // A form sheet has Cancel on the left, the title in the middle and a spacer on the right; the others keep Close on the right.
+  const head = form
+    ? h('div', { class: 'sheet-head' },
+      h('button', { type: 'button', class: 'sheet-cancel', onclick: close }, icon('tabler/x'), t('common.cancel')),
+      h('h2', {}, title), h('span', { class: 'sheet-gap', 'aria-hidden': 'true' }))
+    : h('div', { class: 'sheet-head' }, h('h2', {}, title), button(t('common.close'), { onclick: close }));
+  dlg.append(head, form ? h('div', { class: 'sheet-body' }, body) : body);
   dlg.addEventListener('close', () => dlg.remove());
   dlg.addEventListener('click', (e) => { if (e.target === dlg) close(); });
   document.body.append(dlg);
@@ -192,7 +195,7 @@ export function openForm({ title, fields, values = {}, saveLabel = t('common.sav
   const cancel = anchor && button(t('common.cancel'), { variant: 'ghost', onclick: () => dlg.close() });
   const form = h('form', { class: 'form' }, note && h('p', { class: 'note' }, note), h('div', { class: 'fields' }, mainRows), moreBlock, error,
     h('div', { class: 'form-actions' }, del, cancel, save));
-  const dlg = anchor ? openPopover({ title, body: form, anchor, form: true }) : openDialog(title, form);
+  const dlg = anchor ? openPopover({ title, body: form, anchor, form: true }) : openDialog(title, form, { form: true });
   if (del) {
     let armed = false;
     del.addEventListener('click', async () => {

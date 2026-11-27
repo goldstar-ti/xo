@@ -34,7 +34,23 @@ app:
     settings: Settings
     canvas: Canvas
     tracker: Tracker
+  # One plain line under each name on More.
+  more_sub:
+    today: The day at a glance
+    diary: Appointments and what is coming up
+    tasks: Everything to do, and the three for today
+    notes: Notes in Markdown
+    obligations: The duties you have to meet
+    routine: What you do each day
+    bills: What is due, and when
+    checkin: Morning, evening and weekly
+    plan: Your relapse prevention plan
+    appearance: Colours, fonts and layout
+    settings: Reminders, times and your data
+    canvas: Screens as widgets on tabs
+    tracker: Projects and their items
   auth:
+    no_reset: There is no password reset. Write your password down and keep it somewhere safe.
     intro_new: Set a name and a password.
     intro_existing: Sign in on this device.
     name: Name

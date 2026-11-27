@@ -209,8 +209,8 @@ with sync_playwright() as p:
     page.get_by_role("button", name="Save check-in").click()
     expect(page.locator("h1")).to_contain_text(now.strftime("%-d %B"))
     page.goto(f"{BASE}/#/checkin/evening")
-    page.get_by_role("button", name="went outside").click()
-    page.get_by_role("button", name="yes", exact=True).click()
+    (page.locator("wa-checkbox", has_text="went outside") if KIT == "wa" else page.get_by_role("checkbox", name="went outside")).click()
+    page.get_by_role("radio", name="yes", exact=True).click()
     expect(page.locator(".reveal")).to_contain_text("Message Sam")
     page.screenshot(path=SHOTS / "08-evening.png", full_page=True)
     set_control(page.locator(".reveal textarea, .reveal wa-textarea").first, "Messaged Sam at 8 pm.")
@@ -265,8 +265,8 @@ with sync_playwright() as p:
         page.keyboard.press("Tab")
     expect(page.locator("#view")).to_contain_text("You are using your own version of this list.")
     page.goto(f"{BASE}/#/checkin/evening")
-    expect(page.get_by_role("button", name="fed the cat", exact=True)).to_have_count(1)
-    expect(page.get_by_role("button", name="moved my body or went for a walk", exact=True)).to_have_count(0)
+    expect(page.get_by_role("checkbox", name="fed the cat", exact=True)).to_have_count(1)
+    expect(page.get_by_role("checkbox", name="moved my body or went for a walk", exact=True)).to_have_count(0)
     page.goto(f"{BASE}/#/settings")
     page.get_by_role("button", name="Go back to the original list").click()
     with settings_saved():
@@ -324,6 +324,22 @@ with sync_playwright() as p:
     assert 13 <= rhythm["tab"] <= 15, rhythm
     assert 25 <= rhythm["h1"] <= 27, rhythm
     assert rhythm["over"] <= 0, rhythm
+    # a form is a full-screen sheet on a phone: its Save button sits at the bottom edge, above the footer padding
+    page.goto(f"{BASE}/#/diary")
+    page.get_by_role("button", name="Add appointment").click()
+    form = page.locator("dialog[open]")
+    expect(form.get_by_role("button", name="Save")).to_be_visible()
+    sheet = page.evaluate(
+        """() => {
+            const d = document.querySelector('dialog[open]').getBoundingClientRect();
+            const s = document.querySelector('dialog[open] .form-actions').lastElementChild.getBoundingClientRect();
+            return { top: d.top, height: d.height, vh: innerHeight, below: innerHeight - s.bottom };
+        }"""
+    )
+    assert sheet["top"] == 0 and abs(sheet["height"] - sheet["vh"]) <= 1, sheet
+    assert abs(sheet["below"] - 16) <= 20, sheet
+    form.get_by_role("button", name="Cancel").click()
+    expect(form).to_have_count(0)
     page.set_viewport_size({"width": 412, "height": 915})
 
     # --- desktop layout, light and dark

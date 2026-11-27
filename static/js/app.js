@@ -3,7 +3,7 @@ import * as store from './store.js';
 import { DEFAULT_ROUTINES, DEFAULT_SETTINGS } from './content.js';
 import { loadWebAwesome } from './kit.js';
 import { loadText, t, text } from './text.js';
-import { button, field, focusControl, input } from './ui.js';
+import { button, callout, field, focusControl, input, linkRow } from './ui.js';
 import { dialogOpen, h, kvClear, kvSet, put, toast, uid } from './util.js';
 import * as todayView from './views/today.js';
 import * as checkinView from './views/checkin.js';
@@ -102,7 +102,8 @@ const more = {
   live: false,
   render(root) {
     put(root, h('header', { class: 'page-head' }, h('h1', {}, t('app.more'))),
-      h('ul', { class: 'list links' }, NAV.filter(([k]) => !tabs().includes(k)).map(([k, label]) => h('li', {}, h('a', { class: 'row-main', href: `#/${k}` }, icon(iconOf(k)), label)))));
+      h('ul', { class: 'list links' }, NAV.filter(([k]) => !tabs().includes(k)).map(([k, label]) => h('li', {},
+      linkRow({ icon: iconOf(k), title: label, sub: text('app.more_sub')[k], href: `#/${k}` })))));
   },
 };
 const VIEWS = { today: todayView, diary, tasks: tasksView, notes: notesView, obligations, routine, bills, checkin: checkinView, plan: planView, settings: settingsView, appearance: appearanceView, canvas: canvasView, tracker: trackerView, more };
@@ -190,15 +191,17 @@ function authScreen(hasUser, message = '') {
   const name = input({ id: 'a-name', type: 'text', autocomplete: 'username', autocapitalize: 'none', spellcheck: 'false', required: true, pattern: '[A-Za-z0-9._\\-]{2,40}' });
   const pass = input({ id: 'a-pass', type: 'password', autocomplete: isNew ? 'new-password' : 'current-password', required: true, minlength: 8 });
   const again = isNew && input({ id: 'a-again', type: 'password', autocomplete: 'new-password', required: true });
-  const error = h('p', { class: 'form-error', role: 'alert' }, message);
+  const error = h('p', { class: 'form-error', role: 'alert' });
   const label = isNew ? t('common.create_and_open') : t('common.sign_in');
   const btn = button(label, { variant: 'primary', type: 'submit', class: 'big' });
   const form = h('form', { class: 'form auth' },
     h('h1', {}, t('app.name')),
+    message && callout(message, { kind: 'neutral', icon: 'tabler/info-circle' }),
     h('p', { class: 'note' }, isNew ? t('app.auth.intro_new') : t('app.auth.intro_existing')),
     field(t('app.auth.name'), name),
     field(t('app.auth.password'), pass, isNew ? t('app.auth.password_hint') : null),
     isNew && field(t('app.auth.password_again'), again),
+    isNew && callout(t('app.auth.no_reset'), { kind: 'warning', icon: 'tabler/alert-triangle' }),
     error, btn);
   form.addEventListener('submit', async (e) => {
     e.preventDefault();

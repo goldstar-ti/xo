@@ -800,3 +800,49 @@ dialog.xo-pop.sheet { width: min(34rem, 100%); max-width: 100%; margin: auto aut
   body[data-view="obligations"] #view > :is(.page-head, .callout) { grid-column: 1 / -1; }
   body[data-view="obligations"] #view > section { border-top: 3px solid var(--ink); padding-top: 0.6rem; }
 }
+
+/* ---- form sheets: full screen on a phone, a centred modal from 40rem; the actions stay pinned at the bottom ---- */
+dialog.sheet.form-sheet[open] { display: flex; flex-direction: column; padding: 0; overflow: hidden; }
+.form-sheet .sheet-head {
+  flex: none; display: grid; grid-template-columns: 5.2rem minmax(0, 1fr) 5.2rem; align-items: center; gap: 0;
+  height: 3.3rem; margin: 0; padding: 0 0.7rem; border-bottom: var(--rule) solid var(--line);
+}
+.form-sheet .sheet-head h2 { font-size: 0.94rem; font-weight: 700; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sheet-cancel {
+  display: inline-flex; align-items: center; gap: 0.3rem; justify-self: start; min-height: 2.5rem; padding: 0 0.6rem;
+  background: none; border: 0; border-radius: var(--radius); color: var(--ink); font-weight: 600; cursor: pointer;
+}
+.sheet-cancel .ico { width: 1.1rem; height: 1.1rem; }
+.form-sheet .sheet-body { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; }
+.form-sheet .sheet-body > .form { flex: 1; display: flex; flex-direction: column; padding: 1rem 1.18rem 0; }
+.form-sheet .form > :nth-last-child(2) { margin-bottom: 0.9rem; }
+.form-sheet .form-actions {
+  position: sticky; bottom: 0; z-index: 1; flex: none; align-items: center;
+  margin: auto -1.18rem 0; padding: 0.7rem 1.18rem calc(0.94rem + env(safe-area-inset-bottom));
+  background: var(--surface); border-top: var(--rule) solid var(--line);
+}
+.form-sheet .form-actions > :last-child { flex: 1; margin-left: 0; }
+.form-sheet .form-actions > wa-button:last-child::part(base) { width: 100%; }
+@media (max-width: 39.99rem) {
+  dialog.sheet.form-sheet { width: 100%; height: 100dvh; max-height: none; margin: 0; border: 0; border-radius: 0; }
+}
+
+/* ---- check-ins, plan, settings, More and sign-in ---- */
+.checks { display: grid; gap: calc(0.35rem * var(--d)); }
+.checks .field.check { min-height: 2.5rem; }
+.callout-body strong { display: block; font-weight: 600; }
+.callout-body .own { margin-top: 0.2rem; }
+.checkin .reveal > .callout, .checkin .reveal > .xo-seg { margin-top: 0.6rem; }
+@media (max-width: 59.99rem) {
+  .savebar.pinned { position: sticky; bottom: calc(3.53rem * var(--chrome) + env(safe-area-inset-bottom)); z-index: 2; max-width: none; margin: 0 -1.18rem; padding: 0.7rem 1.18rem; background: var(--surface); border-top: var(--rule) solid var(--line); }
+}
+.savebar.pinned > :is(.big, button, wa-button) { width: 100%; }
+.plan-progress { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 0.75rem; }
+.plan-progress .meta { white-space: nowrap; }
+.plan-jump { max-width: 26rem; }
+.links .link-row { padding-left: 0; padding-right: 0; }
+.auth .callout { margin-top: 0.9rem; }
+.auth .auth-foot { display: flex; align-items: center; gap: 0.5rem; color: var(--muted); font-size: var(--fs-small, 0.875rem); }
+.history .mark { display: inline-flex; flex-direction: column; align-items: flex-start; gap: 0.15rem; }
+.history td .mark a { font-size: var(--fs-small, 0.875rem); color: var(--muted); font-weight: 500; }
+.list.links li > .link-row { flex: 1; min-width: 0; }

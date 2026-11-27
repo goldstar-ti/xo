@@ -218,7 +218,9 @@ plan:
   status_failed: Not saved
   card_button: Plan card
   fill_intro: 'Fill in the good life and support sections before the risk sections. One box in a sitting is enough. '
-  count: '{done} of {total} boxes written'
+  progress_label: Boxes written
+  progress_of: '{done} of {total} boxes'
+  jump: Go to section
   next_box: 'Next box: '
   section_heading: '{n}. {title}'
   example: 'Example: {eg}'
@@ -232,5 +234,6 @@ plan:
     slip: 'If I have a slip: my first three steps'
     matters: What matters most to me
     services: Services
+    services_title: 'Services ({n} numbers)'
     empty: Not written yet.
     edit: Edit my plan

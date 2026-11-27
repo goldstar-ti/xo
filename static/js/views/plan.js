@@ -1,6 +1,6 @@
 import * as store from '../store.js';
 import { GUARD_TEXT, PLAN, PLAN_FIRST, PLAN_VARIANTS, SERVICES } from '../content.js';
-import { button, field, textarea } from '../ui.js';
+import { button, callout, disclosure, field, progress, select, textarea } from '../ui.js';
 import { t } from '../text.js';
 import { h, openDialog, toast, withPhoneLinks, put } from '../util.js';
 
@@ -47,18 +47,29 @@ export function render(root) {
   const boxes = sections.flatMap((s) => s.boxes);
   const status = h('span', { class: 'meta', role: 'status' }, '');
   const count = h('span', { class: 'meta' });
-  const recount = () => { count.textContent = t('plan.count', { done: boxes.filter((b) => (plan.answers[b.k] || '').trim()).length, total: boxes.length }); };
+  const bar = h('div', { class: 'plan-progress' });
+  const recount = () => {
+    const done = boxes.filter((b) => (plan.answers[b.k] || '').trim()).length;
+    count.textContent = t('plan.progress_of', { done, total: boxes.length });
+    bar.replaceChildren(progress(done / boxes.length, t('plan.progress_label')), count);
+  };
   recount();
+  const jump = select(sections.map((s) => [String(s.n), t('plan.section_heading', { n: s.n, title: s.title })]), {
+    id: 'plan-jump', 'aria-label': t('plan.jump'),
+    onchange: (e) => document.getElementById(`sec-${e.target.value}`)?.scrollIntoView({ block: 'start' }),
+  });
   const next = [...PLAN_FIRST.map((k) => boxes.find((b) => b.k === k)).filter(Boolean), ...boxes].find((b) => !(plan.answers[b.k] || '').trim());
 
   put(root, 
     h('header', { class: 'page-head' }, h('h1', {}, t('plan.title')), h('div', { class: 'actions' }, status, button(t('plan.card_button'), { variant: 'primary', onclick: openPlanCard }))),
-    h('p', { class: 'note' }, t('plan.fill_intro'), count, '.'),
+    bar,
+    field(t('plan.jump'), jump, null, { half: true }),
+    h('p', { class: 'note' }, t('plan.fill_intro')),
     next && h('p', { class: 'nudge' }, t('plan.next_box'), h('a', { href: `#box-${next.k}`, onclick: (e) => { e.preventDefault(); const el = document.getElementById(`box-${next.k}`); el.scrollIntoView({ block: 'center' }); el.focus(); } }, next.q)),
-    sections.map((s) => h('section', { class: 'plan-sec' },
+    sections.map((s) => h('section', { class: 'plan-sec', id: `sec-${s.n}` },
       h('h2', {}, t('plan.section_heading', { n: s.n, title: s.title })),
       s.note && h('p', { class: 'hint' }, s.note),
-      s.guard && store.settings().showGuard && h('p', { class: 'guard' }, GUARD_TEXT),
+      s.guard && store.settings().showGuard && callout(GUARD_TEXT, { kind: 'neutral', icon: 'tabler/lock' }),
       s.boxes.map((b) => field(b.q, textarea({
         id: `box-${b.k}`, rows: 4, value: plan.answers[b.k] || '',
         oninput: (e) => { plan.answers[b.k] = e.target.value; recount(); queueSave(plan, status); },
@@ -84,7 +95,7 @@ export function openPlanCard() {
     block(t('plan.card.team'), a.team, { phones: true }),
     block(t('plan.card.slip'), a.slip),
     block(t('plan.card.matters'), a.good_matters),
-    h('section', {}, h('h3', {}, t('plan.card.services')),
+    disclosure(t('plan.card.services_title', { n: SERVICES.length }),
       h('ul', { class: 'services' }, SERVICES.map((s) => h('li', {},
         h('a', { href: `tel:${s.number.replace(/\s+/g, '')}` }, `${s.name} ${s.number}`), s.note && h('small', {}, s.note))))),
     h('p', {}, h('a', { href: '#/plan', onclick: () => document.querySelector('dialog[open]')?.close() }, t('plan.card.edit'))),

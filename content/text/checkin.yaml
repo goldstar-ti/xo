@@ -200,9 +200,10 @@ checkin:
     morning: Morning check-in
     evening: Evening check-in
     weekly: Weekly review
-    last_14: Last 14 days
+    last_10: Last 10 days
+    missed: missed
     day: Day
     col_morning: Morning
     col_evening: Evening
     done: done
-    open: open
+    open: Open
