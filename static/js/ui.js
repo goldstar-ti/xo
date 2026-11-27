@@ -52,12 +52,24 @@ export function textarea(attrs = {}) {
 }
 
 // options: [[value, label], ...]. Set the starting choice with attrs.value.
+// An entry may also be a group: [groupLabel, [[value, label], ...]]. A native or daisyUI select
+// draws a real group; Web Awesome's select cannot, so there each option reads "Label (Group)".
 export function select(options, attrs = {}) {
   const k = kit();
-  if (k === 'wa') return h('wa-select', attrs, options.map(([value, label]) => h('wa-option', { value }, label)));
-  const opts = options.map(([value, label]) => h('option', { value }, label));
+  const isGroup = (o) => Array.isArray(o[1]);
+  if (k === 'wa') {
+    const flat = options.flatMap((o) => (isGroup(o) ? o[1].map(([value, label]) => [value, `${label} (${o[0]})`]) : [o]));
+    return h('wa-select', attrs, flat.map(([value, label]) => h('wa-option', { value }, label)));
+  }
+  const one = ([value, label]) => h('option', { value }, label);
+  const opts = options.map((o) => (isGroup(o) ? h('optgroup', { label: o[0] }, o[1].map(one)) : one(o)));
   if (k === 'daisy') return h('select', { ...attrs, class: join('tw:select tw:w-full', attrs.class) }, opts);
   return h('select', attrs, opts);
+}
+
+// A colour picker. Always the browser's own: Web Awesome's text input cannot pick a colour.
+export function colour(attrs = {}) {
+  return h('input', { ...attrs, type: 'color', class: join('colour-input', attrs.class) });
 }
 
 // A tick box with no label of its own: wrap it in field() or pass aria-label.

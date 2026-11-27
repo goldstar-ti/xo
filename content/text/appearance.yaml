@@ -59,6 +59,7 @@ appearance:
     dayline: {line: Line, cards: Cards, rows: Rows}
     loud: {quiet: Quiet, regular: Regular, loud: Loud}
     line: {plain: Plain, quote: Pull-quote, hidden: Hidden}
+    figure: {plain: Plain, tint: Tint, accent: Accent, inset: Inset}
   accent:
     group: Accent colour
     theme: Theme
@@ -112,7 +113,7 @@ appearance:
     reset: Reset everything
     reset_armed: Tap again to reset
     reset_done: Back to the original look
-    hint: Surprise me changes theme, typefaces, shape and layout. It leaves text size, weight, spacing, density and mode alone. Your saved themes survive a reset.
+    hint: Surprise me changes theme, typefaces, shape and layout. It leaves text size, weight, spacing and mode alone. Your saved themes survive a reset.
     code_heading: Look code
     code_hint: This code is the look on screen now. Copy it to keep it, or to type it into another device.
     code_aria: Look code
@@ -154,12 +155,21 @@ appearance:
     weight: Weight
     line_spacing: Line spacing
     letter_spacing: Letter spacing
+    code: Code font
+    code_size: Code size
+    code_spacing: Code letter spacing
+    built_in: Built in
+    reset: Reset type
   shape:
-    heading: Shape and space
+    heading: Shape
     corners: Corners
-    density: Density
     rule: Line weight
     texture: Background texture
+    card_radius: Fields and cards
+    pill_radius: Buttons and chips
+    dialog_radius: Dialogs
+    round: Round
+    reset: Reset shape
   layout:
     heading: Layout
     hero: Next-up block
@@ -167,3 +177,75 @@ appearance:
     loud: Heading loudness
     line: Daily line
   mode: Mode
+  view:
+    label: View
+    standard: Standard
+    advanced: Advanced
+    advanced_changed: 'Advanced ({n} changed)'
+    changed_tip: Advanced setting, changed
+    hint: Standard shows the everyday options. Advanced shows every setting.
+  display:
+    heading: Display
+    size: Size
+    compact: Compact
+    regular: Regular
+    comfortable: Comfortable
+    large: Large
+    custom: Custom
+    spacing: Spacing
+    chrome: Header and bar size
+    zoom: Zoom
+  text_sizes:
+    heading: Text sizes
+    default: Default
+    step: '{px} px'
+    reset: Reset text sizes
+    hint: Each kind of text can have its own size. Default follows the Text size dial.
+    roles:
+      display: Large headlines
+      page: Page titles
+      quote: Quoted line
+      figure: Figures
+      dialog: Dialog titles
+      section: Section titles
+      lead: Lead text
+      brand: App name
+      sub: Subheadings
+      body: Body text
+      large: Large text
+      label: Labels
+      control: Buttons
+      small: Notes and small text
+      small_btn: Small buttons
+      nav: Bottom tabs
+      tag: Tags
+      tiny: Tiny text
+  colours:
+    heading: Colours
+    light: Light
+    dark: Dark
+    reset_one: Back to the theme colour
+    reset_light: Reset light colours
+    reset_dark: Reset dark colours
+    hint: A colour set here replaces the theme's colour in that mode. Check that text stays readable.
+    token: Colour
+    tokens:
+      paper: Page background
+      surface: Fields and cards
+      ink: Text
+      muted: Quiet text
+      line: Lines
+      leaf: Accent
+      leaf-ink: Text on accent
+      leaf-soft: Accent tint
+      ochre: Attention
+      ochre-soft: Attention tint
+      danger: Warning
+  glass:
+    heading: Glass
+    alpha: Transparency
+    blur: Blur
+    hint: Lets the page show through the header, bars and dialogs.
+  figure:
+    heading: Figures
+    label: Figure style

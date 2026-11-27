@@ -38,9 +38,14 @@ with sync_playwright() as p:
     pg.screenshot(path=SHOTS / "look-panel.png")
     d.get_by_role("link", name="All appearance options").click()
     expect(pg.locator("h1")).to_have_text("Appearance")
+    # Standard hides the advanced sections; Advanced shows them
+    assert pg.evaluate("XOLook.prefs.view") == "standard"
+    expect(pg.get_by_role("heading", name="Text sizes")).to_be_hidden()
+    pg.locator('[data-fk="view:advanced"]').click()
+    expect(pg.get_by_role("heading", name="Text sizes")).to_be_visible()
     # full screen: a few dials
     pg.get_by_role("button", name="Banner").click()
-    pg.get_by_role("button", name="Cards").click()
+    pg.get_by_role("button", name="Cards", exact=True).click()
     pg.select_option("#f-head", "fraunces")
     pg.select_option("#f-num", "mono")
     pg.get_by_role("button", name="Grid paper").click()
@@ -164,6 +169,56 @@ with sync_playwright() as p:
     assert pg.evaluate(css + "('--leaf')").strip() == "#ff0000"
     pg.evaluate("XOLook.reset()")
     assert pg.evaluate(css + "('--fs-section')") == ""
+    # screen: Standard and Advanced
+    pg.goto(BASE + "/#/appearance")
+    pg.wait_for_selector("h1")
+    expect(pg.get_by_role("heading", name="Text sizes")).to_be_hidden()
+    pg.locator('[data-fk="view:advanced"]').click()
+    expect(pg.get_by_role("heading", name="Text sizes")).to_be_visible()
+    pg.locator("#fs-section").select_option("1.5")
+    assert pg.evaluate("XOLook.active().look.fs.section") == 1.5
+    pg.locator('[data-fk="view:standard"]').click()
+    expect(pg.locator("#fs-section")).to_be_visible()
+    expect(pg.locator("#fs-page")).to_be_hidden()
+    expect(pg.locator('[data-fk="view:advanced"]')).to_have_text("Advanced (1 changed)")
+    pg.locator('[data-fk="view:advanced"]').click()
+    pg.get_by_role("button", name="Reset text sizes").click()
+    assert pg.evaluate("XOLook.active().look.fs") == {}
+    # size presets: Large sets three fields; moving the Text size dial makes it Custom
+    pg.locator('[data-fk="size:large"]').click()
+    assert pg.evaluate("XOLook.active().look.size") == 114
+    expect(pg.locator('[data-fk="size:custom"]')).to_have_attribute("aria-pressed", "false")
+    pg.locator("#d-size").fill("110")
+    pg.locator("#d-size").dispatch_event("change")
+    expect(pg.locator('[data-fk="size:custom"]')).to_have_attribute("aria-pressed", "true")
+    pg.locator('[data-fk="size:regular"]').click()
+    assert pg.evaluate("XOLook.presetOf(XOLook.active().look)") == "regular"
+    # a catalogue font from the grouped select
+    pg.locator("#f-body").select_option("g:lora|Lora")
+    expect(pg.locator('link[data-xo-font="lora"]')).to_have_count(1)
+    fam = pg.evaluate("getComputedStyle(document.body).fontFamily").replace("'", "").replace('"', "")
+    assert fam.startswith("Lora"), fam
+    pg.locator("#f-mono option").nth(1).wait_for(state="attached")
+    assert pg.locator("#f-mono option").count() > 7
+    pg.get_by_role("button", name="Reset type").click()
+    assert pg.evaluate("XOLook.active().look.body") == "atkinson"
+    # colour overrides from the table
+    pg.locator('[data-fk="mode:light"]').click()
+    pg.locator('[data-fk="col-leaf-light"]').fill("#aa0000")
+    assert pg.evaluate(css + "('--leaf')").strip() == "#aa0000"
+    pg.get_by_role("button", name="Reset light colours").click()
+    assert pg.evaluate(css + "('--leaf')").strip() != "#aa0000"
+    assert pg.evaluate("XOLook.active().look.colours.light") == {}
+    # desktop width
+    pg.set_viewport_size({"width": 1280, "height": 900})
+    pg.goto(BASE + "/#/appearance")
+    expect(pg.get_by_role("heading", name="Colours", exact=True)).to_be_visible()
+    expect(pg.locator(".colour-table")).to_be_visible()
+    pg.screenshot(path=SHOTS / "look-advanced-desktop.png", full_page=True)
+    pg.get_by_role("button", name="Reset everything").click()
+    pg.get_by_role("button", name="Tap again to reset").click()
+    assert pg.evaluate("XOLook.prefs.view") == "standard"
+    expect(pg.get_by_role("heading", name="Text sizes")).to_be_hidden()
     b.close()
 print("errors:", errs or "none")
 assert not errs

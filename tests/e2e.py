@@ -260,12 +260,13 @@ with sync_playwright() as p:
     # --- appearance: a chip, a choice, a text box, then the quick Look panel
     page.goto(f"{BASE}/#/appearance")
     expect(page.locator("h1")).to_have_text("Appearance")
+    page.locator('[data-fk="view:advanced"]').click()
     page.get_by_role("button", name="Banner", exact=True).click()
     assert page.evaluate("document.documentElement.dataset.hero") == "banner"
     set_control(page.locator("#f-head"), "fraunces")
     set_control(page.locator("#p-call"), "Captain")
     set_control(page.locator("#sch-name"), "Evening")
-    page.get_by_role("button", name="Plain", exact=True).first.click()
+    page.locator('[data-fk="hero:plain"]').click()
     assert page.evaluate("document.documentElement.dataset.hero") == "plain"
     page.screenshot(path=SHOTS / "10-appearance.png", full_page=True)
     page.locator(".top .look-btn").click()
