@@ -286,6 +286,58 @@ with sync_playwright() as p:
     pg.get_by_role("button", name="Tap again to delete this note").click()
     expect(pg.get_by_text("No notes yet.")).to_be_visible()
 
+    # 5. Voice. A fresh page with a fake speech recogniser installed before the app loads.
+    vp = ctx.new_page()
+    vp.on("console", lambda m: errors.append(m.text) if m.type == "error" and "401" not in m.text else None)
+    vp.on("pageerror", lambda e: errors.append(str(e)))
+    vp.add_init_script(
+        """
+        class FakeRecognition {
+          start() {
+            setTimeout(() => {
+              const result = { 0: { transcript: 'buy milk tomorrow' }, isFinal: true, length: 1 };
+              this.onresult && this.onresult({ resultIndex: 0, results: [result] });
+              this.onend && this.onend();
+            }, 50);
+          }
+          stop() {}
+          abort() {}
+        }
+        window.SpeechRecognition = FakeRecognition;
+        window.webkitSpeechRecognition = FakeRecognition;
+        """
+    )
+    vp.goto(f"{BASE}/#/tasks")
+    vp.wait_for_selector('[data-focus="task"]', timeout=20000)
+    vp.get_by_role("button", name="Dictate").first.click()
+    expect(vp.locator('[data-focus="task"]')).to_have_value("buy milk tomorrow")
+    expect(vp.locator("p.hint", has_text="Reads as")).to_contain_text("omorrow")
+    vp.keyboard.press("Enter")
+    expect(vp.locator(".list li", has_text="buy milk")).to_have_count(1)
+
+    vp.goto(f"{BASE}/#/notes")
+    vp.wait_for_selector('[data-focus="notes-search"]', timeout=20000)
+    vp.get_by_role("button", name="New note").first.click()
+    body = vp.locator(".md-text")
+    body.click()
+    vp.get_by_role("button", name="Dictate").last.click()
+    expect(vp.locator(".md-text")).to_have_value(re.compile("buy milk tomorrow"))
+    vp.get_by_role("button", name="Delete note").click()
+    vp.get_by_role("button", name="Tap again to delete this note").click()
+
+    vp.goto(f"{BASE}/#/settings")
+    vp.wait_for_selector("#s-voice", timeout=20000)
+    set_control(vp.locator("#s-voice"), False)
+    expect(vp.locator("#toast")).to_contain_text("Saved")
+    vp.goto(f"{BASE}/#/tasks")
+    vp.wait_for_selector('[data-focus="task"]', timeout=20000)
+    expect(vp.get_by_role("button", name="Dictate")).to_have_count(0)
+    vp.goto(f"{BASE}/#/settings")
+    vp.wait_for_selector("#s-voice", timeout=20000)
+    set_control(vp.locator("#s-voice"), True)
+    expect(vp.locator("#toast")).to_contain_text("Saved")
+    vp.close()
+
     b.close()
 
 assert not errors, errors

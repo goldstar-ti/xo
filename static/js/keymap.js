@@ -16,6 +16,7 @@ const ACTIONS = [
   { id: 'global.palette', scope: 'global', key: 'Ctrl+k' },
   { id: 'global.palette_alt', scope: 'global', key: '/' },
   { id: 'global.shortcuts', scope: 'global', key: '?' },
+  { id: 'global.voice', scope: 'global', key: 'Alt+v' },
   { id: 'tasks.new', scope: 'tasks', key: 'n' },
   { id: 'tasks.next', scope: 'tasks', key: 'j' },
   { id: 'tasks.next_alt', scope: 'tasks', key: 'ArrowDown' },

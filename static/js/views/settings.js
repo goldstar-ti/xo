@@ -268,6 +268,14 @@ function paceLine() {
   return p.samples >= 5 ? t('settings.tasks.pace', { ratio: p.ratio, n: p.samples }) : t('settings.tasks.pace_none', { n: 5 });
 }
 
+// The Dictation section: the switch for the microphone buttons and the language spoken.
+function voiceSection(s, saveSettings) {
+  const langs = Object.entries(text('settings.voice.langs'));
+  return h('section', {}, h('h2', {}, t('settings.voice.heading')),
+    field(t('settings.voice.show'), checkbox({ id: 's-voice', checked: s.voice !== false, onchange: (e) => saveSettings({ voice: e.target.checked }) }), t('settings.voice.show_hint')),
+    field(t('settings.voice.lang'), select(langs, { id: 's-voiceLang', value: s.voiceLang || 'en-AU', onchange: (e) => saveSettings({ voiceLang: e.target.value }) }), null, { half: true }));
+}
+
 export function render(root) {
   root.replaceChildren();
   const s = store.settings();
@@ -312,6 +320,7 @@ export function render(root) {
     h('header', { class: 'page-head' }, h('h1', {}, t('settings.heading')), h('div', { class: 'actions' }, h('a', { class: 'ghost', href: '#/appearance' }, t('settings.appearance_link')))),
     h('section', {}, h('h2', {}, t('settings.notifications.heading')), pushLine, h('div', { class: 'row' }, pushBtn, testBtn),
       toggle('details', t('settings.notifications.details'), t('settings.notifications.details_hint'))),
+    voiceSection(s, saveSettings),
     h('section', {}, h('h2', {}, t('settings.times.heading')),
       h('div', { class: 'fields' }, time('morningAt', t('settings.times.morning')), time('eveningAt', t('settings.times.evening')),
         field(t('settings.times.weekly_day'), select(weekdays, { id: 's-weeklyDay', value: String(s.weeklyDay), onchange: (e) => saveSettings({ weeklyDay: Number(e.target.value) }) }), null, { half: true }),

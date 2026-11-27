@@ -9,6 +9,7 @@ import { openPalette, setScreenKeys } from '../palette.js';
 import { allTasks, pickTask, quickTask, saveMeta, saveTask, setStatus, taskMeta, toggleTask } from '../taskdata.js';
 import { ENERGIES, PRIORITIES, STATUSES, compareTasks, isBlocked, isStale, pace, parseQuick } from '../tasks.js';
 import { t, text } from '../text.js';
+import { micButton } from '../voice.js';
 import { button, checkbox, chip, field, focusControl, input } from '../ui.js';
 import { addDays, fmtDay, fmtDuration, h, openDialog, put, relDay, toast, today, uid } from '../util.js';
 
@@ -155,7 +156,7 @@ export function quickAdd(placeholder, extra, focusKey, { preview = false } = {})
         await quickTask(box.value, extra);
       } catch (err) { fail(err); }
     },
-  }, box, button(t('lists.shared.add'), { variant: 'primary', type: 'submit' }));
+  }, box, micButton(box), button(t('lists.shared.add'), { variant: 'primary', type: 'submit' }));
   // A redraw (a save finishing, a dialog closing) replaces this box. Keep what was typed and the focus, so the next key is not lost.
   box.addEventListener('input', () => { if (box.value) typed.set(focusKey, { text: box.value, screen: screenNow() }); else typed.delete(focusKey); });
   box.addEventListener('focusout', (e) => { if (e.relatedTarget) typed.delete(focusKey); });

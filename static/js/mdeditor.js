@@ -15,6 +15,7 @@ import { tabStrip } from './tabs.js';
 import { t } from './text.js';
 import { button, focusControl, nativeField, textarea } from './ui.js';
 import { h } from './util.js';
+import { micButton } from './voice.js';
 
 let seq = 0;
 
@@ -75,7 +76,7 @@ export function mdEditor({ value = '', label = '', rows = 8, onInput } = {}) {
   };
 
   const toolbar = h('div', { class: 'md-tools tw:flex tw:flex-wrap tw:gap-1', role: 'toolbar', 'aria-label': t('notes.editor.tools_aria') },
-    TOOLS.map(([name, tool]) => button(t(`notes.editor.${name}`), { class: 'small', 'aria-label': t(`notes.editor.${name}`), onclick: () => apply(tool) })));
+    TOOLS.map(([name, tool]) => button(t(`notes.editor.${name}`), { class: 'small', 'aria-label': t(`notes.editor.${name}`), onclick: () => apply(tool) })), micButton(ta));
   const writePanel = h('div', { id: `md-write-${id}`, class: 'tw:flex tw:flex-col tw:gap-2' }, toolbar, ta);
   const previewPanel = h('div', { id: `md-preview-${id}`, class: 'md-preview', hidden: true });
 

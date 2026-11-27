@@ -105,3 +105,11 @@ The owner defines extra fields per kind of record in Settings, Custom fields. Th
 ## D-27 (2026-11-27): Notes in Markdown
 
 Notes are items of kind `note` (`{ title, body, pinned, custom, created, updated }`), written in Markdown and stored as plain text. The editor (`static/js/mdeditor.js`) is a toolbar over a text area with Write and Preview tabs, and the same editor is the Notes field on a task. `marked` is vendored from npm into `static/vendor/marked` at image build, so there is no CDN (rule 3) and notes render offline. Raw HTML is shown as text and images are shown as links, because XO stores text only (rule 2). Why: the owner wants longer notes with lists and headings, kept next to the tasks, without a second place to keep them.
+
+## D-28 (2026-11-27): Voice capture through the browser's speech service
+
+Dictation uses the browser's own speech recognition (`static/js/voice.js`), which may send the audio to the browser maker's speech service. The owner allowed that; XO saves only the recognised text and never the audio, so rule 2 (text only) now carries that one exception. The microphone button shows only when the browser supports recognition and Settings, Dictation is on. Why: the owner wants to capture thoughts by speaking, and a local model would add a large download for a small gain.
+
+## D-29 (2026-11-27): OS-wide hotkeys parked
+
+A PWA cannot register a hotkey that works while another app has focus, so dictation has no system-wide key. Its in-app key (`global.voice`, Alt+V by default) is configurable like every other shortcut (D-24). Why: nothing in a browser can do better, and a separate desktop helper is not worth building yet.

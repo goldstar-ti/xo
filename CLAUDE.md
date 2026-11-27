@@ -17,7 +17,7 @@ Installs as a PWA on Android and desktop. The name: the executive officer runs t
 Security is the owner's responsibility, handled outside this codebase (owner's decision, 2026-11-26). Agents do not add, enforce or propose security controls (CSP, security headers, encryption, CSRF schemes) unless the owner asks. The rules below that were about security are lifted; what still applies is listed.
 
 1. **No browser encryption (owner's decision, 2026-11-26).** Items are stored as plain JSON and sign-in is a normal password checked on the server. Do not reintroduce client-side encryption.
-2. **Text only.** No image, audio or file uploads, anywhere.
+2. **Text only.** No image, audio or file uploads to XO, anywhere. Exception (owner's decision, 2026-11-27): voice capture uses the browser's own speech recognition, which may send the audio to the browser maker's speech service. XO saves only the recognised text.
 3. **No CSP or security headers (owner's decision, 2026-11-26).** The app sends none. Still prefer local copies of libraries and fonts (`static/vendor/`, `static/fonts`) over CDNs, so XO works offline; `tests/e2e_kits.py` fails on any off-site request.
 4. **Appearance never leaves the device.** The look lives in `localStorage` under `xo-look`. Do not sync it.
 5. **Paused until production: no personal names or details in the code (owner's decision, 2026-11-26).** While paused, names and details may appear in source, defaults, tests, comments and commit messages. The owner reinstates this rule before production; at that point every personal detail added while it was paused must be removed. Original wording: names of people, clinicians, places or cases never in source, defaults, tests, comments or commit messages; tests use obviously made-up data.
@@ -57,6 +57,7 @@ static/js/palette.js       command palette (Ctrl+K, /), shortcut list (?), setSc
 static/js/keymap.js        shortcut registry, owner's keys from settings, matchKey()
 static/js/customfields.js  custom field definitions and values: FIELD_KINDS, defs, formFields, readCustom, customMeta, customEditor
 static/js/markdown.js      renderMarkdown(text): Markdown to a div.md, with marked from static/vendor/marked (raw HTML shown as text, images as links)
+static/js/voice.js         micButton(target), dictateInto(el): dictation through the browser's speech recognition (Settings, Dictation)
 static/js/mdeditor.js      mdEditor({ value, label, rows, onInput }): toolbar, Write and Preview tabs; returns { node, read, focus, textarea }
 static/js/text.js          loadText(), t(key, vars), text(key): the editable wording from /api/text
 static/js/content.js       thin module: reads plan, check-in, daily-line and default data through text()
@@ -78,7 +79,7 @@ Conventions:
 
 ## Text and prose
 
-- All user-facing wording lives in YAML files in `content/text/` (`common.yaml`, `plan.yaml`, `checkin.yaml`, `today.yaml`, `lists.yaml`, `forms.yaml`, `defaults.yaml`, `keys.yaml`, `fields.yaml`, `notes.yaml`). The top-level key of a file is its name, so `plan.yaml` holds `plan:` and keys read `plan.guard`.
+- All user-facing wording lives in YAML files in `content/text/` (`common.yaml`, `plan.yaml`, `checkin.yaml`, `today.yaml`, `lists.yaml`, `forms.yaml`, `defaults.yaml`, `keys.yaml`, `fields.yaml`, `notes.yaml`, `voice.yaml`). The top-level key of a file is its name, so `plan.yaml` holds `plan:` and keys read `plan.guard`.
 - `app/text.py` loads every file with `yaml.safe_load`, caches each by modification time and keeps a file's last good version if an edit breaks it. `GET /api/text` serves the merged object, no sign-in. The folder is bind-mounted read-only into `xo-app`, so a saved edit shows on the next page load with no rebuild or restart.
 - In the browser, `static/js/text.js` loads it once at boot. `t('common.save')` returns a string; `t('x.y', { name })` fills `{name}` placeholders. `text('plan.services')` returns a list or map as written. A missing key returns the key and logs `missing text: <key>` to the console once, so the browser tests fail on it.
 - Rule, from now on: a user-facing string goes in YAML, never inline in a view or template. A new screen adds its keys to a file (or a new file named after its top-level key) in the same commit.

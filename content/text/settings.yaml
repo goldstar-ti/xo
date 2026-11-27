@@ -31,6 +31,15 @@ settings:
     heading: Notifications
     details: Show titles in notifications
     details_hint: 'Off: appointment, task, bill and condition reminders use neutral wording on the lock screen. Routine reminders always show their own label. Check-in reminders are always neutral.'
+  voice:
+    heading: Dictation
+    show: Show the microphone button
+    show_hint: The browser sends what you say to its speech service and gives XO the text. XO keeps only the text.
+    lang: Language you speak
+    langs:
+      en-AU: English (Australia)
+      en-GB: English (United Kingdom)
+      en-US: English (United States)
   times:
     heading: Check-in times
     morning: Morning check-in

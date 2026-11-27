@@ -7,9 +7,12 @@ import { fuzzyScore } from './tasks.js';
 import { t, text } from './text.js';
 import { focusControl, input } from './ui.js';
 import { dialogOpen, h, openDialog, toast } from './util.js';
+import { dictateInto, micButton, voiceEnabled } from './voice.js';
 import { allNotes, createNote } from './views/notes.js';
 
 const MAX = 12;
+// Text boxes dictation can type into (a checkbox or a button cannot take text).
+const DICTATE_FIELD = 'textarea, wa-textarea, wa-input, input:not([type="checkbox"], [type="radio"], [type="range"], [type="button"], [type="submit"], [type="file"], [type="color"], [type="date"], [type="time"], [type="number"])';
 const TASKS_KEY = 'xo-tasks';
 
 let screenKeys = null;
@@ -59,8 +62,9 @@ export function openPalette() {
   let active = 0;
   const box = input({
     type: 'text', placeholder: t('palette.placeholder'), 'aria-label': t('palette.placeholder'), autocomplete: 'off',
-    role: 'combobox', 'aria-controls': 'pal-list', 'aria-expanded': 'true', 'aria-autocomplete': 'list',
+    role: 'combobox', 'aria-controls': 'pal-list', 'aria-expanded': 'true', 'aria-autocomplete': 'list', class: 'tw:flex-1 tw:min-w-0',
   });
+  const mic = micButton(box);
   const list = h('ul', { id: 'pal-list', role: 'listbox', class: 'list', 'aria-label': t('palette.list_aria') });
   const run = (cmd) => { current?.close(); cmd.run(); };
   const draw = () => {
@@ -87,7 +91,7 @@ export function openPalette() {
       if (shown[active]) run(shown[active]);
     }
   });
-  current = openDialog(t('palette.heading'), h('div', {}, box, list, h('p', { class: 'hint' }, t('palette.hint', { palette: keyLabel(keyFor('global.palette')), alt: keyLabel(keyFor('global.palette_alt')) }))));
+  current = openDialog(t('palette.heading'), h('div', {}, mic ? h('div', { class: 'tw:flex tw:gap-2 tw:items-center' }, box, mic) : box, list, h('p', { class: 'hint' }, t('palette.hint', { palette: keyLabel(keyFor('global.palette')), alt: keyLabel(keyFor('global.palette_alt')) }))));
   current.addEventListener('close', () => { current = null; });
   draw();
   focusControl(box);
@@ -110,11 +114,17 @@ export function openShortcuts() {
 function onKey(e) {
   if (e.defaultPrevented) return;
   if (screenKeys && screenKeys(e)) { e.preventDefault(); return; }
-  const id = matchKey('global', e);
+  let id = matchKey('global', e);
+  // matchKey is silent while a dialog is open; dictation still works in the dialog's own text boxes.
+  if (!id && dialogOpen() && comboOf(e) && comboOf(e) === keyFor('global.voice')) id = 'global.voice';
   if (!id || boundInActive(comboOf(e))) return;
   if (id === 'global.palette' || id === 'global.palette_alt') openPalette();
   else if (id === 'global.shortcuts') openShortcuts();
-  else if (id.startsWith('global.go_')) location.hash = `#/${id.slice('global.go_'.length)}`;
+  else if (id === 'global.voice') {
+    if (!voiceEnabled()) return;
+    const el = document.activeElement;
+    if (el?.matches?.(DICTATE_FIELD)) dictateInto(el); else toast(t('voice.no_field'));
+  } else if (id.startsWith('global.go_')) location.hash = `#/${id.slice('global.go_'.length)}`;
   else return;
   e.preventDefault();
 }

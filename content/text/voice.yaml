@@ -1,0 +1,20 @@
+# Voice: dictating text with the microphone.
+#
+# How to edit this file
+# - Save the file and reload the page. There is no build and no restart.
+# - Change the words after a colon. Keep the keys (the words before a colon) as they are:
+#   the app looks the text up by key, and a missing key shows the key itself.
+# - Keep the indentation. It uses two spaces and never tabs.
+# - Put quote marks around any text that starts with a special character
+#   (" ' { [ * & ! % @ #) or that contains a colon followed by a space, and around times such as '09:00'.
+# - Write {name} where the app fills something in. Keep the same {name} in your wording.
+# - If a file has a mistake, the app keeps the last good version of that file and logs a note.
+voice:
+  start: Dictate
+  stop: Stop dictating
+  listening: Listening
+  denied: XO cannot use the microphone. Allow it for this site in the browser settings, then try again.
+  offline: Dictation needs an internet connection. Type the text instead, or try again when you are online.
+  nothing: No speech was heard. Tap Dictate and try again.
+  failed: Dictation stopped. Try again, or type the text.
+  no_field: Click in a text box first, then press the dictation key.

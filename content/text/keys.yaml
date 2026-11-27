@@ -29,6 +29,7 @@ keys:
     global_palette: Open the command list
     global_palette_alt: Open the command list (second key)
     global_shortcuts: Show this list of keys
+    global_voice: Dictate into the box you are typing in
     global_go: 'Go to {screen}'
     tasks_new: Add a task
     tasks_next: Next task

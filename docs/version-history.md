@@ -4,6 +4,7 @@
 
 | Version | Date | Change |
 |---|---|---|
+| 2.17.0 | 2026-11-27 | Dictation: a microphone button in quick add, the command list, notes and long text boxes, and Alt+V in any text box. It can be turned off in Settings. |
 | 2.16.0 | 2026-11-27 | The Notes screen: notes in Markdown with a toolbar, preview, search and pinning. Tasks have a Notes field with the same editor. |
 | 2.15.0 | 2026-11-27 | Custom fields on tracker items and check-ins: add your own fields in Settings. Items show them in the details pane and record changes in the history. |
 | 2.14.0 | 2026-11-27 | Custom fields: add your own fields to appointments, tasks, routine, bills, obligations and reports in Settings. Tasks can show them as table columns and filter by them. |

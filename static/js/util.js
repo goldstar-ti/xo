@@ -1,6 +1,7 @@
 // Small helpers: DOM building, dates, toasts, dialogs.
 import { button, checkbox, field, focusControl, input, notice, select, textarea } from './ui.js';
 import { t } from './text.js';
+import { micButton } from './voice.js';
 
 export function h(tag, attrs, ...kids) {
   const el = document.createElement(tag);
@@ -138,7 +139,16 @@ export function openForm({ title, fields, values = {}, saveLabel = t('common.sav
         autocomplete: 'off',
       });
     inputs[f.name] = control;
-    return field(f.label, control, f.hint, { half: f.half });
+    const row = field(f.label, control, f.hint, { half: f.half });
+    // A long text box gets a Dictate button beside it. The label and hint stay tied to the control.
+    const mic = f.type === 'textarea' && micButton(control);
+    if (mic) {
+      control.classList.add('tw:flex-1', 'tw:min-w-0');
+      const side = h('div', { class: 'tw:flex tw:gap-2 tw:items-start' });
+      control.replaceWith(side);
+      side.append(control, mic);
+    }
+    return row;
   };
   const mainRows = fields.filter((f) => !f.more).map(rowOf);
   const moreFields = fields.filter((f) => f.more);
