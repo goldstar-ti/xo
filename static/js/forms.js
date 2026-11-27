@@ -59,6 +59,7 @@ export function editTask(item, preset = {}) {
       fld('task', 'priority', { type: 'custom', build: (v) => chipSet(Object.entries(text('forms.task.priorities')), v) }),
       fld('task', 'est', { type: 'number', half: true, hint: true }),
       fld('task', 'due', { type: 'date', half: true }),
+      fld('task', 'at', { type: 'time', half: true }),
       fld('task', 'tags', { type: 'custom', build: (v) => chipSet(labelled(meta.tags), v, { multi: true }) }),
       fld('task', 'subtasks', { type: 'custom', hint: true, build: (v) => subtaskEditor(v) }),
       fld('task', 'energy', { type: 'custom', more: true, build: (v) => chipSet(Object.entries(text('forms.task.energies')), v) }),

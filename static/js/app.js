@@ -125,6 +125,7 @@ function draw({ keepScroll = false, keepFocus = false } = {}) {
   if (!root) return;
   const focusKey = keepFocus && document.activeElement?.dataset?.fk;
   const { name, params } = route();
+  document.body.dataset.view = name;
   view?.leave?.(); // A screen that holds resources (the canvas) lets them go.
   view = VIEWS[name];
   const y = window.scrollY;
@@ -272,6 +273,14 @@ store.onChange(() => {
   if (dialogOpen()) pending = true; else draw({ keepScroll: true });
 });
 document.addEventListener('close', () => { if (pending && !dialogOpen()) draw({ keepScroll: true }); }, true);
+
+// Offline: Today says so and stops taking ticks. The flag is on the root so any screen can read it.
+const syncOffline = () => { if (navigator.onLine) delete document.documentElement.dataset.offline; else document.documentElement.dataset.offline = '1'; };
+syncOffline();
+for (const ev of ['offline', 'online']) window.addEventListener(ev, () => {
+  syncOffline();
+  if (view?.live && document.getElementById('view') && !dialogOpen()) draw({ keepScroll: true });
+});
 
 // Keep the Today screen's clock moving, and pick up changes made on another device.
 setInterval(() => {

@@ -24,7 +24,7 @@ async function pushState() {
   return sub ? 'on' : 'off';
 }
 
-async function enablePush() {
+export async function enablePush() {
   const permission = await Notification.requestPermission();
   if (permission !== 'granted') throw new Error(t('settings.push.not_allowed'));
   const { key } = await store.api('GET', '/api/push/key');

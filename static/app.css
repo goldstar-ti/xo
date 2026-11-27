@@ -288,29 +288,32 @@ details > summary { cursor: pointer; padding: 0.6rem 0; color: var(--leaf); font
 .line-label { font-weight: 700; color: var(--ink); }
 .next { padding: 1.1rem 0 1.2rem; border-top: 3px solid var(--c-next-rule); border-bottom: var(--rule) solid var(--line); }
 #view > .next { margin-top: 1.5rem; }
-.next-head { font-size: calc(var(--fs-display, 2.25rem) * var(--loud)); line-height: 1.08; font-weight: 750; letter-spacing: -0.02em; color: var(--c-next-head); }
+.next-head { font-size: calc(1.76rem * var(--loud)); line-height: 1.1; font-weight: 700; letter-spacing: -0.02em; color: var(--c-next-head); }
 .next.urgent { border-top-color: var(--c-urgent); }
 .next.urgent .next-head { color: var(--c-urgent); }
-.next-title { margin-top: 0.35rem; font-size: var(--fs-lead, 1.125rem); font-weight: 600; }
-.next-sub { color: var(--muted); }
+.next-title { margin-top: 0.35rem; font-weight: 600; }
+.next-sub { color: var(--muted); font-size: 0.82rem; }
+.next-sub .ico { width: 0.9em; height: 0.9em; vertical-align: -0.1em; margin-right: 0.35rem; }
+.callout-slot .callout-body { display: grid; gap: 0.5rem; justify-items: start; }
+.callout-slot .callout-body p { margin: 0; }
 
 /* The day line: one column of times, one rule, everything in order. */
 .dayline li { display: grid; grid-template-columns: var(--time-col) 1fr auto; align-items: stretch; }
 .dayline .t { padding: calc(0.7rem * var(--d)) 0.9rem calc(0.7rem * var(--d)) 0; font-family: var(--font-num); text-align: right; font-variant-numeric: tabular-nums; color: var(--c-time); font-size: var(--fs-label, 0.9375rem); }
 .dayline .what { position: relative; padding: calc(0.6rem * var(--d)) 0.75rem calc(0.6rem * var(--d)) 1.1rem; border-left: calc(var(--rule) + 1px) solid var(--line); display: flex; flex-direction: column; justify-content: center; font-weight: 500; }
 .dayline .what::before {
-  content: ""; position: absolute; left: calc(-6.5px - var(--rule) / 2); top: calc(0.45rem + 0.6rem * var(--d));
-  width: 12px; height: 12px; border-radius: 50%;
-  background: var(--paper); border: 2px solid var(--muted);
+  content: ""; position: absolute; left: calc(-0.235rem - 2px - var(--rule) / 2);
+  width: 0.47rem; height: 0.47rem; border-radius: 50%; margin-top: -0.235rem; top: 50%;
+  background: var(--paper); border: 2px solid var(--muted); box-sizing: content-box;
 }
 .dayline .what a { color: inherit; }
 .dayline .entry.done .what::before { background: var(--leaf); border-color: var(--leaf); }
-.dayline .entry.k-appt .what::before { border-radius: 2px; border-color: var(--ink); background: var(--ink); }
-.dayline .entry.k-appt .what { font-weight: 700; color: var(--c-appt); }
+.dayline .entry.k-appt .what::before { width: 0.59rem; height: 0.59rem; margin-top: -0.295rem; left: calc(-0.295rem - var(--rule) / 2); border-radius: 2px; border-color: var(--ink); background: var(--ink); }
+.dayline .entry.k-appt .what { font-weight: 600; color: var(--c-appt); }
 .dayline .entry.done .what, .dayline .entry.past.k-appt .what { color: var(--c-done); }
 .dayline .entry.missed .what::before { border-color: var(--c-missed); }
 .dayline .entry.missed .t { color: var(--c-missed); font-weight: 600; }
-.dayline li > button, .dayline li > a.tick { align-self: center; }
+.dayline li > :is(button, wa-button), .dayline li > a.tick { align-self: center; }
 .dayline .now .t { color: var(--c-now); font-weight: 700; padding-top: 0.35rem; padding-bottom: 0.35rem; }
 .dayline .now-rule {
   grid-column: 2 / 4; display: flex; align-items: center; gap: 0.6rem;
@@ -319,13 +322,28 @@ details > summary { cursor: pointer; padding: 0.6rem 0; color: var(--leaf); font
 }
 .dayline .now-rule::after { content: ""; flex: 1; height: 2px; background: var(--c-now); }
 
-.tick:not(.tw\:btn) {
+:is(button, a).tick:not(.tw\:btn) {
   display: inline-flex; align-items: center; justify-content: center;
-  min-width: 4.25rem; min-height: 2.5rem; padding: 0.3rem 0.8rem;
+  min-width: 0; min-height: 2.1rem; padding: 0 0.8rem; position: relative;
   border: 1.5px solid var(--leaf); border-radius: var(--pill);
   background: transparent; color: var(--leaf); font-weight: 600; font-size: var(--fs-small, 0.875rem);
 }
-.tick.on:not(.tw\:btn) { background: var(--leaf); color: var(--leaf-ink); }
+:is(button, a).tick:not(.tw\:btn)::after { content: ""; position: absolute; inset: -0.2rem; } /* keeps the 2.5rem tap target */
+:is(button, a).tick.on:not(.tw\:btn) { border-color: transparent; background: transparent; padding: 0; }
+.tick:disabled { opacity: 0.45; }
+.list.three li.done .row-main > span { text-decoration: none; }
+.list.three li.done .row-main > span, .list.three li.done .meta { color: var(--muted); }
+.list.three .meta { margin-left: auto; color: var(--muted); font-size: 0.82rem; flex: none; }
+
+/* Today on a wide screen: the day on the left, the rest in a column on the right. */
+@media (min-width: 64rem) {
+  body[data-view="today"] #view { max-width: 84rem; display: grid; grid-auto-flow: row dense; grid-template-columns: minmax(0, 1fr) 22.35rem; column-gap: 2.82rem; align-content: start; }
+  body[data-view="today"] #view > * { grid-column: 1 / -1; }
+  body[data-view="today"] #view > .col-day { grid-column: 1; grid-row: span 40; }
+  body[data-view="today"] #view > .col-side { grid-column: 2; border-top: 3px solid var(--ink); padding-top: 0.6rem; }
+  body[data-view="today"] #view > .next { padding: 1.3rem 1.53rem; border: 2.5px solid var(--ink); border-radius: var(--radius); }
+  body[data-view="today"] .next-head { font-size: calc(2.82rem * var(--loud)); }
+}
 
 /* ---- lists ---- */
 .list li { display: flex; align-items: center; gap: 0.75rem; padding: calc(0.59rem * var(--d)) 0; border-top: var(--rule) solid var(--c-row-line); }

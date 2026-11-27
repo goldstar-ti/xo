@@ -46,6 +46,7 @@ forms:
       step: First small step
       est: My guess, minutes
       due: Due
+      at: Do it at
       project: Project
       priority: Priority
       tags: Categories

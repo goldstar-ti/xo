@@ -61,6 +61,8 @@ with sync_playwright() as p:
     ctx = browser.new_context(
         viewport={"width": 412, "height": 915}, device_scale_factor=2, timezone_id=TZ, locale="en-AU"
     )
+    # Headless Chromium reports notifications as denied; a real first visit has not been asked yet.
+    ctx.add_init_script("Object.defineProperty(Notification, 'permission', { get: () => 'default' })")
     page = ctx.new_page()
     # A refused sign-in logs a 401 "Failed to load resource"; that one is expected below.
     page.on("console", lambda m: errors.append(m.text) if m.type == "error" and "401" not in m.text else None)
@@ -81,6 +83,19 @@ with sync_playwright() as p:
     page.get_by_role("button", name="Create and open").click()
     expect(page.locator("h1")).to_contain_text(now.strftime("%-d %B"), timeout=20000)
     expect(page.locator(".dayline .entry")).to_have_count(8)  # 6 routine items + 2 check-ins
+
+    # --- first run: nothing ticked yet, so Today offers to turn notifications on
+    expect(page.locator(".callout-slot")).to_contain_text("Reminders only reach this phone once notifications are on.")
+    expect(page.get_by_role("button", name="Turn on notifications")).to_be_visible()
+
+    # --- offline: Today says so and will not take a tick; back online it clears
+    breakfast = page.locator(".dayline .entry", has_text="Breakfast").get_by_role("button")
+    page.context.set_offline(True)
+    expect(page.locator(".callout-slot", has_text="No connection")).to_be_visible()
+    expect(breakfast).to_be_disabled()
+    page.context.set_offline(False)
+    expect(page.locator(".callout-slot", has_text="No connection")).to_have_count(0)
+    expect(breakfast).to_be_enabled()
 
     # --- appointments
     page.goto(f"{BASE}/#/diary")

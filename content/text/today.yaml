@@ -13,6 +13,11 @@
 today:
   matters_label: What matters most to me
   next_up: Next up
+  done: Done
+  missed_line: A missed day is a reason to restart, not to stop.
+  notify_body: Reminders only reach this phone once notifications are on.
+  notify_on: Turn on notifications
+  offline: No connection. You can read everything, and nothing will save until you are back online.
   greeting:
     morning: 'Morning, {name}.'
     afternoon: 'Afternoon, {name}.'
@@ -49,6 +54,7 @@ today:
     needs: 'Needs about {duration}'
     over: 'That is more than the {duration} left before your evening check-in.'
     block_aria: 'Time for {title}'
+    done: done
   day:
     heading: The day
     edit_routine: Edit routine

@@ -1,9 +1,11 @@
 import * as store from '../store.js';
 import { LINES, PLAN, PLAN_FIRST } from '../content.js';
 import { editAppointment, editBill, editTask, payBill } from '../forms.js';
-import { allTasks, currentPace, saveTask, toggleTask } from '../taskdata.js';
+import { allTasks, currentPace, toggleTask } from '../taskdata.js';
 import { t } from '../text.js';
-import { button, checkbox, input } from '../ui.js';
+import { icon } from '../icons.js';
+import { button, callout, checkbox, tag } from '../ui.js';
+import { enablePush } from './settings.js';
 import { addDays, daysBetween, fmtDay, fmtDuration, fmtLong, fmtMoney, fmtTime, h, hm, relDay, toast, today, toDate, put } from '../util.js';
 
 export const live = true;
@@ -21,6 +23,16 @@ function lineForToday() {
   if (matters && dayOfYear % 4 === 0) return { label: t('today.matters_label'), text: matters };
   return { text: pool[dayOfYear % pool.length] };
 }
+
+// True when yesterday had routine ticks left open and the account has been ticking before then.
+function missedYesterday() {
+  const yesterday = addDays(today(), -1);
+  if (!store.byKind('tick').some((i) => i.day <= yesterday)) return false;
+  return dayEntries(yesterday).some((e) => e.kind === 'tick' && !e.done);
+}
+
+const offline = () => document.documentElement.dataset.offline === '1';
+const canAskNotify = () => 'Notification' in window && Notification.permission === 'default';
 
 export function checkinId(type, day = today()) { return `checkin:${type}:${day}`; }
 
@@ -64,7 +76,7 @@ function nextUp(entries) {
   for (const e of entries.filter((x) => x.kind === 'appt')) {
     const tm = e.times;
     if (now >= tm.start) continue;
-    const base = { title: e.label, sub: `${fmtTime(tm.start)}${e.item.data.where ? `, ${e.item.data.where}` : ''}` };
+    const base = { title: e.label, pin: !!e.item.data.where, sub: `${fmtTime(tm.start)}${e.item.data.where ? `, ${e.item.data.where}` : ''}` };
     const dur = (to) => ({ duration: fmtDuration((to - now) / 60000) });
     if (now >= tm.leave && tm.leave < tm.start) return { ...base, head: t('today.next.leave_now'), urgent: true };
     if (now >= tm.ready) return { ...base, head: tm.leave < tm.start ? t('today.next.leave_in', dur(tm.leave)) : t('today.next.starts_in', dur(tm.start)), urgent: (tm.leave - now) < 20 * 60000 };
@@ -95,14 +107,23 @@ export function render(root) {
   const day = today();
   const entries = dayEntries(day);
   const line = lineForToday();
+  const missed = missedYesterday();
   const up = nextUp(entries);
   const nowHm = hm(new Date());
 
-  const tick = (e) => button(t(e.done ? 'today.tick.done' : 'today.tick.tick'), {
-    variant: e.done ? 'primary' : 'ghost', class: `tick${e.done ? ' on' : ''}`, 'aria-pressed': String(e.done),
-    'aria-label': t(e.done ? 'today.tick.state_done' : 'today.tick.state_open', { label: e.label }),
-    onclick: () => { if (!e.done) sessionStorage.setItem('pop', e.ref); store.setTick(e.ref, !e.done).catch((err) => toast(err.message, 'bad')); },
+  const off = offline();
+  const lock = off ? { disabled: true } : {};
+  const doneBtn = (e, onclick) => button(tag(t('today.done'), 'accent'), {
+    variant: 'row', class: 'tick on', 'aria-pressed': 'true', ...lock,
+    'aria-label': t('today.tick.state_done', { label: e.label }), onclick,
   });
+  const openBtn = (e, label, onclick) => button(label, {
+    variant: 'ghost', class: 'tick', 'aria-pressed': 'false', ...lock,
+    'aria-label': t('today.tick.state_open', { label: e.label }), onclick,
+  });
+  const tick = (e) => (e.done
+    ? doneBtn(e, () => store.setTick(e.ref, false).catch((err) => toast(err.message, 'bad')))
+    : openBtn(e, t('today.tick.tick'), () => { sessionStorage.setItem('pop', e.ref); store.setTick(e.ref, true).catch((err) => toast(err.message, 'bad')); }));
 
   const popped = sessionStorage.getItem('pop');
   sessionStorage.removeItem('pop');
@@ -115,12 +136,12 @@ export function render(root) {
     const missed = past && !e.done && e.kind !== 'appt';
     let action = null;
     if (e.kind === 'tick') action = tick(e);
-    else if (e.kind === 'task') action = button(t(e.done ? 'today.tick.done' : 'today.tick.tick'), {
-      variant: e.done ? 'primary' : 'ghost', class: `tick${e.done ? ' on' : ''}`, 'aria-pressed': String(e.done),
-      'aria-label': t(e.done ? 'today.tick.state_done' : 'today.tick.state_open', { label: e.label }),
-      onclick: () => toggleTask(e.item).catch((err) => toast(err.message, 'bad')),
-    });
-    else if (e.kind === 'checkin') action = h('a', { class: `tick${e.done ? ' on' : ''}`, href: `#/checkin/${e.type}` }, t(e.done ? 'today.tick.done' : 'today.tick.start'));
+    else if (e.kind === 'task') action = e.done
+      ? doneBtn(e, () => toggleTask(e.item).catch((err) => toast(err.message, 'bad')))
+      : openBtn(e, t('today.tick.tick'), () => toggleTask(e.item).catch((err) => toast(err.message, 'bad')));
+    else if (e.kind === 'checkin') action = e.done
+      ? h('a', { class: 'tick on', href: `#/checkin/${e.type}` }, tag(t('today.done'), 'accent'))
+      : off ? button(t('today.tick.start'), { class: 'tick', disabled: true }) : h('a', { class: 'tick', href: `#/checkin/${e.type}` }, t('today.tick.start'));
     else action = button(t('today.tick.edit'), { class: 'small', onclick: () => editAppointment(e.item) });
     rows.push(h('li', { class: `entry k-${e.kind}${e.done ? ' done' : ''}${past ? ' past' : ''}${missed ? ' missed' : ''}${e.ref && e.ref === popped ? ' pop' : ''}` },
       h('span', { class: 't' }, fmtTime(e.time)),
@@ -131,22 +152,18 @@ export function render(root) {
 
   const pace = currentPace();
   const picked = allTasks().filter((i) => i.data.today === day);
-  const setAt = (task, value) => saveTask(task.id, { ...task.data, at: value }).catch((err) => toast(err.message, 'bad'));
   const needs = picked.filter((i) => !i.data.done && i.data.est > 0).reduce((sum, i) => sum + i.data.est * pace, 0);
   const evening = store.settings().eveningAt || '';
   const left = evening ? (Number(evening.slice(0, 2)) * 60 + Number(evening.slice(3, 5))) - (new Date().getHours() * 60 + new Date().getMinutes()) : 0;
   const three = picked.length
     ? h('div', {},
-        h('ul', { class: 'list' }, picked.map((task) => h('li', { class: task.data.done ? 'done' : '' },
+        h('ul', { class: 'list three' }, picked.map((task) => h('li', { class: task.data.done ? 'done' : '' },
           checkbox({ checked: task.data.done, 'aria-label': t('lists.shared.done_aria', { title: task.data.title }), onchange: () => toggleTask(task).catch((err) => toast(err.message, 'bad')) }),
-          button([h('span', {}, task.data.title),
-            !task.data.done && task.data.step && h('small', {}, t('lists.shared.start_with', { step: task.data.step }))],
-          { variant: 'row', class: 'row-main', onclick: () => editTask(task) }),
-          task.data.est > 0 && !task.data.done && h('span', { class: 'meta' }, t('lists.shared.allow', { duration: fmtDuration(task.data.est * pace) })),
-          !task.data.done && input({ type: 'time', value: task.data.at, 'aria-label': t('today.three.block_aria', { title: task.data.title }), onchange: (e) => setAt(task, e.target.value) })))),
+          button(h('span', {}, task.data.title), { variant: 'row', class: 'row-main', onclick: () => editTask(task) }),
+          (task.data.done || task.data.est > 0) && h('span', { class: 'meta' }, task.data.done ? t('today.three.done') : t('lists.shared.allow', { duration: fmtDuration(task.data.est * pace) }))))),
         needs > 0 && h('p', { class: 'note' }, t('today.three.needs', { duration: fmtDuration(needs) })),
         needs > 0 && left > 0 && needs > left && h('p', { class: 'note late' }, t('today.three.over', { duration: fmtDuration(left) })))
-    : h('p', { class: 'empty' }, t('today.three.empty_lead'), ' ', h('a', { href: '#/tasks' }, t('today.three.choose')), ' ', t('today.three.empty_tail'));
+    : h('p', { class: 'empty' }, t('today.three.empty_lead'), ' ', button(t('today.three.choose'), { class: 'small', onclick: () => { location.hash = '#/tasks'; } }), ' ', t('today.three.empty_tail'));
 
   const horizon = addDays(day, 7);
   const coming = [];
@@ -171,15 +188,15 @@ export function render(root) {
   const greeting = prefs.callMe && t(`today.greeting.${hour < 12 ? 'morning' : hour < 18 ? 'afternoon' : 'evening'}`, { name: prefs.callMe });
   // Blocks can be hidden and reordered in Appearance.
   const blocks = {
-    line: window.XOLook.active().look.line !== 'hidden' && h('p', { class: 'line' }, line.label && h('span', { class: 'line-label' }, `${line.label}: `), line.text),
+    line: window.XOLook.active().look.line !== 'hidden' && h('p', { class: 'line' }, !missed && line.label && h('span', { class: 'line-label' }, `${line.label}: `), missed ? t('today.missed_line') : line.text),
     next: h('section', { class: `next${up.urgent ? ' urgent' : ''}`, 'aria-label': t('today.next_up') },
       h('p', { class: 'next-head' }, up.head),
       up.title && h('p', { class: 'next-title' }, up.title),
-      up.sub && h('p', { class: 'next-sub' }, up.sub)),
-    three: h('section', {}, h('div', { class: 'sec-head' }, h('h2', {}, t('today.three.heading')), h('a', { href: '#/tasks' }, t('today.three.all_tasks'))), three),
-    day: h('section', {}, h('div', { class: 'sec-head' }, h('h2', {}, t('today.day.heading')), h('a', { href: '#/routine' }, t('today.day.edit_routine'))),
+      up.sub && h('p', { class: 'next-sub' }, up.pin && [icon('tabler/map-pin'), ' '], up.sub)),
+    three: h('section', { class: 'col-side' }, h('div', { class: 'sec-head' }, h('h2', {}, t('today.three.heading')), h('a', { href: '#/tasks' }, t('today.three.all_tasks'))), three),
+    day: h('section', { class: 'col-day' }, h('div', { class: 'sec-head' }, h('h2', {}, t('today.day.heading')), h('a', { href: '#/routine' }, t('today.day.edit_routine'))),
       h('ol', { class: 'dayline' }, rows)),
-    coming: h('section', {}, h('div', { class: 'sec-head' }, h('h2', {}, t('today.coming.heading'))),
+    coming: h('section', { class: 'col-side' }, h('div', { class: 'sec-head' }, h('h2', {}, t('today.coming.heading'))),
       coming.length
         ? h('ul', { class: 'list' }, coming.map((c) => {
             const late = daysBetween(day, c.day) < 0;
@@ -189,11 +206,18 @@ export function render(root) {
               c.pay && button(t('lists.shared.paid'), { class: 'small', onclick: () => c.pay().catch((err) => toast(err.message, 'bad')) }));
           }))
         : h('p', { class: 'empty' }, t('today.coming.empty'))),
-    plan: nudge && h('section', {}, h('p', { class: 'nudge' }, nudge.text, ' ', h('a', { href: '#/plan' }, t('today.nudge.open')))),
+    plan: nudge && h('section', { class: 'col-side' }, h('p', { class: 'nudge' }, nudge.text, ' ', button(t('today.nudge.open'), { class: 'small', onclick: () => { location.hash = '#/plan'; } }))),
   };
+  const firstRun = store.byKind('tick').length === 0 && canAskNotify();
+  const notify = firstRun && h('section', { class: 'callout-slot' }, callout([
+    h('p', {}, t('today.notify_body')),
+    button(t('today.notify_on'), { class: 'small', onclick: (ev) => enablePush().then(() => ev.target.closest('.callout-slot')?.remove()).catch((err) => toast(err.message, 'bad')) }),
+  ], { kind: 'neutral', icon: 'tabler/bell' }));
   put(root,
     greeting && h('p', { class: 'greet' }, greeting),
     h('header', { class: 'page-head' }, h('h1', {}, fmtLong(day))),
+    off && h('section', { class: 'callout-slot' }, callout(t('today.offline'), { kind: 'warning', icon: 'tabler/wifi-off' })),
+    notify,
     prefs.blocks.filter((k) => !prefs.hidden.includes(k)).map((k) => blocks[k]),
   );
 }
