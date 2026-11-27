@@ -365,6 +365,15 @@ with sync_playwright() as p:
     assert lk["theme"] == "fam:raspberry-tart" and (0 <= lk["c"]["ah"] <= 40 or lk["c"]["ah"] >= 340), lk
     assert pg.evaluate(css + "('--ah')").strip() == str(lk["c"]["ah"])
     expect(pg.locator('[data-fk="theme:fam:raspberry-tart"]')).to_have_attribute("aria-pressed", "true")
+    # family tiles carry their name inside and sit two to a row on a phone
+    first = pg.locator(".family-picker .swatch").first
+    assert first.inner_text().strip() == first.get_attribute("aria-label")
+    pg.set_viewport_size({"width": 390, "height": 880})
+    cols = pg.evaluate(
+        "getComputedStyle(document.querySelector('.family-picker .swatches')).gridTemplateColumns.split(' ').length"
+    )
+    assert cols == 2, cols
+    pg.set_viewport_size({"width": 1280, "height": 900})
     # complete colour themes: export with one override, reset, import, apply
     pg.locator('[data-fk="mode:light"]').click()
     pg.evaluate("XOLook.change((s, l) => { l.colours.light.leaf = '#aa0000'; l.strength = 1.3; })")

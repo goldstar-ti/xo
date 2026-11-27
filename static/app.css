@@ -461,16 +461,19 @@ dialog.sheet::backdrop { background: color-mix(in srgb, var(--c-backdrop) 55%, t
 .side .look-btn { align-self: flex-start; }
 .side .head-actions { flex-direction: column; align-items: flex-start; }
 
-.swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(8.25rem, 1fr)); gap: 0.6rem; }
+.swatches { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.47rem; }
+@media (min-width: 40rem) { .swatches { grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr)); } }
 .swatch {
-  display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 0.55rem;
-  min-height: 3.25rem; padding: 0.5rem 0.7rem; text-align: left;
+  display: flex; align-items: center; gap: 0.6rem;
+  min-height: 2.82rem; padding: 0.47rem 0.7rem; text-align: left;
   background: var(--paper); color: var(--ink);
-  border: calc(var(--rule) + 1px) solid var(--line); border-radius: var(--radius);
-  font-weight: 600; font-size: var(--fs-control, 0.9375rem); line-height: 1.15;
+  border: 2px solid var(--line); border-radius: 0.6rem;
+  font-weight: 500; font-size: 0.82rem; line-height: 1.15;
 }
-.swatch::before { content: ""; width: 1.5rem; height: 1.5rem; border-radius: 50%; background: var(--leaf); box-shadow: 0.55rem 0 0 -0.3rem var(--ochre); }
-.swatch.on { border-color: var(--ink); box-shadow: 0 0 0 2px var(--ink); }
+.swatch-dot, .theme-dot::before { flex: none; width: 1.3rem; height: 1.3rem; border-radius: 50%; background: var(--leaf); box-shadow: 0.53rem 0 0 -0.24rem var(--ochre); }
+.swatch-dot { margin-right: 0.3rem; }
+.theme-dot::before { content: ""; }
+.swatch.on { border-color: var(--ink); }
 .hues { display: flex; flex-wrap: wrap; gap: 0.45rem; }
 .hue { width: 2.5rem; height: 2.5rem; border-radius: 50%; border: 3px solid var(--paper); box-shadow: 0 0 0 1.5px var(--line); padding: 0; }
 .hue.on { box-shadow: 0 0 0 3px var(--ink); }
@@ -508,7 +511,6 @@ input[type="range"] { width: 100%; min-height: 2.25rem; accent-color: var(--c-ch
 .ident-table caption { text-align: left; font-weight: 600; padding: 0.6rem 0 0.25rem; }
 .ident-table .dial { min-width: 14rem; }
 .ident-swatch { width: 2rem; height: 2rem; padding: 0; border-radius: 50%; border: 3px solid var(--paper); box-shadow: 0 0 0 1.5px var(--line); background: var(--swatch, var(--paper)); color: var(--muted); }
-.ident-swatches { grid-template-columns: repeat(auto-fill, 2.25rem); }
 .ident-family h3 { margin: 0.9rem 0 0.4rem; font-size: var(--fs-small, 0.875rem); }
 .colour-table th, .colour-table td { padding: 0.35rem 0.5rem 0.35rem 0; text-align: left; border-bottom: 1px solid var(--line); vertical-align: middle; }
 .colour-table thead th { font-size: var(--fs-small, 0.875rem); color: var(--muted); font-weight: 600; }

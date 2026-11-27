@@ -76,7 +76,7 @@ const colourDial = (label, key, scale, unit) => {
 
 function themeSwatch(id, name, c, extra = {}) {
   const on = look().theme === id;
-  const el = h('button', { type: 'button', class: `swatch themed${on ? ' on' : ''}`, 'aria-pressed': String(on), 'data-fk': `theme:${id}`, onclick: () => setLook({ theme: id, c: { ...c }, ...extra }) }, name);
+  const el = h('button', { type: 'button', class: `swatch themed${on ? ' on' : ''}`, 'aria-pressed': String(on), 'data-fk': `theme:${id}`, onclick: () => setLook({ theme: id, c: { ...c }, ...extra }) }, h('span', { class: 'swatch-dot', 'aria-hidden': 'true' }), name);
   for (const [k, v] of Object.entries(c)) el.style.setProperty(`--${k}`, v);
   return el;
 }
@@ -116,9 +116,9 @@ function familyPicker({ onPick, current = null, fk = (th) => `theme:${th.id}`, l
       strip.set(FAMILY_HUES.map((k) => ({ key: k, label: hues[k] || k })), hue);
       grid.replaceChildren(...FAMILIES.filter((f) => f.hue === hue).map((f) => h('div', { class: 'ident-family' },
         h('h3', {}, f.name),
-        h('div', { class: 'swatches ident-swatches' }, f.themes.map((th) => {
+        h('div', { class: 'swatches' }, f.themes.map((th) => {
           const on = th.id === current;
-          const el = h('button', { type: 'button', class: `swatch themed${on ? ' on' : ''}`, 'aria-pressed': String(on), title: th.name, 'aria-label': th.name, 'data-fk': fk(th), onclick: () => onPick(th) });
+          const el = h('button', { type: 'button', class: `swatch themed${on ? ' on' : ''}`, 'aria-pressed': String(on), 'aria-label': th.name, 'data-fk': fk(th), onclick: () => onPick(th) }, h('span', { class: 'swatch-dot', 'aria-hidden': 'true' }), th.name);
           for (const [k, v] of Object.entries(th.c)) el.style.setProperty(`--${k}`, v);
           return el;
         })))));
