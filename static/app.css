@@ -64,6 +64,8 @@
   --c-reveal-bg: var(--leaf-soft); --c-banner-bg: var(--ochre-soft);
   --c-link: var(--leaf); --c-focus: var(--ochre);
   --c-w-bg: var(--surface); --c-w-title: var(--ink); --c-w-border: var(--line);
+  /* Module colours (the Modules tab): one hue each, tinting the screen icons in the side bar and tab bar. */
+  --concept-today: oklch(0.52 0.1 150); --concept-diary: oklch(0.52 0.1 250); --concept-tasks: oklch(0.52 0.1 195); --concept-notes: oklch(0.52 0.1 95); --concept-obligations: oklch(0.52 0.1 25); --concept-routine: oklch(0.52 0.1 125); --concept-bills: oklch(0.52 0.1 70); --concept-checkin: oklch(0.52 0.1 350); --concept-plan: oklch(0.52 0.1 310); --concept-tracker: oklch(0.52 0.1 275); --concept-canvas: oklch(0.52 0.1 175); --concept-appearance: oklch(0.52 0.1 330); --concept-settings: oklch(0.52 0.1 260);
 }
 :root[data-scheme="dark"], :root[data-scheme="dark"] .themed {
   color-scheme: dark;
@@ -78,6 +80,7 @@
   --ochre: oklch(0.82 var(--wc) var(--wh));
   --ochre-soft: oklch(0.3 calc(var(--wc) * 0.45) var(--wh));
   --danger: oklch(0.78 0.12 25);
+  --concept-today: oklch(0.78 0.1 150); --concept-diary: oklch(0.78 0.1 250); --concept-tasks: oklch(0.78 0.1 195); --concept-notes: oklch(0.78 0.1 95); --concept-obligations: oklch(0.78 0.1 25); --concept-routine: oklch(0.78 0.1 125); --concept-bills: oklch(0.78 0.1 70); --concept-checkin: oklch(0.78 0.1 350); --concept-plan: oklch(0.78 0.1 310); --concept-tracker: oklch(0.78 0.1 275); --concept-canvas: oklch(0.78 0.1 175); --concept-appearance: oklch(0.78 0.1 330); --concept-settings: oklch(0.78 0.1 260);
 }
 
 * { box-sizing: border-box; }
@@ -887,3 +890,6 @@ dialog.sheet.form-sheet[open] { display: flex; flex-direction: column; padding: 
 .history .mark { display: inline-flex; flex-direction: column; align-items: flex-start; gap: 0.15rem; }
 .history td .mark a { font-size: var(--fs-small, 0.875rem); color: var(--muted); font-weight: 500; }
 .list.links li > .link-row { flex: 1; min-width: 0; }
+
+/* Screen icons take their module's colour; the screen showing keeps the accent. */
+:root[data-concept-nav="on"] :is(.side nav, .tabs) a[data-nav]:not(.on) .ico { color: var(--concept, inherit); }

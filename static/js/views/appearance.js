@@ -4,6 +4,7 @@ import { t, text } from '../text.js';
 import { badge, button, checkbox, colourField, disclosure, field, focusControl, fontPicker, input, kit, optionCards, searchBox, segmented, select, sortList, stat, textarea, toggle } from '../ui.js';
 import { tabStrip } from '../tabs.js';
 import * as store from '../store.js';
+import { MODULES, isOn, setModule } from '../modules.js';
 import { WIDGETS } from '../widgets.js';
 import { DEFAULT_ICONS, icon, paintIcon } from '../icons.js';
 import { pickScreenIcon } from '../iconpicker.js';
@@ -268,7 +269,7 @@ function fontOptions(key, allowSame, current) {
 // ---- the screen: six groups, each a few always-visible settings and some accordions ----
 // build() makes every setting once per draw and files it under a group (and an accordion); the frame then shows one
 // group, or the settings that match the search, by moving those nodes around.
-const GROUPS = ['theme', 'text', 'layout', 'effects', 'screens', 'share'];
+const GROUPS = ['theme', 'text', 'layout', 'effects', 'modules', 'screens', 'share'];
 let query = '';
 const accOpen = new Map(); // accordion key -> open, kept across redraws
 let items = [];
@@ -498,7 +499,7 @@ function build(lk, d) {
   reg('theme', 'my_themes', t('appearance.my_themes.save'), saveRow());
   reg('theme', 'my_themes', t('appearance.my_themes.heading'), themeTools());
   const now = themeColours();
-  L.COLOUR_GROUPS.forEach(([g, tokens]) => {
+  L.COLOUR_GROUPS.filter(([g]) => g !== 'modules').forEach(([g, tokens]) => {
     const key = `colours:${g}`;
     const title = text('appearance.acc').colours_prefix.replace('{group}', colourGroups[g]);
     defAcc(key, 'theme', title, { reset: () => L.change((s, l) => { tokens.forEach((k) => { delete l.colours.light[k]; delete l.colours.dark[k]; }); }), resetName: title });
@@ -585,7 +586,22 @@ function build(lk, d) {
   defAcc('figures', 'effects', A('figures'), { reset: () => setLook({ figure: d.figure }) });
   reg('effects', 'figures', t('appearance.figure.label'), cards(t('appearance.figure.label'), 'figure', (o) => drawn('fig-sample', o, '12')), { adv: true, changed: chg('figure') });
 
-  // 5. Screens
+  // 5. Modules: each screen switched on or off for every device, and its colour on this device
+  const moduleNames = text('app.nav');
+  const moreSub = text('app.more_sub');
+  const conceptTokens = MODULES.map((m) => `concept-${m.id}`);
+  reg('modules', null, t('appearance.modules.hint'), h('p', { class: 'hint' }, t('appearance.modules.hint')));
+  MODULES.forEach((m) => {
+    const sw = toggle(moduleNames[m.id], { checked: isOn(m.id), disabled: m.core || null, 'data-fk': `mod:${m.id}`,
+      onchange: (on) => setModule(m.id, on).catch((err) => { toast(err.message, 'bad'); redraw(); }) });
+    reg('modules', null, moduleNames[m.id], h('div', { class: 'opt' }, sw, h('p', { class: 'hint' }, m.core ? t('appearance.modules.core') : moreSub[m.id])), { changed: !isOn(m.id) });
+  });
+  reg('modules', null, t('appearance.modules.tint'), h('div', { class: 'opt' }, toggle(t('appearance.modules.tint'), { checked: p.conceptNav, 'data-fk': 'p-conceptnav', onchange: (on) => setPrefs({ conceptNav: on }) }),
+    h('p', { class: 'hint' }, t('appearance.modules.tint_hint'))), { changed: !p.conceptNav });
+  defAcc('concepts', 'modules', A('concepts'), { reset: () => L.change((s, l) => { conceptTokens.forEach((k) => { delete l.colours.light[k]; delete l.colours.dark[k]; }); }) });
+  MODULES.forEach((m) => reg('modules', 'concepts', `${t('appearance.modules.colour')}: ${moduleNames[m.id]}`, colourRow(`concept-${m.id}`, lk, now, names), { adv: true, changed: !!(lk.colours.light[`concept-${m.id}`] || lk.colours.dark[`concept-${m.id}`]) }));
+
+  // 6. Screens
   const kitLabels = { xo: t('appearance.kit.xo'), daisy: t('appearance.kit.daisy'), wa: t('appearance.kit.wa') };
   reg('screens', null, t('appearance.kit.label'), h('div', { class: 'opt' }, cards(t('appearance.kit.label'), 'kit', null, kitLabels), h('p', { class: 'hint' }, t('appearance.kit.hint'))), { changed: chg('kit') });
   reg('screens', null, t('appearance.behaviour.clock'), fkAll(segmented(t('appearance.behaviour.clock'), [['12', t('appearance.behaviour.clock_12')], ['24', t('appearance.behaviour.clock_24')]],
@@ -626,7 +642,7 @@ function build(lk, d) {
   defAcc('ident', 'screens', A('ident'), { reset: () => L.change((s, l) => { l.ident = { widgets: {}, tabs: {} }; }) });
   reg('screens', 'ident', A('ident'), identBody(lk), { adv: true, changed: Object.keys(lk.ident.widgets).length + Object.keys(lk.ident.tabs).length > 0 });
 
-  // 6. Share and reset
+  // 7. Share and reset
   const code = L.encode(lk);
   const paste = input({ type: 'text', placeholder: t('appearance.presets.paste'), 'aria-label': t('appearance.presets.paste'), 'data-fk': 'paste' });
   const applyCode = () => {

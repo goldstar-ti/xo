@@ -336,6 +336,19 @@ appearance:
       c-w-bg: Widget
       c-w-title: Widget title
       c-w-border: Widget edge
+      concept-today: Today colour
+      concept-diary: Diary colour
+      concept-tasks: Tasks colour
+      concept-notes: Notes colour
+      concept-obligations: Duties colour
+      concept-routine: Routine colour
+      concept-bills: Bills colour
+      concept-checkin: Check-ins colour
+      concept-plan: My plan colour
+      concept-tracker: Tracker colour
+      concept-canvas: Canvas colour
+      concept-appearance: Appearance colour
+      concept-settings: Settings colour
   families:
     heading: Theme families
     hint: Every palette from NOBBIE, grouped by colour. Fine-tune any of them below.
@@ -398,11 +411,18 @@ appearance:
   figure:
     heading: Figures
     label: Figure style
+  modules:
+    hint: A module that is switched off is hidden everywhere and sends no reminders. Its data is kept, and switching it on brings everything back. This applies on every device.
+    core: Always on.
+    tint: Colour screen icons by module
+    tint_hint: Tints the icons in the side bar and the bottom bar with each module's colour. The screen you are on keeps the accent colour.
+    colour: Colour
   groups:
     theme: Colour
     text: Text
     layout: Layout
     effects: Effects
+    modules: Modules
     screens: Screens
     share: Share and reset
   search:
@@ -428,6 +448,7 @@ appearance:
     fine_tune: Strength and fine-tune
     my_themes: My themes
     colours_prefix: 'Colours: {group}'
+    concepts: Module colours
     scheduled: Scheduled looks
     fonts: Fonts
     weight_spacing: Weight and spacing

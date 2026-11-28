@@ -32,7 +32,7 @@ const labelOf = (k) => (k === 'more' ? t('app.more') : text('app.nav')[k]);
 // A screen's link: its icon and its name. Right-click changes the icon (Shift+right-click
 // keeps the browser's own menu).
 function navLink(k) {
-  const a = h('a', { href: `#/${k}`, 'data-nav': k }, icon(iconOf(k)), h('span', { class: 'nav-label' }, labelOf(k)));
+  const a = h('a', { href: `#/${k}`, 'data-nav': k, style: k === 'more' ? null : `--concept: var(--concept-${k})` }, icon(iconOf(k)), h('span', { class: 'nav-label' }, labelOf(k)));
   a.addEventListener('contextmenu', (e) => {
     if (e.shiftKey) return;
     e.preventDefault();

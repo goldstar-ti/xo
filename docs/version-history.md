@@ -4,6 +4,7 @@
 
 | Version | Date | Change |
 |---|---|---|
+| 2.26.0 | 2026-11-28 | Modules tab in Appearance: a switch for each module (kept on the server), a colour for each module (per device) and an option to tint the screen icons with them. |
 | 2.25.0 | 2026-11-28 | Modules: each screen is a module that can be switched on or off for every device. A module that is off leaves the side bar, bottom bar, More, palette, shortcuts, Today and canvas, and stops its reminders; its data stays. |
 | 2.24.0 | 2026-11-28 | Generated background patterns (GeoPattern) and a Motion setting (Follow device, Reduce, Full) with fade-in motion for screens, dialogs, popovers and canvas widgets. |
 | 2.23.0 | 2026-11-27 | Every long text box is now a Markdown editor with a toolbar, preview and dictation, and long text shows formatted. |

@@ -90,6 +90,22 @@ with sync_playwright() as p:
     pg.wait_for_selector("#view")
     assert pg.evaluate("document.body.dataset.view") == "diary"
     pg.evaluate("async () => (await import('/js/modules.js')).setModule('today', true)")
+    # the Modules tab: a switch per module, kept on the server, and the colour tint on the screen icons
+    pg.goto(BASE + "/#/appearance")
+    pg.wait_for_selector(".look-screen")
+    pg.locator('[data-key="modules"]').click()
+    pg.locator('[data-fk="mod:bills"]').click()
+    expect(side.locator('a[data-nav="bills"]')).to_have_count(0)
+    expect(pg.locator('[data-fk="mod:settings"]')).to_be_disabled()
+    pg.locator('[data-fk="mod:bills"]').click()
+    expect(side.locator('a[data-nav="bills"]')).to_have_count(1)
+    icon_colour = "e => [getComputedStyle(e.querySelector('.ico')).color, getComputedStyle(e).color]"
+    ico, link = side.locator('a[data-nav="diary"]').evaluate(icon_colour)
+    assert ico != link, "the module colour tints the icon"
+    pg.locator('[data-fk="p-conceptnav"]').click()
+    ico, link = side.locator('a[data-nav="diary"]').evaluate(icon_colour)
+    assert ico == link, "no tint when the setting is off"
+    pg.locator('[data-fk="p-conceptnav"]').click()
     pg.evaluate("async () => (await (await import('/js/store.js')).remove('bill-mod-test'))")
     b.close()
 print("errors:", errs or "none")

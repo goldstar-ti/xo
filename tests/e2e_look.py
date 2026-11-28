@@ -231,8 +231,8 @@ with sync_playwright() as p:
     pg.goto(BASE + "/#/today")
     pg.wait_for_selector("h1")
     pg.evaluate("XOLook.change((s, lk) => { lk.mode = 'light'; })")
-    assert pg.evaluate("XOLook.COLOUR_GROUPS.length") == 12
-    assert pg.evaluate("new Set(XOLook.COLOUR_TOKENS).size") == pg.evaluate("XOLook.COLOUR_TOKENS.length") == 55
+    assert pg.evaluate("XOLook.COLOUR_GROUPS.length") == 13
+    assert pg.evaluate("new Set(XOLook.COLOUR_TOKENS).size") == pg.evaluate("XOLook.COLOUR_TOKENS.length") == 68
     leaf = pg.evaluate(css + "('--leaf')").strip()
     assert leaf and pg.evaluate(css + "('--c-primary-bg')").strip() == leaf
     pg.evaluate(

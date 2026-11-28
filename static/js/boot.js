@@ -76,6 +76,8 @@
     ['lists', ['c-row-link', 'c-row-line', 'c-late']],
     ['notes', ['c-nudge-bg', 'c-guard-bg', 'c-guard-rule', 'c-reveal-bg', 'c-banner-bg']],
     ['links', ['c-link', 'c-focus']],
+    // One colour per module, set on the Modules tab (not listed under Colours). Defaults are in app.css.
+    ['modules', ['concept-today', 'concept-diary', 'concept-tasks', 'concept-notes', 'concept-obligations', 'concept-routine', 'concept-bills', 'concept-checkin', 'concept-plan', 'concept-tracker', 'concept-canvas', 'concept-appearance', 'concept-settings']],
     ['widgets', ['c-w-bg', 'c-w-title', 'c-w-border']],
   ];
   const COLOUR_TOKENS = COLOUR_GROUPS.flatMap(([, tokens]) => tokens);
@@ -118,9 +120,9 @@
     pattern: { kind: 'none', swatch: '', light: '', dark: '', pct: 12, seed: '' },
   };
   const SECTIONS = ['today', 'diary', 'tasks', 'obligations', 'routine', 'bills', 'checkin', 'plan', 'settings', 'appearance', 'canvas', 'tracker', 'notes'];
-  const LOOK_TABS = ['theme', 'text', 'layout', 'effects', 'screens', 'share']; // the Appearance screen's groups
+  const LOOK_TABS = ['theme', 'text', 'layout', 'effects', 'modules', 'screens', 'share']; // the Appearance screen's groups
   const BLOCKS = ['line', 'next', 'three', 'day', 'coming', 'plan'];
-  const DEFAULT_PREFS = { clock24: false, tabs: ['today', 'diary', 'tasks', 'obligations'], blocks: BLOCKS.slice(), hidden: [], title: 'XO', callMe: '', pop: true, view: 'standard', lookTab: 'theme', navIcons: true, icons: {}, sideW: 240, side: 'open' };
+  const DEFAULT_PREFS = { clock24: false, tabs: ['today', 'diary', 'tasks', 'obligations'], blocks: BLOCKS.slice(), hidden: [], title: 'XO', callMe: '', pop: true, view: 'standard', lookTab: 'theme', navIcons: true, conceptNav: true, icons: {}, sideW: 240, side: 'open' };
   const ICON_KEYS = SECTIONS.concat(['more']); // screens whose icon the owner can change
   const ICON_RE = /^(tabler\/)?[a-z0-9-]{1,60}(:fill)?$/;
 
@@ -228,6 +230,7 @@
       view: raw.view === 'advanced' ? 'advanced' : 'standard',
       lookTab: LOOK_TABS.includes(raw.lookTab) ? raw.lookTab : 'theme',
       navIcons: raw.navIcons !== false,
+      conceptNav: raw.conceptNav !== false,
       icons: Object.fromEntries(ICON_KEYS.filter((k) => raw.icons && typeof raw.icons[k] === 'string' && ICON_RE.test(raw.icons[k])).map((k) => [k, raw.icons[k]])),
       sideW: Math.round(clamp(raw.sideW, 180, 420, 240)),
       side: raw.side === 'icons' ? 'icons' : 'open',
@@ -374,6 +377,7 @@
     identStyle(look.ident);
     root.dataset.pop = state.prefs.pop ? 'on' : 'off';
     root.dataset.navIcons = state.prefs.navIcons ? 'on' : 'off';
+    root.dataset.conceptNav = state.prefs.conceptNav ? 'on' : 'off';
     root.dataset.side = state.prefs.side;
     set('--side-w', state.prefs.sideW + 'px');
     lastKey = (item ? item.id : 'base') + '|' + root.dataset.scheme;
