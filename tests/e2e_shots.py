@@ -3,7 +3,7 @@
 python tests/e2e_shots.py [base_url] [out_dir]
 
 Run through `make shots` on the throwaway test stack. It signs up a made-up account, adds a
-little made-up data, then for each kit (xo, daisy, wa) and each width (1280x900 and 390x844)
+little made-up data, then for each kit (xo, daisy, wa) and each width (360x800, 1280x900, 1920x1080 and 5120x1440)
 saves a full-page PNG of each screen as <out_dir>/<kit>-<screen>-<width>.png. The sign-in
 screen is taken once, in the xo kit, before the account exists. It fails on a console error.
 """
@@ -23,7 +23,12 @@ PASS = "orbit-walnut-ferry-linen-42"
 TZ = "Australia/Perth"
 now = datetime.now(ZoneInfo(TZ))
 tomorrow = (now + timedelta(days=1)).strftime("%Y-%m-%d")
-SIZES = {"1280": {"width": 1280, "height": 900}, "390": {"width": 390, "height": 844}}
+SIZES = {
+    "360": {"width": 360, "height": 800},
+    "1280": {"width": 1280, "height": 900},
+    "1920": {"width": 1920, "height": 1080},
+    "5120": {"width": 5120, "height": 1440},
+}
 errors = []
 written = []
 
@@ -107,7 +112,7 @@ with sync_playwright() as p:
     page.get_by_role("button", name="Plan with internet and device sections").click()
     expect(page.locator(".plan-sec")).to_have_count(13)
 
-    # --- every screen, every kit, both widths
+    # --- every screen, every kit, every width
     screens = [
         ("today", "today", None),
         ("diary", "diary", None),

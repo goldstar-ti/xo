@@ -2,6 +2,11 @@
 
 ## Current state
 
+### Design port run (2026-11-28, branch design-port)
+
+- An unattended run is under way from `/home/pj/.claude/plans/the-ui-is-still-federated-robin-of-f3ce7733-e502-4ca2-961d-837eda7af482.md`: phase A (Bridge port onto Canvas), phase B (design handoff, `docs/design/xo-design-handoff.md`, gaps in `docs/design/gap-list.md`), phase C (wrap-up).
+- Not merged and not deployed. The orchestrator fills in results here when the run ends.
+
 - Deployed on gs-sv-008 at `https://xo.tifunction.com`, behind Cloudflare Access. The Access policy allows only the owner's email.
 - Private repository `goldstar-ti/xo`, branch `main`.
 - Stack: Docker Compose project `xo` (`xo-app`, `xo-db`), app published on `172.17.0.1:8010` behind NOBBIE's nginx. See `docs/RUNBOOK.md`.
