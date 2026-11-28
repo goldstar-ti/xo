@@ -61,7 +61,7 @@ appearance:
     line: {plain: Plain, quote: Pull-quote, hidden: Hidden}
     figure: {plain: Plain, tint: Tint, accent: Accent, inset: Inset}
     motion: {system: Follow device, reduce: Reduce, full: Full}
-    fluid: {on: 'On', off: 'Off'}
+    fluid: {'on': 'On', 'off': 'Off'}
     todayColour: {module: Module colour, ink: Ink}
     wChrome: {card: Card, outline: Outline, flat: Flat, stripe: Stripe}
     wHead: {full: Full, slim: Slim, none: None}

@@ -61,7 +61,7 @@ function dial(label, { id, min, max, step, value, def, scale = 1, unit = '', max
   reset.hidden = Math.abs(value - def) < 1e-9;
   const chips = presets && h('div', { class: 'dial-presets' }, presets.map(([key, v], i) => chip(t(`appearance.presets_scale.${key}`), {
     pressed: Math.abs(value - v) < 1e-6, 'data-fk': `${id}-preset-${i}`, onclick: () => apply(snap(v), {}) })));
-  return h('div', { class: 'dial' }, h('span', { class: 'dial-name' }, label), scaleEl,
+  return h('div', { class: 'dial' }, scaleEl,
     h('span', { class: 'dial-ctl' }, exact && h('span', { class: 'dial-exact' }, show(value)), reset), chips);
 }
 const colourDial = (label, key, scale, unit) => {

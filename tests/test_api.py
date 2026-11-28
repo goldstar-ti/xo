@@ -233,6 +233,28 @@ async def test_text_served_without_sign_in(client):
     assert isinstance(body["plan"]["sections"]["online"], list)
 
 
+@pytest.mark.asyncio
+async def test_text_has_no_boolean_keys(client):
+    """An unquoted on, off, yes or no key reads as a YAML boolean and loses its label."""
+    r = await client.get("/api/text")
+    assert r.status_code == 200
+    bad = []
+
+    def walk(node, path):
+        if isinstance(node, dict):
+            for key, value in node.items():
+                here = f"{path}.{key}" if path else str(key)
+                if key in ("True", "False"):
+                    bad.append(here)
+                walk(value, here)
+        elif isinstance(node, list):
+            for i, value in enumerate(node):
+                walk(value, f"{path}[{i}]")
+
+    walk(r.json(), "")
+    assert not bad, f"boolean keys in text: {bad}"
+
+
 def test_every_text_file_parses_and_is_keyed_by_its_name():
     import yaml
 
