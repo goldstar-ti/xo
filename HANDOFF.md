@@ -89,7 +89,7 @@
 ## Next steps
 
 1. Logging, `app/version.py` with `docs/version-history.md`, and a ruff lint and format pass (no behaviour change). Add `make lint` when ruff is in the image.
-2. Convert the screens to `static/js/ui.js` controls and `t()` text, in three batches: (a) Today and the lists (diary, tasks, obligations, routine, bills); (b) check-ins and My plan; (c) settings, appearance and the app shell with sign-in. Each batch moves its inline strings into `content/text/*.yaml` and runs the browser flow under all three kits. Existing screens stay on `app.css` until the owner approves each conversion.
+2. Screens moved onto the `ui.js` controls in the design port (B4a to B4f, D-48). Still to do: the app shell and sign-in.
 3. Build from `docs/ROADMAP.md` in this order (D-12, D-17, D-18). Each section gets its own plan session before building.
    1. R Records: change history, nightly backup, export everything.
    2. Section 1 Workbook sittings.
@@ -98,7 +98,7 @@
    5. Section 4 Reporting register.
    6. Section 5 GTD core.
    7. Sections 6 to 12 in the D-18 order: Health and mood (6), People and life admin (7), Legal and sessions (8), Goals and reviews (9), Money (10), Google Calendar (11), AI (12: 12a assisted writing under D-15, 12b the agent under D-23).
-4. Canvas, parked: a resizable side pane, undo that survives a reload, and saved layout presets. Also parked: NOBBIE single-key canvas shortcuts (W Widgets, F Fit, R Reset); Appearance Iconography overrides (swap any app icon) and icons in the rest of XO; widget icons in the Widgets popover and title bars (a registry `icon` per widget); glass effect on popovers.
+4. Canvas, parked: undo that survives a reload. (The side pane, D-40, and starter layouts, D-42 and D-49, are built.) Also parked: NOBBIE single-key canvas shortcuts (W Widgets, F Fit, R Reset); Appearance Iconography overrides (swap any app icon) and icons in the rest of XO; widget icons in the Widgets popover and title bars (a registry `icon` per widget); glass effect on popovers.
 5. Tasks, parked: manual card order on the board; subtasks as full tasks. Out of scope by the owner's decision: local-first sync and webhooks. OS-wide hotkeys are parked (D-29): a PWA cannot register them.
 
 ## Background patterns and Motion (2.24.0, D-35)
