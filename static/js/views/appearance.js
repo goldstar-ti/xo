@@ -510,6 +510,7 @@ function build(lk, d) {
 
   // 2. Text
   reg('text', null, t('appearance.display.size'), sizePresets(), { changed: L.presetOf(lk) !== 'regular' });
+  reg('text', null, t('appearance.fluid.label'), h('div', { class: 'opt' }, seg(t('appearance.fluid.label'), 'fluid'), h('p', { class: 'hint' }, t('appearance.fluid.hint'))), { changed: chg('fluid') });
   reg('text', null, t('appearance.type.body'), fontItem(t('appearance.type.body'), 'body', false), { changed: chg('body') });
   defAcc('fonts', 'text', A('fonts'), { reset: () => L.change((s, l) => { ['head', 'num', 'mono'].forEach((k) => { l[k] = d[k]; }); }) });
   [['headings', 'head', true], ['numerals', 'num', true], ['code', 'mono', false]].forEach(([k, key, allow]) => {

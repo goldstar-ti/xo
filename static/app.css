@@ -84,7 +84,12 @@
 }
 
 * { box-sizing: border-box; }
-html { font-size: 106.25%; -webkit-text-size-adjust: 100%; }
+/* --size is the Text size dial (boot.js). With data-fluid="on" the root size also grows with the window
+   above 60rem: 17px up to about 1920 wide, 28px at most, so a large screen reads like a laptop. */
+html { font-size: calc(106.25% * var(--size, 1)); -webkit-text-size-adjust: 100%; }
+@media (min-width: 60rem) {
+  :root[data-fluid="on"] { font-size: calc(var(--size, 1) * clamp(1.0625rem, 0.6875rem + 0.3vw, 1.75rem)); }
+}
 button, input, select, textarea { letter-spacing: inherit; }
 body {
   margin: 0;

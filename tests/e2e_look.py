@@ -509,6 +509,35 @@ with sync_playwright() as p:
     assert pg.evaluate(motion) == "full"
     pg.emulate_media(reduced_motion="reduce")
     pg.wait_for_function(f"{motion} === 'still'")  # the device changed while Follow device was on
+    # Fluid text: the root size grows with the window on a wide screen, and Off keeps the laptop size
+    root_px = "parseFloat(getComputedStyle(document.documentElement).fontSize)"
+    pg.evaluate("XOLook.change((s, l) => { l.fluid = 'on'; l.size = 100; })")
+    sizes = {}
+    for width in (1280, 1920, 3000, 5120):
+        pg.set_viewport_size({"width": width, "height": 1400})
+        sizes[width] = pg.evaluate(root_px)
+    print("root font size, fluid on:", sizes)
+    pg.evaluate("XOLook.change((s, l) => { l.fluid = 'off'; })")
+    assert pg.evaluate("document.documentElement.dataset.fluid") == "off"
+    pg.set_viewport_size({"width": 3000, "height": 1400})
+    off_3000 = pg.evaluate(root_px)
+    pg.set_viewport_size({"width": 1280, "height": 1400})
+    off_1280 = pg.evaluate(root_px)
+    assert sizes[3000] > off_3000, (sizes, off_3000)
+    assert off_3000 == off_1280 == 17, (off_3000, off_1280)
+    assert sizes[1280] == 17 and sizes[5120] <= 28 and sizes[5120] > sizes[1920], sizes
+    back = pg.evaluate("XOLook.decode(XOLook.encode(XOLook.active().look)).fluid")
+    assert back == "off", back
+    code = pg.evaluate(
+        """() => {
+          const bin = String.fromCharCode(...new TextEncoder().encode(JSON.stringify({ fluid: 'sideways' })));
+          const code = 'XO2-' + btoa(bin).replaceAll('+', '-').replaceAll('/', '_').replace(/=+$/, '');
+          return XOLook.decode(code).fluid;
+        }"""
+    )
+    assert code == "on", code
+    pg.evaluate("XOLook.change((s, l) => { l.fluid = 'on'; })")
+    pg.set_viewport_size({"width": 1280, "height": 900})
     # the control in Appearance sets it
     tab("effects")
     pg.locator('[data-fk="motion:full"]').click()

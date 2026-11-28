@@ -4,6 +4,7 @@
 
 | Version | Date | Change |
 |---|---|---|
+| 2.30.0 | 2026-11-28 | Text grows with the window on wide screens (up to 28 px at the root), with a "Grow text with the window" option in Appearance, Text to keep it fixed. |
 | 2.29.0 | 2026-11-28 | Screens split into reusable parts for the canvas; no visible change. |
 | 2.28.0 | 2026-11-28 | Function switches for Today: the daily line, Next up, Today's three, The day, Coming up and the My plan nudge can each be switched on or off from the Modules tab. |
 | 2.27.0 | 2026-11-28 | Function switches for Tasks: Today's three, Board view, Table view, Subtasks, Repeating tasks, Blocked by, Time blocks, Stale review and Close the day can each be switched on or off from the Modules tab. |

@@ -47,6 +47,7 @@
     kit: ['xo', 'daisy', 'wa'],
     figure: ['plain', 'tint', 'accent', 'inset'],
     motion: ['system', 'reduce', 'full'], // Follow device, Reduce, Full
+    fluid: ['on', 'off'], // Grow text with the window on wide screens
   };
   // Generated background patterns (GeoPattern): 'auto' lets the generator pick from the seed. Drawn by static/js/pattern.js.
   const PATTERN_KINDS = ['none', 'auto', 'octogons', 'overlappingCircles', 'plusSigns', 'xes', 'sineWaves', 'hexagons', 'overlappingRings', 'plaid',
@@ -115,7 +116,7 @@
     fs: {}, colours: { light: {}, dark: {} }, rCard: null, rPill: null, rDialog: null,
     glassAlpha: 0, glassBlur: 14, figure: 'plain', ident: { widgets: {}, tabs: {} },
     corners: 'round', density: 'regular', rule: 'fine', texture: 'none',
-    hero: 'plain', dayline: 'line', loud: 'regular', line: 'plain', kit: 'xo', axes: {}, motion: 'system',
+    hero: 'plain', dayline: 'line', loud: 'regular', line: 'plain', kit: 'xo', axes: {}, motion: 'system', fluid: 'on',
     // swatch is a palette slug ('' follows the accent); light and dark are its step 500 and step 300, copied in so it paints before the list loads.
     pattern: { kind: 'none', swatch: '', light: '', dark: '', pct: 12, seed: '' },
   };
@@ -337,7 +338,8 @@
     set('--fvs-num', fvs(look.num === 'same' ? look.body : look.num));
     set('--fvs-mono', fvs(look.mono));
     set('--mono-size', look.monoSize / 100); set('--mono-ls', look.monoLs + 'em');
-    root.style.fontSize = (106.25 * look.size / 100).toFixed(2) + '%';
+    // The Text size dial is a multiplier; app.css turns it into the root size (and grows it with the window when fluid is on).
+    set('--size', (look.size / 100).toFixed(3));
     set('--weight', look.weight); set('--lh', look.lh); set('--ls', look.ls + 'em');
     set('--radius', CORNERS[look.corners][0]); set('--pill', CORNERS[look.corners][1]);
     if (look.rCard !== null) set('--radius', look.rCard + 'px');
@@ -359,6 +361,7 @@
     root.dataset.line = look.line;
     root.dataset.kit = look.kit;
     root.dataset.figure = look.figure;
+    root.dataset.fluid = look.fluid;
     // Motion: Follow device is still when the device asks for reduced motion. CSS and scripts read data-xo-motion.
     const still = look.motion === 'reduce' || (look.motion === 'system' && matchMedia('(prefers-reduced-motion: reduce)').matches);
     root.dataset.xoMotion = still ? 'still' : 'full';

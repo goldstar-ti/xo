@@ -61,6 +61,7 @@ appearance:
     line: {plain: Plain, quote: Pull-quote, hidden: Hidden}
     figure: {plain: Plain, tint: Tint, accent: Accent, inset: Inset}
     motion: {system: Follow device, reduce: Reduce, full: Full}
+    fluid: {on: 'On', off: 'Off'}
   accent:
     group: Accent colour
     theme: Theme
@@ -372,6 +373,9 @@ appearance:
     pick_title: Palette for {name}
     current: '{name}: {palette}'
     load_failed: The palettes could not be loaded. Check your connection and try again.
+  fluid:
+    label: Grow text with the window
+    hint: On wide screens, text grows with the window. Turn off to keep it the same size as on a laptop.
   motion:
     label: Motion
     hint: Follow device uses your device's reduce-motion setting. Reduce turns every animation off. Full keeps them on.
