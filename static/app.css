@@ -25,7 +25,7 @@
   --radius: 10px; --pill: 999px;
   --d: 1; --rule: 1px; --loud: 1;
   --gap: calc(0.82rem * var(--d));
-  --time-col: 4.47rem;
+  --time-col: calc(5.4rem + 9 * var(--ls, 0em));
   --chrome: 1; --zoom: 1; --font-mono: "JetBrains Mono", ui-monospace, monospace;
   --mono-size: 1; --mono-ls: 0em; --radius-dialog: 14px; --glass-alpha: 0; --glass-blur: 14px;
   --glass-paper: color-mix(in oklch, var(--paper) calc(100% - var(--glass-alpha) * 100%), transparent);
