@@ -721,15 +721,30 @@ function previewBody() {
     h('div', { class: 'xo-w look-w' }, h('div', { class: 'xo-w-head' }, h('h2', { class: 'xo-w-title' }, t('appearance.preview_widget'))), h('div', { class: 'xo-w-body' }, t('appearance.preview_widget_body'))));
 }
 
-const wideQuery = window.matchMedia('(min-width: 72rem)');
-wideQuery.addEventListener('change', () => { if (document.querySelector('.look-screen')) redraw(); });
+// The three-part layout (group nav, controls, preview) follows the width of the screen's own box, not the
+// window, because Appearance also opens in the side pane. At 56rem and wider all three sit side by side;
+// narrower, the nav is a row of tabs and the preview is a collapsible section above the controls.
+const WIDE_REM = 56;
+const isWide = (root) => {
+  // 16px to the rem, as a media query counts it, so a larger Text size does not move the switch.
+  // The parent is measured, not #view, because #view only widens once this screen is in it.
+  return ((root.parentElement || root).clientWidth || window.innerWidth) >= WIDE_REM * 16;
+};
 
 export function render(root) {
   const a = L.active();
   const lk = a.look;
   const d = L.defaultLook();
   const view = L.prefs.view;
-  const wide = wideQuery.matches;
+  const wide = isWide(root);
+  if (root.xoWatch) root.xoWatch.disconnect();
+  if (!root.closest('.xo-w-body') && typeof ResizeObserver === 'function') {
+    root.xoWatch = new ResizeObserver(() => {
+      if (!root.isConnected || !root.querySelector('.look-screen')) { root.xoWatch.disconnect(); return; }
+      if (isWide(root) !== wide) { root.xoWatch.disconnect(); root.replaceChildren(); render(root); }
+    });
+    root.xoWatch.observe(root.parentElement || root);
+  }
   loadCatalogue();
   build(lk, d);
   root.dataset.view = view;
@@ -768,5 +783,5 @@ export function render(root) {
     h('div', { class: 'look-bar' }, viewSeg, search, undo),
     h('p', { class: 'hint' }, t('appearance.view.hint')),
     previewDisc,
-    h('div', { class: 'look-cols' }, tabs.el, panel, wide && h('aside', { class: 'look-preview', 'aria-label': t('appearance.preview_label') }, h('h2', {}, t('appearance.preview_label')), previewBody()))));
+    h('div', { class: wide ? 'look-cols look-wide' : 'look-cols' }, tabs.el, panel, wide && h('aside', { class: 'look-preview', 'aria-label': t('appearance.preview_label') }, h('h2', {}, t('appearance.preview_label')), previewBody()))));
 }

@@ -750,10 +750,9 @@ input.xo-hex { width: 6.5rem; min-height: 2.5rem; padding: 0.3rem 0.5rem; font-f
 .look-preview > h2 { font-size: var(--fs-small, 0.75rem); color: var(--muted); margin-bottom: 0.5rem; }
 .look-preview-body > * + * { margin-top: 0.9rem; }
 .look-w { min-height: 5.5rem; }
-@media (min-width: 72rem) {
-  .look-cols { grid-template-columns: 11rem minmax(0, 1fr) 18rem; align-items: start; gap: 1.5rem; }
-  .look-preview { position: sticky; top: 1.5rem; }
-}
+/* The wide layout is chosen in appearance.js from the screen's own width (56rem), so it fits the side pane. */
+.look-wide { grid-template-columns: 11rem minmax(0, 1fr) 18rem; align-items: start; gap: 1.5rem; }
+.look-wide .look-preview { position: sticky; top: 1.5rem; }
 @media (max-width: 40rem) { .look-acc { grid-template-columns: 1fr; } .look-acc > .field.half { grid-column: 1 / -1; } }
 .colour-row { display: grid; grid-template-columns: 1fr 1fr; align-items: center; gap: 0.5rem 0.9rem; padding: 0.35rem 0; border-bottom: 1px solid var(--line); }
 .colour-name { grid-column: 1 / -1; font-size: var(--fs-label, 0.9375rem); font-weight: 500; }
