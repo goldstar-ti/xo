@@ -158,7 +158,7 @@ function shell() {
   const brand = () => h('p', { class: 'brand' }, L.prefs.title);
   const toggleSide = h('button', { type: 'button', class: 'side-toggle', onclick: () => L.change((s) => { s.prefs.side = s.prefs.side === 'icons' ? 'open' : 'icons'; }, { quiet: true }) }, icon(CHROME.collapse));
   app.replaceChildren(
-    h('aside', { class: 'side' }, h('div', { class: 'side-head' }, brand(), toggleSide), h('nav', { 'aria-label': t('app.sections_aria') }, NAV.map(([k]) => navLink(k))), actions(), sideGrip()),
+    h('aside', { class: 'side' }, h('div', { class: 'side-head' }, brand()), h('nav', { 'aria-label': t('app.sections_aria') }, NAV.map(([k]) => navLink(k))), actions(), toggleSide, sideGrip()),
     h('div', { class: 'main' },
       h('header', { class: 'top' }, brand(), actions()),
       h('main', { id: 'view', tabindex: '-1' })),

@@ -124,6 +124,12 @@ function onKey(e) {
     if (!voiceEnabled()) return;
     const el = document.activeElement;
     if (el?.matches?.(DICTATE_FIELD)) dictateInto(el); else toast(t('voice.no_field'));
+  } else if (id.startsWith('global.zoom_')) {
+    const L = window.XOLook;
+    const now = L.active().look.zoom;
+    const next = id === 'global.zoom_reset' ? L.DEFAULT_LOOK.zoom : now + (id === 'global.zoom_in' ? 10 : -10);
+    L.change((s, look) => { look.zoom = next; });
+    toast(t('palette.zoom_now', { zoom: L.active().look.zoom }));
   } else if (id.startsWith('global.go_')) location.hash = `#/${id.slice('global.go_'.length)}`;
   else return;
   e.preventDefault();

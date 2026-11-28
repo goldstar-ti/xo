@@ -67,8 +67,8 @@
     ['buttons', ['c-primary-bg', 'c-primary-ink', 'c-ghost-ink', 'c-ghost-border', 'c-danger-ink']],
     ['chips', ['c-chip-bg', 'c-chip-border', 'c-chip-on-bg', 'c-chip-on-ink', 'c-tag']],
     ['fields', ['c-field-bg', 'c-field-border', 'c-field-focus', 'c-check']],
-    ['dialogs', ['c-sheet-bg', 'c-sheet-top', 'c-backdrop']],
-    ['today', ['c-next-head', 'c-next-rule', 'c-urgent', 'c-now', 'c-time', 'c-done', 'c-missed', 'c-appt']],
+    ['dialogs', ['c-sheet-bg', 'c-backdrop']],
+    ['today', ['c-next-head', 'c-urgent', 'c-now', 'c-time', 'c-done', 'c-missed', 'c-appt']],
     ['lists', ['c-row-link', 'c-row-line', 'c-late']],
     ['notes', ['c-nudge-bg', 'c-guard-bg', 'c-guard-rule', 'c-reveal-bg', 'c-banner-bg']],
     ['links', ['c-link', 'c-focus']],
@@ -109,7 +109,7 @@
     fs: {}, colours: { light: {}, dark: {} }, rCard: null, rPill: null, rDialog: null,
     glassAlpha: 0, glassBlur: 14, figure: 'plain', ident: { widgets: {}, tabs: {} },
     corners: 'round', density: 'regular', rule: 'fine', texture: 'none',
-    hero: 'plain', dayline: 'line', loud: 'regular', line: 'plain', kit: 'xo',
+    hero: 'plain', dayline: 'line', loud: 'regular', line: 'plain', kit: 'xo', axes: {},
   };
   const SECTIONS = ['today', 'diary', 'tasks', 'obligations', 'routine', 'bills', 'checkin', 'plan', 'settings', 'appearance', 'canvas', 'tracker', 'notes'];
   const LOOK_TABS = ['theme', 'text', 'layout', 'effects', 'screens', 'share']; // the Appearance screen's groups
@@ -152,6 +152,16 @@
     out.head = raw.head === 'same' || isFont(raw.head) ? raw.head : d.head;
     out.num = raw.num === 'same' || isFont(raw.num) ? raw.num : d.num;
     out.mono = isFont(raw.mono) ? raw.mono : d.mono;
+    // Variation axes the owner set on a catalogue font, kept per font: { <slug>: { <tag>: number } }.
+    out.axes = {};
+    const ra = raw.axes && typeof raw.axes === 'object' ? raw.axes : {};
+    Object.keys(ra).slice(0, 80).forEach((slug) => {
+      const v = ra[slug];
+      if (!/^[a-z0-9-]{1,60}$/.test(slug) || !v || typeof v !== 'object') return;
+      const tags = {};
+      Object.keys(v).slice(0, 12).forEach((tag) => { if (/^[A-Za-z]{4}$/.test(tag) && Number.isFinite(Number(v[tag]))) tags[tag] = clamp(v[tag], -1000, 10000, 0); });
+      if (Object.keys(tags).length) out.axes[slug] = tags;
+    });
     out.size = clamp(raw.size, 85, 135, 100);
     out.weight = clamp(raw.weight, 100, 900, 400);
     out.lh = clamp(raw.lh, 1.25, 1.9, 1.5);
@@ -284,6 +294,17 @@
     set('--font-head', look.head === 'same' ? body : stackOf(look.head));
     set('--font-num', look.num === 'same' ? body : stackOf(look.num));
     set('--font-mono', stackOf(look.mono, true));
+    // font-variation-settings for each role: the axes set on the font that role uses ('same' follows the body).
+    const fvs = (id) => {
+      const slug = typeof id === 'string' && CATALOGUE_FONT.test(id) ? id.slice(2).split('|')[0] : '';
+      const a = (slug && look.axes[slug]) || {};
+      const parts = Object.keys(a).map((k) => '"' + k + '" ' + a[k]);
+      return parts.length ? parts.join(', ') : 'normal';
+    };
+    set('--fvs-body', fvs(look.body));
+    set('--fvs-head', fvs(look.head === 'same' ? look.body : look.head));
+    set('--fvs-num', fvs(look.num === 'same' ? look.body : look.num));
+    set('--fvs-mono', fvs(look.mono));
     set('--mono-size', look.monoSize / 100); set('--mono-ls', look.monoLs + 'em');
     root.style.fontSize = (106.25 * look.size / 100).toFixed(2) + '%';
     set('--weight', look.weight); set('--lh', look.lh); set('--ls', look.ls + 'em');

@@ -183,6 +183,32 @@ appearance:
     code_size: Code size
     code_spacing: Code letter spacing
     built_in: Built in
+    hint_variable: 'Weight: {min} to {max}, smooth.'
+    hint_static: 'Weight: {weights} only. The slider uses the nearest.'
+    axes:
+      wdth: Width
+      opsz: Optical size
+      slnt: Slant
+      ital: Italic
+      GRAD: Grade
+      CASL: Casual
+      CRSV: Cursive
+      MONO: Monospace
+      SOFT: Softness
+      WONK: Wonk
+      ROND: Roundness
+      SHRP: Sharpness
+      XTRA: Counter width
+      XOPQ: Thick stroke
+      YOPQ: Thin stroke
+      YTAS: Ascender height
+      YTDE: Descender depth
+      YTFI: Figure height
+      YTLC: Lowercase height
+      YTUC: Uppercase height
+      CTRS: Contrast
+      FLAR: Flare
+      VOLM: Volume
     reset: Reset type
   shape:
     heading: Shape
@@ -288,10 +314,8 @@ appearance:
       c-field-focus: Field when typing
       c-check: Ticks and sliders
       c-sheet-bg: Dialog
-      c-sheet-top: Dialog top edge
       c-backdrop: Behind a dialog
       c-next-head: Next-up heading
-      c-next-rule: Next-up top edge
       c-urgent: Leave now
       c-now: Now line
       c-time: Times

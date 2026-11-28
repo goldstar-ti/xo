@@ -56,6 +56,16 @@ with sync_playwright() as p:
     # opens on the Colour group in Standard; Text sizes is an Advanced accordion
     assert pg.evaluate("XOLook.prefs.view") == "standard"
     assert pg.evaluate("XOLook.prefs.lookTab") == "theme"
+    # Zoom keys: . zooms in, , zooms out, m resets (global shortcuts, outside any text box).
+    pg.evaluate("document.activeElement.blur()")
+    z0 = pg.evaluate("XOLook.active().look.zoom")
+    pg.keyboard.press(".")
+    assert pg.evaluate("XOLook.active().look.zoom") == z0 + 10
+    pg.keyboard.press(",")
+    pg.keyboard.press(",")
+    assert pg.evaluate("XOLook.active().look.zoom") == z0 - 10
+    pg.keyboard.press("m")
+    assert pg.evaluate("XOLook.active().look.zoom") == 100
     expect(pg.locator('[data-key="theme"]')).to_have_attribute("aria-selected", "true")
     tab("text")
     assert pg.evaluate("XOLook.prefs.lookTab") == "text"
@@ -222,7 +232,7 @@ with sync_playwright() as p:
     pg.wait_for_selector("h1")
     pg.evaluate("XOLook.change((s, lk) => { lk.mode = 'light'; })")
     assert pg.evaluate("XOLook.COLOUR_GROUPS.length") == 12
-    assert pg.evaluate("new Set(XOLook.COLOUR_TOKENS).size") == pg.evaluate("XOLook.COLOUR_TOKENS.length") == 57
+    assert pg.evaluate("new Set(XOLook.COLOUR_TOKENS).size") == pg.evaluate("XOLook.COLOUR_TOKENS.length") == 55
     leaf = pg.evaluate(css + "('--leaf')").strip()
     assert leaf and pg.evaluate(css + "('--c-primary-bg')").strip() == leaf
     pg.evaluate(

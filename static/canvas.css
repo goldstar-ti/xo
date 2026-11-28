@@ -57,23 +57,24 @@
 }
 .xo-board-list .xo-w { position: static; }
 .xo-w-head {
-  display: flex; align-items: center; gap: 0.5rem;
+  display: flex; flex-wrap: nowrap; align-items: center; gap: 0.25rem;
   min-height: 2.5rem; padding: 0 0.25rem 0 0.85rem;
   border-bottom: var(--rule) solid var(--c-w-border);
   cursor: grab; user-select: none; flex: none;
 }
 .xo-board-list .xo-w-head { cursor: default; }
-.xo-w-title { flex: 1; min-width: 4rem; color: var(--c-w-title); font-size: 0.9375rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.xo-w-tools { display: flex; flex: none; min-width: 0; overflow: hidden; }
+.xo-w-title { flex: 1 1 0; min-width: 3rem; color: var(--c-w-title); font-size: 0.9375rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.xo-w-tools { display: flex; flex-wrap: nowrap; flex: none; }
 .xo-w-tools [hidden] { display: none; }
-.xo-w-actions { display: flex; flex: none; }
+.xo-w-actions { display: flex; flex-wrap: nowrap; flex: none; }
 @media (hover: hover) { .xo-w:not(:hover):not(:focus-within) .xo-w-tools { visibility: hidden; } }
 .xo-w-btn {
-  min-width: 2.5rem; min-height: 2.5rem; padding: 0;
+  min-width: 2rem; min-height: 2rem; padding: 0;
   background: transparent; border: 0; border-radius: var(--radius);
   color: var(--muted); font: inherit; line-height: 1; cursor: pointer;
 }
-.xo-w-btn .ico, .xo-menu-item .ico { width: 1rem; height: 1rem; flex: none; }
+.xo-w-head .xo-w-btn .ico, .xo-menu-item .ico { width: 0.9375rem; height: 0.9375rem; flex: none; }
+@media (pointer: coarse) { .xo-w-btn { min-width: 2.5rem; min-height: 2.5rem; } }
 .xo-w-btn:hover { color: var(--ink); background: var(--leaf-soft); }
 .xo-w-grip { cursor: grab; }
 .xo-w-body { flex: 1; min-height: 0; overflow: auto; padding: calc(0.75rem * var(--d)) 0.85rem; }
@@ -117,7 +118,9 @@
 .xo-w-body .page-head { margin-bottom: calc(0.75rem * var(--d)); }
 .xo-w-body .page-head h1 { font-size: 1.125rem; }
 
-/* GridStack's resize handles sit inside the widget's rounded corner. */
+/* The corner handles still resize; GridStack's diagonal arrow on them is not drawn. */
+.xo-board > .grid-stack-item > .ui-resizable-se,
+.xo-board > .grid-stack-item > .ui-resizable-sw { background-image: none; }
 .xo-board > .grid-stack-item > .ui-resizable-se { right: 4px; bottom: 4px; }
 
 @media (prefers-reduced-motion: reduce) {

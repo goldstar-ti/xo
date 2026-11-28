@@ -56,8 +56,8 @@
   --c-chip-bg: var(--surface); --c-chip-border: var(--line); --c-chip-on-bg: var(--leaf); --c-chip-on-ink: var(--leaf-ink);
   --c-tag: var(--ochre);
   --c-field-bg: var(--surface); --c-field-border: var(--line); --c-field-focus: var(--leaf); --c-check: var(--leaf);
-  --c-sheet-bg: var(--paper); --c-sheet-top: var(--ink); --c-backdrop: #0a100d;
-  --c-next-head: var(--leaf); --c-next-rule: var(--ink); --c-urgent: var(--ochre); --c-now: var(--ochre);
+  --c-sheet-bg: var(--paper); --c-backdrop: #0a100d;
+  --c-next-head: var(--leaf); --c-urgent: var(--ochre); --c-now: var(--ochre);
   --c-time: var(--muted); --c-done: var(--muted); --c-missed: var(--ochre); --c-appt: var(--ink);
   --c-row-link: var(--leaf); --c-row-line: var(--line); --c-late: var(--ochre);
   --c-nudge-bg: var(--leaf-soft); --c-guard-bg: var(--ochre-soft); --c-guard-rule: var(--ochre);
@@ -98,7 +98,10 @@ body {
 code, kbd, pre { font-family: var(--font-mono); font-size: calc(1em * var(--mono-size)); letter-spacing: var(--mono-ls); }
 h1, h2, h3, p, ul, ol { margin: 0; }
 ul, ol { padding: 0; list-style: none; }
-h1, h2, h3, .brand, .next-head { font-family: var(--font-head); }
+h1, h2, h3, .brand, .next-head { font-family: var(--font-head); font-variation-settings: var(--fvs-head, normal); }
+body { font-variation-settings: var(--fvs-body, normal); }
+.figure strong, .num, .dayline .t, .list.timed .t, .list.bills .amount, .dial-num, kbd { font-variation-settings: var(--fvs-num, normal); }
+code, pre, .code, input.xo-hex { font-variation-settings: var(--fvs-mono, normal); }
 h1 { font-size: calc(var(--fs-page, 1.53rem) * var(--loud)); line-height: 1.15; font-weight: 700; letter-spacing: -0.01em; }
 h2 { font-size: var(--fs-section, 0.9375rem); line-height: 1.3; font-weight: 600; }
 h3 { font-size: var(--fs-sub, 1rem); font-weight: 700; }
@@ -210,9 +213,10 @@ button:disabled { opacity: 0.55; cursor: default; }
   .side-head .brand { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .side-toggle {
     display: inline-flex; align-items: center; justify-content: center; flex: none;
-    min-width: 2.5rem; min-height: 2.5rem; padding: 0; margin-right: -0.5rem;
+    min-width: 1.5rem; min-height: 1.5rem; padding: 0; margin-top: auto; align-self: flex-start;
     background: transparent; border: 0; border-radius: var(--radius); color: var(--muted);
   }
+  .side-toggle .ico { width: 0.875rem; height: 0.875rem; }
   .side-toggle:hover { color: var(--ink); background: var(--leaf-soft); }
   .side-grip { position: absolute; top: 0; right: -5px; width: 10px; height: 100%; cursor: col-resize; touch-action: none; z-index: 6; }
   .side-grip::after { content: ''; position: absolute; top: 0; bottom: 0; left: 4px; width: 2px; background: transparent; transition: background-color 120ms ease; }
@@ -223,7 +227,7 @@ button:disabled { opacity: 0.55; cursor: default; }
   :root[data-side="icons"] .side { padding-inline: calc(0.5rem * var(--chrome)); align-items: center; overflow: hidden; }
   :root[data-side="icons"] .side-head { flex-direction: column; }
   :root[data-side="icons"] .side-head .brand { display: none; }
-  :root[data-side="icons"] .side-toggle { margin-right: 0; }
+  :root[data-side="icons"] .side-toggle { align-self: center; }
   :root[data-side="icons"] .side-grip { display: none; }
   :root[data-side="icons"] .side nav { align-items: center; }
   :root[data-side="icons"] .side nav a { justify-content: center; margin-left: 0; padding-inline: 0.5rem; min-width: 2.75rem; min-height: 2.75rem; border-left-width: 0; border-radius: var(--radius); }
@@ -286,10 +290,9 @@ details > summary { cursor: pointer; padding: 0.6rem 0; color: var(--leaf); font
 /* ---- today ---- */
 .line { font-size: var(--fs-lead, 1.125rem); max-width: 34rem; color: var(--muted); }
 .line-label { font-weight: 700; color: var(--ink); }
-.next { padding: 1.1rem 0 1.2rem; border-top: 3px solid var(--c-next-rule); border-bottom: var(--rule) solid var(--line); }
+.next { padding: 1.1rem 0 1.2rem; border-bottom: var(--rule) solid var(--line); }
 #view > .next { margin-top: 1.5rem; }
 .next-head { font-size: calc(1.76rem * var(--loud)); line-height: 1.1; font-weight: 700; letter-spacing: -0.02em; color: var(--c-next-head); }
-.next.urgent { border-top-color: var(--c-urgent); }
 .next.urgent .next-head { color: var(--c-urgent); }
 .next-title { margin-top: 0.35rem; font-weight: 600; }
 .next-sub { color: var(--muted); font-size: 0.82rem; }
@@ -340,7 +343,7 @@ details > summary { cursor: pointer; padding: 0.6rem 0; color: var(--leaf); font
   body[data-view="today"] #view { max-width: 84rem; display: grid; grid-auto-flow: row dense; grid-template-columns: minmax(0, 1fr) 22.35rem; column-gap: 2.82rem; align-content: start; }
   body[data-view="today"] #view > * { grid-column: 1 / -1; }
   body[data-view="today"] #view > .col-day { grid-column: 1; grid-row: span 40; }
-  body[data-view="today"] #view > .col-side { grid-column: 2; border-top: 3px solid var(--ink); padding-top: 0.6rem; }
+  body[data-view="today"] #view > .col-side { grid-column: 2; }
   body[data-view="today"] #view > .next { padding: 1.3rem 1.53rem; border: 2.5px solid var(--ink); border-radius: var(--radius); }
   body[data-view="today"] .next-head { font-size: calc(2.82rem * var(--loud)); }
 }
@@ -400,12 +403,12 @@ dialog.sheet {
   width: min(34rem, 100%); max-width: 100%; max-height: 92dvh;
   margin: auto auto 0; padding: 1.25rem 1.25rem calc(1.25rem + env(safe-area-inset-bottom));
   background: color-mix(in oklch, var(--c-sheet-bg) calc(100% - var(--glass-alpha) * 100%), transparent); color: var(--ink);
-  border: 0; border-top: 3px solid var(--c-sheet-top); border-radius: var(--radius-dialog) var(--radius-dialog) 0 0;
+  border: 0; border-radius: var(--radius-dialog) var(--radius-dialog) 0 0;
   overflow-y: auto;
 }
 dialog.sheet::backdrop { background: color-mix(in srgb, var(--c-backdrop) 55%, transparent); }
 @media (min-width: 40rem) {
-  dialog.sheet { margin: auto; border-radius: var(--radius-dialog); border: var(--rule) solid var(--line); border-top: 3px solid var(--c-sheet-top); }
+  dialog.sheet { margin: auto; border-radius: var(--radius-dialog); border: var(--rule) solid var(--line); }
   dialog.sheet.wide { width: min(40rem, 100%); }
 }
 .sheet-head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; }
@@ -602,8 +605,8 @@ kbd { border: var(--rule) solid var(--line); border-radius: var(--radius); font-
 .xo-ctl { display: flex; flex-direction: column; gap: 0.3rem; min-width: 0; }
 .xo-ctl-label { font-size: var(--fs-label, 0.875rem); font-weight: 600; }
 
-.xo-seg { display: inline-flex; max-width: 100%; overflow-x: auto; border: calc(var(--rule) + 0.5px) solid var(--line); border-radius: var(--pill); background: var(--surface); }
-.xo-seg > button:not(.tw\:btn) { flex: none; min-height: 2.5rem; padding: 0.3rem 0.9rem; background: transparent; border: 0; border-radius: var(--pill); font-weight: 600; color: var(--muted); }
+.xo-seg { display: inline-flex; max-width: 100%; overflow: hidden; border: calc(var(--rule) + 0.5px) solid var(--line); border-radius: var(--pill); background: var(--surface); }
+.xo-seg > button:not(.tw\:btn) { flex: 0 1 auto; white-space: nowrap; min-height: 2.5rem; padding: 0.3rem 0.9rem; background: transparent; border: 0; border-radius: var(--pill); font-weight: 600; color: var(--muted); }
 .xo-seg > button:not(.tw\:btn) + button:not(.tw\:btn) { border-left: var(--rule) solid var(--line); border-radius: 0; }
 .xo-seg > button:not(.tw\:btn):first-child { border-radius: var(--pill) 0 0 var(--pill); }
 .xo-seg > button:not(.tw\:btn):last-child { border-radius: 0 var(--pill) var(--pill) 0; }
@@ -817,12 +820,11 @@ dialog.xo-pop.wide { width: min(40rem, calc(100vw - 2rem)); }
 dialog.xo-pop.sheet { width: min(34rem, 100%); max-width: 100%; margin: auto auto 0; border-radius: var(--radius-dialog) var(--radius-dialog) 0 0; }
 @media (min-width: 40rem) { dialog.xo-pop.sheet { margin: auto; border-radius: var(--radius-dialog); } }
 
-/* Duties on a wide screen: sections in two columns, each under a heavy ink rule. */
+/* Duties on a wide screen: sections in two columns. */
 @media (min-width: 64rem) {
   body[data-view="obligations"] #view { max-width: 84rem; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 2.82rem; row-gap: 2.35rem; align-content: start; }
   body[data-view="obligations"] #view > * { margin-top: 0; }
   body[data-view="obligations"] #view > :is(.page-head, .callout) { grid-column: 1 / -1; }
-  body[data-view="obligations"] #view > section { border-top: 3px solid var(--ink); padding-top: 0.6rem; }
 }
 
 /* ---- form sheets: full screen on a phone, a centred modal from 40rem; the actions stay pinned at the bottom ---- */

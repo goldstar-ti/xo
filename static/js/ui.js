@@ -375,7 +375,7 @@ export function fontPicker({ value, fonts = [], onchange, mono = false, label, i
   }
   function draw(query) {
     const q = query.trim().toLowerCase();
-    shown = flat.filter((f) => !q || f[1].toLowerCase().includes(q) || f[2].toLowerCase().includes(q)).slice(0, 120);
+    shown = flat.filter((f) => !q || f[1].toLowerCase().includes(q) || f[2].toLowerCase().includes(q));
     let lastGroup = null;
     list.replaceChildren(...shown.flatMap((f, i) => {
       const row = h('li', { role: 'option', id: `${listId}-${i}`, 'data-value': f[0], 'aria-selected': f[0] === cur ? 'true' : 'false', onmousedown: (e) => { e.preventDefault(); choose(i); } }, f[1]);

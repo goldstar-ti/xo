@@ -119,13 +119,27 @@ export function openDialog(title, body, { wide = false, form = false } = {}) {
 // A modal dialog or an open form popover counts; a non-form popover (Widgets) does not.
 export const dialogOpen = () => !!document.querySelector('dialog[open]:modal, dialog.xo-pop[open][data-form]');
 
+// The button that was last pressed, so a form opened from it can sit beside it.
+let lastPress = null;
+document.addEventListener('pointerdown', (e) => { lastPress = e.target.closest?.('button, a, summary, [role="button"]') || null; }, true);
+const formAnchor = () => {
+  const a = document.activeElement;
+  if (a && a !== document.body && a.isConnected && a.closest('button, a, summary, [role="button"]')) return a;
+  return lastPress?.isConnected ? lastPress : null;
+};
+
 /**
- * A form in a dialog, or in a popover beside `anchor` when one is given (that adds a Cancel button).
+ * A form in a popover beside `anchor` (the button that opened it when none is given; centred when there is none).
+ * A dialog sheet is used only on a phone, or when a modal dialog is already open.
  * fields: [{ name, label, type: text|textarea|date|time|number|select|checkbox|icon|custom, options, hint, required, placeholder, half, more }]
  * A custom field has build(value) returning { node, read }; read() gives its value on save, and filled(value) may say
  * whether the value counts as set. A field with more: true sits under "More options", which opens when one is set.
  */
-export function openForm({ title, fields, values = {}, saveLabel = t('common.save'), onSave, onDelete, note, anchor = null }) {
+export function openForm({ title, fields, values = {}, saveLabel = t('common.save'), onSave, onDelete, note, anchor }) {
+  const modalOpen = !!document.querySelector('dialog:modal');
+  // A phone keeps the full-screen form sheet; a desktop form is a popover.
+  const usePop = !modalOpen && !window.matchMedia('(max-width: 39.99rem)').matches;
+  if (anchor === undefined) anchor = usePop ? formAnchor() : null;
   const inputs = {};
   const rowOf = (f) => {
     const id = `f-${f.name}`;
@@ -189,10 +203,10 @@ export function openForm({ title, fields, values = {}, saveLabel = t('common.sav
   const error = h('p', { class: 'form-error', role: 'alert' });
   const del = onDelete && button(t('common.delete'), { variant: 'danger' });
   const save = button(saveLabel, { variant: 'primary', type: 'submit', class: 'tw:ml-auto' });
-  const cancel = anchor && button(t('common.cancel'), { variant: 'ghost', onclick: () => dlg.close() });
+  const cancel = usePop && button(t('common.cancel'), { variant: 'ghost', onclick: () => dlg.close() });
   const form = h('form', { class: 'form' }, note && h('p', { class: 'note' }, note), h('div', { class: 'fields' }, mainRows), moreBlock, error,
     h('div', { class: 'form-actions' }, del, cancel, save));
-  const dlg = anchor ? openPopover({ title, body: form, anchor, form: true }) : openDialog(title, form, { form: true });
+  const dlg = usePop ? openPopover({ title, body: form, anchor, form: true }) : openDialog(title, form, { form: true });
   if (del) {
     let armed = false;
     del.addEventListener('click', async () => {

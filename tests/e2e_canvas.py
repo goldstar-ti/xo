@@ -330,8 +330,8 @@ with sync_playwright() as p:
         pg.get_by_role("button", name="Widgets", exact=True).click()
         pop(pg).locator(f"[data-widget='{wid}']").check()
         expect(pg.locator(f".xo-board [data-widget='{wid}'] .xo-w-body > *").first).to_be_attached()
-        if pop(pg).count():
-            pop(pg).get_by_role("button", name="Close", exact=True).click()
+        # A widget that mounts may redraw the screen and close the popover itself, so close it directly.
+        pg.evaluate("document.querySelectorAll('dialog.xo-pop[open]').forEach((d) => d.close())")
     expect(pg.locator(".xo-w-body .empty", has_text="could not be shown")).to_have_count(0)
     pg.get_by_role("button", name="Fit all").click()
     pg.get_by_role("button", name="Reset layout").click()

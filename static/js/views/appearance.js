@@ -209,12 +209,45 @@ function preview() {
 // The font catalogue is fetched once, the first time Advanced is open, and kept here.
 let catalogue = null;
 let loadingCatalogue = false;
+let axisInfo = {}; // slug -> { tag: [min, default, max] } for the fonts that have axes besides weight
 function loadCatalogue() {
   if (catalogue || loadingCatalogue) return;
   loadingCatalogue = true;
-  fetch('/vendor/fonts/catalogue.json').then((r) => (r.ok ? r.json() : [])).then((list) => { catalogue = Array.isArray(list) ? list : []; redraw(); }).catch(() => { catalogue = []; });
+  // The axis ranges load first, so the one redraw after the catalogue arrives already has them.
+  const axes = fetch('/vendor/fonts/axes.json').then((r) => (r.ok ? r.json() : {})).then((a) => { axisInfo = a && typeof a === 'object' ? a : {}; }).catch(() => {});
+  axes.then(() => fetch('/vendor/fonts/catalogue.json')).then((r) => (r.ok ? r.json() : [])).then((list) => { catalogue = Array.isArray(list) ? list : []; redraw(); }).catch(() => { catalogue = []; });
 }
 const FONT_OK = (f) => /^[a-z0-9-]{1,60}$/.test(f.slug) && /^[A-Za-z0-9 ]{1,60}$/.test(f.family);
+// NOBBIE's weight hint: the variable range, or the static weights the font has (the slider uses the nearest).
+function weightHint(current) {
+  const slug = typeof current === 'string' && current.startsWith('g:') ? current.slice(2).split('|')[0] : '';
+  const e = (catalogue || []).find((f) => f.slug === slug);
+  if (!e) return null;
+  if (e.variable && e.wght) return t('appearance.type.hint_variable', { min: e.wght[0], max: e.wght[1] });
+  return t('appearance.type.hint_static', { weights: e.weights && e.weights.length ? e.weights.join(', ') : '400' });
+}
+
+// One slider per variation axis (width, optical size, slant and the font's own) of the font chosen for a role.
+function axisDials(key, current, lk) {
+  const slug = typeof current === 'string' && current.startsWith('g:') ? current.slice(2).split('|')[0] : '';
+  const info = axisInfo[slug];
+  if (!info) return null;
+  const names = text('appearance.type.axes');
+  const set = (tag, v, def, op) => L.change((s, l) => {
+    const cur = { ...(l.axes[slug] || {}) };
+    if (Math.abs(v - def) < 1e-9) delete cur[tag]; else cur[tag] = v;
+    l.axes = { ...l.axes };
+    if (Object.keys(cur).length) l.axes[slug] = cur; else delete l.axes[slug];
+  }, op);
+  return h('div', { class: 'axes', 'data-axes': slug }, Object.keys(info).sort().map((tag) => {
+    const [min, def, max] = info[tag];
+    const label = names[tag] || tag;
+    const value = (lk.axes[slug] || {})[tag] ?? def;
+    const step = max - min > 20 ? 1 : 0.1;
+    return h('div', { class: 'opt' }, h('span', {}, label),
+      dial(label, { id: `ax-${key}-${tag}`, min, max, step, value, def, apply: (v, op) => set(tag, v, def, op) }));
+  }));
+}
 // Built-in fonts first, then the catalogue by group. Code takes only monospaced fonts; the others only the rest.
 function fontOptions(key, allowSame, current) {
   const opts = [];
@@ -443,7 +476,7 @@ function build(lk, d) {
   const fontItem = (label, key, allowSame) => {
     const current = lk[key];
     const picker = fontPicker({ value: current, fonts: fontOptions(key, allowSame, current), mono: key === 'mono', label, id: `f-${key}`, onchange: (v) => setLook({ [key]: v }) });
-    return h('div', { class: 'opt' }, kit() === 'wa' ? null : h('span', {}, label), picker);
+    return h('div', { class: 'opt' }, kit() === 'wa' ? null : h('span', {}, label), picker, weightHint(current) && h('p', { class: 'hint' }, weightHint(current)), axisDials(key, current, lk));
   };
 
   // 1. Colour

@@ -30,6 +30,9 @@ keys:
     global_palette_alt: Open the command list (second key)
     global_shortcuts: Show this list of keys
     global_voice: Dictate into the box you are typing in
+    global_zoom_in: Zoom in
+    global_zoom_out: Zoom out
+    global_zoom_reset: Reset zoom
     global_go: 'Go to {screen}'
     tasks_new: Add a task
     tasks_next: Next task

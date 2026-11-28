@@ -45,7 +45,14 @@ export function openPopover({ title, body, anchor, form = true, pinKey = null, w
   dlg.append(head, body);
 
   function place() {
-    if (phone || !anchor || !anchor.isConnected) return;
+    if (phone) return;
+    if (!anchor || !anchor.isConnected) {
+      // No button to sit beside: centre it, a little above the middle.
+      const w = dlg.offsetWidth;
+      dlg.style.left = `${Math.max((document.documentElement.clientWidth - w) / 2, EDGE)}px`;
+      dlg.style.top = `${Math.max((window.innerHeight - dlg.offsetHeight) / 3, EDGE)}px`;
+      return;
+    }
     const a = anchor.getBoundingClientRect();
     const vw = document.documentElement.clientWidth;
     const vh = window.innerHeight;

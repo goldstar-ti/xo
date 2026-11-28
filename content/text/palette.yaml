@@ -11,6 +11,7 @@
 # - If a file has a mistake, the app keeps the last good version of that file and logs a note.
 #
 palette:
+  zoom_now: "Zoom {zoom}%"
   open: Commands
   heading: Commands
   placeholder: Type a command or a new task
