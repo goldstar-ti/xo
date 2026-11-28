@@ -4,7 +4,7 @@
 
 ### Text styles, preview and compact run (2026-11-29)
 
-- Outcome: commits 625824b to HEAD on `main`. Step 7 (deploy, live seed, push) is next. Not pushed, not deployed.
+- Outcome: commits c3e6979 to 9dd3ed2 on `main`, pushed. Deployed 2.54.1 (CACHE `xo-v47`) on 2026-11-29; live database backed up to `backups/xo-20261129_012511.dump`, then seeded with 838 made-up items (`make seed-demo`).
 - Base size: body text is 13 px on a desktop and 16 px on a phone; Grow text with the window is off by default and saved looks move once onto design 2 (D-51, state version 2).
 - Text styles: one table of 19 kinds, each with its own size, weight, line spacing and letter spacing; All text shifts them together (D-52). Under 36rem each row is a summary that opens on tap.
 - Preview: the Appearance preview shows every styleable part in five sections (Text, Buttons and fields, Rows and status, Today, Frames and bars), with jump chips (2.53.0).
