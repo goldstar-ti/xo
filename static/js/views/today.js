@@ -5,6 +5,7 @@ import { allTasks, currentPace, toggleTask } from '../taskdata.js';
 import { t } from '../text.js';
 import { icon } from '../icons.js';
 import { plainText } from '../markdown.js';
+import { isOn } from '../modules.js';
 import { button, callout, checkbox, tag } from '../ui.js';
 import { enablePush } from './settings.js';
 import { addDays, daysBetween, fmtDay, fmtDuration, fmtLong, fmtMoney, fmtTime, h, hm, relDay, toast, today, toDate, put } from '../util.js';
@@ -41,16 +42,16 @@ export function dayEntries(day = today()) {
   const s = store.settings();
   const weekday = toDate(day).getDay();
   const out = [];
-  for (const r of store.byKind('routine')) {
+  for (const r of isOn('routine') ? store.byKind('routine') : []) {
     if (r.data.active === false) continue;
     out.push({ time: r.data.time, label: r.data.label, kind: 'tick', ref: r.id, done: store.isTicked(r.id, day) });
   }
-  for (const o of store.byKind('obligation')) {
+  for (const o of isOn('obligations') ? store.byKind('obligation') : []) {
     const d = o.data;
     if (d.schedule === 'daily' || (d.schedule === 'weekly' && Number(d.weekday) === weekday))
       out.push({ time: d.time, label: d.title, kind: 'tick', ref: o.id, done: store.isTicked(o.id, day), href: '#/obligations' });
   }
-  for (const a of store.byKind('appointment')) {
+  for (const a of isOn('diary') ? store.byKind('appointment') : []) {
     if (a.data.date !== day) continue;
     const tm = store.apptTimes(a.data);
     const bits = [];
@@ -59,14 +60,16 @@ export function dayEntries(day = today()) {
     out.push({ time: a.data.time, label: a.data.title, kind: 'appt', item: a, times: tm, sub: [bits.join(', ').replace(/^./, (c) => c.toUpperCase()), a.data.where].filter(Boolean).join('. ') });
   }
   const pace = currentPace();
-  for (const task of allTasks()) {
+  for (const task of isOn('tasks') ? allTasks() : []) {
     const d = task.data;
     if (d.today !== day || !d.at || d.archived) continue;
     out.push({ time: d.at, label: d.title, kind: 'task', item: task, done: d.done, sub: d.est > 0 ? t('lists.shared.allow', { duration: fmtDuration(d.est * pace) }) : '' });
   }
-  out.push({ time: s.morningAt, label: t('today.entries.morning_checkin'), kind: 'checkin', type: 'morning', done: !!store.get(checkinId('morning', day)) });
-  out.push({ time: s.eveningAt, label: t('today.entries.evening_checkin'), kind: 'checkin', type: 'evening', done: !!store.get(checkinId('evening', day)) });
-  if (weekday === Number(s.weeklyDay))
+  if (isOn('checkin')) {
+    out.push({ time: s.morningAt, label: t('today.entries.morning_checkin'), kind: 'checkin', type: 'morning', done: !!store.get(checkinId('morning', day)) });
+    out.push({ time: s.eveningAt, label: t('today.entries.evening_checkin'), kind: 'checkin', type: 'evening', done: !!store.get(checkinId('evening', day)) });
+  }
+  if (isOn('checkin') && weekday === Number(s.weeklyDay))
     out.push({ time: s.weeklyAt, label: t('today.entries.weekly_review'), kind: 'checkin', type: 'weekly', done: !!store.get(checkinId('weekly', day)) });
   return out.sort((a, b) => a.time.localeCompare(b.time));
 }
@@ -86,7 +89,7 @@ function nextUp(entries) {
   const nowHm = hm(now);
   const next = entries.find((e) => e.time > nowHm && !e.done);
   if (next) return { head: next.label, title: t('today.next.at', { time: fmtTime(next.time) }), sub: next.sub || '' };
-  const later = store.byKind('appointment')
+  const later = (isOn('diary') ? store.byKind('appointment') : [])
     .filter((a) => a.data.date > today())
     .sort((a, b) => (a.data.date + a.data.time).localeCompare(b.data.date + b.data.time))[0];
   if (later) return { head: t('today.next.nothing_timed'), title: t('today.next.next_appt', { title: later.data.title }), sub: `${relDay(later.data.date)}, ${fmtTime(later.data.time)}` };
@@ -94,6 +97,7 @@ function nextUp(entries) {
 }
 
 function planNudge() {
+  if (!isOn('plan')) return null;
   const p = store.plan();
   if (!p.variant) return { text: t('today.nudge.not_started'), done: false };
   const boxes = PLAN[p.variant].flatMap((s) => s.boxes);
@@ -168,16 +172,16 @@ export function render(root) {
 
   const horizon = addDays(day, 7);
   const coming = [];
-  for (const a of store.byKind('appointment'))
+  for (const a of isOn('diary') ? store.byKind('appointment') : [])
     if (a.data.date > day && a.data.date <= addDays(day, a.data.court ? 14 : 7))
       coming.push({ day: a.data.date, text: `${a.data.title}, ${fmtTime(a.data.time)}`, tag: t(a.data.court ? 'today.coming.court' : 'today.coming.appointment'), open: () => editAppointment(a) });
-  for (const task of store.byKind('task'))
+  for (const task of isOn('tasks') ? store.byKind('task') : [])
     if (!task.data.done && task.data.due && task.data.due <= horizon)
       coming.push({ day: task.data.due, text: task.data.title, tag: t('today.coming.task_due'), open: () => editTask(task) });
-  for (const b of store.byKind('bill'))
+  for (const b of isOn('bills') ? store.byKind('bill') : [])
     if (!b.data.finished && b.data.due <= horizon)
       coming.push({ day: b.data.due, text: `${b.data.name}${b.data.amount ? `, ${fmtMoney(b.data.amount)}` : ''}`, tag: t(b.data.autopay ? 'today.coming.bill_auto' : 'today.coming.bill'), open: () => editBill(b), pay: b.data.autopay ? null : () => payBill(b) });
-  for (const it of store.byKind('pm_item'))
+  for (const it of isOn('tracker') ? store.byKind('pm_item') : [])
     if (it.data.due && !it.data.closed_at && it.data.due <= horizon)
       coming.push({ day: it.data.due, text: it.data.title, tag: t('today.coming.tracker', { ref: trackerRef(it) }), open: () => { location.hash = `#/tracker/${trackerRef(it)}`; } });
   coming.sort((a, b) => a.day.localeCompare(b.day));
@@ -194,8 +198,8 @@ export function render(root) {
       h('p', { class: 'next-head' }, up.head),
       up.title && h('p', { class: 'next-title' }, up.title),
       up.sub && h('p', { class: 'next-sub' }, up.pin && [icon('tabler/map-pin'), ' '], up.sub)),
-    three: h('section', { class: 'col-side' }, h('div', { class: 'sec-head' }, h('h2', {}, t('today.three.heading')), h('a', { href: '#/tasks' }, t('today.three.all_tasks'))), three),
-    day: h('section', { class: 'col-day' }, h('div', { class: 'sec-head' }, h('h2', {}, t('today.day.heading')), h('a', { href: '#/routine' }, t('today.day.edit_routine'))),
+    three: isOn('tasks') && h('section', { class: 'col-side' }, h('div', { class: 'sec-head' }, h('h2', {}, t('today.three.heading')), h('a', { href: '#/tasks' }, t('today.three.all_tasks'))), three),
+    day: h('section', { class: 'col-day' }, h('div', { class: 'sec-head' }, h('h2', {}, t('today.day.heading')), isOn('routine') && h('a', { href: '#/routine' }, t('today.day.edit_routine'))),
       h('ol', { class: 'dayline' }, rows)),
     coming: h('section', { class: 'col-side' }, h('div', { class: 'sec-head' }, h('h2', {}, t('today.coming.heading'))),
       coming.length

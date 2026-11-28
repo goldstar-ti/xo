@@ -19,10 +19,12 @@ import { startPattern } from './pattern.js';
 import { installPalette, setScreenKeys } from './palette.js';
 import { CHROME, DEFAULT_ICONS, icon, paintIcon } from './icons.js';
 import { pickScreenIcon } from './iconpicker.js';
+import { isOn } from './modules.js';
 
 const NAV = Object.entries(text('app.nav')); // [key, label] in the order the sidebar lists them
 const L = window.XOLook;
-const tabs = () => L.prefs.tabs; // the four sections on the phone's bottom bar: chosen in Appearance
+const tabs = () => L.prefs.tabs.filter(isOn); // the sections on the phone's bottom bar: chosen in Appearance, less any module that is off
+const visibleNav = () => NAV.map(([k]) => k).filter(isOn); // the screens whose module is on
 
 const iconOf = (k) => L.prefs.icons[k] || DEFAULT_ICONS[k];
 const labelOf = (k) => (k === 'more' ? t('app.more') : text('app.nav')[k]);
@@ -103,7 +105,7 @@ const more = {
   live: false,
   render(root) {
     put(root, h('header', { class: 'page-head' }, h('h1', {}, t('app.more'))),
-      h('ul', { class: 'list links' }, NAV.filter(([k]) => !tabs().includes(k)).map(([k, label]) => h('li', {},
+      h('ul', { class: 'list links' }, NAV.filter(([k]) => isOn(k) && !tabs().includes(k)).map(([k, label]) => h('li', {},
       linkRow({ icon: iconOf(k), title: label, sub: text('app.more_sub')[k], href: `#/${k}` })))));
   },
 };
@@ -119,7 +121,8 @@ let loadedAt = 0;
 
 function route() {
   const [name = 'today', ...params] = location.hash.replace(/^#\/?/, '').split('/');
-  return { name: VIEWS[name] ? name : 'today', params };
+  // A screen whose module is off, or that does not exist, lands on Today, or on the first screen left when Today is off.
+  return { name: VIEWS[name] && isOn(name) ? name : visibleNav()[0], params };
 }
 
 function draw({ keepScroll = false, keepFocus = false } = {}) {
@@ -166,26 +169,37 @@ function shell() {
   const brand = () => h('p', { class: 'brand' }, L.prefs.title);
   const toggleSide = h('button', { type: 'button', class: 'side-toggle', onclick: () => L.change((s) => { s.prefs.side = s.prefs.side === 'icons' ? 'open' : 'icons'; }, { quiet: true }) }, icon(CHROME.collapse));
   app.replaceChildren(
-    h('aside', { class: 'side' }, h('div', { class: 'side-head' }, brand()), h('nav', { 'aria-label': t('app.sections_aria') }, NAV.map(([k]) => navLink(k))), actions(), toggleSide, sideGrip()),
+    h('aside', { class: 'side' }, h('div', { class: 'side-head' }, brand()), h('nav', { 'aria-label': t('app.sections_aria'), 'data-mods': visibleNav().join(',') }, visibleNav().map((k) => navLink(k))), actions(), toggleSide, sideGrip()),
     h('div', { class: 'main' },
       h('header', { class: 'top' }, brand(), actions()),
       h('main', { id: 'view', tabindex: '-1' })),
     h('nav', { class: 'tabs', 'aria-label': t('app.sections_aria'), 'data-tabs': tabs().join(',') }, tabs().map(navLink), navLink('more')),
   );
-  refreshSide();
+  syncNav();
   draw();
+}
+
+// Rebuilds the side bar, the bottom bar and the plan button when a module is switched or the tabs change.
+function syncNav() {
+  const side = document.querySelector('.side nav');
+  if (side && side.dataset.mods !== visibleNav().join(',')) {
+    side.dataset.mods = visibleNav().join(',');
+    side.replaceChildren(...visibleNav().map((k) => navLink(k)));
+  }
+  const bar = document.querySelector('.tabs');
+  if (bar && bar.dataset.tabs !== tabs().join(',')) {
+    bar.dataset.tabs = tabs().join(',');
+    bar.replaceChildren(...tabs().map((k) => navLink(k)), navLink('more'));
+  }
+  document.querySelectorAll('.plan-btn').forEach((b) => { b.style.display = isOn('plan') ? '' : 'none'; });
+  refreshSide();
 }
 
 // Appearance changed: update the frame, then the screen (unless a slider is mid-drag).
 window.addEventListener('xo:look', async (e) => {
   if (!document.getElementById('view')) return;
   document.querySelectorAll('.brand').forEach((el) => { el.textContent = L.prefs.title; });
-  const bar = document.querySelector('.tabs');
-  if (bar && bar.dataset.tabs !== tabs().join(',')) {
-    bar.dataset.tabs = tabs().join(',');
-    bar.replaceChildren(...tabs().map(navLink), navLink('more'));
-  }
-  refreshSide();
+  syncNav();
   if (e.detail.quiet) return;
   await ensureKit();
   if (dialogOpen()) pending = true; else draw({ keepScroll: true, keepFocus: true });
@@ -280,6 +294,8 @@ window.addEventListener('xo:signed-out', () => { if (document.getElementById('vi
 
 // Redraw list screens when something changes; wait if a dialog is open.
 store.onChange(() => {
+  syncNav();
+  if (route().name !== document.body.dataset.view && document.getElementById('view')) { draw(); return; } // the screen's module was switched off
   if (!view?.live) return;
   if (dialogOpen()) pending = true; else draw({ keepScroll: true });
 });

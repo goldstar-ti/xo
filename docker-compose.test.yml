@@ -80,6 +80,7 @@ services:
         && for kit in xo daisy wa; do python tests/reset_db.py && XO_KIT=$$kit python tests/e2e.py http://localhost:8000 || exit 1; done
         && python tests/e2e_look.py http://localhost:8000
         && python tests/e2e_rail.py http://localhost:8000
+        && python tests/e2e_modules.py http://localhost:8000
         && python tests/e2e_canvas.py http://localhost:8000
         && python tests/e2e_tracker.py http://localhost:8000
         && python tests/e2e_kits.py http://localhost:8000

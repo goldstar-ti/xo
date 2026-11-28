@@ -40,13 +40,29 @@ export const get = (id) => items.get(id);
 export const byKind = (kind) => [...items.values()].filter((i) => i.kind === kind);
 export const all = () => [...items.values()];
 
+// Decides whether a reminder kind is sent at all; modules.js sets it so a module that is off stops its reminders.
+let reminderGate = () => true;
+export const setReminderGate = (fn) => { reminderGate = fn; };
+
 export async function save(kind, id, data, { day = null, silent = false } = {}) {
   const builder = REMINDERS[kind];
   const body = { kind, day, payload: data };
-  if (builder) body.reminders = builder(data).filter((r) => r.repeat !== 'none' || new Date(r.fire_at) > new Date());
+  if (builder) body.reminders = builder(data).filter((r) => reminderGate(r.kind)).filter((r) => r.repeat !== 'none' || new Date(r.fire_at) > new Date());
   await api('PUT', `/api/items/${encodeURIComponent(id)}`, body);
   items.set(id, { id, kind, day, data });
   if (!silent) emit();
+}
+
+// Saves every item of these kinds again so the server's reminders match the gate. Always redraws once.
+export async function resyncReminders(kinds) {
+  try {
+    for (const kind of kinds) {
+      if (!REMINDERS[kind]) continue;
+      for (const it of byKind(kind)) await save(kind, it.id, it.data, { day: it.day, silent: true });
+    }
+  } finally {
+    emit();
+  }
 }
 
 export async function remove(id) {

@@ -3,6 +3,7 @@
 import { editTask } from './forms.js';
 import { allTasks, quickTask } from './taskdata.js';
 import { actionLabel, activeScopes, actions, boundInActive, comboOf, keyFor, keyLabel, matchKey, setScope } from './keymap.js';
+import { isOn } from './modules.js';
 import { fuzzyScore } from './tasks.js';
 import { t, text } from './text.js';
 import { focusControl, input } from './ui.js';
@@ -38,15 +39,15 @@ function setTasksView(view) {
 
 // Built each time the palette opens, so new screens and new tasks appear without a second list to keep.
 function COMMANDS() {
-  const go = Object.entries(text('app.nav')).map(([key, label]) => ({ label: t('palette.go', { screen: label }), run: () => { location.hash = `#/${key}`; } }));
-  const checkins = ['morning', 'evening', 'weekly'].map((type) => ({ label: t(`palette.checkin_${type}`), run: () => { location.hash = `#/checkin/${type}`; } }));
-  const views = ['list', 'board', 'table'].map((v) => ({ label: t('palette.view', { view: t(`lists.tasks.views.${v}`) }), run: () => setTasksView(v) }));
+  const go = Object.entries(text('app.nav')).filter(([key]) => isOn(key)).map(([key, label]) => ({ label: t('palette.go', { screen: label }), run: () => { location.hash = `#/${key}`; } }));
+  const checkins = ['morning', 'evening', 'weekly'].filter(() => isOn('checkin')).map((type) => ({ label: t(`palette.checkin_${type}`), run: () => { location.hash = `#/checkin/${type}`; } }));
+  const views = ['list', 'board', 'table'].filter(() => isOn('tasks')).map((v) => ({ label: t('palette.view', { view: t(`lists.tasks.views.${v}`) }), run: () => setTasksView(v) }));
   const open = allTasks()
-    .filter((i) => i.data.status !== 'done' && !i.data.archived)
+    .filter((i) => isOn('tasks') && i.data.status !== 'done' && !i.data.archived)
     .map((i) => ({ label: t('palette.open_task', { title: i.data.title }), run: () => editTask(i) }));
   const newNote = { label: t('palette.new_note'), run: () => createNote().then((id) => { location.hash = `#/notes/${id}`; }).catch((err) => toast(err.message, 'bad')) };
-  const notes = allNotes().map((n) => ({ label: t('palette.open_note', { title: n.title || t('notes.untitled') }), run: () => { location.hash = `#/notes/${n.id}`; } }));
-  return [...go, newNote, ...checkins, ...views, ...open, ...notes];
+  const notes = allNotes().filter(() => isOn('notes')).map((n) => ({ label: t('palette.open_note', { title: n.title || t('notes.untitled') }), run: () => { location.hash = `#/notes/${n.id}`; } }));
+  return [...go, ...(isOn('notes') ? [newNote] : []), ...checkins, ...views, ...open, ...notes];
 }
 
 const addCommand = (raw) => ({
@@ -72,7 +73,7 @@ export function openPalette() {
     shown = raw
       ? all.map((c) => ({ c, s: fuzzyScore(raw, c.label) })).filter((x) => x.s > 0).sort((a, b) => b.s - a.s).slice(0, MAX).map((x) => x.c)
       : all.slice(0, MAX);
-    if (!shown.length && raw) shown = [addCommand(raw)];
+    if (!shown.length && raw && isOn('tasks')) shown = [addCommand(raw)];
     active = Math.min(active, shown.length - 1);
     list.replaceChildren(...shown.map((c, n) => h('li', {
       id: `pal-${n}`, role: 'option', 'aria-selected': String(n === active), class: n === active ? 'on' : '', onclick: () => run(c),
@@ -130,7 +131,11 @@ function onKey(e) {
     const next = id === 'global.zoom_reset' ? L.DEFAULT_LOOK.zoom : now + (id === 'global.zoom_in' ? 10 : -10);
     L.change((s, look) => { look.zoom = next; });
     toast(t('palette.zoom_now', { zoom: L.active().look.zoom }));
-  } else if (id.startsWith('global.go_')) location.hash = `#/${id.slice('global.go_'.length)}`;
+  } else if (id.startsWith('global.go_')) {
+    const screen = id.slice('global.go_'.length);
+    if (!isOn(screen)) return;
+    location.hash = `#/${screen}`;
+  }
   else return;
   e.preventDefault();
 }

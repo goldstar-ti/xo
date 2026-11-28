@@ -36,6 +36,7 @@ import { tabSet, tabStrip } from './tabs.js';
 import { t } from './text.js';
 import { button, checkbox, field, searchBox } from './ui.js';
 import { dialogOpen, h, motionStill, openForm, toast, uid } from './util.js';
+import { widgetOn } from './modules.js';
 import { WIDGETS } from './widgets.js';
 
 const COLUMNS = 24;
@@ -139,7 +140,7 @@ export async function mountCanvas(root) {
 
   const current = () => canvases.get(activeId);
   const itemEl = (id) => board.querySelector(`.grid-stack-item[data-widget="${CSS.escape(id)}"], .xo-board-list > [data-widget="${CSS.escape(id)}"]`);
-  const placed = (c = current()) => Object.keys(c.items).filter((id) => WIDGETS[id]);
+  const placed = (c = current()) => Object.keys(c.items).filter((id) => WIDGETS[id] && widgetOn(id));
 
   function drawTabs() {
     strip.set([...canvases].map(([key, c]) => ({ key, label: c.title, icon: c.icon })), activeId);
@@ -698,7 +699,7 @@ export async function mountCanvas(root) {
   function openWidgets(anchor) {
     if (widgetsPop) { widgetsPop.close(); return; }
     const none = h('p', { class: 'empty', hidden: true }, t('canvas.widgets_none'));
-    const rows = Object.values(WIDGETS).map((w) => {
+    const rows = Object.values(WIDGETS).filter((w) => widgetOn(w.id)).map((w) => {
       const cb = checkbox({
         'data-widget': w.id,
         checked: !!current().items[w.id],
