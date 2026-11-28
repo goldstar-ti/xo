@@ -74,7 +74,8 @@ with sync_playwright() as p:
     expect(pg.locator(".dayline")).to_be_visible()
     check_ribbon(pg)
     expect(pg.locator(".ribbon")).to_contain_text("The day")
-    expect(pg.locator("#view")).not_to_contain_text(re.compile(r"\btoday\.[a-z_]"))  # no missing wording keys (the empty state ends "for today.")
+    # No missing wording keys (the empty state ends "for today.").
+    expect(pg.locator("#view")).not_to_contain_text(re.compile(r"\btoday\.[a-z_]"))
     folds = pg.locator("details.today-fold")
     assert folds.count() >= 2
     assert pg.locator("details.today-fold[open]").count() == 1  # only the first fold-up starts open
