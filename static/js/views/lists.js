@@ -5,7 +5,7 @@ import { calendarLink, editAppointment, editBill, editObligation, editReport, ed
 import { t, text } from '../text.js';
 import { icon } from '../icons.js';
 import { renderMarkdown } from '../markdown.js';
-import { button, callout, disclosure } from '../ui.js';
+import { button, callout, disclosure, linkRow, menu } from '../ui.js';
 import { quickAdd, taskRow } from './tasks.js';
 import { addDays, daysBetween, fmtDay, fmtLong, fmtMoney, fmtTime, h, relDay, toast, today, put } from '../util.js';
 
@@ -22,14 +22,18 @@ function apptRow(a) {
   const bits = [];
   if (tm.ready < tm.leave) bits.push(t('lists.shared.get_ready', { time: fmtTime(tm.ready) }));
   if (tm.leave < tm.start) bits.push(t('lists.shared.leave', { time: fmtTime(tm.leave) }));
+  const sub = [d.where, cap(bits.join(', ')), ...customMeta('appointment', d.custom)].filter(Boolean).join('. ');
+  // The row opens the edit form; the href keeps it a real link. Copy to calendar sits in the row's menu.
+  const row = linkRow({
+    title: [d.title, d.court && h('span', { class: 'tag' }, t('lists.shared.court'))],
+    sub: [sub, d.notes && h('small', { class: 'md compact' }, renderMarkdown(d.notes))],
+    href: '#/diary',
+  });
+  row.addEventListener('click', (ev) => { ev.preventDefault(); editAppointment(a); });
   return h('li', {},
     h('span', { class: 't' }, fmtTime(d.time)),
-    rowMain([
-      h('span', {}, d.title, d.court && h('span', { class: 'tag' }, t('lists.shared.court'))),
-      h('small', {}, [d.where, cap(bits.join(', ')), ...customMeta('appointment', d.custom)].filter(Boolean).join('. ')),
-      d.notes && h('small', { class: 'md compact' }, renderMarkdown(d.notes)),
-    ], () => editAppointment(a)),
-    h('a', { class: 'xo-icon-btn', href: calendarLink(d), target: '_blank', rel: 'noopener noreferrer', 'aria-label': t('lists.diary.to_calendar'), title: t('lists.diary.calendar_tip') }, icon('tabler/calendar-plus')));
+    row,
+    menu({ label: t('lists.diary.actions'), items: [{ label: t('lists.diary.to_calendar'), icon: 'tabler/calendar-plus', run: () => window.open(calendarLink(d), '_blank', 'noopener,noreferrer') }] }));
 }
 
 function apptGroups(list) {
@@ -66,13 +70,19 @@ export const diary = {
 export function routinePart() {
   const list = store.byKind('routine').sort((a, b) => a.data.time.localeCompare(b.data.time));
   const days = [...Array(7)].map((_, i) => addDays(today(), i - 6));
-  return list.length ? h('ul', { class: 'list timed' }, list.map((r) => h('li', { class: r.data.active === false ? 'off' : '' },
-    h('span', { class: 't' }, fmtTime(r.data.time)),
-    rowMain([h('span', {}, r.data.label), r.data.active === false && h('small', {}, t('lists.routine.reminder_off')),
-      customMeta('routine', r.data.custom).length > 0 && h('small', {}, customMeta('routine', r.data.custom).join(', '))], () => editRoutine(r)),
-    h('span', { class: 'dots', 'aria-label': t('lists.routine.ticked', { count: days.filter((d) => store.isTicked(r.id, d)).length }) },
-      days.map((d) => h('i', { class: store.isTicked(r.id, d) ? 'on' : '' }))))))
-    : h('p', { class: 'empty' }, t('lists.routine.empty'));
+  if (!list.length) return h('p', { class: 'empty' }, t('lists.routine.empty'));
+  return h('ul', { class: 'list timed' }, list.map((r) => {
+    const meta = customMeta('routine', r.data.custom);
+    const sub = [r.data.active === false && t('lists.routine.reminder_off'), ...meta].filter(Boolean).join(', ');
+    // The row opens its editor; the href keeps it a real link.
+    const row = linkRow({ title: r.data.label, sub, href: '#/routine' });
+    row.addEventListener('click', (ev) => { ev.preventDefault(); editRoutine(r); });
+    return h('li', { class: r.data.active === false ? 'off' : '' },
+      h('span', { class: 't' }, fmtTime(r.data.time)),
+      row,
+      h('span', { class: 'dots', 'aria-label': t('lists.routine.ticked', { count: days.filter((d) => store.isTicked(r.id, d)).length }) },
+        days.map((d) => h('i', { class: store.isTicked(r.id, d) ? 'on' : '' }))));
+  }));
 }
 
 export const routine = {

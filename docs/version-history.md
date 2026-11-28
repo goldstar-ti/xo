@@ -4,6 +4,7 @@
 
 | Version | Date | Change |
 |---|---|---|
+| 2.40.0 | 2026-11-28 | Diary and Routine use the new controls: each appointment and routine item is a whole-row link with a chevron that opens its form, and an appointment's Copy to Google Calendar sits in a three-dot menu. Canvas widgets drawn from them follow. |
 | 2.39.0 | 2026-11-28 | Today uses the new controls: round tick boxes on the day line, today's three and bills coming up (a bill's tick box marks it paid), a play ring to start a check-in, whole Coming up rows as links with a chevron, and plain links for Edit, Edit routine, All tasks, Choose up to three tasks and Open my plan. Canvas widgets drawn from Today follow. |
 | 2.38.0 | 2026-11-28 | New controls from the design handoff in `ui.js`, drawn for all three kits: a round tick box, a play ring with progress, a filled stepped scale, a three-dot menu and a plain link. Picture options take a drawn sample. |
 | 2.37.0 | 2026-11-28 | Inter Tight (headings) and Google Sans Flex (body) are the default fonts for new looks, vendored locally under the SIL Open Font License. Stored looks keep their fonts. |

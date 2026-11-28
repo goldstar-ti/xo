@@ -26,6 +26,7 @@ lists:
     add: Add appointment
     empty: No appointments ahead. Add the next one as soon as it is booked.
     past: 'Past appointments ({count})'
+    actions: Appointment actions
     to_calendar: Copy to Google Calendar
     calendar_tip: Opens Google Calendar with this entry filled in
   tasks:
