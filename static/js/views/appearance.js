@@ -1,12 +1,12 @@
 // Appearance: the quick "Look" panel and the full Appearance screen.
 // All of it is stored on this device only (see boot.js).
 import { t, text } from '../text.js';
-import { badge, button, chip, colourField, disclosure, field, focusControl, fontPicker, input, kit, optionCards, menu, plainLink, searchBox, segmented, select, sortList, stat, stepScale, textarea, toggle } from '../ui.js';
+import { badge, button, chip, numStep, colourField, disclosure, field, focusControl, fontPicker, input, kit, optionCards, menu, plainLink, searchBox, segmented, select, sortList, stat, stepScale, textarea, toggle } from '../ui.js';
 import { tabStrip } from '../tabs.js';
 import * as store from '../store.js';
 import { MODULES, functionsOf, isOn, setSwitch } from '../modules.js';
 import { WIDGETS } from '../widgets.js';
-import { DEFAULT_ICONS, icon, paintIcon } from '../icons.js';
+import { DEFAULT_ICONS, icon, iconButton, paintIcon } from '../icons.js';
 import { pickScreenIcon } from '../iconpicker.js';
 import { previewPattern } from '../pattern.js';
 import { fmtTime, h, kvSet, openDialog, put, toast, uid } from '../util.js';
@@ -459,6 +459,68 @@ const CORNER_PX = { square: [0, 0, 0], soft: [6, 8, 10], round: [10, 40, 14], pi
 const drawn = (cls, o, text2 = '') => h('span', { class: `${cls} ${cls}-${o}` }, text2);
 const cornerSample = (o) => { const el = drawn('corner-sample', o); el.style.borderRadius = `${CORNER_PX[o][0] * 1.5}px`; return el; };
 
+// ---- Text styles: one table, a row for each kind of text, four steppers each ----
+const typeGroupOpen = new Map([['body', true]]); // group -> open, kept across redraws
+let typeRowOpen = null; // the row open in the narrow form (one at a time)
+const r2 = (n) => Number(n.toFixed(2));
+const signed = (n, dp = 0) => (n === 0 ? '0' : n > 0 ? `+${n.toFixed(dp)}` : n.toFixed(dp));
+function typeStyles(lk, d) {
+  const T = text('appearance.text_styles');
+  const R = L.TYPE_RANGE;
+  const base = lk.base ?? L.autoBase();
+  const px = (rem) => Math.round(rem * base);
+  const fmtPx = (n) => t('appearance.text_styles.px', { n });
+  const fmtLh = (n) => String(r2(n));
+  const fmtLs = (n) => String(r2(n));
+  const cell = (colName, stepper) => h('div', { class: 'ts-cell' }, h('span', { class: 'ts-col', 'aria-hidden': 'true' }, colName), stepper);
+  const rowEl = (id, label, styleRole, cells, summary, changed, onReset) => {
+    const roleVar = styleRole.replace(/_/g, '-');
+    const nameBtn = h('button', { type: 'button', class: 'ts-name', 'aria-expanded': String(typeRowOpen === id), 'data-fk': `ts-open-${id}`,
+      onclick: () => { typeRowOpen = typeRowOpen === id ? null : id; root.querySelectorAll('.ts-row').forEach((r) => { const on = r.dataset.row === typeRowOpen; r.classList.toggle('open', on); r.querySelector('.ts-name').setAttribute('aria-expanded', String(on)); }); } },
+      h('span', { class: 'ts-name-text', style: `font-size:var(--fs-${roleVar});font-weight:var(--fw-${roleVar});line-height:var(--lh-${roleVar});letter-spacing:var(--ls-${roleVar})` }, label, changed && h('span', { class: 'ts-dot', 'aria-hidden': 'true' })),
+      h('span', { class: 'ts-sum' }, summary));
+    const reset = changed && onReset ? iconButton('tabler/arrow-back-up', T.row_reset, { 'data-fk': `ts-reset-${id}`, onclick: onReset }) : h('span');
+    return h('div', { class: `ts-row${typeRowOpen === id ? ' open' : ''}`, id: `ts-${id}`, 'data-row': id, 'data-changed': changed ? '' : null },
+      nameBtn, h('div', { class: 'ts-cells' }, cells), reset);
+  };
+  const root = h('div', { class: 'type-styles' });
+  // All text: the base size, then the three shifts that apply to every kind.
+  const allSum = t('appearance.text_styles.summary', { size: base, weight: signed(lk.wShift), line: `x${r2(lk.lhMul)}`, letter: signed(lk.lsShift, 2) });
+  const allRow = rowEl('all', T.all, 'body', [
+    cell(T.cols.size, numStep({ value: base, min: 10, max: 24, step: 1, format: fmtPx, inherited: lk.base === null, label: `${T.all}, ${T.cols.size}`, onChange: (v) => setLook({ base: v === L.autoBase() ? null : v }) })),
+    cell(T.cols.weight, numStep({ value: lk.wShift, min: R.wShift[0], max: R.wShift[1], step: R.wShift[2], format: (v) => signed(v), inherited: lk.wShift === d.wShift, label: `${T.all}, ${T.cols.weight}`, onChange: (v) => setLook({ wShift: v }) })),
+    cell(T.cols.line, numStep({ value: lk.lhMul, min: R.lhMul[0], max: R.lhMul[1], step: R.lhMul[2], format: (v) => `x${r2(v)}`, inherited: lk.lhMul === d.lhMul, label: `${T.all}, ${T.cols.line}`, onChange: (v) => setLook({ lhMul: v }) })),
+    cell(T.cols.letter, numStep({ value: lk.lsShift, min: R.lsShift[0], max: R.lsShift[1], step: R.lsShift[2], format: (v) => signed(v, 2), inherited: lk.lsShift === d.lsShift, label: `${T.all}, ${T.cols.letter}`, onChange: (v) => setLook({ lsShift: v }) })),
+  ], allSum, lk.base !== null || lk.wShift !== d.wShift || lk.lhMul !== d.lhMul || lk.lsShift !== d.lsShift,
+  () => L.change((s, l) => { l.wShift = d.wShift; l.lhMul = d.lhMul; l.lsShift = d.lsShift; }));
+  const kindRow = (k) => {
+    const def = L.TYPE_ROLES[k], o = lk.fs[k] || {};
+    const eff = { size: o.size ?? def.size, weight: o.weight ?? def.weight, lh: o.lh ?? def.lh, ls: o.ls ?? def.ls };
+    const name = T.roles[k];
+    const part = (key, col, fmt, o2) => cell(T.cols[col], numStep({ value: o2.value, min: o2.min, max: o2.max, step: o2.step, format: fmt, inherited: o[key] === undefined, label: `${name}, ${T.cols[col]}`,
+      onChange: (v) => L.change((s, l) => { const cur = { ...(l.fs[k] || {}) }; cur[key] = o2.toStore(v); l.fs[k] = cur; }) }));
+    const cells = [
+      part('size', 'size', fmtPx, { value: px(eff.size), min: 9, max: 48, step: 1, toStore: (v) => Number((v / base).toFixed(4)) }),
+      part('weight', 'weight', String, { value: eff.weight, min: R.weight[0], max: R.weight[1], step: R.weight[2], toStore: (v) => v }),
+      part('lh', 'line', fmtLh, { value: eff.lh, min: R.lh[0], max: R.lh[1], step: R.lh[2], toStore: (v) => v }),
+      part('ls', 'letter', fmtLs, { value: eff.ls, min: R.ls[0], max: R.ls[1], step: R.ls[2], toStore: (v) => v }),
+    ];
+    const summary = t('appearance.text_styles.summary', { size: px(eff.size), weight: eff.weight, line: fmtLh(eff.lh), letter: fmtLs(eff.ls) });
+    return rowEl(k, name, k, cells, summary, !!lk.fs[k], () => L.change((s, l) => { delete l.fs[k]; }));
+  };
+  const head = h('div', { class: 'ts-head', 'aria-hidden': 'true' }, h('span'), ['size', 'weight', 'line', 'letter'].map((c) => h('span', {}, T.cols[c])), h('span'));
+  put(root, head, allRow);
+  L.TYPE_GROUPS.forEach(([g, roles]) => {
+    const open = typeGroupOpen.get(g) === true;
+    const body = h('div', { class: 'ts-group-body', hidden: open ? null : '' }, roles.map(kindRow));
+    const n = roles.filter((k) => lk.fs[k]).length;
+    const btn = h('button', { type: 'button', class: 'ts-group-btn', 'aria-expanded': String(open), 'data-fk': `ts-group-${g}`,
+      onclick: () => { const now = typeGroupOpen.get(g) !== true; typeGroupOpen.set(g, now); btn.setAttribute('aria-expanded', String(now)); body.hidden = !now; } }, T.groups[g], n > 0 && ` (${n})`);
+    root.append(h('div', { class: 'ts-group' }, btn, body));
+  });
+  return h('div', { class: 'opt' }, h('p', { class: 'hint' }, T.hint), root);
+}
+
 function build(lk, d) {
   items = [];
   ACCS = {};
@@ -519,23 +581,9 @@ function build(lk, d) {
   [['headings', 'head', true], ['numerals', 'num', true], ['code', 'mono', false]].forEach(([k, key, allow]) => {
     reg('text', 'fonts', t(`appearance.type.${k}`), fontItem(t(`appearance.type.${k}`), key, allow), { adv: true, changed: chg(key) });
   });
-  defAcc('weight_spacing', 'text', A('weight_spacing'), { reset: () => L.change((s, l) => { ['weight', 'lh', 'ls', 'monoSize', 'monoLs'].forEach((k) => { l[k] = d[k]; }); }) });
-  [['weight', 'd-weight', 'weight', { min: 100, max: 900, step: 10 }], ['line_spacing', 'd-lh', 'lh', { min: 1.25, max: 1.9, step: 0.05 }],
-    ['letter_spacing', 'd-ls', 'ls', { min: -0.05, max: 0.15, step: 0.005, scale: 1000 }], ['code_size', 'd-monosize', 'monoSize', { min: 70, max: 150, step: 1, unit: '%' }],
-    ['code_spacing', 'd-monols', 'monoLs', { min: -0.05, max: 0.15, step: 0.005, scale: 1000 }]].forEach(([k, id, key, o]) => {
-    reg('text', 'weight_spacing', t(`appearance.type.${k}`), dl(t(`appearance.type.${k}`), id, key, o), { adv: true, changed: chg(key) });
-  });
-  defAcc('text_sizes', 'text', A('text_sizes'), { reset: () => L.change((s, l) => { l.fs = {}; }) });
-  const roles = text('appearance.text_sizes.roles');
-  const rootPx = parseFloat(getComputedStyle(document.documentElement).fontSize) || 13;
-  const steps = L.FS_STEPS.map((v) => [String(v), t('appearance.text_sizes.step', { px: Math.round(v * rootPx) })]);
-  [['ts_headlines', ['display', 'page', 'quote', 'figure', 'dialog']], ['ts_headings', ['section', 'lead', 'brand', 'sub']],
-    ['ts_body', ['body', 'large', 'label', 'control']], ['ts_small', ['small', 'small_btn', 'nav', 'tag', 'tiny']]].forEach(([sub, ks]) => {
-    ks.forEach((k) => reg('text', 'text_sizes', roles[k], field(roles[k],
-      select([['', t('appearance.text_sizes.default')], ...steps], { id: `fs-${k}`, 'data-fk': `fs-${k}`, value: lk.fs[k] ? String(lk.fs[k]) : '',
-        onchange: (e) => L.change((s, l) => { if (e.target.value === '') delete l.fs[k]; else l.fs[k] = Number(e.target.value); }) }), null, { half: true }),
-    { adv: true, changed: !!lk.fs[k], sub: A(sub) }));
-  });
+  const typeChanged = Object.keys(lk.fs).length > 0 || lk.wShift !== d.wShift || lk.lhMul !== d.lhMul || lk.lsShift !== d.lsShift;
+  defAcc('type', 'text', A('type'), { reset: () => L.change((s, l) => { l.fs = {}; l.wShift = d.wShift; l.lhMul = d.lhMul; l.lsShift = d.lsShift; }) });
+  reg('text', 'type', t('appearance.text_styles.heading'), typeStyles(lk, d), { adv: true, changed: typeChanged });
 
   // 3. Layout
   reg('layout', null, t('appearance.shape.corners'), cards(t('appearance.shape.corners'), 'corners', cornerSample), { changed: chg('corners') });

@@ -189,12 +189,7 @@ appearance:
     same: Same as body
     numerals_hint: Numerals covers the time column, the clock and amounts.
     size: Text size
-    weight: Weight
-    line_spacing: Line spacing
-    letter_spacing: Letter spacing
     code: Code font
-    code_size: Code size
-    code_spacing: Code letter spacing
     built_in: Built in
     hint_variable: 'Weight: {min} to {max}, smooth.'
     hint_static: 'Weight: {weights} only. The scale uses the nearest.'
@@ -259,12 +254,21 @@ appearance:
     spacing: Spacing
     chrome: Header and bar size
     zoom: Zoom
-  text_sizes:
-    heading: Text sizes
-    default: Default
-    step: '{px} px'
-    reset: Reset text sizes
-    hint: Each kind of text can have its own size. Default follows the Text size dial.
+  text_styles:
+    heading: Text styles
+    hint: Each kind of text has its own size, weight, line spacing and letter spacing. Grey values follow the default.
+    all: All text
+    cols:
+      size: Size
+      weight: Weight
+      line: Line
+      letter: Letter
+    groups:
+      headlines: Headlines
+      headings: Headings
+      body: Body
+      small: Small
+      code: Code
     roles:
       display: Large headlines
       page: Page titles
@@ -284,6 +288,10 @@ appearance:
       nav: Bottom tabs
       tag: Tags
       tiny: Tiny text
+      code: Code
+    row_reset: Back to default
+    summary: '{size} px, {weight}, {line}, {letter}'
+    px: '{n} px'
   colours:
     heading: Colours
     light: Light
@@ -522,12 +530,7 @@ appearance:
     concepts: Module colours
     scheduled: Scheduled looks
     fonts: Fonts
-    weight_spacing: Weight and spacing
-    text_sizes: Text sizes
-    ts_headlines: Headlines
-    ts_headings: Headings
-    ts_body: Body
-    ts_small: Small
+    type: Text styles
     spacing_size: Spacing and size
     radius: Radius
     lines_texture: Lines and texture

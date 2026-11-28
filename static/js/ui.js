@@ -689,3 +689,48 @@ export function plainLink(label, { href, onclick, ...attrs } = {}) {
   if (href) return h('a', { ...attrs, href, class: cls, onclick }, label);
   return h('button', { ...attrs, type: 'button', class: cls, onclick }, label);
 }
+
+// A number with minus and plus buttons and an editable value. format(v) is the text shown ('13 px'); the field takes a typed
+// number too. inherited draws the value grey (it follows a default). Up and Down keys step. Returns the wrapper with .value
+// (get and set, no event), .input and .set(value, inherited).
+export function numStep({ value, min, max, step = 1, format = String, inherited = false, label, onChange, ...attrs } = {}) {
+  const k = kit();
+  const dec = (String(step).split('.')[1] || '').length;
+  const snap = (v) => Number((Math.round(Math.min(max, Math.max(min, v)) / step) * step).toFixed(dec + 2));
+  let cur = value;
+  const box = h('input', { type: 'text', inputmode: 'decimal', class: 'xo-num-in', 'aria-label': label, autocomplete: 'off' });
+  const mk = (sign, name, delta) => {
+    const text = sign;
+    if (k === 'wa') return h('wa-button', { type: 'button', size: 'small', appearance: 'outlined', variant: 'neutral', class: 'xo-num-btn', 'aria-label': name, onclick: () => bump(delta) }, text);
+    return h('button', { type: 'button', class: join('xo-num-btn', k === 'daisy' && 'tw:btn tw:btn-outline tw:btn-square'), 'aria-label': name, onclick: () => bump(delta) }, text);
+  };
+  const less = mk('-', t('common.decrease', { label }), -1);
+  const more = mk('+', t('common.increase', { label }), 1);
+  const el = h('span', { ...attrs, class: join('xo-num', k === 'wa' && 'xo-num-wa', attrs.class), role: 'group', 'aria-label': label }, less, box, more);
+  function paint(inh) {
+    box.value = format(cur);
+    el.classList.toggle('inherited', !!inh);
+    less.toggleAttribute('disabled', cur <= min);
+    more.toggleAttribute('disabled', cur >= max);
+  }
+  function commit(v, fire = true) {
+    const next = snap(v);
+    const changed = next !== cur;
+    cur = next;
+    paint(false);
+    if (fire && changed) onChange?.(cur);
+  }
+  function bump(d) { commit(cur + d * step); }
+  box.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowUp') { e.preventDefault(); bump(1); } else if (e.key === 'ArrowDown') { e.preventDefault(); bump(-1); } else if (e.key === 'Enter') { box.blur(); }
+  });
+  box.addEventListener('focus', () => { box.value = String(cur); box.select(); });
+  box.addEventListener('blur', () => {
+    const n = parseFloat(box.value.replace(/[^0-9.+-]/g, ''));
+    if (Number.isFinite(n)) commit(n); else paint(false);
+  });
+  paint(inherited);
+  el.input = box;
+  el.set = (v, inh = false) => { cur = v; paint(inh); };
+  return withValue(el, { get: () => cur, set: (v) => { cur = v; paint(el.classList.contains('inherited')); } });
+}

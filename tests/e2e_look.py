@@ -4,6 +4,7 @@ python tests/e2e_look.py [base_url] [screenshot_dir]
 """
 
 import os
+import re
 import sys
 from pathlib import Path
 
@@ -82,9 +83,9 @@ with sync_playwright() as p:
     expect(pg.locator('[data-key="theme"]')).to_have_attribute("aria-selected", "true")
     tab("text")
     assert pg.evaluate("XOLook.prefs.lookTab") == "text"
-    expect(pg.locator("#acc-text_sizes")).to_have_count(0)
+    expect(pg.locator("#acc-type")).to_have_count(0)
     pg.locator('[data-fk="view:advanced"]').click()
-    expect(pg.locator("#acc-text_sizes")).to_be_visible()
+    expect(pg.locator("#acc-type")).to_be_visible()
     pg.wait_for_selector('.look-screen[data-fonts="ready"]')
     # full screen: choices, fonts, dials
     tab("layout")
@@ -205,7 +206,7 @@ with sync_playwright() as p:
     css = "getComputedStyle(document.documentElement).getPropertyValue"
     pg.evaluate("document.body.insertAdjacentHTML('beforeend', '<section><h2 id=\"h2-probe\">x</h2></section>')")
     before = pg.evaluate("parseFloat(getComputedStyle(document.getElementById('h2-probe')).fontSize)")
-    pg.evaluate("XOLook.change((s, lk) => { lk.fs.section = 1.5; lk.mode = 'light'; })")
+    pg.evaluate("XOLook.change((s, lk) => { lk.fs.section = { size: 1.5 }; lk.mode = 'light'; })")
     assert pg.evaluate(css + "('--fs-section')") == "1.5rem"
     assert pg.evaluate("parseFloat(getComputedStyle(document.getElementById('h2-probe')).fontSize)") > before
     pg.evaluate("XOLook.change((s, lk) => { lk.colours.light.leaf = '#ff0000'; })")
@@ -241,14 +242,15 @@ with sync_playwright() as p:
     assert pg.evaluate("(c) => XOLook.decode(c)", v1)["space"] == 0.7
     assert pg.evaluate("XOLook.decode('XO2-@@@')") is None
     pg.evaluate(
-        "XOLook.change((s, lk) => { lk.fs.section = 1.5; lk.colours.light.leaf = '#ff0000'; lk.mode = 'light'; })"
+        "XOLook.change((s, lk) => {"
+        " lk.fs.section = { size: 1.5 }; lk.colours.light.leaf = '#ff0000'; lk.mode = 'light'; })"
     )
     pg.reload()
     pg.wait_for_selector("h1")
     assert pg.evaluate(css + "('--fs-section')") == "1.5rem"
     assert pg.evaluate(css + "('--leaf')").strip() == "#ff0000"
     pg.evaluate("XOLook.reset()")
-    assert pg.evaluate(css + "('--fs-section')") == ""
+    assert pg.evaluate(css + "('--fs-section')") == "0.9375rem"
     # component colours: derived from the base tokens until overridden
     pg.goto(BASE + "/#/today")
     pg.wait_for_selector("h1")
@@ -269,21 +271,90 @@ with sync_playwright() as p:
     fresh()
     expect(pg.locator('[data-key="theme"]')).to_have_attribute("aria-selected", "true")
     tab("text")
-    expect(pg.locator("#acc-text_sizes")).to_have_count(0)
+    expect(pg.locator("#acc-type")).to_have_count(0)
     pg.locator('[data-fk="view:advanced"]').click()
     pg.wait_for_selector('.look-screen[data-fonts="ready"]')
-    acc("text_sizes")
-    pg.locator("#fs-section").select_option("1.5")
-    assert pg.evaluate("XOLook.active().look.fs.section") == 1.5
+    acc("type")
+    pg.locator('[data-fk="ts-group-headings"]').click()
+    def open_row(rid):
+        """In the narrow form (side pane, phone) a row's steppers show after a tap on its name."""
+        if not pg.locator(f"#ts-{rid} .ts-cell").first.is_visible():
+            pg.locator(f'[data-fk="ts-open-{rid}"]').click()
+
+    open_row("section")
+    row = pg.locator("#ts-section")
+    expect(row).to_be_visible()
+    # Size: base is 13 px, section is 0.9375 rem (12 px); one step up is 13 px and is stored as rem = px / base
+    expect(row.locator(".xo-num").first).to_have_class(re.compile("inherited"))
+    row.get_by_role("button", name="Increase Section titles, Size").click()
+    assert pg.evaluate("XOLook.active().look.fs.section.size") == 1
     expect(pg.locator('[data-key="text"] .badge')).to_have_text("1")
+    # Weight: Labels at 600, then a computed weight on a .xo-ctl-label
+    open_row("label")
+    pg.locator("#ts-label").get_by_role("button", name="Decrease Labels, Weight").click()
+    assert pg.evaluate("XOLook.active().look.fs.label.weight") == 500
+    pg.locator("#ts-label").get_by_role("button", name="Increase Labels, Weight").click()
+    pg.locator("#ts-label").get_by_role("button", name="Increase Labels, Weight").click()
+    assert pg.evaluate("XOLook.active().look.fs.label.weight") == 700
+    pg.locator("#ts-label .xo-num-in").nth(1).fill("600")
+    pg.locator("#ts-label .xo-num-in").nth(1).blur()
+    assert pg.evaluate("XOLook.active().look.fs.label") is None, "typing the default weight drops it"
+    pg.evaluate(
+        "document.body.insertAdjacentHTML('beforeend', '<span id=\"lab-probe\" class=\"xo-ctl-label\">x</span>')"
+    )
+    pg.evaluate("XOLook.change((s, lk) => { lk.fs.label = { weight: 600 }; })")
+    assert pg.evaluate("getComputedStyle(document.getElementById('lab-probe')).fontWeight") == "600"
+    pg.evaluate("XOLook.change((s, lk) => { lk.fs.label = { weight: 300 }; })")
+    assert pg.evaluate("getComputedStyle(document.getElementById('lab-probe')).fontWeight") == "300"
+    pg.evaluate("document.getElementById('lab-probe').remove(); XOLook.change((s, lk) => { delete lk.fs.label; })")
+    # a row reset appears only on changed rows
+    expect(pg.locator('[data-fk="ts-reset-label"]')).to_have_count(0)
+    expect(pg.locator('[data-fk="ts-reset-section"]')).to_have_count(1)
     pg.locator('[data-fk="view:standard"]').click()
-    expect(pg.locator("#fs-section")).to_be_visible()
-    expect(pg.locator("#fs-page")).to_have_count(0)
+    expect(pg.locator("#ts-section")).to_be_visible()
     expect(pg.locator('[data-fk="view:advanced"]')).to_have_text("Advanced (1 changed)")
     pg.locator('[data-fk="view:advanced"]').click()
-    pg.get_by_role("button", name="Reset Text sizes").click()
+    pg.get_by_role("button", name="Reset Text styles").click()
     assert pg.evaluate("XOLook.active().look.fs") == {}
     expect(pg.locator('[data-key="text"] .badge')).to_have_count(0)
+    # All text: Size 15 px makes body 15 px, and a heading scales by the same ratio
+    h1 = "parseFloat(getComputedStyle(document.querySelector('h1')).fontSize)"
+    before_h1 = pg.evaluate(h1)
+    before_body = pg.evaluate("parseFloat(getComputedStyle(document.body).fontSize)")
+    b0 = pg.evaluate("XOLook.active().look.base ?? XOLook.autoBase()")
+    for n in (1, 2):
+        open_row("all")
+        pg.locator("#ts-all").get_by_role("button", name="Increase All text, Size").click()
+        pg.wait_for_function(f"XOLook.active().look.base === {b0 + n}")
+    assert pg.evaluate("getComputedStyle(document.body).fontSize") == f"{b0 + 2}px"
+    ratio = pg.evaluate(h1) / before_h1
+    assert abs(ratio - (b0 + 2) / before_body) < 0.02, ratio
+    pg.evaluate("XOLook.change((s, lk) => { lk.base = null; })")
+    # an older look: one weight, one fs number and the code size convert once
+    old = pg.evaluate(
+        "XOLook.decode('XO2-' + btoa(JSON.stringify({ v: 2, fs: { body: 1.0625 }, weight: 500, monoSize: 120 }))"
+        ".replace(/=+$/, ''))"
+    )
+    assert old["fs"]["body"] == {"size": 1.0625} and old["wShift"] == 100, old
+    assert old["fs"]["code"] == {"size": 1.2}, old
+    assert "weight" not in old and "monoSize" not in old
+    # the narrow form (side pane, phone): a summary under each name and one row open at a time
+    pg.set_viewport_size({"width": 390, "height": 800})
+    pg.reload()
+    fresh()
+    tab("text")
+    acc("type")
+    pg.wait_for_selector("#ts-all")
+    expect(pg.locator(".ts-head")).to_be_hidden()
+    expect(pg.locator("#ts-all .ts-sum")).to_be_visible()
+    expect(pg.locator("#ts-all .ts-cells")).to_be_hidden()
+    pg.locator('[data-fk="ts-open-all"]').click()
+    expect(pg.locator("#ts-all .ts-cells")).to_be_visible()
+    pg.locator('[data-fk="ts-open-body"]').click()
+    expect(pg.locator("#ts-all .ts-cells")).to_be_hidden()
+    expect(pg.locator("#ts-body .ts-cells")).to_be_visible()
+    expect(pg.locator("#ts-body .ts-sum")).to_have_text("16 px, 400, 1.5, 0")  # auto base on a phone
+    pg.set_viewport_size({"width": 1280, "height": 900})
     # size presets: Large sets three fields; moving the Text size dial makes it Custom
     pg.locator('[data-fk="size:large"]').click()
     assert pg.evaluate("XOLook.active().look.base") == 16
@@ -637,7 +708,7 @@ with sync_playwright() as p:
     expect(pg.locator("dialog[open]")).to_have_count(0)
     assert pg.evaluate("XOLook.prefs.view") == "standard"
     tab("text")
-    expect(pg.locator("#acc-text_sizes")).to_have_count(0)
+    expect(pg.locator("#acc-type")).to_have_count(0)
     # body text is 13 px on a desktop at base auto, and 16 px at phone width
     pg.set_viewport_size({"width": 1280, "height": 900})
     assert pg.evaluate("getComputedStyle(document.body).fontSize") == "13px"

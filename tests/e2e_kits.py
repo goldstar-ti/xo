@@ -10,6 +10,7 @@ Usage: python tests/e2e_kits.py http://localhost:8000
 """
 
 import os
+import re
 import sys
 from urllib.parse import urlparse
 
@@ -102,6 +103,7 @@ with sync_playwright() as p:
         ui.stepScale({ label: 'Effort', steps: 4, value: 2 }),
         ui.menu({ label: 'Row actions', items: [{ label: 'Edit row', run: count }] }),
         ui.plainLink('Skip for now', { href: '#/skip' }),
+        ui.numStep({ label: 'Text size', value: 13, min: 9, max: 48, step: 1, format: (v) => v + ' px' }),
       );
       document.body.append(host);
       if (kit === 'wa') {
@@ -155,6 +157,8 @@ with sync_playwright() as p:
           { label: 'Second', run: () => { w.__ran = 'second'; } },
         ] })),
         one('cmp-link', ui.plainLink('Not now', { onclick: () => { w.__ran = 'link'; } })),
+        one('cmp-num', ui.numStep({ label: 'Weight', value: 400, min: 100, max: 900, step: 100, inherited: true,
+          onChange: (v) => { w.__num = v; } })),
       );
       document.body.append(host);
       if (kit === 'wa') {
@@ -215,10 +219,12 @@ with sync_playwright() as p:
         expect(host.get_by_role("slider", name="Effort")).to_have_attribute("aria-valuenow", "2")
         expect(host.get_by_role("button", name="Row actions")).to_have_attribute("aria-haspopup", "menu")
         expect(host.get_by_role("link", name="Skip for now")).to_have_attribute("href", "#/skip")
+        root_px = page.evaluate("parseFloat(getComputedStyle(document.documentElement).fontSize)")
+        min_px = 2.5 * root_px - 1  # a tap target is 2.5rem, whatever the base size
         for ctl in ("[aria-label='Start sitting']", "[role=slider] .xo-step", "[aria-label='Row actions']"):
             box_h = host.locator(ctl).first.evaluate("(e) => e.getBoundingClientRect().height")
-            assert box_h >= 39, f"{ctl} tap target"
-        assert row.evaluate("(e) => e.getBoundingClientRect().height") >= 40, "link row tap target"
+            assert box_h >= min_px, f"{ctl} tap target"
+        assert row.evaluate("(e) => e.getBoundingClientRect().height") >= min_px, "link row tap target"
         if kit == "daisy":
             assert page.evaluate(PRIMARY_BG) != "rgba(0, 0, 0, 0)", "daisyUI classes did not compile into tw.css"
         page.evaluate("document.getElementById('kit-host').remove()")
@@ -236,7 +242,7 @@ with sync_playwright() as p:
             first = cmp.get_by_role("radio").first
             border = first.evaluate("(e) => getComputedStyle(e).borderTopWidth")
             assert border != "0px", "daisy segment has no button border"
-            assert first.evaluate("(e) => e.getBoundingClientRect().height") >= 40, "daisy segment tap target"
+            assert first.evaluate("(e) => e.getBoundingClientRect().height") >= min_px, "daisy segment tap target"
         sw = page.locator("#cmp-tog wa-switch") if kit == "wa" else cmp.get_by_role("switch")
         sw.click()
         assert page.evaluate("window.__tog") is True, "toggle on"
@@ -300,6 +306,23 @@ with sync_playwright() as p:
         assert page.evaluate("document.querySelector('#cmp-play button').progress") == 0.5
         cmp.get_by_role("link", name="Not now").or_(cmp.get_by_role("button", name="Not now")).click()
         assert page.evaluate("window.__ran") == "link", "plain link"
+        # Number stepper: plus and minus buttons, an editable value, arrow keys, grey while inherited.
+        num = page.locator("#cmp-num")
+        expect(num.locator(".xo-num")).to_have_class(re.compile("inherited"))
+        expect(num.locator("input")).to_have_value("400")
+        num.locator("[aria-label='Increase Weight']").click()
+        assert page.evaluate("window.__num") == 500, "numStep plus"
+        expect(num.locator(".xo-num")).not_to_have_class(re.compile("inherited"))
+        num.locator("[aria-label='Decrease Weight']").click()
+        num.locator("input").focus()
+        page.keyboard.press("ArrowUp")
+        page.keyboard.press("ArrowUp")
+        assert page.evaluate("window.__num") == 600, "numStep arrow key"
+        num.locator("input").fill("950")
+        num.locator("input").blur()
+        assert page.evaluate("window.__num") == 900, "numStep clamps a typed value"
+        plus = num.locator("[aria-label='Increase Weight']")
+        assert plus.evaluate("(e) => e.getBoundingClientRect().height") >= min_px, "numStep tap target"
         scale = cmp.get_by_role("slider", name="Size")
         scale.focus()
         page.keyboard.press("ArrowRight")

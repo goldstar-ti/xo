@@ -66,11 +66,27 @@
   const RULE = { fine: '1px', medium: '2px', heavy: '3px' };
   const LOUD = { quiet: 0.82, regular: 1, loud: 1.32 };
 
-  // Text-size roles: [key, default rem]. Labels live in content/text/appearance.yaml.
-  const FS_ROLES = [['display', 2.25], ['page', 1.65], ['quote', 1.5], ['figure', 1.5], ['dialog', 1.375], ['section', 0.9375], ['lead', 1],
-    ['brand', 1.125], ['sub', 1], ['body', 1], ['large', 1.0625], ['label', 0.9375], ['control', 0.9375], ['small', 0.75], ['small_btn', 0.875],
-    ['nav', 0.8125], ['tag', 0.75], ['tiny', 0.6875]];
-  const FS_STEPS = [0.6875, 0.75, 0.8125, 0.875, 0.9375, 1, 1.0625, 1.125, 1.25, 1.375, 1.5, 1.53, 1.65, 1.75, 2, 2.25, 2.75, 3.25];
+  // Text styles: one role for each kind of text, with its default size (rem), weight, line height (a multiplier) and
+  // letter spacing (em). The look keeps only what the owner changed, in fs[role] = { size?, weight?, lh?, ls? }.
+  // Labels live in content/text/appearance.yaml (text_styles). static/app.css reads --fs-, --fw-, --lh- and --ls- plus the role name.
+  const TYPE_ROLES = {
+    display: { size: 2.25, weight: 700, lh: 1.15, ls: -0.01 }, page: { size: 1.65, weight: 700, lh: 1.15, ls: -0.01 },
+    quote: { size: 1.5, weight: 400, lh: 1.25, ls: 0 }, figure: { size: 1.5, weight: 700, lh: 1.1, ls: -0.01 },
+    dialog: { size: 1.375, weight: 600, lh: 1.3, ls: 0 },
+    section: { size: 0.9375, weight: 600, lh: 1.3, ls: 0 }, lead: { size: 1.125, weight: 400, lh: 1.5, ls: 0 },
+    brand: { size: 0.9375, weight: 700, lh: 1.5, ls: -0.01 }, sub: { size: 1, weight: 700, lh: 1.5, ls: 0 },
+    body: { size: 1, weight: 400, lh: 1.5, ls: 0 }, large: { size: 1.0625, weight: 600, lh: 1.5, ls: 0 },
+    label: { size: 0.9375, weight: 600, lh: 1.5, ls: 0 }, control: { size: 1, weight: 600, lh: 1.2, ls: 0 },
+    small: { size: 0.75, weight: 400, lh: 1.5, ls: 0 }, small_btn: { size: 0.875, weight: 600, lh: 1.2, ls: 0 },
+    nav: { size: 0.8125, weight: 500, lh: 1.5, ls: 0 }, tag: { size: 0.75, weight: 700, lh: 1.2, ls: 0 },
+    tiny: { size: 0.6875, weight: 600, lh: 1.5, ls: 0 },
+    code: { size: 1, weight: 400, lh: 1.5, ls: 0 }, // set in --font-mono
+  };
+  // The groups Appearance shows them in.
+  const TYPE_GROUPS = [['headlines', ['display', 'page', 'quote', 'figure', 'dialog']], ['headings', ['section', 'lead', 'brand', 'sub']],
+    ['body', ['body', 'large', 'label', 'control']], ['small', ['small', 'small_btn', 'nav', 'tag', 'tiny']], ['code', ['code']]];
+  // The part ranges and steps: size in rem (Appearance shows whole px), weight, line height, letter spacing (em); then the three global dials.
+  const TYPE_RANGE = { size: [0.4, 4.8], weight: [100, 900, 100], lh: [1, 2, 0.05], ls: [-0.05, 0.15, 0.01], wShift: [-200, 200, 50], lhMul: [0.8, 1.4, 0.05], lsShift: [-0.03, 0.05, 0.01] };
   // Colour tokens by group, in the order Appearance shows them: [groupKey, [token, ...]]. The first two groups are the
   // base colours; the rest are component colours (static/app.css) that start as a base colour. Names live in appearance.yaml.
   const COLOUR_GROUPS = [
@@ -121,8 +137,8 @@
 
   const DEFAULT_LOOK = {
     mode: 'auto', theme: 'ink', c: colourOf('ink'), strength: 1,
-    body: 'gsflex', head: 'intertight', num: 'same', base: null, weight: 400, lh: 1.5, ls: 0,
-    space: 1, chrome: 1, zoom: 100, mono: 'mono', monoSize: 100, monoLs: 0,
+    body: 'gsflex', head: 'intertight', num: 'same', base: null, wShift: 0, lhMul: 1, lsShift: 0,
+    space: 1, chrome: 1, zoom: 100, mono: 'mono',
     fs: {}, colours: { light: {}, dark: {} }, rCard: null, rPill: null, rDialog: null,
     glassAlpha: 0, glassBlur: 14, figure: 'plain', ident: { widgets: {}, tabs: {} },
     corners: 'round', density: 'regular', rule: 'fine', texture: 'none',
@@ -203,15 +219,17 @@
       const pct = Number(raw.size);
       out.base = Number.isFinite(pct) && pct !== 100 ? Math.round(clamp(Math.round(13 * clamp(pct, 85, 135, 100) / 100), 10, 24, 13)) : null;
     } else out.base = Math.round(clamp(raw.base, 10, 24, 13));
-    out.weight = clamp(raw.weight, 100, 900, 400);
-    out.lh = clamp(raw.lh, 1.25, 1.9, 1.5);
-    out.ls = clamp(raw.ls, -0.05, 0.15, 0);
+    // Weight, line height and letter spacing are a shift, a multiplier and a shift on every text style. An older look had
+    // one weight (400), one line height (1.5) and one letter spacing: they convert once, and the code size and spacing become fs.code.
+    const snap = (n, [lo, hi, step], fallback) => { n = Number(n); return Number.isFinite(n) ? Number((Math.round(Math.min(hi, Math.max(lo, n)) / step) * step).toFixed(4)) : fallback; };
+    const R = TYPE_RANGE;
+    out.wShift = snap(raw.wShift !== undefined ? raw.wShift : Number(raw.weight) - 400, R.wShift, 0);
+    out.lhMul = snap(raw.lhMul !== undefined ? raw.lhMul : Number(raw.lh) / 1.5, R.lhMul, 1);
+    out.lsShift = snap(raw.lsShift !== undefined ? raw.lsShift : raw.ls, R.lsShift, 0);
     // Spacing replaces the three density steps: an older look or XO1 code keeps its spacing.
     out.space = clamp(raw.space !== undefined ? raw.space : DENSITY[raw.density], 0.5, 1.6, 1);
     out.chrome = clamp(raw.chrome, 0.5, 1.5, 1);
     out.zoom = clamp(raw.zoom, 25, 175, 100);
-    out.monoSize = clamp(raw.monoSize, 70, 150, 100);
-    out.monoLs = clamp(raw.monoLs, -0.05, 0.15, 0);
     out.wScale = Math.round(clamp(raw.wScale, 60, 150, 100));
     out.glassAlpha = clamp(raw.glassAlpha, 0, 60, 0);
     out.glassBlur = clamp(raw.glassBlur, 0, 30, 14);
@@ -219,8 +237,17 @@
     out.rPill = raw.rPill === null || raw.rPill === undefined ? null : clamp(raw.rPill, 0, 40, null);
     out.rDialog = raw.rDialog === null || raw.rDialog === undefined ? null : clamp(raw.rDialog, 0, 32, null);
     out.fs = {};
-    const rf = raw.fs && typeof raw.fs === 'object' ? raw.fs : {};
-    FS_ROLES.forEach(([k, def]) => { if (FS_STEPS.includes(rf[k]) && rf[k] !== def) out.fs[k] = rf[k]; });
+    const rf = raw.fs && typeof raw.fs === 'object' ? { ...raw.fs } : {};
+    if (!rf.code && (Number.isFinite(Number(raw.monoSize)) || Number.isFinite(Number(raw.monoLs)))) rf.code = { size: Number(raw.monoSize) / 100, ls: raw.monoLs };
+    Object.keys(TYPE_ROLES).forEach((k) => {
+      const def = TYPE_ROLES[k];
+      const v = typeof rf[k] === 'number' ? { size: rf[k] } : rf[k] && typeof rf[k] === 'object' ? rf[k] : {};
+      const part = {};
+      const size = Number(v.size);
+      if (Number.isFinite(size) && size > 0) { const n = Number(clamp(size, R.size[0], R.size[1], def.size).toFixed(4)); if (Math.abs(n - def.size) > 1e-4) part.size = n; }
+      ['weight', 'lh', 'ls'].forEach((p) => { const n = snap(v[p], R[p], def[p]); if (Math.abs(n - def[p]) > 1e-6) part[p] = n; });
+      if (Object.keys(part).length) out.fs[k] = part;
+    });
     out.colours = { light: {}, dark: {} };
     const rcol = raw.colours && typeof raw.colours === 'object' ? raw.colours : {};
     ['light', 'dark'].forEach((m) => {
@@ -365,10 +392,8 @@
     set('--fvs-head', fvs(look.head === 'same' ? look.body : look.head));
     set('--fvs-num', fvs(look.num === 'same' ? look.body : look.num));
     set('--fvs-mono', fvs(look.mono));
-    set('--mono-size', look.monoSize / 100); set('--mono-ls', look.monoLs + 'em');
     // The base size is a px number; app.css turns it into the root size (and grows it with the window when fluid is on).
     set('--base-n', look.base === null ? autoBase() : look.base);
-    set('--weight', look.weight); set('--lh', look.lh); set('--ls', look.ls + 'em');
     set('--radius', CORNERS[look.corners][0]); set('--pill', CORNERS[look.corners][1]);
     if (look.rCard !== null) set('--radius', look.rCard + 'px');
     if (look.rPill !== null) set('--pill', look.rPill >= 40 ? '999px' : look.rPill + 'px');
@@ -376,10 +401,19 @@
     set('--d', look.space); set('--chrome', look.chrome); set('--zoom', look.zoom / 100);
     set('--glass-alpha', look.glassAlpha / 100); set('--glass-blur', look.glassBlur + 'px');
     root.dataset.glass = look.glassAlpha > 0 ? 'on' : 'off';
-    FS_ROLES.forEach(([k]) => {
-      const prop = '--fs-' + k.replace(/_/g, '-');
-      if (look.fs[k]) set(prop, look.fs[k] + 'rem'); else root.style.removeProperty(prop);
+    // Every text style sets four variables (static/app.css reads them): size, weight (plus the shift), line height (times the
+    // multiplier) and letter spacing (plus the shift). The older --fw-light and friends move with the weight shift too.
+    const round = (n, p) => Number(n.toFixed(p));
+    const wt = (w) => Math.min(900, Math.max(100, Math.round(w + look.wShift)));
+    Object.keys(TYPE_ROLES).forEach((k) => {
+      const def = TYPE_ROLES[k], o = look.fs[k] || {}, id = k.replace(/_/g, '-');
+      set('--fs-' + id, (o.size ?? def.size) + 'rem');
+      set('--fw-' + id, wt(o.weight ?? def.weight));
+      set('--lh-' + id, round((o.lh ?? def.lh) * look.lhMul, 3));
+      set('--ls-' + id, round((o.ls ?? def.ls) + look.lsShift, 4) + 'em');
     });
+    set('--ls', round(look.lsShift + (look.fs.body?.ls ?? TYPE_ROLES.body.ls), 4) + 'em');
+    Object.entries({ light: 300, regular: 400, medium: 500, semibold: 600, bold: 700, detail: 350 }).forEach(([n, w]) => set('--fw-' + n, wt(w)));
     set('--rule', RULE[look.rule]); set('--loud', LOUD[look.loud]);
     const dark = look.mode === 'dark' || (look.mode === 'auto' && matchMedia('(prefers-color-scheme: dark)').matches);
     root.dataset.scheme = dark ? 'dark' : 'light';
@@ -501,7 +535,7 @@
         body: fonts[0], head: fonts[1], num: fonts[2],
         corners: pick(CHOICES.corners), rule: pick(CHOICES.rule), texture: pick(CHOICES.texture),
         hero: pick(CHOICES.hero), dayline: pick(CHOICES.dayline), loud: pick(CHOICES.loud), line: pick(['plain', 'quote']),
-      }); // size, weight, spacing, chrome, zoom, text sizes, colours, identity colours and mode are left as you set them
+      }); // size, weight, spacing, chrome, zoom, text styles, colours, identity colours and mode are left as you set them
     });
   }
 
@@ -534,7 +568,7 @@
 
   window.XOLook = {
     THEMES, FONTS, CHOICES, START_CHOICES, PATTERN_KINDS, SECTIONS, BLOCKS, COLOUR_RANGE, DEFAULT_LOOK,
-    FS_ROLES, FS_STEPS, COLOUR_GROUPS, COLOUR_TOKENS, SIZE_PRESETS, presetOf, stackOf, ensureFont,
+    TYPE_ROLES, TYPE_GROUPS, TYPE_RANGE, COLOUR_GROUPS, COLOUR_TOKENS, SIZE_PRESETS, presetOf, stackOf, ensureFont,
     get state() { return state; },
     get prefs() { return state.prefs; },
     get canUndo() { return undoStack.length > 0; },
