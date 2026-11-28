@@ -142,6 +142,20 @@ lists:
     reminder_off: Reminder off
     ticked: 'Ticked {count} of the last 7 days'
     empty: No routine yet. Add meals first.
+    phone:
+      ribbon: Jump to a part of the day
+      chip_morning: Morning
+      chip_afternoon: Afternoon
+      chip_evening: Evening
+      lead: Next routine item
+      next: Next up
+      all_done: Every routine item is ticked for today.
+      mark_done: 'Tick {name} for today'
+      fold_morning: Morning
+      fold_afternoon: Afternoon
+      fold_evening: Evening
+      fab: Add a routine item
+      new_tab: New routine item
   bills:
     heading: Bills
     add: Add bill

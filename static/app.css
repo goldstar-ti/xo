@@ -1116,4 +1116,26 @@ dialog.fab-sheet::backdrop { background: color-mix(in srgb, var(--c-backdrop) 55
   .tasks-fold .list { margin: 0; }
   .tasks-sheet { display: grid; gap: 0.9rem; }
   .tasks-sheet [role="group"] > .chips { margin-top: 0.35rem; }
+  .checkin-lead, .routine-lead, .plan-lead { margin-top: 0.75rem; padding: 0.75rem 1rem; background: var(--m-soft); border-radius: var(--radius); }
+  .checkin-fold, .routine-fold, .plan-fold { margin-top: 0.75rem; background: var(--m-soft); border-color: transparent; scroll-margin-top: 4.5rem; }
+  .checkin-lead .checkin-start, .checkin-fold .checkin-start { font-size: 1.1rem; }
+  .checkin-fold .checkin-past { max-width: none; }
+  .routine-lead .tasks-lead-row .link-row { flex: 1; min-width: 0; }
+  .routine-fold .list { margin: 0; }
+  .plan-lead-row { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; }
+  .plan-lead-q { margin: 0; font-size: 1.1rem; font-weight: var(--fw-semibold); overflow-wrap: anywhere; }
+  .plan-fold .hint { margin-top: 0; }
+  .plan-fold .field { margin-top: 1rem; }
+  .plan-sections .hint { margin: 0 0 0.5rem; }
+  .plan-fold .xo-disc-title .meta { white-space: nowrap; }
+  body[data-view="plan"] #view > .plan-progress { margin-top: 0.75rem; }
+  body[data-view="checkin"] #view > .ribbon { margin-top: 0.75rem; }
+  .checkin-progress { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 0.75rem; scroll-margin-top: 4.5rem; }
+  .checkin-progress .meta { white-space: nowrap; }
+  .checkin-nav { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+  .checkin-nav .xo-link { min-height: 2.5rem; display: inline-flex; align-items: center; font-size: 1.05rem; }
+  .checkin-nav .xo-link:last-child { margin-left: auto; }
+  .more-list .link-row { min-height: 3.25rem; }
+  :root[data-concept-nav="on"] .more-list .link-row-ico { color: var(--concept, var(--leaf)); }
 }
+.checkin-step[hidden], .checkin-progress[hidden], .checkin-nav[hidden], .checkin-nav [hidden], .checkin .savebar[hidden] { display: none; }

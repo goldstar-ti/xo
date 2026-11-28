@@ -117,8 +117,9 @@ function sideGrip() {
 const more = {
   live: false,
   render(root) {
+    // Each row carries its module colour for the icon (phone CSS), so the list reads as the module list.
     put(root, h('header', { class: 'page-head' }, h('h1', {}, t('app.more'))),
-      h('ul', { class: 'list links' }, NAV.filter(([k]) => isOn(k) && !tabs().includes(k)).map(([k, label]) => h('li', {},
+      h('ul', { class: 'list links more-list' }, NAV.filter(([k]) => isOn(k) && !tabs().includes(k)).map(([k, label]) => h('li', { style: `--concept: var(--concept-${k})` },
       linkRow({ icon: iconOf(k), title: label, sub: text('app.more_sub')[k], href: `#/${k}` })))));
   },
 };

@@ -238,3 +238,15 @@ plan:
     services_title: 'Services ({n} numbers)'
     empty: Not written yet.
     edit: Edit my plan
+  # The phone layout (below 40rem wide): chips, the next box, the sections folded up, and the Add button's sheet.
+  phone:
+    ribbon: Jump to a section
+    lead: Next box to write
+    lead_label: Next box
+    write: Write this box
+    all_written: Every box has something in it. Review it when you are ready.
+    fab: My plan card and sections
+    card_tab: Plan card
+    sections_tab: Sections
+    sections_hint: Choose a section to open it.
+    section_count: '{done} of {total}'

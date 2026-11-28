@@ -207,3 +207,17 @@ checkin:
     col_evening: Evening
     done: done
     open: Open
+  # The phone layout (below 40rem wide): chips, the check-in due now, fold-ups, and one question at a time.
+  phone:
+    ribbon: Jump to a check-in
+    chip_morning: Morning
+    chip_evening: Evening
+    chip_weekly: Weekly
+    chip_history: History
+    lead: Check-in due now
+    due_now: Due now
+    history: Last 10 days
+    progress_label: Progress through the check-in
+    step_of: 'Question {n} of {total}'
+    back: Back
+    next: Next

@@ -26,6 +26,12 @@ KIT = os.environ.get("XO_KIT", "xo")
 errors = []
 
 
+def unstep(page):
+    """On the phone a check-in shows one question at a time; show them all so the test can reach each control."""
+    page.wait_for_selector(".checkin")
+    page.evaluate("document.querySelectorAll('.checkin-step, .savebar').forEach((e) => { e.hidden = false; })")
+
+
 def set_control(el, value):
     """Fill one form control, whichever kit built it (Web Awesome controls are custom elements)."""
     tag = el.evaluate("e => e.tagName")
@@ -205,7 +211,9 @@ with sync_playwright() as p:
     # --- plan: choose a version, write boxes, open the card
     page.goto(f"{BASE}/#/plan")
     page.get_by_role("button", name="Plan with internet and device sections").click()
-    expect(page.locator(".plan-sec")).to_have_count(13)
+    expect(page.locator(".plan-sec, .plan-fold")).to_have_count(13)
+    # The phone folds its sections.
+    page.evaluate("document.querySelectorAll('.plan-fold').forEach((d) => { d.open = true; })")
     set_control(page.locator("#box-good_matters"), "Being someone my family can rely on.")
     set_control(
         page.locator("#box-signs"), "Three nights in a row awake past 2 am.\nCancelling on a friend twice in one week."
@@ -224,12 +232,14 @@ with sync_playwright() as p:
 
     # --- check-ins
     page.goto(f"{BASE}/#/checkin/morning")
+    unstep(page)
     page.get_by_role("button", name="6 to 7").click()
     page.get_by_role("button", name="tired", exact=True).click()
     page.get_by_role("button", name="one of them").click()
     page.get_by_role("button", name="Save check-in").click()
     expect(page.locator("h1")).to_contain_text(now.strftime("%-d %B"))
     page.goto(f"{BASE}/#/checkin/evening")
+    unstep(page)
     if KIT == "wa":
         page.locator("wa-checkbox", has_text="went outside").click()
     else:
@@ -282,6 +292,7 @@ with sync_playwright() as p:
         return page.expect_response(lambda r: r.url.endswith("/api/items/settings") and r.request.method == "PUT")
 
     page.goto(f"{BASE}/#/checkin/evening")
+    unstep(page)
     expect(page.locator(".chip-group h3", has_text="Negative").first).to_be_visible()
     page.goto(f"{BASE}/#/settings")
     rows = page.locator(".lookup-table tbody tr")
@@ -293,6 +304,7 @@ with sync_playwright() as p:
         page.keyboard.press("Tab")
     expect(page.locator("#view")).to_contain_text("You are using your own version of this list.")
     page.goto(f"{BASE}/#/checkin/evening")
+    unstep(page)
     expect(page.get_by_role("checkbox", name="fed the cat", exact=True)).to_have_count(1)
     expect(page.get_by_role("checkbox", name="moved my body or went for a walk", exact=True)).to_have_count(0)
     page.goto(f"{BASE}/#/settings")

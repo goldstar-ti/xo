@@ -12,7 +12,6 @@ import { addDays, daysBetween, fmtDay, fmtLong, fmtMoney, fmtTime, h, hm, relDay
 
 const fail = (err) => toast(err.message, 'bad');
 const cap = (value) => value.charAt(0).toUpperCase() + value.slice(1);
-const head = (title, ...actions) => h('header', { class: 'page-head' }, h('h1', {}, title), h('div', { class: 'actions' }, actions));
 const addBtn = (label, onclick, extra = '') => button([icon('tabler/plus'), label], { variant: 'ghost', class: `small add-btn ${extra}`.trim(), onclick });
 // A whole-row link that opens a form: the href keeps it a real link, the click opens the form instead.
 const openRow = (props, open) => {
@@ -65,19 +64,19 @@ export function diaryPart({ ahead = 0 } = {}) {
 // Below 40rem the Diary follows pattern C: a view switch (Agenda or Week), chips for Today, Tomorrow,
 // This week and Later, the next appointment as the lead card, and each other day folded up. diaryPart()
 // is the same on both; only render() lays it out.
-const PHONE = '(max-width: 39.99rem)';
+export const PHONE = '(max-width: 39.99rem)';
 const folds = {};
 let mode = 'agenda';
 let watching = null;
 
-function watchPhone(root, mq, view, marker) {
+export function watchPhone(root, mq, view, marker) {
   if (watching) watching.mq.removeEventListener('change', watching.fn);
   const fn = () => { if (root.isConnected && root.querySelector(marker)) { root.replaceChildren(); view.render(root); } };
   mq.addEventListener('change', fn);
   watching = { mq, fn };
 }
 
-function jump(id) {
+export function jump(id) {
   const el = document.getElementById(id);
   if (!el) return;
   if (el.localName === 'details' || el.localName === 'wa-details') el.open = true;
@@ -178,30 +177,92 @@ export const diary = {
   },
 };
 
+const byTime = (a, b) => a.data.time.localeCompare(b.data.time);
+
+// One routine row: its time, a whole-row link that opens its editor, and the seven-day dots.
+function routineRow(r, days) {
+  const meta = customMeta('routine', r.data.custom);
+  const sub = [r.data.active === false && t('lists.routine.reminder_off'), ...meta].filter(Boolean).join(', ');
+  // The row opens its editor; the href keeps it a real link.
+  const row = linkRow({ title: r.data.label, sub, href: '#/routine' });
+  row.addEventListener('click', (ev) => { ev.preventDefault(); editRoutine(r); });
+  return h('li', { class: r.data.active === false ? 'off' : '' },
+    h('span', { class: 't' }, fmtTime(r.data.time)),
+    row,
+    h('span', { class: 'dots', 'aria-label': t('lists.routine.ticked', { count: days.filter((d) => store.isTicked(r.id, d)).length }) },
+      days.map((d) => h('i', { class: store.isTicked(r.id, d) ? 'on' : '' }))));
+}
+
+const routineDays = () => [...Array(7)].map((_, i) => addDays(today(), i - 6));
+const routineList = (list) => h('ul', { class: 'list timed' }, list.map((r) => routineRow(r, routineDays())));
+
 /** The routine list with its seven-day dots, or an empty note. Returns one node. */
 export function routinePart() {
-  const list = store.byKind('routine').sort((a, b) => a.data.time.localeCompare(b.data.time));
-  const days = [...Array(7)].map((_, i) => addDays(today(), i - 6));
+  const list = store.byKind('routine').sort(byTime);
   if (!list.length) return h('p', { class: 'empty' }, t('lists.routine.empty'));
-  return h('ul', { class: 'list timed' }, list.map((r) => {
-    const meta = customMeta('routine', r.data.custom);
-    const sub = [r.data.active === false && t('lists.routine.reminder_off'), ...meta].filter(Boolean).join(', ');
-    // The row opens its editor; the href keeps it a real link.
-    const row = linkRow({ title: r.data.label, sub, href: '#/routine' });
-    row.addEventListener('click', (ev) => { ev.preventDefault(); editRoutine(r); });
-    return h('li', { class: r.data.active === false ? 'off' : '' },
-      h('span', { class: 't' }, fmtTime(r.data.time)),
-      row,
-      h('span', { class: 'dots', 'aria-label': t('lists.routine.ticked', { count: days.filter((d) => store.isTicked(r.id, d)).length }) },
-        days.map((d) => h('i', { class: store.isTicked(r.id, d) ? 'on' : '' }))));
-  }));
+  return routineList(list);
+}
+
+// Below 40rem Routine follows pattern C: no view switch; chips that jump to Morning, Afternoon and
+// Evening (before noon, noon to 5 pm, after); the next item still to tick as the lead card, with its tick
+// box; the three parts of the day folded up (first open); a sheet with New routine item.
+const routineFolds = {};
+const PARTS = [['morning', (time) => time < '12:00'], ['afternoon', (time) => time >= '12:00' && time < '17:00'], ['evening', (time) => time >= '17:00']];
+
+function renderRoutinePhone(root) {
+  const list = store.byKind('routine').sort(byTime);
+  const now = hm(new Date());
+  const todo = list.filter((r) => r.data.active !== false && !store.isTicked(r.id));
+  const lead = todo.find((r) => r.data.time >= now) || todo[0] || null;
+  const parts = PARTS.map(([k, test]) => [k, list.filter((r) => test(r.data.time))]).filter(([, items]) => items.length);
+  let leadNode = h('p', { class: 'empty' }, t('lists.routine.empty'));
+  if (lead) {
+    const box = tickBox({ checked: false, label: t('lists.routine.phone.mark_done', { name: lead.data.label }), onchange: () => store.setTick(lead.id, true).catch((err) => { box.checked = false; fail(err); }) });
+    const row = linkRow({ title: lead.data.label, sub: fmtTime(lead.data.time), href: '#/routine' });
+    row.addEventListener('click', (ev) => { ev.preventDefault(); editRoutine(lead); });
+    leadNode = h('section', { class: 'routine-lead', 'aria-label': t('lists.routine.phone.lead') },
+      h('p', { class: 'tasks-lead-label' }, t('lists.routine.phone.next')),
+      h('div', { class: 'tasks-lead-row' }, box, row));
+  } else if (list.length) leadNode = h('section', { class: 'routine-lead', 'aria-label': t('lists.routine.phone.lead') }, h('p', { class: 'note' }, t('lists.routine.phone.all_done')));
+  put(root,
+    h('header', { class: 'page-head', 'data-routine': '' }, h('h1', {}, t('lists.routine.heading'))),
+    h('nav', { class: 'ribbon', 'aria-label': t('lists.routine.phone.ribbon') },
+      PARTS.map(([k]) => {
+        const c = chip(t(`lists.routine.phone.chip_${k}`), { onclick: () => jump(`routine-${k}`), ...(parts.some(([p]) => p === k) ? {} : { disabled: true }) });
+        c.removeAttribute('aria-pressed');
+        return c;
+      })),
+    leadNode,
+    parts.map(([k, items], n) => {
+      const fold = disclosure(t(`lists.routine.phone.fold_${k}`), routineList(items), {
+        id: `routine-${k}`, badge: h('span', { class: 'meta' }, String(items.length)),
+        open: k in routineFolds ? routineFolds[k] : n === 0, onToggle: (o) => { if (o === (n === 0)) delete routineFolds[k]; else routineFolds[k] = o; },
+      });
+      fold.classList.add('routine-fold');
+      return fold;
+    }));
+  fabSheet({
+    label: t('lists.routine.phone.fab'),
+    icon: 'tabler/plus',
+    tabs: [
+      { key: 'new', label: t('lists.routine.phone.new_tab'), body: ({ close }) => h('ul', { class: 'fab-choices' },
+        h('li', {}, button([icon('tabler/clock-plus'), t('lists.routine.add')], { variant: 'ghost', class: 'fab-choice', onclick: () => { close(); editRoutine(); } }))) },
+    ],
+  });
 }
 
 export const routine = {
   live: true,
+  leave: dropFab,
   render(root) {
+    dropFab();
+    const mq = window.matchMedia(PHONE);
+    if (document.body.dataset.view === 'routine') {
+      watchPhone(root, mq, routine, '[data-routine]');
+      if (mq.matches) return renderRoutinePhone(root);
+    }
     put(root,
-      head(t('lists.routine.heading'), addBtn(t('lists.routine.add'), () => editRoutine())),
+      h('header', { class: 'page-head', 'data-routine': '' }, h('h1', {}, t('lists.routine.heading')), h('div', { class: 'actions' }, addBtn(t('lists.routine.add'), () => editRoutine()))),
       h('p', { class: 'note' }, t('lists.routine.note')),
       routinePart(),
     );

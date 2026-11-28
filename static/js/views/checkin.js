@@ -3,7 +3,7 @@ import { GUARD_TEXT, WEEKLY_QUESTIONS } from '../content.js';
 import * as lookups from '../lookups.js';
 import { addDays, fmtDay, fmtDuration, fmtLong, h, toast, today, withPhoneLinks, ymd, put } from '../util.js';
 import { allTasks, pickTask, saveTask } from '../taskdata.js';
-import { button, callout, chip, linkRow, playRing, plainLink, segmented, tickBox } from '../ui.js';
+import { button, callout, chip, disclosure, linkRow, playRing, plainLink, progress, segmented, tickBox } from '../ui.js';
 import { mdEditor } from '../mdeditor.js';
 import { plainText } from '../markdown.js';
 import { isOn } from '../modules.js';
@@ -12,6 +12,7 @@ import { customEditor } from '../customfields.js';
 import { checkinId, dayEntries } from './today.js';
 import { openPlanCard } from './plan.js';
 import { closeTabOf } from '../pane.js';
+import { PHONE, jump, watchPhone } from './lists.js';
 
 const SIGNS = text('checkin.signs_chips');
 const FUEL = text('checkin.fuel_chips');
@@ -223,24 +224,111 @@ function weekly(root, day, state) {
   );
 }
 
-function landing(root) {
-  const day = today();
+// A start row: the play ring and the check-in's name.
+const startRow = (type, extra) => h('div', { class: 'checkin-start' },
+  playRing({ label: t(`today.tick.start_${type}`), onclick: () => { location.hash = `#/checkin/${type}`; } }),
+  h('span', {}, t(`checkin.landing.${type}`)), extra);
+
+// The last ten days: a saved check-in says "done", an earlier day with none says "missed", and every row opens that check-in.
+function historyBody(day) {
   const days = [...Array(10)].map((_, i) => addDays(day, -i));
-  const start = (type) => h('div', { class: 'checkin-start' },
-    playRing({ label: t(`today.tick.start_${type}`), onclick: () => { location.hash = `#/checkin/${type}`; } }),
-    h('span', {}, t(`checkin.landing.${type}`)));
-  // A saved check-in says "done", an earlier day with none says "missed", and every row opens that check-in.
   const past = (type, d) => {
     const saved = !!store.get(checkinId(type, d));
     return linkRow({ title: t(`checkin.landing.${type}`), sub: saved ? t('checkin.landing.done') : d < day ? t('checkin.landing.missed') : '', href: `#/checkin/${type}/${d}` });
   };
+  return h('div', { class: 'checkin-past' }, days.map((d) => h('div', { class: 'checkin-day' },
+    h('h3', {}, fmtDay(d)), past('morning', d), past('evening', d))));
+}
+
+// Below 40rem the landing follows pattern C: chips, the check-in due now as the lead card (morning
+// before noon, evening after), the other check-ins and the last ten days folded up (first open).
+const folds = {};
+
+function landingPhone(root) {
+  const day = today();
+  const due = new Date().getHours() < 12 ? 'morning' : 'evening';
+  const savedToday = !!store.get(checkinId(due, day));
+  const others = ['morning', 'evening', 'weekly'].filter((k) => k !== due);
+  const sections = [...others.map((k) => [k, startRow(k)]), ['history', historyBody(day)]];
+  put(root,
+    h('header', { class: 'page-head', 'data-checkin-landing': '' }, h('h1', {}, t('checkin.landing.heading'))),
+    h('nav', { class: 'ribbon', 'aria-label': t('checkin.phone.ribbon') },
+      ['morning', 'evening', 'weekly', 'history'].map((k) => {
+        const c = chip(t(`checkin.phone.chip_${k}`), { onclick: () => jump(`checkin-${k}`) });
+        c.removeAttribute('aria-pressed');
+        return c;
+      })),
+    h('section', { class: 'checkin-lead', id: `checkin-${due}`, 'aria-label': t('checkin.phone.lead') },
+      h('p', { class: 'tasks-lead-label' }, t('checkin.phone.due_now')),
+      startRow(due, savedToday && h('span', { class: 'meta' }, t('checkin.landing.done')))),
+    sections.map(([k, body], n) => {
+      const fold = disclosure(k === 'history' ? t('checkin.phone.history') : t(`checkin.landing.${k}`), body, {
+        id: `checkin-${k}`, open: k in folds ? folds[k] : n === 0,
+        onToggle: (o) => { if (o === (n === 0)) delete folds[k]; else folds[k] = o; },
+      });
+      fold.classList.add('checkin-fold');
+      return fold;
+    }));
+}
+
+function landing(root) {
+  const day = today();
+  const onPage = document.body.dataset.view === 'checkin';
+  if (onPage) {
+    const mq = window.matchMedia(PHONE);
+    watchPhone(root, mq, { render }, '[data-checkin-landing]');
+    if (mq.matches) return landingPhone(root);
+  }
   put(root, 
     h('header', { class: 'page-head' }, h('h1', {}, t('checkin.landing.heading'))),
-    h('div', { class: 'stack checkin-starts' }, start('morning'), start('evening'), start('weekly')),
-    h('section', {}, h('h2', {}, t('checkin.landing.last_10')),
-      h('div', { class: 'checkin-past' }, days.map((d) => h('div', { class: 'checkin-day' },
-        h('h3', {}, fmtDay(d)), past('morning', d), past('evening', d))))),
+    h('div', { class: 'stack checkin-starts' }, startRow('morning'), startRow('evening'), startRow('weekly')),
+    h('section', {}, h('h2', {}, t('checkin.landing.last_10')), historyBody(day)),
   );
+}
+
+// Below 40rem a check-in shows one question at a time: a progress bar, Back and Next links, and the
+// save bar on the last question. Every answer stays in the same form, so Save still saves everything.
+let stepMq = null;
+let stepFn = null;
+
+function stepper(body, bar) {
+  const kids = [...body.children].filter((c) => c !== bar);
+  const steps = [];
+  let pending = [];
+  kids.forEach((c) => {
+    if (c.classList.contains('question') || c.classList.contains('shutdown')) { steps.push([...pending, c]); pending = []; } else pending.push(c);
+  });
+  if (pending.length) { if (steps.length) steps[steps.length - 1].push(...pending); else steps.push(pending); }
+  if (steps.length < 2) return;
+  const wraps = steps.map((nodes) => h('div', { class: 'checkin-step' }, nodes));
+  const last = wraps.length - 1;
+  let at = 0;
+  const head = h('div', { class: 'checkin-progress' });
+  const back = plainLink(t('checkin.phone.back'), { onclick: () => go(at - 1) });
+  const next = plainLink(t('checkin.phone.next'), { onclick: () => go(at + 1) });
+  const nav = h('div', { class: 'checkin-nav' }, back, next);
+  const mq = window.matchMedia(PHONE);
+  function draw() {
+    const on = mq.matches;
+    wraps.forEach((w, i) => { w.hidden = on && i !== at; });
+    head.hidden = nav.hidden = !on;
+    back.hidden = at === 0;
+    next.hidden = at === last;
+    bar.hidden = on && at !== last;
+    head.replaceChildren(progress((at + 1) / wraps.length, t('checkin.phone.progress_label')),
+      h('span', { class: 'meta' }, t('checkin.phone.step_of', { n: at + 1, total: wraps.length })));
+  }
+  function go(i) {
+    at = Math.min(last, Math.max(0, i));
+    draw();
+    head.scrollIntoView({ block: 'start' });
+  }
+  body.replaceChildren(head, ...wraps, nav, bar);
+  if (stepMq) stepMq.removeEventListener('change', stepFn);
+  stepMq = mq;
+  stepFn = () => { if (body.isConnected) draw(); };
+  mq.addEventListener('change', stepFn);
+  draw();
 }
 
 export function render(root, type, dayParam) {
@@ -253,4 +341,8 @@ export function render(root, type, dayParam) {
   const body = h('div', { class: 'checkin' });
   put(root, body);
   ({ morning, evening, weekly })[type](body, day, state);
+  if (document.body.dataset.view === 'checkin') {
+    const bar = body.querySelector(':scope > .savebar');
+    if (bar) stepper(body, bar);
+  }
 }

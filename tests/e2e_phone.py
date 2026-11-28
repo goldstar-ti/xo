@@ -230,6 +230,111 @@ with sync_playwright() as p:
     pg.set_viewport_size({"width": 390, "height": 844})
     expect(pg.locator(".fab")).to_be_visible()
 
+    # --- Check-ins: landing (chips, lead card, fold-ups) and one question at a time
+    pg.goto(BASE + "/#/checkin")
+    pg.wait_for_selector(".checkin-lead")
+    check_ribbon(pg)
+    expect(pg.locator(".ribbon")).to_contain_text("History")
+    expect(pg.locator("#view")).not_to_contain_text("checkin.")  # no missing wording keys
+    expect(pg.locator(".checkin-lead .xo-play")).to_be_visible()
+    assert pg.locator("details.checkin-fold").count() == 3
+    assert pg.locator("details.checkin-fold[open]").count() == 1  # only the first fold-up starts open
+    pg.locator(".ribbon").get_by_text("History").click()  # a chip opens its fold-up
+    expect(pg.locator("#checkin-history")).to_have_attribute("open", "")
+    expect(pg.locator(".fab")).to_have_count(0)  # no FAB on Check-ins
+    pg.goto(BASE + "/#/checkin/morning")
+    pg.wait_for_selector(".checkin-progress")
+    expect(pg.locator(".fab")).to_have_count(0)
+    steps = pg.locator(".checkin-step").count()
+    assert steps >= 3, steps
+    assert pg.locator(".checkin-step:visible").count() == 1
+    expect(pg.locator(".checkin-progress")).to_contain_text(f"Question 1 of {steps}")
+    expect(pg.get_by_role("button", name="Back")).to_be_hidden()
+    expect(pg.get_by_role("button", name="Save check-in")).to_be_hidden()
+    pg.get_by_role("button", name="Next").click()
+    expect(pg.locator(".checkin-progress")).to_contain_text(f"Question 2 of {steps}")
+    assert pg.locator(".checkin-step:visible").count() == 1
+    pg.get_by_role("button", name="Back").click()
+    expect(pg.locator(".checkin-progress")).to_contain_text(f"Question 1 of {steps}")
+    for _ in range(steps - 1):
+        pg.get_by_role("button", name="Next").click()
+    expect(pg.get_by_role("button", name="Save check-in")).to_be_visible()
+    expect(pg.get_by_role("button", name="Next")).to_be_hidden()
+    pg.set_viewport_size({"width": 1280, "height": 900})
+    expect(pg.locator(".checkin-progress")).to_be_hidden()
+    assert pg.locator(".checkin-step:visible").count() == steps  # wide: every question shows at once
+    expect(pg.get_by_role("button", name="Save check-in")).to_be_visible()
+    pg.set_viewport_size({"width": 390, "height": 844})
+
+    # --- My plan: chips, lead card (next box), fold-ups, Plan card and Sections sheet
+    pg.goto(BASE + "/#/plan")
+    pg.wait_for_selector(".plan-sec, .plan-fold, .big")
+    if pg.locator(".plan-fold").count() == 0:
+        pg.get_by_role("button", name="Plan with internet and device sections").click()
+    pg.wait_for_selector(".plan-fold")
+    expect(pg.locator(".plan-lead")).to_be_visible()
+    expect(pg.locator(".plan-lead .xo-play")).to_be_visible()
+    check_ribbon(pg)
+    expect(pg.locator("#view")).not_to_contain_text("plan.")  # no missing wording keys
+    assert pg.locator("details.plan-fold[open]").count() == 1  # the section with the next box starts open
+    pg.locator(".ribbon").get_by_text("My early warning signs").click()
+    expect(pg.locator("#sec-6")).to_have_attribute("open", "")
+    check_sheet(pg, ["Plan card", "Sections"], "Sections", ".plan-sections")
+    pg.locator(".fab").click()
+    pg.locator("dialog.fab-sheet").get_by_role("tab", name="Sections").click()
+    pg.locator("dialog.fab-sheet").get_by_role("link", name="2. My strengths and supports").click()
+    expect(pg.locator("dialog.fab-sheet")).to_have_count(0)
+    expect(pg.locator("#sec-2")).to_have_attribute("open", "")
+    pg.set_viewport_size({"width": 1280, "height": 900})
+    expect(pg.locator(".fab")).to_have_count(0)
+    expect(pg.locator(".ribbon")).to_have_count(0)
+    expect(pg.locator(".plan-sec")).to_have_count(13)
+    pg.set_viewport_size({"width": 390, "height": 844})
+    expect(pg.locator(".fab")).to_be_visible()
+
+    # --- Routine: chips, lead card with its tick box, fold-ups, New routine item sheet
+    pg.goto(BASE + "/#/routine")
+    pg.wait_for_selector(".fab")
+    for label, at in (("Phone walk", "08:00"), ("Phone tea", "15:00"), ("Phone read", "21:00")):
+        pg.locator(".fab").click()
+        pg.locator("dialog.fab-sheet").get_by_role("button", name="Add item").click()
+        form = pg.locator("dialog[open]")
+        form.locator("#f-label").fill(label)
+        form.locator("#f-time").fill(at)
+        form.get_by_role("button", name="Save").click()
+        expect(form).to_have_count(0)
+    expect(pg.locator(".routine-lead")).to_be_visible()
+    expect(pg.locator(".routine-lead .xo-tick, .routine-lead input[type=checkbox]").first).to_be_visible()
+    check_ribbon(pg)
+    expect(pg.locator(".ribbon")).to_contain_text("Afternoon")
+    expect(pg.locator("#view")).not_to_contain_text("lists.")  # no missing wording keys
+    expect(pg.get_by_role("radio")).to_have_count(0)  # no view switch
+    assert pg.locator("details.routine-fold").count() == 3
+    assert pg.locator("details.routine-fold[open]").count() == 1  # only the first fold-up starts open
+    pg.locator(".ribbon").get_by_text("Evening").click()
+    expect(pg.locator("#routine-evening")).to_have_attribute("open", "")
+    pg.locator(".fab").click()
+    sheet = pg.locator("dialog.fab-sheet")
+    expect(sheet.get_by_role("tab", name="New routine item")).to_be_visible()
+    pg.keyboard.press("Escape")
+    expect(sheet).to_have_count(0)
+    expect(pg.locator(".fab")).to_be_focused()
+    pg.set_viewport_size({"width": 1280, "height": 900})
+    expect(pg.locator(".fab")).to_have_count(0)
+    expect(pg.locator(".ribbon")).to_have_count(0)
+    expect(pg.locator(".page-head .add-btn")).to_be_visible()
+    pg.set_viewport_size({"width": 390, "height": 844})
+
+    # --- More: a list of the other screens with icons, no FAB, no chips
+    pg.goto(BASE + "/#/more")
+    pg.wait_for_selector(".more-list")
+    expect(pg.locator(".fab")).to_have_count(0)
+    expect(pg.locator(".ribbon")).to_have_count(0)
+    for name in ("Routine", "My plan", "Check-ins", "Bills"):
+        expect(pg.locator(".more-list").get_by_text(name, exact=True).first).to_be_visible()
+    assert pg.locator(".more-list .link-row-ico").count() >= 5
+    expect(pg.locator("#view")).not_to_contain_text("app.")  # no missing wording keys
+
     # Leaving a screen takes the FAB with it.
     pg.goto(BASE + "/#/settings")
     expect(pg.locator(".fab")).to_have_count(0)

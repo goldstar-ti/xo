@@ -112,7 +112,7 @@ with sync_playwright() as p:
     fill_form(page, {"label": "Evening walk", "time": "18:30"})
     page.goto(f"{BASE}/#/plan")
     page.get_by_role("button", name="Plan with internet and device sections").click()
-    expect(page.locator(".plan-sec")).to_have_count(13)
+    expect(page.locator(".plan-sec, .plan-fold")).to_have_count(13)
 
     # --- every screen, every kit, every width
     screens = [
@@ -123,6 +123,8 @@ with sync_playwright() as p:
         ("duties", "obligations", None),
         ("routine", "routine", None),
         ("checkin", "checkin/morning", None),
+        ("checkin-home", "checkin", None),
+        ("more", "more", None),
         ("plan", "plan", None),
         ("settings", "settings", None),
         ("appearance", "appearance", None),
