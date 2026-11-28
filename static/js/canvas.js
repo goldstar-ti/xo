@@ -1004,12 +1004,19 @@ export async function mountCanvas(root) {
     }, ico ? icon(ico) : null, label);
     const others = [...canvases].filter(([cid]) => cid !== activeId);
     // Only the tools the title bar had no room for; a tool that shows there is never repeated here.
-    const hidden = new Set([...itemEl(id)?.querySelectorAll('.xo-w-tools > [hidden]') || []].map((b) => b.dataset.tool));
+    // On a narrow widget (see the container query in canvas.css) the whole tool row, Roll up and Take off are hidden too,
+    // so the menu lists them all.
+    const goneAt = (sel) => { const b = itemEl(id)?.querySelector(sel); return !!b && getComputedStyle(b).display === 'none'; };
+    const allTools = goneAt('.xo-w-tools');
+    const hidden = new Set(allTools ? toolList(id).map((d) => d.key)
+      : [...itemEl(id)?.querySelectorAll('.xo-w-tools > [hidden]') || []].map((b) => b.dataset.tool));
     const x = iconButton('x', t('common.close'), { class: 'xo-menu-x' });
     x.addEventListener('click', () => closeMenu()?.focus());
     const el = h('div', { class: 'xo-menu', role: 'menu', 'aria-label': t('canvas.w_more', { name }) },
       h('div', { class: 'xo-menu-bar' }, x),
       toolList(id).filter((def) => hidden.has(def.key)).map((def) => entry(def.label, def.run, def.ico)),
+      goneAt('.xo-w-roll') ? entry(current().rolled[id] ? t('canvas.w_unroll') : t('canvas.w_roll'), () => toggleRoll(id), current().rolled[id] ? 'caret-down' : 'caret-up') : null,
+      goneAt('.xo-w-close') ? entry(t('canvas.w_close', { name }), () => closeWidget(id), 'x') : null,
       others.length ? h('p', { class: 'xo-menu-label', role: 'presentation' }, t('canvas.m_move_to')) : null,
       others.map(([cid, c]) => entry(c.title, () => moveTo(id, cid))));
     el.addEventListener('keydown', (e) => {

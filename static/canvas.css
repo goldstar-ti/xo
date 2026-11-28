@@ -56,6 +56,8 @@
   overflow: hidden;
 }
 .xo-board-list .xo-w { position: static; }
+/* The frame is a size container, so a widget's parts can adapt to its own width (the `w` container) at any window size. */
+.xo-w { container: w / inline-size; }
 .xo-w-head {
   display: flex; flex-wrap: nowrap; align-items: center; gap: 0.25rem;
   min-height: 2.5rem; padding: 0 0.25rem 0 0.85rem;
@@ -148,7 +150,7 @@
 /* ---- content widgets from the Bridge (static/js/bridgewidgets.js): their body class is cw-body ---- */
 .cw-body { container-type: inline-size; }
 .cw-body .next { padding: 0 0 0.5rem; border-top: 0; border-bottom: 0; }
-.cw-body .next-head { font-size: calc(1.875rem * var(--loud)); }
+.cw-body .next-head { font-size: clamp(1.2rem, 9cqi, calc(1.875rem * var(--loud))); overflow-wrap: anywhere; }
 .cw-body[data-past="fade"] .dayline .entry.past { opacity: 0.45; }
 .cw-body[data-past="hide"] .dayline .entry.past { display: none; }
 .cw-body .line, .cw-body .note, .cw-body .empty, .cw-body .nudge, .cw-body .stack, .cw-body .history { max-width: none; }
@@ -357,3 +359,21 @@ html[data-w-inner="hide"] .xo-w-body .xo-dup-head { display: none; }
 @container (max-width: 22rem) { .cw-answers-dl { grid-template-columns: 1fr; } .cw-answers-dl dd { margin-bottom: 0.35rem; } }
 
 .cw-scratch { display: block; width: 100%; min-height: 8rem; resize: vertical; }
+
+/* ---- narrow widgets (container `w`, the widget frame; rem follows the text size) ---- */
+/* Under 20rem the title bar keeps the title and the More menu: the tools, Roll up, the grip and Take off move into More.
+   The whole bar still drags the widget. */
+@container w (max-width: 20rem) {
+  .xo-w-tools, .xo-w-roll, .xo-w-grip, .xo-w-close { display: none; }
+  .xo-w-title { min-width: 0; }
+}
+/* Under 22rem a routine's seven dots go on their own line under its name, so the name keeps its width. */
+@container w (max-width: 22rem) {
+  .list.timed li:has(> .dots) { grid-template-columns: var(--time-col) minmax(0, 1fr); }
+  .list.timed li > .dots { grid-column: 2; padding: 0 0 0.5rem; }
+  .cw-rw li { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .cw-rw li.cw-rw-head > :first-child { display: none; }
+  .cw-rw-days { justify-items: start; padding-bottom: 0.4rem; }
+  .cw-4w li { grid-template-columns: 3.5rem repeat(7, minmax(0, 1fr)); }
+  .cw-4w-name { min-width: 0; line-height: 1.1; overflow-wrap: anywhere; }
+}

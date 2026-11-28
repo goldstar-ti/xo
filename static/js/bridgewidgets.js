@@ -147,7 +147,7 @@ export const BRIDGE_WIDGETS = [
   }],
 
   ['next', {
-    group: 'today', w: 8, h: 8, tick: 'minute', opts: [],
+    group: 'today', w: 8, h: 10, tick: 'minute', opts: [],
     draw(el) { put(el, blocksFor().next); },
   }],
   ['dayline', {
