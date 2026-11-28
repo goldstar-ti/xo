@@ -108,3 +108,6 @@ wa-color-picker { --grid-width: 14rem; }
 /* ui.js tag, progress and callout: keep Web Awesome's pill and bar on the XO tokens. */
 wa-progress-bar { --indicator-color: var(--leaf); --track-color: var(--line); }
 wa-callout [slot="icon"] { display: inline-flex; }
+
+/* Web Awesome draws wider letters, so the day line time column grows with the letter spacing. */
+:root[data-kit="wa"] { --time-col: calc(4.47rem + 9 * var(--ls, 0em)); }

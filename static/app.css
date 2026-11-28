@@ -200,6 +200,7 @@ button:disabled { opacity: 0.55; cursor: default; }
   :root[data-side="icons"] #app { grid-template-columns: calc(4.25rem * var(--chrome)) 1fr auto; }
   :root:not(.side-dragging) #app { transition: grid-template-columns 200ms ease; }
   .top, .tabs { display: none; }
+  .main { container: main / inline-size; }
   .side {
     display: flex; flex-direction: column; gap: 1.5rem;
     position: sticky; top: 0; height: 100dvh; padding: calc(2rem * var(--chrome)) calc(1.25rem * var(--chrome));
@@ -248,6 +249,13 @@ button:disabled { opacity: 0.55; cursor: default; }
   #view { padding: 2.5rem 3rem 4rem; }
 }
 :root[data-xo-motion="still"] #app { transition: none; }
+
+/* Diary on a wide main area: day groups flow into columns, read top to bottom, then across. Today and Duties keep their grids. */
+@container main (min-width: 84rem) {
+  body[data-view="diary"] #view { max-width: none; columns: 3 26rem; column-gap: 3rem; }
+  body[data-view="diary"] #view > :is(.page-head, .note, .empty) { column-span: all; }
+  body[data-view="diary"] #view > .group { break-inside: avoid; }
+}
 
 /* ---- the right pane (pane.js): tabs beside the main screen on a wide window ---- */
 .pane { display: none; }
@@ -349,7 +357,8 @@ details > summary { cursor: pointer; padding: 0.6rem 0; color: var(--leaf); font
 .dayline .entry.done .what, .dayline .entry.past.k-appt .what { color: var(--c-done); }
 .dayline .entry.missed .what::before { border-color: var(--c-missed); }
 .dayline .entry.missed .t { color: var(--c-missed); font-weight: 600; }
-.dayline li > :is(button, wa-button), .dayline li > a.tick { align-self: center; }
+.dayline li > :is(button, wa-button), .dayline li > a.tick { align-self: center; margin-block: 0.25rem; }
+.dayline .t { white-space: nowrap; }
 .dayline .now .t { color: var(--c-now); font-weight: 700; padding-top: 0.35rem; padding-bottom: 0.35rem; }
 .dayline .now-rule {
   grid-column: 2 / 4; display: flex; align-items: center; gap: 0.6rem;

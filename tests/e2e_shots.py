@@ -72,7 +72,7 @@ with sync_playwright() as p:
     browser = p.chromium.launch(
         executable_path=os.environ.get("XO_CHROME", "/usr/bin/google-chrome") or None, args=["--no-sandbox"]
     )
-    ctx = browser.new_context(viewport=SIZES["1280"], timezone_id=TZ, locale="en-AU")
+    ctx = browser.new_context(viewport=SIZES["1280"], timezone_id=TZ, locale="en-AU", reduced_motion="reduce")
     # This test uses Settings and check-ins as full screens, so the right pane is off (see e2e_pane.py).
     ctx.add_init_script("localStorage.setItem('xo-pane', JSON.stringify({ off: true }))")
     page = ctx.new_page()
@@ -143,6 +143,25 @@ with sync_playwright() as p:
             shot(page, kit, "task-form", width)
             page.keyboard.press("Escape")
             expect(page.locator("dialog[open]")).to_have_count(0)
+
+    # --- the pane on (no xo-pane value), xo kit only, at the two widest sizes
+    pane_ctx = browser.new_context(viewport=SIZES["1920"], timezone_id=TZ, locale="en-AU", reduced_motion="reduce")
+    pane_page = pane_ctx.new_page()
+    pane_page.on("console", lambda m: errors.append(m.text) if m.type == "error" and "401" not in m.text else None)
+    pane_page.on("pageerror", lambda e: errors.append(str(e)))
+    pane_page.goto(BASE)
+    set_control(pane_page.locator("#a-name"), "shotsuser")
+    set_control(pane_page.locator("#a-pass"), PASS)
+    pane_page.get_by_role("button", name="Sign in").click()
+    pane_page.locator(".dayline").wait_for(timeout=20000)
+    for width in ("1920", "5120"):
+        pane_page.set_viewport_size(SIZES[width])
+        for name in ("settings", "appearance"):
+            pane_page.goto(f"{BASE}/#/today")
+            ready(pane_page)
+            pane_page.goto(f"{BASE}/#/{name}")
+            pane_page.locator(".pane").wait_for(state="visible")
+            shot(pane_page, "xo-pane", name, width)
     browser.close()
 
 print("files written:", len(written))
