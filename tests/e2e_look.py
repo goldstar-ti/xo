@@ -105,7 +105,7 @@ with sync_playwright() as p:
     pg.locator("#p-call").blur()
     tab("layout")
     acc("spacing_size")
-    step_to("#d-size", 110)
+    step_to("#d-size", 14)
     st = pg.evaluate("JSON.parse(localStorage.getItem('xo-look'))")
     assert (
         st["base"]["hero"] == "banner"
@@ -115,17 +115,17 @@ with sync_playwright() as p:
         and st["base"]["texture"] == "grid"
         and st["prefs"]["clock24"]
         and st["prefs"]["callMe"] == "Captain"
-        and st["base"]["size"] == 110
+        and st["base"]["base"] == 14
     ), st
-    # stepped scale: an arrow key moves one step, a preset chip sets a common value, reset goes back (size is 110 here)
+    # stepped scale: an arrow key moves one step, a preset chip sets a value, reset goes back to auto (base 14 here)
     pg.locator("#d-size").focus()
-    pg.keyboard.press("ArrowRight")
-    assert pg.evaluate("JSON.parse(localStorage.getItem('xo-look'))")["base"]["size"] == 116
+    pg.keyboard.press("ArrowLeft")
+    assert pg.evaluate("JSON.parse(localStorage.getItem('xo-look'))")["base"]["base"] < 14
     pg.locator('[data-fk="d-size-preset-3"]').click()
-    assert pg.evaluate("JSON.parse(localStorage.getItem('xo-look'))")["base"]["size"] == 128
+    assert pg.evaluate("JSON.parse(localStorage.getItem('xo-look'))")["base"]["base"] == 20
     pg.locator('[data-fk="d-size-reset"]').click()
-    assert pg.evaluate("JSON.parse(localStorage.getItem('xo-look'))")["base"]["size"] == 100
-    step_to("#d-size", 110)
+    assert pg.evaluate("JSON.parse(localStorage.getItem('xo-look'))")["base"]["base"] is None
+    step_to("#d-size", 14)
     # my theme + look code round trip
     tab("theme")
     acc("fine_tune")
@@ -286,11 +286,11 @@ with sync_playwright() as p:
     expect(pg.locator('[data-key="text"] .badge')).to_have_count(0)
     # size presets: Large sets three fields; moving the Text size dial makes it Custom
     pg.locator('[data-fk="size:large"]').click()
-    assert pg.evaluate("XOLook.active().look.size") == 114
+    assert pg.evaluate("XOLook.active().look.base") == 16
     expect(pg.locator('[data-fk="size:custom"]')).to_have_count(0)
     tab("layout")
     acc("spacing_size")
-    step_to("#d-size", 110)
+    step_to("#d-size", 14)
     tab("text")
     expect(pg.locator('[data-fk="size:custom"]')).to_have_attribute("aria-checked", "true")
     pg.locator('[data-fk="size:regular"]').click()
@@ -532,7 +532,7 @@ with sync_playwright() as p:
     pg.wait_for_function(f"{motion} === 'still'")  # the device changed while Follow device was on
     # Fluid text: the root size grows with the window on a wide screen, and Off keeps the laptop size
     root_px = "parseFloat(getComputedStyle(document.documentElement).fontSize)"
-    pg.evaluate("XOLook.change((s, l) => { l.fluid = 'on'; l.size = 100; })")
+    pg.evaluate("XOLook.change((s, l) => { l.fluid = 'on'; l.base = null; })")
     sizes = {}
     for width in (1280, 1920, 3000, 5120):
         pg.set_viewport_size({"width": width, "height": 1400})
@@ -545,8 +545,8 @@ with sync_playwright() as p:
     pg.set_viewport_size({"width": 1280, "height": 1400})
     off_1280 = pg.evaluate(root_px)
     assert sizes[3000] > off_3000, (sizes, off_3000)
-    assert off_3000 == off_1280 == 17, (off_3000, off_1280)
-    assert sizes[1280] == 17 and sizes[5120] <= 28 and sizes[5120] > sizes[1920], sizes
+    assert off_3000 == off_1280 == 13, (off_3000, off_1280)
+    assert sizes[1280] == 13 and abs(sizes[5120] - 19.5) < 0.6 and sizes[5120] > sizes[1920], sizes
     back = pg.evaluate("XOLook.decode(XOLook.encode(XOLook.active().look)).fluid")
     assert back == "off", back
     code = pg.evaluate(
@@ -556,7 +556,7 @@ with sync_playwright() as p:
           return XOLook.decode(code).fluid;
         }"""
     )
-    assert code == "on", code
+    assert code == "off", code
     pg.evaluate("XOLook.change((s, l) => { l.fluid = 'on'; })")
     pg.set_viewport_size({"width": 1280, "height": 900})
     # Canvas widget dials: attributes and --w-scale follow the look, survive an XO2- code, and junk cleans to defaults
@@ -638,6 +638,38 @@ with sync_playwright() as p:
     assert pg.evaluate("XOLook.prefs.view") == "standard"
     tab("text")
     expect(pg.locator("#acc-text_sizes")).to_have_count(0)
+    # body text is 13 px on a desktop at base auto, and 16 px at phone width
+    pg.set_viewport_size({"width": 1280, "height": 900})
+    assert pg.evaluate("getComputedStyle(document.body).fontSize") == "13px"
+    # one-time move of a saved look onto Design 2: Ink, the new fonts, fluid off, auto base; other settings are kept
+    pg.evaluate(
+        """() => {
+          const f = XOLook.colourOf('foliage');
+          localStorage.setItem('xo-look', JSON.stringify({ v: 1, base: { theme: 'foliage', c: f, body: 'atkinson',
+            head: 'same', fluid: 'on', size: 100 }, prefs: { clock24: true } }));
+        }"""
+    )
+    pg.reload()
+    pg.wait_for_selector(".dayline")
+    st = pg.evaluate("JSON.parse(localStorage.getItem('xo-look'))")
+    assert st["v"] == 2 and st["prefs"]["clock24"] is True, st
+    assert st["base"]["theme"] == "ink" and st["base"]["body"] == "gsflex" and st["base"]["head"] == "intertight", st
+    assert st["base"]["fluid"] == "off" and st["base"]["base"] is None, st
+    assert pg.evaluate("document.documentElement.dataset.fluid") == "off"
+    # picking Foliage afterwards stays Foliage through a reload (the move runs once)
+    fresh()
+    tab("theme")
+    pg.locator('[data-fk="theme:foliage"]').click()
+    pg.reload()
+    pg.wait_for_selector(".look-screen")
+    assert pg.evaluate("JSON.parse(localStorage.getItem('xo-look')).base.theme") == "foliage"
+    # an old percent size converts to a base size, and fluid on at 5120 wide grows the root to about 19.5 px
+    assert pg.evaluate("XOLook.decode(XOLook.encode({ ...XOLook.defaultLook(), size: 114 })).base") == 15
+    pg.evaluate("XOLook.change((s, l) => { l.fluid = 'on'; l.base = null; })")
+    pg.set_viewport_size({"width": 5120, "height": 1400})
+    root_5k = pg.evaluate("parseFloat(getComputedStyle(document.documentElement).fontSize)")
+    assert abs(root_5k - 19.5) < 0.6, root_5k
+    pg.set_viewport_size({"width": 1280, "height": 900})
     b.close()
 print("errors:", errs or "none")
 assert not errs

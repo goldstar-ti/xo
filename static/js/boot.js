@@ -91,12 +91,14 @@
   ];
   const COLOUR_TOKENS = COLOUR_GROUPS.flatMap(([, tokens]) => tokens);
   const SIZE_PRESETS = {
-    compact: { size: 92, space: 0.75, chrome: 0.9 }, regular: { size: 100, space: 1, chrome: 1 },
-    comfortable: { size: 106, space: 1, chrome: 1 }, large: { size: 114, space: 1, chrome: 1.1 },
+    compact: { base: 12, space: 0.75, chrome: 0.9 }, regular: { base: 13, space: 1, chrome: 1 },
+    comfortable: { base: 14, space: 1, chrome: 1 }, large: { base: 16, space: 1, chrome: 1.1 },
   };
+  // Auto base size: 13 px with a mouse on a wide screen, 16 px on a phone or tablet.
+  const autoBase = () => (matchMedia('(min-width: 40rem) and (pointer: fine)').matches ? 13 : 16);
   const presetOf = (look) => Object.keys(SIZE_PRESETS).find((k) => {
     const p = SIZE_PRESETS[k];
-    return look.size === p.size && look.space === p.space && look.chrome === p.chrome;
+    return (look.base === p.base || (look.base === null && p.base === 13)) && look.space === p.space && look.chrome === p.chrome;
   }) || 'custom';
   const CATALOGUE_FONT = /^g:[a-z0-9-]{1,60}\|[A-Za-z0-9 ]{1,60}$/;
   const isFont = (v) => typeof v === 'string' && (!!FONTS[v] || CATALOGUE_FONT.test(v));
@@ -119,12 +121,12 @@
 
   const DEFAULT_LOOK = {
     mode: 'auto', theme: 'ink', c: colourOf('ink'), strength: 1,
-    body: 'gsflex', head: 'intertight', num: 'same', size: 100, weight: 400, lh: 1.5, ls: 0,
+    body: 'gsflex', head: 'intertight', num: 'same', base: null, weight: 400, lh: 1.5, ls: 0,
     space: 1, chrome: 1, zoom: 100, mono: 'mono', monoSize: 100, monoLs: 0,
     fs: {}, colours: { light: {}, dark: {} }, rCard: null, rPill: null, rDialog: null,
     glassAlpha: 0, glassBlur: 14, figure: 'plain', ident: { widgets: {}, tabs: {} },
     corners: 'round', density: 'regular', rule: 'fine', texture: 'none',
-    hero: 'plain', dayline: 'line', loud: 'regular', line: 'plain', kit: 'xo', axes: {}, motion: 'system', fluid: 'on', todayColour: 'module',
+    hero: 'plain', dayline: 'line', loud: 'regular', line: 'plain', kit: 'xo', axes: {}, motion: 'system', fluid: 'off', todayColour: 'module',
     wChrome: 'card', wHead: 'full', wTitleFont: 'head', wInner: 'hide', wScale: 100,
     // swatch is a palette slug ('' follows the accent); light and dark are its step 500 and step 300, copied in so it paints before the list loads.
     pattern: { kind: 'none', swatch: '', light: '', dark: '', pct: 12, seed: '' },
@@ -196,7 +198,11 @@
       Object.keys(v).slice(0, 12).forEach((tag) => { if (/^[A-Za-z]{4}$/.test(tag) && Number.isFinite(Number(v[tag]))) tags[tag] = clamp(v[tag], -1000, 10000, 0); });
       if (Object.keys(tags).length) out.axes[slug] = tags;
     });
-    out.size = clamp(raw.size, 85, 135, 100);
+    // base is the body size in px (null is auto). A stored percent size from before base existed converts once.
+    if (raw.base === null || raw.base === undefined) {
+      const pct = Number(raw.size);
+      out.base = Number.isFinite(pct) && pct !== 100 ? Math.round(clamp(Math.round(13 * clamp(pct, 85, 135, 100) / 100), 10, 24, 13)) : null;
+    } else out.base = Math.round(clamp(raw.base, 10, 24, 13));
     out.weight = clamp(raw.weight, 100, 900, 400);
     out.lh = clamp(raw.lh, 1.25, 1.9, 1.5);
     out.ls = clamp(raw.ls, -0.05, 0.15, 0);
@@ -252,9 +258,12 @@
   const isTime = (v) => typeof v === 'string' && /^([01]\d|2[0-3]):[0-5]\d$/.test(v);
   function cleanState(raw) {
     raw = raw && typeof raw === 'object' ? raw : {};
+    let base = cleanLook(raw.base);
+    // Design 2 (D-51) moves saved looks onto Ink, the new fonts and the new base size once.
+    if (raw.base && raw.v !== 2) base = cleanLook({ ...base, theme: 'ink', c: colourOf('ink'), body: 'gsflex', head: 'intertight', fluid: 'off', base: null });
     return {
-      v: 1,
-      base: cleanLook(raw.base),
+      v: 2,
+      base,
       scheduled: (Array.isArray(raw.scheduled) ? raw.scheduled : []).filter((s) => s && isTime(s.from) && isTime(s.to)).slice(0, 8)
         .map((s) => ({ id: text(s.id, 40, String(Math.random()).slice(2)), name: text(s.name, 30, 'Scheduled').trim() || 'Scheduled', from: s.from, to: s.to, look: cleanLook(s.look) })),
       myThemes: (Array.isArray(raw.myThemes) ? raw.myThemes : []).slice(0, 100).map((t) => {
@@ -266,7 +275,11 @@
   }
 
   let state;
-  try { state = cleanState(JSON.parse(localStorage.getItem('xo-look') || '{}')); } catch (e) { state = cleanState({}); }
+  try {
+    const stored = JSON.parse(localStorage.getItem('xo-look') || '{}');
+    state = cleanState(stored);
+    if (stored && stored.base && stored.v !== 2) save();
+  } catch (e) { state = cleanState({}); }
   let editing = null; // id of a scheduled look being edited outside its hours
   const undoStack = [];
   let lastKey = '';
@@ -353,8 +366,8 @@
     set('--fvs-num', fvs(look.num === 'same' ? look.body : look.num));
     set('--fvs-mono', fvs(look.mono));
     set('--mono-size', look.monoSize / 100); set('--mono-ls', look.monoLs + 'em');
-    // The Text size dial is a multiplier; app.css turns it into the root size (and grows it with the window when fluid is on).
-    set('--size', (look.size / 100).toFixed(3));
+    // The base size is a px number; app.css turns it into the root size (and grows it with the window when fluid is on).
+    set('--base-n', look.base === null ? autoBase() : look.base);
     set('--weight', look.weight); set('--lh', look.lh); set('--ls', look.ls + 'em');
     set('--radius', CORNERS[look.corners][0]); set('--pill', CORNERS[look.corners][1]);
     if (look.rCard !== null) set('--radius', look.rCard + 'px');
@@ -527,13 +540,14 @@
     get canUndo() { return undoStack.length > 0; },
     get editing() { return editing; },
     patternKey: () => patternKey(active().look),
-    active, scheduledNow, apply, change, undo, encode, decode, surprise, colourOf, exportThemes, importThemes,
+    autoBase, active, scheduledNow, apply, change, undo, encode, decode, surprise, colourOf, exportThemes, importThemes,
     defaultLook: () => cleanLook({}),
     setEditing(id) { editing = id; apply(); announce(false); },
     reset() { change((s) => { s.base = cleanLook({}); s.scheduled = []; s.prefs = cleanPrefs({}); }); editing = null; apply(); announce(false); },
   };
 
   apply();
+  matchMedia('(min-width: 40rem) and (pointer: fine)').addEventListener('change', apply);
   matchMedia('(prefers-color-scheme: dark)').addEventListener('change', apply);
   matchMedia('(prefers-reduced-motion: reduce)').addEventListener('change', apply);
   // Scheduled looks switch over on their own.

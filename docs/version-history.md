@@ -4,6 +4,7 @@
 
 | Version | Date | Change |
 |---|---|---|
+| 2.51.0 | 2026-11-28 | Body text is 13 px on a desktop and 16 px on a phone, set by a new base size in Appearance. Grow text with the window is off by default. Saved looks move once onto Ink and the new fonts. A stray brace in the stylesheet no longer drops a rule. |
 | 2.50.2 | 2026-11-28 | The Grow text with the window buttons show On and Off again, and each Weight and spacing control shows its name once. |
 | 2.50.1 | 2026-11-28 | A look change (dark mode, a scheduled look, or an Appearance edit) no longer clears a check-in being typed in the side pane. Yes and No filter chips for custom fields show their words instead of their text keys. |
 | 2.50.0 | 2026-11-28 | Check-ins, My plan, Routine and More on the phone follow pattern C. Check-ins: chips (Morning, Evening, Weekly, History), the check-in due now as the lead card with its play ring, the others and the last ten days folded up, and inside a check-in one question at a time with a progress bar, Back and Next, and Save check-in on the last question. My plan: a chip for each section, the next box to write as the lead card, the sections folded up with the next box's section open, and a round button whose sheet has the Plan card and Sections tabs. Routine: Morning, Afternoon and Evening chips, the next item to tick as the lead card, the parts of the day folded up, and a round Add button. More: each screen's icon in its module colour. Wider screens are unchanged. |

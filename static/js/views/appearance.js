@@ -138,7 +138,11 @@ function accentRow() {
       return el;
     }));
 }
-const sizeDial = () => dial(t('appearance.type.size'), { id: 'd-size', min: 85, max: 135, step: 1, value: look().size, def: L.DEFAULT_LOOK.size, unit: '%', presets: [['smaller', 92], ['standard', 100], ['larger', 114], ['largest', 128]], apply: (v, o) => setLook({ size: v }, o) });
+// The base size dial: whole px, with Auto (13 on a desktop, 16 on a phone) as its default. Choosing the auto figure stores null.
+const sizeDial = () => {
+  const auto = L.autoBase();
+  return dial(t('appearance.type.size'), { id: 'd-size', min: 10, max: 24, step: 1, value: look().base ?? auto, def: auto, unit: 'px', presets: [['smaller', 12], ['standard', 13], ['larger', 16], ['largest', 20]], apply: (v, o) => setLook({ base: v === auto ? null : v }, o) });
+};
 const modeSeg = () => seg(t('appearance.mode'), 'mode');
 
 // Standard and Advanced: an Advanced item is hidden in Standard unless it was changed from its default
@@ -166,7 +170,8 @@ function sizePresets() {
   const names = text('appearance.display');
   const opts = Object.keys(L.SIZE_PRESETS).map((k) => [k, names[k]]);
   if (cur === 'custom') opts.push(['custom', names.custom]);
-  return fkAll(segmented(t('appearance.display.size'), opts, { value: cur, onchange: (v) => { if (v !== 'custom') setLook(L.SIZE_PRESETS[v]); } }), 'size');
+  return h('div', { class: 'opt' }, fkAll(segmented(t('appearance.display.size'), opts, { value: cur, onchange: (v) => { if (v !== 'custom') setLook(L.SIZE_PRESETS[v]); } }), 'size'),
+    h('p', { class: 'hint' }, t('appearance.display.size_hint')));
 }
 
 // ---- quick panel ----
@@ -522,7 +527,8 @@ function build(lk, d) {
   });
   defAcc('text_sizes', 'text', A('text_sizes'), { reset: () => L.change((s, l) => { l.fs = {}; }) });
   const roles = text('appearance.text_sizes.roles');
-  const steps = L.FS_STEPS.map((v) => [String(v), t('appearance.text_sizes.step', { px: Math.round(v * 17) })]); // 17 px is XO's root size
+  const rootPx = parseFloat(getComputedStyle(document.documentElement).fontSize) || 13;
+  const steps = L.FS_STEPS.map((v) => [String(v), t('appearance.text_sizes.step', { px: Math.round(v * rootPx) })]);
   [['ts_headlines', ['display', 'page', 'quote', 'figure', 'dialog']], ['ts_headings', ['section', 'lead', 'brand', 'sub']],
     ['ts_body', ['body', 'large', 'label', 'control']], ['ts_small', ['small', 'small_btn', 'nav', 'tag', 'tiny']]].forEach(([sub, ks]) => {
     ks.forEach((k) => reg('text', 'text_sizes', roles[k], field(roles[k],
@@ -533,11 +539,11 @@ function build(lk, d) {
 
   // 3. Layout
   reg('layout', null, t('appearance.shape.corners'), cards(t('appearance.shape.corners'), 'corners', cornerSample), { changed: chg('corners') });
-  defAcc('spacing_size', 'layout', A('spacing_size'), { reset: () => L.change((s, l) => { ['space', 'chrome', 'zoom', 'size'].forEach((k) => { l[k] = d[k]; }); }) });
+  defAcc('spacing_size', 'layout', A('spacing_size'), { reset: () => L.change((s, l) => { ['space', 'chrome', 'zoom', 'base'].forEach((k) => { l[k] = d[k]; }); }) });
   reg('layout', 'spacing_size', t('appearance.display.spacing'), pct(t('appearance.display.spacing'), 'd-space', 'space', 0.5, 1.6, 0.05), { adv: true, changed: chg('space') });
   reg('layout', 'spacing_size', t('appearance.display.chrome'), pct(t('appearance.display.chrome'), 'd-chrome', 'chrome', 0.5, 1.5, 0.05), { adv: true, changed: chg('chrome') });
   reg('layout', 'spacing_size', t('appearance.display.zoom'), pct(t('appearance.display.zoom'), 'd-zoom', 'zoom', 25, 175, 5), { adv: true, changed: chg('zoom') });
-  reg('layout', 'spacing_size', t('appearance.type.size'), sizeDial(), { adv: true, changed: chg('size') });
+  reg('layout', 'spacing_size', t('appearance.type.size'), sizeDial(), { adv: true, changed: chg('base') });
   defAcc('radius', 'layout', A('radius'), { reset: () => L.change((s, l) => { Object.assign(l, { rCard: null, rPill: null, rDialog: null }); }) });
   const radius = (label, id, key, max, i, maxLabel) => {
     const def = CORNER_PX[lk.corners][i];

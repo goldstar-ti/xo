@@ -250,6 +250,7 @@ appearance:
   display:
     heading: Display
     size: Size
+    size_hint: Sets the body text size. Every other kind of text scales from it.
     compact: Compact
     regular: Regular
     comfortable: Comfortable
@@ -386,7 +387,7 @@ appearance:
     load_failed: The palettes could not be loaded. Check your connection and try again.
   fluid:
     label: Grow text with the window
-    hint: On wide screens, text grows with the window. Turn off to keep it the same size as on a laptop.
+    hint: On wide screens, text grows with the window, up to one and a half times the base size at 5K.
   widgets_look:
     chrome: Widget frame
     head: Widget title bar

@@ -353,7 +353,7 @@ with sync_playwright() as p:
     page.get_by_role("button", name="Sign in").click()
     expect(page.locator(".dayline .entry.done", has_text="Breakfast")).to_have_count(1, timeout=20000)
 
-    # --- phone rhythm at 390 px: slim header, 14 px tab labels, 26 px page title, no header overflow
+    # --- phone rhythm at 390 px: slim header, 13 px tab labels, 26 px page title, no header overflow
     page.set_viewport_size({"width": 390, "height": 844})
     expect(page.locator(".top")).to_be_visible()
     rhythm = page.evaluate(
@@ -366,7 +366,7 @@ with sync_playwright() as p:
     )
     assert rhythm["top"] <= 57, rhythm
     assert 13 <= rhythm["tab"] <= 15, rhythm
-    assert 27 <= rhythm["h1"] <= 29, rhythm
+    assert 25 <= rhythm["h1"] <= 29, rhythm
     assert rhythm["over"] <= 0, rhythm
     # a form is a full-screen sheet on a phone: its Save button sits at the bottom edge, above the footer padding
     page.goto(f"{BASE}/#/diary")

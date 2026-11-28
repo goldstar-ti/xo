@@ -87,11 +87,11 @@
 }
 
 * { box-sizing: border-box; }
-/* --size is the Text size dial (boot.js). With data-fluid="on" the root size also grows with the window
-   above 60rem: 17px up to about 1920 wide, 28px at most, so a large screen reads like a laptop. */
-html { font-size: calc(106.25% * var(--size, 1)); -webkit-text-size-adjust: 100%; }
+/* --base-n is the base text size in px, a unitless number set by boot.js (look.base, or 13 on a desktop and 16 on a phone).
+   With data-fluid="on" the root size also grows with the window above 60rem, up to 1.6 times the base size. */
+html { font-size: calc(var(--base-n, 13) * 1px); -webkit-text-size-adjust: 100%; }
 @media (min-width: 60rem) {
-  :root[data-fluid="on"] { font-size: calc(var(--size, 1) * clamp(1.0625rem, 0.6875rem + 0.3vw, 1.75rem)); }
+  :root[data-fluid="on"] { font-size: clamp(calc(var(--base-n, 13) * 1px), calc(var(--base-n, 13) * 0.68px + var(--base-n, 13) * 0.016vw), calc(var(--base-n, 13) * 1.6px)); }
 }
 button, input, select, textarea { letter-spacing: inherit; }
 body {
@@ -604,7 +604,6 @@ dialog.sheet::backdrop { background: color-mix(in srgb, var(--c-backdrop) 55%, t
 .dial-exact { font-size: var(--fs-small, 0.75rem); color: var(--muted); font-family: var(--font-num); }
 .dial > .xo-ctl { grid-column: 1 / -1; grid-row: 1; }
 .dial-ctl { grid-row: 2; grid-column: 1 / -1; justify-self: start; }
-}
 .dial-ctl { display: flex; align-items: center; gap: 0.5rem; }
 .dial-btn { min-width: 2.25rem; min-height: 2.25rem; padding: 0; border: var(--rule) solid var(--line); border-radius: var(--pill); background: transparent; color: var(--ink); font-size: var(--fs-body, 1rem); line-height: 1; }
 .dial-btn[hidden] { display: inline-block; visibility: hidden; }
