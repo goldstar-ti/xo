@@ -34,8 +34,20 @@ with sync_playwright() as p:
             else None
         ),
     )
+    fonts_ok = {}
+    page.on(
+        "response",
+        lambda r: (
+            fonts_ok.update({r.url.rsplit("/", 1)[-1]: r.status})
+            if r.url.endswith(("/fonts/google-sans-flex.woff2", "/fonts/inter-tight.woff2"))
+            else None
+        ),
+    )
     page.goto(BASE)
     page.wait_for_load_state("load")
+    page.evaluate("document.fonts.load('400 16px \"Google Sans Flex\"')")
+    page.evaluate("document.fonts.load('600 16px \"Inter Tight\"')")
+    page.wait_for_timeout(300)
 
     result = page.evaluate(
         """async () => {
@@ -264,6 +276,7 @@ print("console errors:", errors or "none")
 assert result["button"], "wa-button did not render"
 assert all(result["icons"]), "a wa-icon did not load its local SVG"
 assert result["daisyPrimary"] and result["daisyBase"], "daisyUI xo theme variables missing"
+assert fonts_ok == {"google-sans-flex.woff2": 200, "inter-tight.woff2": 200}, fonts_ok
 assert not offsite
 assert not errors
 print("KITS OK")

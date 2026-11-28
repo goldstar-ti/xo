@@ -31,6 +31,13 @@ with sync_playwright() as p:
     pg.get_by_role("button", name="Sign in").click()
     pg.wait_for_selector(".dayline", timeout=20000)
 
+    # a fresh look uses Google Sans Flex for the body and Inter Tight for headings, both from the app's own origin
+    body_fam = pg.evaluate("getComputedStyle(document.body).fontFamily").replace("'", "").replace('"', "")
+    assert body_fam.startswith("Google Sans Flex"), body_fam
+    head_fam = pg.evaluate("getComputedStyle(document.querySelector('h1')).fontFamily")
+    head_fam = head_fam.replace("'", "").replace('"', "")
+    assert head_fam.startswith("Inter Tight"), head_fam
+
     # quick panel
     def tab(key):
         pg.locator(f'[data-key="{key}"]').click()

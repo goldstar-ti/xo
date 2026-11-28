@@ -9,6 +9,8 @@
   font-display: swap;
 }
 
+@font-face { font-family: "Inter Tight"; src: url("/fonts/inter-tight.woff2") format("woff2"); font-weight: 100 900; font-style: normal; font-display: swap; }
+@font-face { font-family: "Google Sans Flex"; src: url("/fonts/google-sans-flex.woff2") format("woff2"); font-weight: 100 1000; font-style: normal; font-display: swap; }
 @font-face { font-family: "Lexend"; src: url("/fonts/lexend-latin.woff2") format("woff2"); font-weight: 100 900; font-style: normal; font-display: swap; }
 @font-face { font-family: "Fraunces"; src: url("/fonts/fraunces-latin.woff2") format("woff2"); font-weight: 100 900; font-style: normal; font-display: swap; }
 @font-face { font-family: "Space Grotesk"; src: url("/fonts/space-grotesk-latin.woff2") format("woff2"); font-weight: 300 700; font-style: normal; font-display: swap; }
@@ -18,8 +20,8 @@
   /* defaults = the Foliage theme; boot.js overwrites these from the saved look */
   --nh: 150; --nc: 0.006; --ah: 165; --ac: 0.075; --wh: 75; --wc: 0.12;
   --al: 0.42; --ad: 0.8; --pl: 0.965;
-  --font-body: "Atkinson Hyperlegible Next", system-ui, sans-serif;
-  --font-head: var(--font-body);
+  --font-body: "Google Sans Flex", system-ui, sans-serif;
+  --font-head: "Inter Tight", system-ui, sans-serif;
   --font-num: var(--font-body);
   --weight: 400; --lh: 1.5; --ls: 0em;
   --radius: 10px; --pill: 999px;

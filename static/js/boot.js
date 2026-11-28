@@ -25,6 +25,8 @@
   const COLOUR_RANGE = { nh: [0, 360], nc: [0, 0.05], ah: [0, 360], ac: [0, 0.22], wh: [0, 360], al: [0.14, 0.5], ad: [0.72, 0.96], pl: [0.88, 0.985] };
 
   const FONTS = {
+    intertight: { name: 'Inter Tight', stack: '"Inter Tight", system-ui, sans-serif' },
+    gsflex: { name: 'Google Sans Flex', stack: '"Google Sans Flex", system-ui, sans-serif' },
     atkinson: { name: 'Atkinson Hyperlegible', stack: '"Atkinson Hyperlegible Next", system-ui, sans-serif' },
     lexend: { name: 'Lexend', stack: '"Lexend", system-ui, sans-serif' },
     grotesk: { name: 'Space Grotesk', stack: '"Space Grotesk", system-ui, sans-serif' },
@@ -117,7 +119,7 @@
 
   const DEFAULT_LOOK = {
     mode: 'auto', theme: 'ink', c: colourOf('ink'), strength: 1,
-    body: 'atkinson', head: 'same', num: 'same', size: 100, weight: 400, lh: 1.5, ls: 0,
+    body: 'gsflex', head: 'intertight', num: 'same', size: 100, weight: 400, lh: 1.5, ls: 0,
     space: 1, chrome: 1, zoom: 100, mono: 'mono', monoSize: 100, monoLs: 0,
     fs: {}, colours: { light: {}, dark: {} }, rCard: null, rPill: null, rDialog: null,
     glassAlpha: 0, glassBlur: 14, figure: 'plain', ident: { widgets: {}, tabs: {} },
