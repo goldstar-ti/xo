@@ -6,7 +6,7 @@ import { h, uid } from './util.js';
 import { button, chip, field, input, select, tickBox } from './ui.js';
 
 /** Choice chips. options: [[value, label]]. A single set reads one value, a multi set reads an array. */
-export function chipSet(options, value, { multi = false } = {}) {
+export function chipSet(options, value, { multi = false, onchange } = {}) {
   let chosen = multi ? [...(value || [])] : value ?? '';
   const node = h('div', { class: 'chips' });
   const draw = () => {
@@ -17,6 +17,7 @@ export function chipSet(options, value, { multi = false } = {}) {
         onclick: () => {
           if (multi) chosen = on ? chosen.filter((x) => x !== v) : [...chosen, v];
           else chosen = v;
+          onchange?.(multi ? [...chosen] : chosen);
           draw();
         },
       });

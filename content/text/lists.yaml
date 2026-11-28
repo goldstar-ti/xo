@@ -119,6 +119,22 @@ lists:
     row_menu: 'More actions for {title}'
     screen_menu: More for tasks
     manage_note: Removing one takes its label off every task.
+    phone:
+      ribbon: Task filters
+      lead: Do this now
+      fab: Add a task
+      category_tab: Category
+      now_tab: Right now
+      title_label: Task
+      title_placeholder: What needs doing
+      no_categories: No categories yet. Add some under Categories and places.
+      add_task: Add task
+      est_options:
+        '10': 10 min
+        '20': 20 min
+        '30': 30 min
+        '60': 1 hour
+        '120': 2 hours
   routine:
     heading: Routine
     add: Add item

@@ -1084,4 +1084,19 @@ dialog.fab-sheet::backdrop { background: color-mix(in srgb, var(--c-backdrop) 55
   .diary-fold { margin-top: 0.75rem; background: var(--m-soft); border-color: transparent; scroll-margin-top: 4.5rem; }
   .diary-fold .group { margin-top: 0.5rem; }
   .diary-copy p { margin: 0 0 0.75rem; }
+  .ribbon-sep { display: flex; align-items: center; padding: 0 0.1rem 0 0.35rem; color: var(--muted); font-size: 0.8rem; }
+  .tasks-lead { margin-top: 0.75rem; padding: 0.75rem 1rem; background: var(--m-soft); border-radius: var(--radius); }
+  .tasks-lead-label { margin: 0 0 0.25rem; color: var(--muted); font-size: 0.8rem; font-weight: var(--fw-semibold); }
+  .tasks-lead-row { display: flex; align-items: center; gap: 0.5rem; }
+  .tasks-lead-row .row-main {
+    flex: 1; min-width: 0; min-height: 2.75rem; display: flex; flex-direction: column; justify-content: center; align-items: flex-start;
+    padding: 0.15rem 0; background: none; border: 0; text-align: left; font-weight: var(--fw-semibold); color: inherit;
+  }
+  .tasks-lead-row .row-main > span { overflow-wrap: anywhere; }
+  .tasks-lead-row .row-main > small { margin-top: 2px; font-size: 0.82rem; }
+  .tasks-lead-row .row-main > span { font-size: 1.1rem; font-weight: var(--fw-semibold); }
+  .tasks-fold { margin-top: 0.75rem; background: var(--m-soft); border-color: transparent; scroll-margin-top: 4.5rem; }
+  .tasks-fold .list { margin: 0; }
+  .tasks-sheet { display: grid; gap: 0.9rem; }
+  .tasks-sheet [role="group"] > .chips { margin-top: 0.35rem; }
 }

@@ -124,7 +124,49 @@ with sync_playwright() as p:
     pg.set_viewport_size({"width": 390, "height": 844})
     expect(pg.locator(".fab")).to_be_visible()
 
-    # Leaving Today takes the FAB with it.
+    # --- Tasks: view switch, filter ribbon, lead card, fold-ups, FAB and the two-tab New task sheet
+    pg.goto(BASE + "/#/tasks")
+    pg.wait_for_selector(".tasks-lead")
+    expect(pg.locator(".tasks-lead")).to_be_visible()
+    expect(pg.locator(".tasks-lead")).to_contain_text("Do this now")
+    for name in ("List", "Board", "Table"):
+        expect(pg.get_by_role("radio", name=name)).to_be_visible()
+    check_ribbon(pg)
+    expect(pg.locator(".ribbon")).to_contain_text("Focus I have now")
+    expect(pg.locator("#view")).not_to_contain_text("lists.")  # no missing wording keys
+    expect(pg.locator('[data-focus="task"]')).to_have_count(0)  # the quick add lives in the sheet
+    assert pg.locator("details.tasks-fold").count() >= 2
+    assert pg.locator("details.tasks-fold[open]").count() == 1  # only the first fold-up starts open
+    pg.locator(".ribbon").get_by_role("button", name="Full").click()  # a filter chip is a toggle
+    expect(pg.locator(".ribbon").get_by_role("button", name="Full")).to_have_attribute("aria-pressed", "true")
+    pg.locator(".ribbon").get_by_role("button", name="Full").click()
+    expect(pg.locator(".ribbon").get_by_role("button", name="Full")).to_have_attribute("aria-pressed", "false")
+    pg.get_by_role("radio", name="Board").click()
+    expect(pg.locator("details.tasks-fold")).to_have_count(3)
+    pg.get_by_role("radio", name="Table").click()
+    expect(pg.locator(".task-table")).to_be_visible()
+    pg.get_by_role("radio", name="List").click()
+    pg.wait_for_selector(".tasks-lead")
+    check_sheet(pg, ["Category", "Right now"], "Right now", "form[data-tab='now']")
+    # Add a task from the sheet: a title, a category chip and the main button.
+    pg.locator(".fab").click()
+    sheet = pg.locator("dialog.fab-sheet")
+    sheet.locator("input[data-focus='task']").fill("Phone sheet task")
+    sheet.get_by_role("tab", name="Right now").click()
+    # The draft is shared by both tabs.
+    expect(sheet.locator("input[data-focus='task']")).to_have_value("Phone sheet task")
+    sheet.get_by_role("button", name="Some focus").click()
+    sheet.get_by_role("button", name="Add task").click()
+    expect(sheet).to_have_count(0)
+    expect(pg.locator("li[data-task-id]", has_text="Phone sheet task")).to_have_count(1)
+    pg.set_viewport_size({"width": 1280, "height": 900})
+    expect(pg.locator(".fab")).to_have_count(0)
+    expect(pg.locator(".ribbon")).to_have_count(0)
+    expect(pg.locator('[data-focus="task"]')).to_be_visible()
+    pg.set_viewport_size({"width": 390, "height": 844})
+    expect(pg.locator(".fab")).to_be_visible()
+
+    # Leaving a screen takes the FAB with it.
     pg.goto(BASE + "/#/settings")
     expect(pg.locator(".fab")).to_have_count(0)
     b.close()

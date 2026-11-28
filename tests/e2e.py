@@ -161,8 +161,12 @@ with sync_playwright() as p:
     fill_form(page, {"what": "New phone number", "who": "Reporting officer"})
     page.screenshot(path=SHOTS / "05-obligations.png", full_page=True)
 
-    # --- tasks
+    # --- tasks (the desktop layout: the phone one is covered by tests/e2e_phone.py)
+    page.set_viewport_size({"width": 1280, "height": 1400})
+    # Forms open as dialogs, as on a phone.
+    page.evaluate("localStorage.setItem('xo-pane', JSON.stringify({ off: true }))")
     page.goto(f"{BASE}/#/tasks")
+    page.reload()
     for title in ["Reply to accountant", "Book dentist", "Renew car registration", "Tidy desk"]:
         set_control(page.locator('[data-focus="task"]'), title)
         page.keyboard.press("Enter")
@@ -179,6 +183,8 @@ with sync_playwright() as p:
     )
     expect(page.locator(".list li.done", has_text="Book dentist")).to_have_count(1)
     page.screenshot(path=SHOTS / "03-tasks.png", full_page=True)
+    page.evaluate("localStorage.removeItem('xo-pane')")
+    page.set_viewport_size({"width": 412, "height": 915})
 
     # --- bills
     page.goto(f"{BASE}/#/bills")

@@ -140,7 +140,9 @@ with sync_playwright() as p:
                 shot(page, kit, name, width)
             page.goto(f"{BASE}/#/tasks")
             ready(page)
-            page.locator(".list li", has_text="Reply to the accountant").locator(".row-main").click()
+            # The phone folds its lists.
+            page.evaluate("document.querySelectorAll('.tasks-fold').forEach((d) => { d.open = true; })")
+            page.locator("[data-task-id]", has_text="Reply to the accountant").first.locator(".row-main").first.click()
             expect(page.locator("dialog[open]")).to_have_count(1)
             shot(page, kit, "task-form", width)
             page.keyboard.press("Escape")

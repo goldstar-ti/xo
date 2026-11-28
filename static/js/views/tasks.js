@@ -4,6 +4,8 @@
 import { customMeta, defs, valueText } from '../customfields.js';
 import * as store from '../store.js';
 import { editTask } from '../forms.js';
+import { dropFab, fabSheet } from '../sheet.js';
+import { chipSet } from '../taskfields.js';
 import { matchKey } from '../keymap.js';
 import { isOn } from '../modules.js';
 import { openPalette, setScreenKeys } from '../palette.js';
@@ -12,7 +14,7 @@ import { ENERGIES, PRIORITIES, STATUSES, compareTasks, isBlocked, isStale, pace,
 import { t, text } from '../text.js';
 import { micButton } from '../voice.js';
 import { icon } from '../icons.js';
-import { button, checkbox, chip, field, focusControl, input, menu, plainLink, segmented, tickBox } from '../ui.js';
+import { button, checkbox, chip, disclosure, field, focusControl, input, menu, plainLink, segmented, tickBox } from '../ui.js';
 import { addDays, fmtDay, fmtDuration, h, openDialog, put, relDay, toast, today, uid } from '../util.js';
 
 export const live = true;
@@ -184,7 +186,9 @@ export function quickAdd(placeholder, extra, focusKey, { preview = false } = {})
 
 // ---- list ----
 
-function listView(visible, ctx, day) {
+// The list's sections as data, so the page, the widgets and the phone lay out the same lists.
+// Each is { id, title, list, empty, fold, note, opts }; a fold is a details block (stale, done, archived).
+function listParts(visible, ctx, day) {
   const staleDays = Number(store.settings().staleDays) || 0;
   const open = visible.filter((i) => i.data.status !== 'done');
   const picked = visible.filter((i) => i.data.today === day).sort(bySort);
@@ -196,9 +200,6 @@ function listView(visible, ctx, day) {
   const ready = todo.filter((i) => !waiting.includes(i));
   const soon = ready.filter((i) => i.data.due && i.data.due <= addDays(day, 7)).sort(bySort);
   const other = ready.filter((i) => !soon.includes(i)).sort(bySort);
-  const rows = (list, opts) => h('ul', { class: 'list' }, list.map((i) => taskRow(i, { ctx, ...(typeof opts === 'function' ? opts(i) : opts) })));
-  const section = (title, list, empty) => h('section', {}, h('h2', {}, title),
-    list.length ? rows(list) : empty && h('p', { class: 'empty' }, empty));
   // Done and Archived ignore the filters.
   const all = ctx.items;
   const done = all.filter((i) => i.data.status === 'done' && !i.data.archived && i.data.today !== day).sort(byDoneDesc).slice(0, DONE_MAX);
@@ -216,16 +217,24 @@ function listView(visible, ctx, day) {
   });
   const restore = (i) => ({ showPick: false, actions: [plainLink(t('lists.tasks.restore'), { onclick: () => saveTask(i.id, { ...i.data, archived: '' }).catch(fail) })] });
   return [
-    isOn('tasks.three') && section(t('lists.tasks.todays_three'), picked, t('lists.tasks.pick_empty')),
-    doing.length > 0 && section(t('lists.tasks.doing_heading'), doing),
-    soon.length > 0 && section(t('lists.tasks.due_week'), soon),
-    section(t('lists.tasks.ready'), other, open.length || picked.length ? null : t('lists.tasks.none_open')),
-    waiting.length > 0 && section(t('lists.tasks.waiting_heading'), waiting),
-    stale.length > 0 && h('details', {}, h('summary', {}, t('lists.tasks.review', { count: stale.length })),
-      h('p', { class: 'note' }, t('lists.tasks.review_note', { days: staleDays })), rows(stale.sort(bySort), reviewActions)),
-    done.length > 0 && h('details', {}, h('summary', {}, t('lists.tasks.done', { count: done.length })), rows(done, {})),
-    archived.length > 0 && h('details', {}, h('summary', {}, t('lists.tasks.archived', { count: archived.length })), rows(archived, restore)),
-  ];
+    isOn('tasks.three') && { id: 'three', title: t('lists.tasks.todays_three'), list: picked, empty: t('lists.tasks.pick_empty') },
+    doing.length > 0 && { id: 'doing', title: t('lists.tasks.doing_heading'), list: doing },
+    soon.length > 0 && { id: 'soon', title: t('lists.tasks.due_week'), list: soon },
+    { id: 'ready', title: t('lists.tasks.ready'), list: other, empty: open.length || picked.length ? null : t('lists.tasks.none_open'), ready: [...soon, ...other].sort(bySort) },
+    waiting.length > 0 && { id: 'waiting', title: t('lists.tasks.waiting_heading'), list: waiting },
+    stale.length > 0 && { id: 'stale', fold: true, title: t('lists.tasks.review', { count: stale.length }), note: t('lists.tasks.review_note', { days: staleDays }), list: stale.sort(bySort), opts: reviewActions },
+    done.length > 0 && { id: 'done', fold: true, title: t('lists.tasks.done', { count: done.length }), list: done, opts: {} },
+    archived.length > 0 && { id: 'archived', fold: true, title: t('lists.tasks.archived', { count: archived.length }), list: archived, opts: restore },
+  ].filter(Boolean);
+}
+
+const rowsFor = (ctx) => (list, opts) => h('ul', { class: 'list' }, list.map((i) => taskRow(i, { ctx, ...(typeof opts === 'function' ? opts(i) : opts) })));
+
+function listView(visible, ctx, day) {
+  const rows = rowsFor(ctx);
+  return listParts(visible, ctx, day).map((s) => (s.fold
+    ? h('details', {}, h('summary', {}, s.title), s.note && h('p', { class: 'note' }, s.note), rows(s.list, s.opts))
+    : h('section', {}, h('h2', {}, s.title), s.list.length ? rows(s.list, s.opts) : s.empty && h('p', { class: 'empty' }, s.empty))));
 }
 
 /** The list-mode sections with no filters: Today's three, Doing, Due this week, Ready, Waiting, stale review, Done, Archived. Returns an array of nodes (false where a section is empty or switched off). */
@@ -376,6 +385,144 @@ function filterBar(p, ctx, redraw) {
     anyFilter(p) && h('div', {}, plainLink(t('lists.tasks.filter.clear'), { onclick: () => set({ tags: [], focus: '', places: [], readyOnly: false, custom: {} }) })));
 }
 
+// ---- phone (pattern C) ----
+
+// Below 40rem the page is: a view switch, one ribbon of filter chips, the task to do now as the lead card,
+// the sections folded up (the first open) and a round Add button whose sheet has Category and Right now tabs.
+// The Tasks, Task board and Task table widgets and the desktop page keep the layout above.
+const PHONE = '(max-width: 39.99rem)';
+const folds = {};
+let watching = null;
+// The new-task sheet's draft: kept across tab switches and redraws, cleared once the task is added.
+const fresh = () => ({ title: '', tags: [], energy: '', places: [], est: '' });
+let draft = fresh();
+
+function watchPhone(root, param, mq) {
+  if (watching) watching.mq.removeEventListener('change', watching.fn);
+  const fn = () => { if (root.isConnected && root.querySelector('[data-tasks]')) { root.replaceChildren(); render(root, param); } };
+  mq.addEventListener('change', fn);
+  watching = { mq, fn };
+}
+
+/** Takes the FAB and the size watcher away when the screen goes. */
+export function leave() {
+  dropFab();
+  if (watching) watching.mq.removeEventListener('change', watching.fn);
+  watching = null;
+}
+
+function filterRibbon(p, ctx, redraw) {
+  const set = (patch) => { savePrefs(patch); redraw(); };
+  const toggle = (list, id) => (list.includes(id) ? list.filter((x) => x !== id) : [...list, id]);
+  const sep = (label) => h('small', { class: 'ribbon-sep' }, label);
+  const customFilters = defs('task').filter((d) => d.show !== false && (d.type === 'choice' || d.type === 'yesno'));
+  return h('nav', { class: 'ribbon', 'aria-label': t('lists.tasks.phone.ribbon') },
+    ctx.meta.tags.length > 0 && [sep(t('lists.tasks.filter.tags')), ctx.meta.tags.map((x) =>
+      chip(x.name, { pressed: p.tags.includes(x.id), onclick: () => set({ tags: toggle(p.tags, x.id) }) }))],
+    sep(t('lists.tasks.filter.focus')),
+    ['low', 'medium', 'high'].map((v) => chip(t(`lists.tasks.filter.focus_${v}`), { pressed: p.focus === v, onclick: () => set({ focus: p.focus === v ? '' : v }) })),
+    ctx.meta.places.length > 0 && [sep(t('lists.tasks.filter.places')), ctx.meta.places.map((x) =>
+      chip(x.name, { pressed: p.places.includes(x.id), onclick: () => set({ places: toggle(p.places, x.id) }) }))],
+    customFilters.map((def) => [sep(def.name), (def.type === 'yesno' ? [['yes', t('fields.yes')], ['no', t('fields.no')]] : (def.options || []).map((o) => [o, o])).map(([value, label]) => {
+      const chosen = p.custom[def.id] || [];
+      return chip(label, { pressed: chosen.includes(value), onclick: () => set({ custom: { ...p.custom, [def.id]: toggle(chosen, value) } }) });
+    })]),
+    isOn('tasks.dependencies') && chip(t('lists.tasks.filter.ready_only'), { pressed: p.readyOnly, onclick: () => set({ readyOnly: !p.readyOnly }) }),
+    anyFilter(p) && chip(t('lists.tasks.filter.clear'), { onclick: () => set({ tags: [], focus: '', places: [], readyOnly: false, custom: {} }) }));
+}
+
+/** The task to do now: the first of Today's three that is open, else the top ready task. */
+function pickLead(parts) {
+  const three = parts.find((s) => s.id === 'three');
+  const inThree = three?.list.find((i) => i.data.status !== 'done');
+  if (inThree) return inThree;
+  const doing = parts.find((s) => s.id === 'doing')?.list[0];
+  return doing || parts.find((s) => s.id === 'ready')?.ready[0] || null;
+}
+
+function leadCard(item, ctx) {
+  const d = item.data;
+  const picked = d.today === today();
+  const meta = metaParts(d, ctx);
+  const action = d.status === 'todo' && (picked || !isOn('tasks.three'))
+    ? button(t('lists.tasks.move.start'), { variant: 'primary', class: 'small pill', onclick: () => setStatus(item, 'doing').catch(fail) })
+    : d.status === 'todo' ? pickChip(item, d) : null;
+  return h('section', { class: 'tasks-lead', 'aria-label': t('lists.tasks.phone.lead'), 'data-task-id': item.id, tabindex: '-1' },
+    h('p', { class: 'tasks-lead-label' }, t('lists.tasks.phone.lead')),
+    h('div', { class: 'tasks-lead-row' },
+      tickBox({ checked: d.done, label: t('lists.shared.done_aria', { title: d.title }), onchange: () => toggleTask(item).catch(fail) }),
+      button([
+        h('span', {}, d.title),
+        d.step && h('small', {}, t('lists.shared.start_with', { step: d.step })),
+        meta.length > 0 && h('small', {}, meta.join(', ')),
+      ], { variant: 'row', class: 'row-main', onclick: () => editTask(item) }),
+      action));
+}
+
+function fold(id, title, body, first, badge) {
+  const el = disclosure(title, body, {
+    id: `tasks-fold-${id}`, badge: badge == null ? null : h('span', { class: 'meta' }, String(badge)),
+    open: id in folds ? folds[id] : first, onToggle: (o) => { folds[id] = o; },
+  });
+  el.classList.add('tasks-fold');
+  return el;
+}
+
+function listFolds(parts, ctx, lead) {
+  const rows = rowsFor(ctx);
+  const shown = parts.map((s) => ({ ...s, list: s.list.filter((i) => i !== lead) })).filter((s) => s.list.length || s.id === 'three');
+  return shown.map((s, n) => fold(`list-${s.id}`, s.title,
+    [s.note && h('p', { class: 'note' }, s.note), s.list.length ? rows(s.list, s.opts) : h('p', { class: 'empty' }, s.empty)], n === 0, s.list.length));
+}
+
+function boardFolds(visible, ctx) {
+  const day = today();
+  return STATUSES.map((status, n) => {
+    let mine = visible.filter((i) => i.data.status === status && (status !== 'done' || recentlyDone(i.data, day)));
+    mine = status === 'done' ? mine.sort(byDoneDesc).slice(0, BOARD_DONE_MAX) : mine.sort(bySort);
+    return fold(`board-${status}`, t(`lists.tasks.columns.${status}`),
+      mine.length ? h('div', { class: 'tw:grid tw:gap-2', 'data-status': status }, mine.map((i) => card(i, ctx))) : h('p', { class: 'empty' }, t('lists.tasks.column_empty')),
+      n === 0, mine.length);
+  });
+}
+
+// The New task sheet. Both tabs read and write the same draft and add through quickTask().
+function addTaskBody({ close }, tab) {
+  const meta = taskMeta();
+  const labelled = (list) => list.map((x) => [x.id, x.name]);
+  const box = input({ type: 'text', value: draft.title, placeholder: t('lists.tasks.phone.title_placeholder'), 'aria-label': t('lists.tasks.phone.title_label'), autocomplete: 'off', 'data-focus': 'task' });
+  box.addEventListener('input', () => { draft.title = box.value; });
+  const groups = tab === 'category'
+    ? [[t('lists.tasks.filter.tags'), meta.tags.length ? chipSet(labelled(meta.tags), draft.tags, { multi: true, onchange: (v) => { draft.tags = v; } }).node : h('p', { class: 'empty' }, t('lists.tasks.phone.no_categories'))]]
+    : [
+      [t('forms.task.labels.energy'), chipSet(Object.entries(text('forms.task.energies')), draft.energy, { onchange: (v) => { draft.energy = v; } }).node],
+      meta.places.length > 0 && [t('forms.task.labels.places'), chipSet(labelled(meta.places), draft.places, { multi: true, onchange: (v) => { draft.places = v; } }).node],
+      [t('forms.task.labels.est'), chipSet(Object.entries(text('lists.tasks.phone.est_options')), draft.est, { onchange: (v) => { draft.est = v; } }).node],
+    ].filter(Boolean);
+  const form = h('form', {
+    class: 'tasks-sheet',
+    'data-tab': tab,
+    onsubmit: async (e) => {
+      e.preventDefault();
+      if (!draft.title.trim()) { focusControl(box); return; }
+      const extra = {};
+      const parsed = parseQuick(draft.title, { today: today(), tags: meta.tags, places: meta.places });
+      if (draft.tags.length) extra.tags = [...new Set([...parsed.tags, ...draft.tags])];
+      if (draft.places.length) extra.places = [...new Set([...parsed.places, ...draft.places])];
+      if (draft.energy) extra.energy = draft.energy;
+      if (Number(draft.est) > 0) extra.est = Number(draft.est);
+      try {
+        await quickTask(draft.title, extra);
+        draft = fresh();
+        close();
+      } catch (err) { fail(err); }
+    },
+  }, field(t('lists.tasks.phone.title_label'), box),
+  groups.map(([label, node]) => h('div', { role: 'group', 'aria-label': label }, h('small', { class: 'tw:text-muted' }, label), node)),
+  button(t('lists.tasks.phone.add_task'), { variant: 'primary', type: 'submit' }));
+  return form;
+}
+
 // ---- categories and places ----
 
 // Takes a removed category or place off every task that carries it.
@@ -474,7 +621,11 @@ function stepFocus(root, dir) {
 function taskKeys(root, e) {
   const action = matchKey('tasks', e);
   if (!action) return false;
-  if (action === 'tasks.new') { focusControl(root.querySelector('[data-focus="task"]')); return true; }
+  if (action === 'tasks.new') {
+    const box = root.querySelector('[data-focus="task"]');
+    if (box) focusControl(box); else document.querySelector('.fab[data-fab]')?.click();
+    return true;
+  }
   if (action === 'tasks.next' || action === 'tasks.next_alt') { stepFocus(root, 1); return true; }
   if (action === 'tasks.prev' || action === 'tasks.prev_alt') { stepFocus(root, -1); return true; }
   const view = { 'tasks.view_list': 'list', 'tasks.view_board': 'board', 'tasks.view_table': 'table' }[action];
@@ -501,9 +652,12 @@ function taskKeys(root, e) {
 function redrawIn(root, param) {
   const page = root.id === 'view';
   const y = page ? window.scrollY : root.scrollTop;
+  const ribbon = root.querySelector('.ribbon')?.scrollLeft || 0;
   root.replaceChildren();
   render(root, param);
   if (page) window.scrollTo(0, y); else root.scrollTop = y;
+  const next = root.querySelector('.ribbon');
+  if (next) next.scrollLeft = ribbon;
 }
 
 /** Draws the Tasks screen. param is the view from the address (#/tasks/board); a widget keeps its own choice in root.dataset.tasksView. */
@@ -529,9 +683,18 @@ export function render(root, param) {
   });
   const visible = base.filter((i) => matches(i.data, p, ctx.byId));
   const hidden = base.length - visible.length;
-  const body = mode === 'board' ? boardView(visible, ctx) : mode === 'table' ? tableView(visible, ctx, redraw) : listView(visible, ctx, day);
+  const phone = page && window.matchMedia(PHONE).matches;
+  if (page) {
+    dropFab();
+    watchPhone(root, param, window.matchMedia(PHONE));
+  }
+  const parts = phone ? listParts(ctx.items.filter((i) => !i.data.archived && (i.data.status !== 'done' || i.data.today === day)).filter((i) => matches(i.data, p, ctx.byId)), ctx, day) : null;
+  const lead = phone ? pickLead(parts) : null;
+  const body = phone
+    ? mode === 'board' ? boardFolds(visible, ctx) : mode === 'table' ? tableView(visible, ctx, redraw) : listFolds(parts, ctx, lead)
+    : mode === 'board' ? boardView(visible, ctx) : mode === 'table' ? tableView(visible, ctx, redraw) : listView(visible, ctx, day);
   put(root,
-    h('header', { class: 'page-head' }, h('h1', {}, t('lists.tasks.heading')),
+    h('header', { class: 'page-head', 'data-tasks': '' }, h('h1', {}, t('lists.tasks.heading')),
       h('div', { class: 'actions' },
         views().length > 1 && segmented(t('lists.tasks.view_aria'), views().map((v) => [v, t(`lists.tasks.views.${v}`)]), { value: mode, onchange: setView }),
         menu({
@@ -541,10 +704,20 @@ export function render(root, param) {
             { label: t('lists.tasks.manage'), run: manage },
           ].filter(Boolean),
         }))),
-    quickAdd(t('lists.tasks.add_placeholder'), {}, 'task', { preview: true }),
-    filterBar(p, ctx, redraw),
+    phone ? filterRibbon(p, ctx, redraw) : quickAdd(t('lists.tasks.add_placeholder'), {}, 'task', { preview: true }),
+    phone ? (lead ? leadCard(lead, ctx) : h('p', { class: 'empty' }, t('lists.tasks.none_open'))) : filterBar(p, ctx, redraw),
     hidden > 0 && h('p', { class: 'note' }, t('lists.tasks.filter.hidden', { count: hidden })),
     body);
+  if (phone) {
+    fabSheet({
+      label: t('lists.tasks.phone.fab'),
+      icon: 'tabler/plus',
+      tabs: [
+        { key: 'category', label: t('lists.tasks.phone.category_tab'), body: (api) => addTaskBody(api, 'category') },
+        { key: 'now', label: t('lists.tasks.phone.now_tab'), body: (api) => addTaskBody(api, 'now') },
+      ],
+    });
+  }
   if (page) {
     setScreenKeys((e) => taskKeys(root, e), 'tasks');
     if (focused && focused.hash !== location.hash) focused = null;
