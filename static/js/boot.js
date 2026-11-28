@@ -48,6 +48,7 @@
     figure: ['plain', 'tint', 'accent', 'inset'],
     motion: ['system', 'reduce', 'full'], // Follow device, Reduce, Full
     fluid: ['on', 'off'], // Grow text with the window on wide screens
+    todayColour: ['module', 'ink'], // Today and the Canvas in their module colour, or in the theme ink
     // Canvas widget styles (static/canvas.css), per device like the rest of the look.
     wChrome: ['card', 'outline', 'flat', 'stripe'], // Widget frame
     wHead: ['full', 'slim', 'none'], // Widget title bar
@@ -64,10 +65,10 @@
   const LOUD = { quiet: 0.82, regular: 1, loud: 1.32 };
 
   // Text-size roles: [key, default rem]. Labels live in content/text/appearance.yaml.
-  const FS_ROLES = [['display', 2.25], ['page', 1.53], ['quote', 1.5], ['figure', 1.5], ['dialog', 1.375], ['section', 0.9375], ['lead', 1],
-    ['brand', 1.125], ['sub', 1], ['body', 1], ['large', 1.0625], ['label', 0.9375], ['control', 0.9375], ['small', 0.875], ['small_btn', 0.875],
+  const FS_ROLES = [['display', 2.25], ['page', 1.65], ['quote', 1.5], ['figure', 1.5], ['dialog', 1.375], ['section', 0.9375], ['lead', 1],
+    ['brand', 1.125], ['sub', 1], ['body', 1], ['large', 1.0625], ['label', 0.9375], ['control', 0.9375], ['small', 0.75], ['small_btn', 0.875],
     ['nav', 0.8125], ['tag', 0.75], ['tiny', 0.6875]];
-  const FS_STEPS = [0.6875, 0.75, 0.8125, 0.875, 0.9375, 1, 1.0625, 1.125, 1.25, 1.375, 1.5, 1.53, 1.75, 2, 2.25, 2.75, 3.25];
+  const FS_STEPS = [0.6875, 0.75, 0.8125, 0.875, 0.9375, 1, 1.0625, 1.125, 1.25, 1.375, 1.5, 1.53, 1.65, 1.75, 2, 2.25, 2.75, 3.25];
   // Colour tokens by group, in the order Appearance shows them: [groupKey, [token, ...]]. The first two groups are the
   // base colours; the rest are component colours (static/app.css) that start as a base colour. Names live in appearance.yaml.
   const COLOUR_GROUPS = [
@@ -115,13 +116,13 @@
   const colourOf = (id) => { const t = THEMES[id] || THEMES.foliage; const c = {}; COLOUR_KEYS.forEach((k) => { c[k] = t[k]; }); return c; };
 
   const DEFAULT_LOOK = {
-    mode: 'auto', theme: 'foliage', c: colourOf('foliage'), strength: 1,
+    mode: 'auto', theme: 'ink', c: colourOf('ink'), strength: 1,
     body: 'atkinson', head: 'same', num: 'same', size: 100, weight: 400, lh: 1.5, ls: 0,
     space: 1, chrome: 1, zoom: 100, mono: 'mono', monoSize: 100, monoLs: 0,
     fs: {}, colours: { light: {}, dark: {} }, rCard: null, rPill: null, rDialog: null,
     glassAlpha: 0, glassBlur: 14, figure: 'plain', ident: { widgets: {}, tabs: {} },
     corners: 'round', density: 'regular', rule: 'fine', texture: 'none',
-    hero: 'plain', dayline: 'line', loud: 'regular', line: 'plain', kit: 'xo', axes: {}, motion: 'system', fluid: 'on',
+    hero: 'plain', dayline: 'line', loud: 'regular', line: 'plain', kit: 'xo', axes: {}, motion: 'system', fluid: 'on', todayColour: 'module',
     wChrome: 'card', wHead: 'full', wTitleFont: 'head', wInner: 'hide', wScale: 100,
     // swatch is a palette slug ('' follows the accent); light and dark are its step 500 and step 300, copied in so it paints before the list loads.
     pattern: { kind: 'none', swatch: '', light: '', dark: '', pct: 12, seed: '' },
@@ -287,6 +288,9 @@
   function colourOverrides(colours) {
     let el = document.getElementById('xo-colour-overrides');
     if (!el) { el = document.createElement('style'); el.id = 'xo-colour-overrides'; document.head.appendChild(el); }
+    // A button or chip colour the owner set wins over the module colour (app.css reads data-own-buttons).
+    const own = ['light', 'dark'].some((m) => ['c-primary-bg', 'c-primary-ink', 'c-chip-on-bg', 'c-chip-on-ink'].some((k) => colours[m][k]));
+    if (own) document.documentElement.dataset.ownButtons = 'on'; else delete document.documentElement.dataset.ownButtons;
     el.textContent = ['light', 'dark'].map((m) => {
       const rules = COLOUR_TOKENS.filter((k) => colours[m][k]).map((k) => '--' + k + ':' + colours[m][k] + ';').join('');
       return rules ? ':root[data-scheme="' + m + '"]{' + rules + '}' : '';
@@ -371,6 +375,7 @@
     root.dataset.kit = look.kit;
     root.dataset.figure = look.figure;
     root.dataset.fluid = look.fluid;
+    root.dataset.todayColour = look.todayColour;
     root.dataset.wChrome = look.wChrome;
     root.dataset.wHead = look.wHead;
     root.dataset.wTitleFont = look.wTitleFont;

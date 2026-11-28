@@ -39,13 +39,13 @@
 import * as store from './store.js';
 import { loadGridStack } from './grid.js';
 import { ariaKeys, keyFor, matchKey, setScope } from './keymap.js';
-import { VALUE_RE, icon, iconButton, setIcon, setLabel } from './icons.js';
+import { DEFAULT_ICONS, VALUE_RE, icon, iconButton, setIcon, setLabel } from './icons.js';
 import { openPopover } from './popover.js';
 import { tabSet, tabStrip } from './tabs.js';
 import { t } from './text.js';
 import { button, checkbox, field, searchBox, textarea } from './ui.js';
 import { dialogOpen, h, motionStill, openForm, toast, uid } from './util.js';
-import { widgetOn } from './modules.js';
+import { moduleOfWidget, widgetOn } from './modules.js';
 import { WIDGETS, cleanOpts, optsFor, typeOf } from './widgets.js';
 
 const COLUMNS = 24;
@@ -442,7 +442,9 @@ export async function mountCanvas(root) {
       if (def.pressed) b.setAttribute('aria-pressed', 'true');
       return b;
     }));
+    const mod = moduleOfWidget(id);
     const head = h('div', { class: 'xo-w-head' },
+      mod && DEFAULT_ICONS[mod] && h('span', { class: 'xo-w-ico', 'aria-hidden': 'true' }, icon(DEFAULT_ICONS[mod])),
       h('h2', { class: 'xo-w-title' }, title),
       phone.matches ? null : tools,
       phone.matches ? null : h('span', { class: 'xo-w-actions' },
@@ -457,7 +459,7 @@ export async function mountCanvas(root) {
     }
     const body = h('div', { class: 'xo-w-body' });
     const content = h('section', { class: 'grid-stack-item-content xo-w', 'aria-label': title }, head, body);
-    const item = h('div', { class: rolled ? 'grid-stack-item xo-w-rolled' : 'grid-stack-item', 'gs-id': id, 'data-widget': id }, content);
+    const item = h('div', { class: rolled ? 'grid-stack-item xo-w-rolled' : 'grid-stack-item', 'gs-id': id, 'data-widget': id, ...(mod ? { 'data-module': mod } : {}) }, content);
     const done = renderWidget(id, body, ctxFor(id));
     if (done) cleanups.set(id, done);
     watchHeadings(id, body);

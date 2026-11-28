@@ -44,12 +44,12 @@ export function dayEntries(day = today()) {
   const out = [];
   for (const r of isOn('routine') ? store.byKind('routine') : []) {
     if (r.data.active === false) continue;
-    out.push({ time: r.data.time, label: r.data.label, kind: 'tick', ref: r.id, done: store.isTicked(r.id, day) });
+    out.push({ time: r.data.time, label: r.data.label, kind: 'tick', mod: 'routine', ref: r.id, done: store.isTicked(r.id, day) });
   }
   for (const o of isOn('obligations') ? store.byKind('obligation') : []) {
     const d = o.data;
     if (d.schedule === 'daily' || (d.schedule === 'weekly' && Number(d.weekday) === weekday))
-      out.push({ time: d.time, label: d.title, kind: 'tick', ref: o.id, done: store.isTicked(o.id, day), href: '#/obligations' });
+      out.push({ time: d.time, label: d.title, kind: 'tick', mod: 'obligations', ref: o.id, done: store.isTicked(o.id, day), href: '#/obligations' });
   }
   for (const a of isOn('diary') ? store.byKind('appointment') : []) {
     if (a.data.date !== day) continue;
@@ -57,20 +57,20 @@ export function dayEntries(day = today()) {
     const bits = [];
     if (tm.ready < tm.leave) bits.push(t('lists.shared.get_ready', { time: fmtTime(tm.ready) }));
     if (tm.leave < tm.start) bits.push(t('lists.shared.leave', { time: fmtTime(tm.leave) }));
-    out.push({ time: a.data.time, label: a.data.title, kind: 'appt', item: a, times: tm, sub: [bits.join(', ').replace(/^./, (c) => c.toUpperCase()), a.data.where].filter(Boolean).join('. ') });
+    out.push({ time: a.data.time, label: a.data.title, kind: 'appt', mod: 'diary', item: a, times: tm, sub: [bits.join(', ').replace(/^./, (c) => c.toUpperCase()), a.data.where].filter(Boolean).join('. ') });
   }
   const pace = currentPace();
   for (const task of isOn('tasks.timeblocks') ? allTasks() : []) {
     const d = task.data;
     if (d.today !== day || !d.at || d.archived) continue;
-    out.push({ time: d.at, label: d.title, kind: 'task', item: task, done: d.done, sub: d.est > 0 ? t('lists.shared.allow', { duration: fmtDuration(d.est * pace) }) : '' });
+    out.push({ time: d.at, label: d.title, kind: 'task', mod: 'tasks', item: task, done: d.done, sub: d.est > 0 ? t('lists.shared.allow', { duration: fmtDuration(d.est * pace) }) : '' });
   }
   if (isOn('checkin')) {
-    out.push({ time: s.morningAt, label: t('today.entries.morning_checkin'), kind: 'checkin', type: 'morning', done: !!store.get(checkinId('morning', day)) });
-    out.push({ time: s.eveningAt, label: t('today.entries.evening_checkin'), kind: 'checkin', type: 'evening', done: !!store.get(checkinId('evening', day)) });
+    out.push({ time: s.morningAt, label: t('today.entries.morning_checkin'), kind: 'checkin', mod: 'checkin', type: 'morning', done: !!store.get(checkinId('morning', day)) });
+    out.push({ time: s.eveningAt, label: t('today.entries.evening_checkin'), kind: 'checkin', mod: 'checkin', type: 'evening', done: !!store.get(checkinId('evening', day)) });
   }
   if (isOn('checkin') && weekday === Number(s.weeklyDay))
-    out.push({ time: s.weeklyAt, label: t('today.entries.weekly_review'), kind: 'checkin', type: 'weekly', done: !!store.get(checkinId('weekly', day)) });
+    out.push({ time: s.weeklyAt, label: t('today.entries.weekly_review'), kind: 'checkin', mod: 'checkin', type: 'weekly', done: !!store.get(checkinId('weekly', day)) });
   return out.sort((a, b) => a.time.localeCompare(b.time));
 }
 
@@ -148,7 +148,7 @@ export function todayBlocks({ day = today(), horizon = 7 } = {}) {
       ? h('a', { class: 'tick on', href: `#/checkin/${e.type}` }, tag(t('today.done'), 'accent'))
       : off ? button(t('today.tick.start'), { class: 'tick', disabled: true }) : h('a', { class: 'tick', href: `#/checkin/${e.type}` }, t('today.tick.start'));
     else action = button(t('today.tick.edit'), { class: 'small', onclick: () => editAppointment(e.item) });
-    rows.push(h('li', { class: `entry k-${e.kind}${e.done ? ' done' : ''}${past ? ' past' : ''}${missed ? ' missed' : ''}${e.ref && e.ref === popped ? ' pop' : ''}` },
+    rows.push(h('li', { 'data-module': e.mod, class: `entry k-${e.kind}${e.done ? ' done' : ''}${past ? ' past' : ''}${missed ? ' missed' : ''}${e.ref && e.ref === popped ? ' pop' : ''}` },
       h('span', { class: 't' }, fmtTime(e.time)),
       h('span', { class: 'what' }, e.href ? h('a', { href: e.href }, e.label) : e.label, e.sub && h('small', {}, e.sub)),
       action));

@@ -108,6 +108,36 @@ with sync_playwright() as p:
     ico, link = side.locator('a[data-nav="diary"]').evaluate(icon_colour)
     assert ico == link, "no tint when the setting is off"
     pg.locator('[data-fk="p-conceptnav"]').click()
+    # --m is the module colour on a module screen; a primary button follows it, else it is the accent
+    pg.goto(BASE + "/#/tasks")
+    pg.wait_for_selector("#view h1")
+    m, token = pg.evaluate(
+        "[getComputedStyle(document.body).getPropertyValue('--m').trim(),"
+        " getComputedStyle(document.body).getPropertyValue('--concept-tasks').trim()]"
+    )
+    assert m and m == token, (m, token)
+    probe = (
+        "(() => { const v = document.getElementById('view'); let b = document.getElementById('m-probe');"
+        " if (!b) { b = document.createElement('button'); b.id = 'm-probe'; b.className = 'primary';"
+        " v.appendChild(b); }"
+        " const d = document.createElement('div'); d.style.background = 'var(--leaf)'; document.body.appendChild(d);"
+        " const out = [getComputedStyle(b).backgroundColor, getComputedStyle(d).backgroundColor];"
+        " d.remove(); return out; })()"
+    )
+    bg, leaf = pg.evaluate(probe)
+    assert bg != leaf, "a primary button takes the module colour"
+    pg.goto(BASE + "/#/appearance")
+    pg.wait_for_selector(".look-screen")
+    pg.locator('[data-key="modules"]').click()
+    pg.locator('[data-fk="p-conceptnav"]').click()
+    pg.goto(BASE + "/#/tasks")
+    pg.wait_for_selector("#view h1")
+    bg, leaf = pg.evaluate(probe)
+    assert bg == leaf, "no module colour on a button when the setting is off"
+    pg.goto(BASE + "/#/appearance")
+    pg.wait_for_selector(".look-screen")
+    pg.locator('[data-key="modules"]').click()
+    pg.locator('[data-fk="p-conceptnav"]').click()
     # Tasks functions: Board off removes the view chip and falls back to the list; Close the day hides its check-in step
     pg.locator('[data-fk="mod:tasks.board"]').click()
     pg.goto(BASE + "/#/tasks/board")

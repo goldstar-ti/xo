@@ -10,7 +10,7 @@
 .xo-tab-btn, .xo-tab-x {
   min-height: 2.5rem; padding: 0.35rem 0.8rem;
   background: transparent; border: 0; color: var(--muted);
-  font: inherit; font-weight: 600; font-size: 0.9375rem; cursor: pointer; white-space: nowrap;
+  font: inherit; font-weight: var(--fw-semibold); font-size: 0.9375rem; cursor: pointer; white-space: nowrap;
 }
 .xo-tab.on .xo-tab-btn { color: var(--ink); }
 .xo-tab-x { min-width: 2.5rem; padding: 0 0.5rem; font-size: 1.125rem; line-height: 1; }
@@ -63,7 +63,7 @@
   cursor: grab; user-select: none; flex: none;
 }
 .xo-board-list .xo-w-head { cursor: default; }
-.xo-w-title { flex: 1 1 0; min-width: 3rem; color: var(--c-w-title); font-size: 0.9375rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.xo-w-title { flex: 1 1 0; min-width: 3rem; color: var(--c-w-title); font-size: 0.94rem; font-weight: var(--fw-bold); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .xo-w-tools { display: flex; flex-wrap: nowrap; flex: none; }
 .xo-w-tools [hidden] { display: none; }
 .xo-w-actions { display: flex; flex-wrap: nowrap; flex: none; }
@@ -104,14 +104,14 @@
 }
 .xo-menu-item:hover, .xo-menu-item:focus-visible { background: var(--leaf-soft); }
 .xo-menu-bar { display: flex; justify-content: flex-end; margin: -0.3rem -0.3rem 0.3rem; border-bottom: var(--rule) solid var(--line); }
-.xo-menu-label { margin: 0.4rem 0.75rem 0.2rem; font-size: 0.8125rem; font-weight: 600; color: var(--muted); }
+.xo-menu-label { margin: 0.4rem 0.75rem 0.2rem; font-size: 0.8125rem; font-weight: var(--fw-semibold); color: var(--muted); }
 
 /* ---- the Widgets popover ---- */
 .xo-widgets { display: grid; gap: 0.5rem; }
 .xo-widgets .note { margin: 0; }
 .xo-wgroups { max-height: min(22rem, 50dvh); overflow: auto; }
 .xo-wgroup[hidden] { display: none; }
-.xo-wgroup h3 { margin: 0.75rem 0 0.25rem; font-size: 0.8125rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); }
+.xo-wgroup h3 { margin: 0.75rem 0 0.25rem; font-size: 0.8125rem; font-weight: var(--fw-semibold); letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); }
 .xo-wlist { list-style: none; margin: 0; padding: 0; }
 .xo-wlist li { min-height: 2.5rem; display: flex; align-items: center; gap: 0.5rem; }
 .xo-wcount { flex: none; font-size: 0.8125rem; color: var(--muted); }
@@ -156,13 +156,13 @@
 .cw-quiet { color: var(--muted); font-size: 0.875rem; }
 
 .cw-clock { display: flex; flex-direction: column; justify-content: center; min-height: 100%; }
-.cw-time { margin: 0; font-family: var(--font-num); font-variant-numeric: tabular-nums; font-weight: 700; line-height: 1; letter-spacing: -0.02em; }
+.cw-time { margin: 0; font-family: var(--font-num); font-variant-numeric: tabular-nums; font-weight: var(--fw-bold); line-height: 1; letter-spacing: -0.02em; }
 .cw-clock.s-s .cw-time { font-size: 2rem; }
 .cw-clock.s-m .cw-time { font-size: 3rem; }
 .cw-clock.s-l .cw-time { font-size: 4.5rem; }
 .cw-clock.s-xl .cw-time { font-size: 6.5rem; }
 .cw-sec { font-size: 0.42em; margin-left: 0.2em; color: var(--muted); vertical-align: 0.9em; }
-.cw-date { margin-top: 0.4rem; font-weight: 600; }
+.cw-date { margin-top: 0.4rem; font-weight: var(--fw-semibold); }
 .cw-greet { color: var(--muted); }
 
 .cw-ev .row-main, .cw-count .row-main {
@@ -185,14 +185,14 @@
 .cw-day ul { display: grid; gap: 0.2rem; }
 @container (max-width: 34rem) { .cw-week { grid-template-columns: 1fr; } .cw-day-head { flex-direction: row; gap: 0.5rem; } }
 
-.cw-month-title { font-weight: 700; margin-bottom: 0.4rem; }
+.cw-month-title { font-weight: var(--fw-bold); margin-bottom: 0.4rem; }
 .cw-month { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: var(--rule); background: var(--line); border: var(--rule) solid var(--line); }
-.cw-wd { background: var(--paper); padding: 0.2rem 0.35rem; font-size: 0.75rem; font-weight: 700; color: var(--muted); }
+.cw-wd { background: var(--paper); padding: 0.2rem 0.35rem; font-size: 0.75rem; font-weight: var(--fw-bold); color: var(--muted); }
 .cw-cell { background: var(--surface); min-height: 4.25rem; padding: 0.2rem 0.3rem; min-width: 0; overflow: hidden; }
 .cw-cell.out { background: var(--paper); color: var(--muted); }
 .cw-cell.is-past:not(.is-today) .cw-cell-n { color: var(--muted); }
 .cw-cell.is-today { box-shadow: inset 0 0 0 2px var(--leaf); }
-.cw-cell-n { font-family: var(--font-num); font-size: 0.8125rem; font-weight: 700; }
+.cw-cell-n { font-family: var(--font-num); font-size: 0.8125rem; font-weight: var(--fw-bold); }
 .cw-cell ul { display: grid; gap: 0.1rem; margin-top: 0.1rem; }
 .cw-cell .cw-ev .row-main { font-size: 0.75rem; padding-left: 0.3rem; border-left-width: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
 .cw-more { font-size: 0.75rem; color: var(--muted); }
@@ -205,7 +205,7 @@
 .cw-figs { display: grid; grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr)); gap: 0.6rem; }
 .cw-fig { display: flex; flex-direction: column; padding: 0.5rem 0.65rem; background: var(--paper); border-radius: var(--radius); }
 .cw-fig strong { font-family: var(--font-num); font-size: 1.5rem; font-variant-numeric: tabular-nums; line-height: 1.1; }
-.cw-fig span { font-weight: 600; font-size: 0.875rem; }
+.cw-fig span { font-weight: var(--fw-semibold); font-size: 0.875rem; }
 .cw-fig small { color: var(--muted); }
 .cw-fig.late { background: var(--ochre-soft); }
 .cw-fig.late strong { color: var(--ochre); }
@@ -231,9 +231,9 @@
 /* ---- phone Arrange: a bar of Up, Down and Hide over each widget, and the hidden ones listed at the end ---- */
 .xo-canvas-tools .xo-icon-btn[aria-pressed="true"] { background: var(--leaf-soft); color: var(--ink); }
 .xo-arr { display: flex; align-items: center; gap: 0.25rem; padding: 0.25rem 0.25rem 0.25rem 0.85rem; margin-bottom: 0.25rem; background: var(--leaf-soft); border-radius: var(--radius); }
-.xo-arr-name { flex: 1 1 0; min-width: 0; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.xo-arr-name { flex: 1 1 0; min-width: 0; font-weight: var(--fw-semibold); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .xo-arr .xo-w-btn:disabled { opacity: 0.35; cursor: default; }
-.xo-arr-hidden h3 { margin: 1rem 0 0.25rem; font-size: 0.8125rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); }
+.xo-arr-hidden h3 { margin: 1rem 0 0.25rem; font-size: 0.8125rem; font-weight: var(--fw-semibold); letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); }
 .xo-arr-row { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; min-height: 2.5rem; border-bottom: var(--rule) solid var(--line); }
 
 /* ---- layout code box in Rename ---- */

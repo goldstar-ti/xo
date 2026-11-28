@@ -86,6 +86,12 @@ export const isOn = (id) => {
   return !BY_ID[id] || BY_ID[id].core === true || !offList().includes(id);
 };
 
+/** The id of the module that owns a canvas widget type (a placed id such as `bills:2` counts as `bills`), or null. A function's widget gives its module. */
+export const moduleOfWidget = (type) => {
+  const k = BY_WIDGET[String(type).split(':')[0]];
+  return k ? (BY_FUNCTION[k]?.module || k) : null;
+};
+
 /** True when the canvas widget's module is on. Takes a placed id (`bills:2` counts as `bills`). A widget with no module is always on. */
 export const widgetOn = (id) => isOn(BY_WIDGET[String(id).split(':')[0]]);
 

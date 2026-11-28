@@ -186,7 +186,7 @@ with sync_playwright() as p:
     expect(pg.locator("dialog[open]")).to_have_count(0)
     st = pg.evaluate("JSON.parse(localStorage.getItem('xo-look'))")
     assert (
-        st["base"]["theme"] == "foliage"
+        st["base"]["theme"] == "ink"
         and st["scheduled"] == []
         and st["myThemes"] == []
         and st["prefs"]["title"] == "XO"
@@ -217,6 +217,17 @@ with sync_playwright() as p:
     assert same
     old = pg.evaluate("XOLook.encode(XOLook.defaultLook())")
     assert old.startswith("XO2-")
+    # a fresh look is Ink and a stored theme is kept; Today colour round-trips and junk cleans to Module colour
+    assert pg.evaluate("XOLook.defaultLook().theme") == "ink"
+    roundtrip = "XOLook.decode(XOLook.encode({ ...XOLook.defaultLook(), %s })).%s"
+    assert pg.evaluate(roundtrip % ("theme: 'foliage'", "theme")) == "foliage"
+    assert pg.evaluate("XOLook.defaultLook().todayColour") == "module"
+    assert pg.evaluate(roundtrip % ("todayColour: 'ink'", "todayColour")) == "ink"
+    assert pg.evaluate(roundtrip % ("todayColour: 'junk'", "todayColour")) == "module"
+    pg.evaluate("XOLook.change((s, lk) => { lk.todayColour = 'ink'; })")
+    assert pg.evaluate("document.documentElement.dataset.todayColour") == "ink"
+    pg.evaluate("XOLook.change((s, lk) => { lk.todayColour = 'module'; })")
+    assert pg.evaluate("document.documentElement.dataset.todayColour") == "module"
     v1 = "XO1-foliage.150.6.165.75.75.42.80.965.100.0.0.0.100.400.150.20.2.0.0.0.0.0.0.1.0.0"
     assert pg.evaluate("(c) => XOLook.decode(c)", v1)["space"] == 0.7
     assert pg.evaluate("XOLook.decode('XO2-@@@')") is None

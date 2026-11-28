@@ -612,6 +612,8 @@ function build(lk, d) {
   });
   reg('modules', null, t('appearance.modules.tint'), h('div', { class: 'opt' }, toggle(t('appearance.modules.tint'), { checked: p.conceptNav, 'data-fk': 'p-conceptnav', onchange: (on) => setPrefs({ conceptNav: on }) }),
     h('p', { class: 'hint' }, t('appearance.modules.tint_hint'))), { changed: !p.conceptNav });
+  reg('modules', null, t('appearance.modules.today_colour'), h('div', { class: 'opt' }, seg(t('appearance.modules.today_colour'), 'todayColour'),
+    h('p', { class: 'hint' }, t('appearance.modules.today_colour_hint'))), { changed: chg('todayColour') });
   defAcc('concepts', 'modules', A('concepts'), { reset: () => L.change((s, l) => { conceptTokens.forEach((k) => { delete l.colours.light[k]; delete l.colours.dark[k]; }); }) });
   MODULES.forEach((m) => reg('modules', 'concepts', `${t('appearance.modules.colour')}: ${moduleNames[m.id]}`, colourRow(`concept-${m.id}`, lk, now, names), { adv: true, changed: !!(lk.colours.light[`concept-${m.id}`] || lk.colours.dark[`concept-${m.id}`]) }));
 

@@ -333,7 +333,7 @@ with sync_playwright() as p:
     )
     assert rhythm["top"] <= 57, rhythm
     assert 13 <= rhythm["tab"] <= 15, rhythm
-    assert 25 <= rhythm["h1"] <= 27, rhythm
+    assert 27 <= rhythm["h1"] <= 29, rhythm
     assert rhythm["over"] <= 0, rhythm
     # a form is a full-screen sheet on a phone: its Save button sits at the bottom edge, above the footer padding
     page.goto(f"{BASE}/#/diary")

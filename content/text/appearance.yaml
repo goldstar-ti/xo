@@ -62,6 +62,7 @@ appearance:
     figure: {plain: Plain, tint: Tint, accent: Accent, inset: Inset}
     motion: {system: Follow device, reduce: Reduce, full: Full}
     fluid: {on: 'On', off: 'Off'}
+    todayColour: {module: Module colour, ink: Ink}
     wChrome: {card: Card, outline: Outline, flat: Flat, stripe: Stripe}
     wHead: {full: Full, slim: Slim, none: None}
     wTitleFont: {head: Headings, body: Body, num: Numerals}
@@ -432,8 +433,10 @@ appearance:
   modules:
     hint: A module that is switched off is hidden everywhere and sends no reminders. Its data is kept, and switching it on brings everything back. This applies on every device.
     core: Always on.
-    tint: Colour screen icons by module
-    tint_hint: Tints the icons in the side bar and the bottom bar with each module's colour. The screen you are on keeps the accent colour.
+    tint: A colour for each module
+    tint_hint: Gives each module its own colour, used for the icons in the side bar and the bottom bar, widget icons, the Next up card, buttons and chips inside a module. Overdue stays in the attention colour. Off, everything uses the accent colour.
+    today_colour: Today colour
+    today_colour_hint: Module colour gives Today and the Canvas their own indigo. Ink uses the theme's text colour instead.
     colour: Colour
     functions:
       today.line:
