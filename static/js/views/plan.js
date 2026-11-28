@@ -88,15 +88,15 @@ export function render(root) {
   );
 }
 
-// The part you carry: one tap from anywhere.
-export function openPlanCard() {
+// The body of the plan card: the part you carry. Returns one node.
+export function planCardBody() {
   const a = store.plan().answers;
   const block = (title, text, { phones = false } = {}) => h('section', {},
     h('h3', {}, title),
     plainText(text).trim()
       ? h('p', { class: 'own' }, phones ? withPhoneLinks(plainText(text).trim()) : plainText(text).trim())
       : h('p', { class: 'empty' }, t('plan.card.empty')));
-  const body = h('div', { class: 'card-body' },
+  return h('div', { class: 'card-body' },
     block(t('plan.card.signs'), a.signs),
     block(t('plan.card.instead'), a.instead),
     block(t('plan.card.team'), a.team, { phones: true }),
@@ -107,5 +107,9 @@ export function openPlanCard() {
         h('a', { href: `tel:${s.number.replace(/\s+/g, '')}` }, `${s.name} ${s.number}`), s.note && h('small', {}, s.note))))),
     h('p', {}, h('a', { href: '#/plan', onclick: () => document.querySelector('dialog[open]')?.close() }, t('plan.card.edit'))),
   );
-  openDialog(t('plan.card.title'), body, { wide: true });
+}
+
+// The part you carry: one tap from anywhere.
+export function openPlanCard() {
+  openDialog(t('plan.card.title'), planCardBody(), { wide: true });
 }

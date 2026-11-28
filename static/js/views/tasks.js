@@ -221,6 +221,14 @@ function listView(visible, ctx, day) {
   ];
 }
 
+/** The list-mode sections with no filters: Today's three, Doing, Due this week, Ready, Waiting, stale review, Done, Archived. Returns an array of nodes (false where a section is empty or switched off). */
+export function taskSections() {
+  const day = today();
+  const ctx = gather();
+  const base = ctx.items.filter((i) => !i.data.archived && (i.data.status !== 'done' || i.data.today === day));
+  return listView(base, ctx, day);
+}
+
 // ---- board ----
 
 function card(item, ctx) {

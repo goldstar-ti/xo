@@ -15,7 +15,7 @@ export const live = true;
 // An item's reference (XO-12) from its project's key, without loading the tracker modules.
 const trackerRef = (it) => `${store.get(it.data.project)?.data?.key || '?'}-${it.data.num}`;
 
-function lineForToday() {
+export function lineForToday() {
   const own = store.settings().lines.split('\n').map((s) => s.trim()).filter(Boolean);
   const matters = plainText(store.plan().answers.good_matters).trim();
   const pool = [...LINES, ...own, ...own]; // your own lines come up twice as often
@@ -108,8 +108,8 @@ function planNudge() {
   return { text: t('today.nudge.progress', { filled: filled.length, total: boxes.length, question: next.q }) };
 }
 
-export function render(root) {
-  const day = today();
+/** The Today blocks as nodes, keyed as in the Appearance block order. Returns { blocks, greeting, day }; a block is false when its switch is off. horizon is how many days ahead Coming up looks. */
+export function todayBlocks({ day = today(), horizon = 7 } = {}) {
   const entries = dayEntries(day);
   const line = lineForToday();
   const missed = missedYesterday();
@@ -170,19 +170,19 @@ export function render(root) {
         needs > 0 && left > 0 && needs > left && h('p', { class: 'note late' }, t('today.three.over', { duration: fmtDuration(left) })))
     : h('p', { class: 'empty' }, t('today.three.empty_lead'), ' ', button(t('today.three.choose'), { class: 'small', onclick: () => { location.hash = '#/tasks'; } }), ' ', t('today.three.empty_tail'));
 
-  const horizon = addDays(day, 7);
+  const limit = addDays(day, horizon);
   const coming = [];
   for (const a of isOn('diary') ? store.byKind('appointment') : [])
-    if (a.data.date > day && a.data.date <= addDays(day, a.data.court ? 14 : 7))
+    if (a.data.date > day && a.data.date <= addDays(day, a.data.court ? horizon * 2 : horizon))
       coming.push({ day: a.data.date, text: `${a.data.title}, ${fmtTime(a.data.time)}`, tag: t(a.data.court ? 'today.coming.court' : 'today.coming.appointment'), open: () => editAppointment(a) });
   for (const task of isOn('tasks') ? store.byKind('task') : [])
-    if (!task.data.done && task.data.due && task.data.due <= horizon)
+    if (!task.data.done && task.data.due && task.data.due <= limit)
       coming.push({ day: task.data.due, text: task.data.title, tag: t('today.coming.task_due'), open: () => editTask(task) });
   for (const b of isOn('bills') ? store.byKind('bill') : [])
-    if (!b.data.finished && b.data.due <= horizon)
+    if (!b.data.finished && b.data.due <= limit)
       coming.push({ day: b.data.due, text: `${b.data.name}${b.data.amount ? `, ${fmtMoney(b.data.amount)}` : ''}`, tag: t(b.data.autopay ? 'today.coming.bill_auto' : 'today.coming.bill'), open: () => editBill(b), pay: b.data.autopay ? null : () => payBill(b) });
   for (const it of isOn('tracker') ? store.byKind('pm_item') : [])
-    if (it.data.due && !it.data.closed_at && it.data.due <= horizon)
+    if (it.data.due && !it.data.closed_at && it.data.due <= limit)
       coming.push({ day: it.data.due, text: it.data.title, tag: t('today.coming.tracker', { ref: trackerRef(it) }), open: () => { location.hash = `#/tracker/${trackerRef(it)}`; } });
   coming.sort((a, b) => a.day.localeCompare(b.day));
 
@@ -213,6 +213,13 @@ export function render(root) {
         : h('p', { class: 'empty' }, t('today.coming.empty'))),
     plan: nudge && h('section', { class: 'col-side' }, h('p', { class: 'nudge' }, nudge.text, ' ', button(t('today.nudge.open'), { class: 'small', onclick: () => { location.hash = '#/plan'; } }))),
   };
+  return { blocks, greeting, day };
+}
+
+export function render(root) {
+  const { blocks, greeting, day } = todayBlocks();
+  const off = offline();
+  const prefs = window.XOLook.prefs;
   const firstRun = store.byKind('tick').length === 0 && canAskNotify();
   const notify = firstRun && h('section', { class: 'callout-slot' }, callout([
     h('p', {}, t('today.notify_body')),
