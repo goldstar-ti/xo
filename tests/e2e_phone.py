@@ -7,6 +7,7 @@ python tests/e2e_phone.py [base_url]
 """
 
 import os
+import re
 import sys
 
 from playwright.sync_api import expect, sync_playwright
@@ -73,7 +74,7 @@ with sync_playwright() as p:
     expect(pg.locator(".dayline")).to_be_visible()
     check_ribbon(pg)
     expect(pg.locator(".ribbon")).to_contain_text("The day")
-    expect(pg.locator("#view")).not_to_contain_text("today.")  # no missing wording keys
+    expect(pg.locator("#view")).not_to_contain_text(re.compile(r"\btoday\.[a-z_]"))  # no missing wording keys (the empty state ends "for today.")
     folds = pg.locator("details.today-fold")
     assert folds.count() >= 2
     assert pg.locator("details.today-fold[open]").count() == 1  # only the first fold-up starts open

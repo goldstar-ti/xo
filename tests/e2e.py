@@ -96,7 +96,8 @@ with sync_playwright() as p:
     page.screenshot(path=SHOTS / "00-create.png")
     page.get_by_role("button", name="Create and open").click()
     expect(page.locator("h1")).to_contain_text(now.strftime("%-d %B"), timeout=20000)
-    expect(page.locator(".dayline .entry")).to_have_count(8)  # 6 routine items + 2 check-ins
+    # 6 routine items + 2 check-ins, plus the weekly review on the weekly day (Sunday by default)
+    expect(page.locator(".dayline .entry")).to_have_count(9 if now.weekday() == 6 else 8)
 
     # --- first run: nothing ticked yet, so Today offers to turn notifications on
     expect(page.locator(".callout-slot")).to_contain_text("Reminders only reach this phone once notifications are on.")
