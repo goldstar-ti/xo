@@ -97,6 +97,33 @@ with sync_playwright() as p:
     pg.set_viewport_size({"width": 390, "height": 844})
     expect(pg.locator(".fab")).to_be_visible()
 
+    # --- Diary: view switch, ribbon, lead card, fold-ups, FAB and sheet
+    pg.goto(BASE + "/#/diary")
+    pg.wait_for_selector(".diary-lead")
+    expect(pg.locator(".diary-lead")).to_be_visible()
+    expect(pg.get_by_role("radio", name="Week")).to_be_visible()
+    check_ribbon(pg)
+    expect(pg.locator(".ribbon")).to_contain_text("This week")
+    expect(pg.locator("#view")).not_to_contain_text("lists.")  # no missing wording keys
+    assert pg.locator("details.diary-fold[open]").count() <= 1
+    pg.get_by_role("radio", name="Week").click()
+    expect(pg.locator(".diary-lead")).to_be_visible()
+    pg.get_by_role("radio", name="Agenda").click()
+    check_sheet(pg, ["New appointment", "Copy"], "Copy", ".diary-copy")
+    pg.locator(".fab").click()
+    pg.locator("dialog.fab-sheet").get_by_role("button", name="Add appointment").click()
+    expect(pg.locator("dialog.fab-sheet")).to_have_count(0)
+    form = pg.locator("dialog[open]")
+    expect(form).to_be_visible()
+    form.get_by_role("button", name="Cancel").click()
+    expect(form).to_have_count(0)
+    pg.set_viewport_size({"width": 1280, "height": 900})
+    expect(pg.locator(".fab")).to_have_count(0)
+    expect(pg.locator(".ribbon")).to_have_count(0)
+    expect(pg.locator(".page-head .add-btn")).to_be_visible()
+    pg.set_viewport_size({"width": 390, "height": 844})
+    expect(pg.locator(".fab")).to_be_visible()
+
     # Leaving Today takes the FAB with it.
     pg.goto(BASE + "/#/settings")
     expect(pg.locator(".fab")).to_have_count(0)

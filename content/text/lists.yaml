@@ -29,6 +29,19 @@ lists:
     actions: Appointment actions
     to_calendar: Copy to Google Calendar
     calendar_tip: Opens Google Calendar with this entry filled in
+    phone:
+      view_aria: Show the diary as
+      agenda: Agenda
+      week: Week
+      ribbon: Jump to a day
+      chip_today: Today
+      chip_tomorrow: Tomorrow
+      chip_week: This week
+      chip_later: Later
+      lead: Next appointment
+      fab: Add or copy an appointment
+      new_tab: New appointment
+      copy_tab: Copy
   tasks:
     heading: Tasks
     add_placeholder: 'Add a task. Try: Call the bank friday !high 20m'

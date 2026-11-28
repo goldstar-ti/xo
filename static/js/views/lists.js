@@ -5,9 +5,10 @@ import { calendarLink, editAppointment, editBill, editObligation, editReport, ed
 import { t, text } from '../text.js';
 import { icon } from '../icons.js';
 import { renderMarkdown } from '../markdown.js';
-import { button, callout, disclosure, linkRow, menu, tickBox } from '../ui.js';
+import { button, callout, chip, disclosure, linkRow, menu, segmented, tickBox } from '../ui.js';
+import { dropFab, fabSheet } from '../sheet.js';
 import { quickAdd, taskRow } from './tasks.js';
-import { addDays, daysBetween, fmtDay, fmtLong, fmtMoney, fmtTime, h, relDay, toast, today, put } from '../util.js';
+import { addDays, daysBetween, fmtDay, fmtLong, fmtMoney, fmtTime, h, hm, relDay, toast, today, put } from '../util.js';
 
 const fail = (err) => toast(err.message, 'bad');
 const cap = (value) => value.charAt(0).toUpperCase() + value.slice(1);
@@ -61,11 +62,116 @@ export function diaryPart({ ahead = 0 } = {}) {
   ];
 }
 
+// Below 40rem the Diary follows pattern C: a view switch (Agenda or Week), chips for Today, Tomorrow,
+// This week and Later, the next appointment as the lead card, and each other day folded up. diaryPart()
+// is the same on both; only render() lays it out.
+const PHONE = '(max-width: 39.99rem)';
+const folds = {};
+let mode = 'agenda';
+let watching = null;
+
+function watchPhone(root, mq) {
+  if (watching) watching.mq.removeEventListener('change', watching.fn);
+  const fn = () => { if (root.isConnected && root.querySelector('[data-diary]')) { root.replaceChildren(); diary.render(root); } };
+  mq.addEventListener('change', fn);
+  watching = { mq, fn };
+}
+
+function jump(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  if (el.localName === 'details' || el.localName === 'wa-details') el.open = true;
+  const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  el.scrollIntoView({ behavior: calm ? 'auto' : 'smooth', block: 'start' });
+}
+
+/** The next appointment from now: later today (or tomorrow onward), else null. */
+function nextAppt(upcoming, day) {
+  const now = hm(new Date());
+  return upcoming.find((a) => a.data.date > day || a.data.time >= now) || null;
+}
+
+function leadCard(a) {
+  const d = a.data;
+  const tm = store.apptTimes(d);
+  const bits = [];
+  if (tm.ready < tm.leave) bits.push(t('lists.shared.get_ready', { time: fmtTime(tm.ready) }));
+  if (tm.leave < tm.start) bits.push(t('lists.shared.leave', { time: fmtTime(tm.leave) }));
+  const row = linkRow({
+    title: [d.title, d.court && h('span', { class: 'tag' }, t('lists.shared.court'))],
+    sub: [d.where, cap(bits.join(', '))].filter(Boolean).join('. '),
+    href: '#/diary',
+  });
+  row.addEventListener('click', (ev) => { ev.preventDefault(); editAppointment(a); });
+  return h('section', { class: 'diary-lead', 'aria-label': t('lists.diary.phone.lead') },
+    h('p', { class: 'diary-lead-when' }, fmtTime(d.time), ' ', h('span', { class: 'meta' }, `${fmtLong(d.date)}, ${relDay(d.date)}`)),
+    h('div', { class: 'diary-lead-row' }, row,
+      menu({ label: t('lists.diary.actions'), items: [{ label: t('lists.diary.to_calendar'), icon: 'tabler/calendar-plus', run: () => window.open(calendarLink(d), '_blank', 'noopener,noreferrer') }] })));
+}
+
+function renderPhone(root) {
+  const day = today();
+  const appts = store.byKind('appointment').sort(sortAppts);
+  const upcoming = appts.filter((a) => a.data.date >= day);
+  const lead = nextAppt(upcoming, day);
+  const weekEnd = addDays(day, 6);
+  const rest = upcoming.filter((a) => a !== lead && (mode !== 'week' || a.data.date <= weekEnd));
+  const past = mode === 'agenda' ? appts.filter((a) => a.data.date < day).reverse().slice(0, 15) : [];
+  const days = [...new Set(rest.map((a) => a.data.date))];
+  const buckets = [
+    ['today', (d) => d === day],
+    ['tomorrow', (d) => d === addDays(day, 1)],
+    ['week', (d) => d > addDays(day, 1) && d <= weekEnd],
+    ['later', (d) => d > weekEnd],
+  ].map(([k, test]) => [k, days.find(test)]);
+  put(root,
+    h('header', { class: 'page-head', 'data-diary': '' }, h('h1', {}, t('lists.diary.heading')),
+      h('div', { class: 'actions' },
+        segmented(t('lists.diary.phone.view_aria'), [['agenda', t('lists.diary.phone.agenda')], ['week', t('lists.diary.phone.week')]], {
+          value: mode, onchange: (v) => { mode = v; root.replaceChildren(); diary.render(root); },
+        }),
+        addBtn(t('lists.diary.add'), () => editAppointment()))),
+    h('nav', { class: 'ribbon', 'aria-label': t('lists.diary.phone.ribbon') },
+      buckets.map(([k, target]) => {
+        const c = chip(t(`lists.diary.phone.chip_${k}`), { onclick: () => jump(`diary-day-${target}`), ...(target ? {} : { disabled: true }) });
+        c.removeAttribute('aria-pressed');
+        return c;
+      })),
+    lead ? leadCard(lead) : h('p', { class: 'empty' }, t('lists.diary.empty')),
+    days.map((d, n) => {
+      const fold = disclosure(fmtLong(d), h('ul', { class: 'list timed' }, rest.filter((a) => a.data.date === d).map(apptRow)), {
+        id: `diary-day-${d}`, badge: h('span', { class: 'meta' }, relDay(d)),
+        open: d in folds ? folds[d] : n === 0, onToggle: (o) => { folds[d] = o; },
+      });
+      fold.classList.add('diary-fold');
+      return fold;
+    }),
+    past.length > 0 && Object.assign(disclosure(t('lists.diary.past', { count: past.length }), apptGroups(past), {
+      id: 'diary-past', open: !!folds.past, onToggle: (o) => { folds.past = o; },
+    }), { className: 'xo-disc diary-fold' }));
+  fabSheet({
+    label: t('lists.diary.phone.fab'),
+    icon: 'tabler/plus',
+    tabs: [
+      { key: 'new', label: t('lists.diary.phone.new_tab'), body: ({ close }) => h('ul', { class: 'fab-choices' },
+        h('li', {}, button([icon('tabler/calendar-event'), t('lists.diary.add')], { variant: 'ghost', class: 'fab-choice', onclick: () => { close(); editAppointment(); } }))) },
+      lead && { key: 'copy', label: t('lists.diary.phone.copy_tab'), body: ({ close }) => h('div', { class: 'diary-copy' },
+        h('p', {}, `${lead.data.title}, ${fmtLong(lead.data.date)} ${fmtTime(lead.data.time)}`),
+        button([icon('tabler/calendar-plus'), t('lists.diary.to_calendar')], { variant: 'ghost', class: 'fab-choice', onclick: () => { close(); window.open(calendarLink(lead.data), '_blank', 'noopener,noreferrer'); } })) },
+    ].filter(Boolean),
+  });
+}
+
 export const diary = {
   live: true,
+  leave: dropFab,
   render(root) {
+    dropFab();
+    const mq = window.matchMedia(PHONE);
+    watchPhone(root, mq);
+    if (mq.matches) return renderPhone(root);
     put(root,
-      head(t('lists.diary.heading'), addBtn(t('lists.diary.add'), () => editAppointment())),
+      h('header', { class: 'page-head', 'data-diary': '' }, h('h1', {}, t('lists.diary.heading')), h('div', { class: 'actions' }, addBtn(t('lists.diary.add'), () => editAppointment()))),
       diaryPart(),
     );
   },

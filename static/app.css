@@ -1075,4 +1075,13 @@ dialog.fab-sheet::backdrop { background: color-mix(in srgb, var(--c-backdrop) 55
   .today-fold .sec-head h2 { display: none; }
   .today-fold .sec-head:not(:has(a, button)) { display: none; }
   body[data-view="today"] #today-day { scroll-margin-top: 4.5rem; }
+  body[data-view="diary"] #view > .ribbon { margin-top: 0.75rem; }
+  .diary-lead-row { display: flex; align-items: center; gap: 0.25rem; }
+  .diary-lead-row > :first-child { flex: 1; min-width: 0; }
+  .diary-lead { margin-top: 0.75rem; padding: 0.75rem 1rem; background: var(--m-soft); border-radius: var(--radius); }
+  .diary-lead-when { margin: 0; font-family: var(--font-num); font-weight: var(--fw-semibold); font-size: 1.4rem; }
+  .diary-lead-when .meta { font-family: var(--font-body); font-size: 0.9rem; font-weight: normal; }
+  .diary-fold { margin-top: 0.75rem; background: var(--m-soft); border-color: transparent; scroll-margin-top: 4.5rem; }
+  .diary-fold .group { margin-top: 0.5rem; }
+  .diary-copy p { margin: 0 0 0.75rem; }
 }

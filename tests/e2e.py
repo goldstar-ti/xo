@@ -134,7 +134,7 @@ with sync_playwright() as p:
     )
     expect(page.locator(".tag")).to_have_text("Court")
     page.goto(f"{BASE}/#/diary")
-    page.locator(".list li").first.get_by_role("button", name="Appointment actions").click()
+    page.get_by_role("button", name="Appointment actions").first.click()
     expect(page.get_by_role("menuitem", name="Copy to Google Calendar")).to_be_visible()
     page.keyboard.press("Escape")
     assert "false" not in page.locator("#view").inner_text() and "[object" not in page.locator("#view").inner_text()
