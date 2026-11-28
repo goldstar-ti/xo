@@ -6,7 +6,7 @@ import { t } from '../text.js';
 import { icon } from '../icons.js';
 import { plainText } from '../markdown.js';
 import { isOn } from '../modules.js';
-import { button, callout, checkbox, tag } from '../ui.js';
+import { button, callout, linkRow, playRing, plainLink, tag, tickBox } from '../ui.js';
 import { enablePush } from './settings.js';
 import { addDays, daysBetween, fmtDay, fmtDuration, fmtLong, fmtMoney, fmtTime, h, hm, relDay, toast, today, toDate, put } from '../util.js';
 
@@ -118,17 +118,12 @@ export function todayBlocks({ day = today(), horizon = 7 } = {}) {
 
   const off = offline();
   const lock = off ? { disabled: true } : {};
-  const doneBtn = (e, onclick) => button(tag(t('today.done'), 'accent'), {
-    variant: 'row', class: 'tick on', 'aria-pressed': 'true', ...lock,
-    'aria-label': t('today.tick.state_done', { label: e.label }), onclick,
+  // A tick box carries the entry's name as its label; the pop animation hangs on the entry, not the box.
+  const tickFor = (e, onchange) => tickBox({ checked: e.done, label: e.label, ...lock, onchange });
+  const tick = (e) => tickFor(e, (on) => {
+    if (on) sessionStorage.setItem('pop', e.ref);
+    store.setTick(e.ref, on).catch((err) => toast(err.message, 'bad'));
   });
-  const openBtn = (e, label, onclick) => button(label, {
-    variant: 'ghost', class: 'tick', 'aria-pressed': 'false', ...lock,
-    'aria-label': t('today.tick.state_open', { label: e.label }), onclick,
-  });
-  const tick = (e) => (e.done
-    ? doneBtn(e, () => store.setTick(e.ref, false).catch((err) => toast(err.message, 'bad')))
-    : openBtn(e, t('today.tick.tick'), () => { sessionStorage.setItem('pop', e.ref); store.setTick(e.ref, true).catch((err) => toast(err.message, 'bad')); }));
 
   const popped = sessionStorage.getItem('pop');
   sessionStorage.removeItem('pop');
@@ -141,13 +136,11 @@ export function todayBlocks({ day = today(), horizon = 7 } = {}) {
     const missed = past && !e.done && e.kind !== 'appt';
     let action = null;
     if (e.kind === 'tick') action = tick(e);
-    else if (e.kind === 'task') action = e.done
-      ? doneBtn(e, () => toggleTask(e.item).catch((err) => toast(err.message, 'bad')))
-      : openBtn(e, t('today.tick.tick'), () => toggleTask(e.item).catch((err) => toast(err.message, 'bad')));
+    else if (e.kind === 'task') action = tickFor(e, () => toggleTask(e.item).catch((err) => toast(err.message, 'bad')));
     else if (e.kind === 'checkin') action = e.done
       ? h('a', { class: 'tick on', href: `#/checkin/${e.type}` }, tag(t('today.done'), 'accent'))
-      : off ? button(t('today.tick.start'), { class: 'tick', disabled: true }) : h('a', { class: 'tick', href: `#/checkin/${e.type}` }, t('today.tick.start'));
-    else action = button(t('today.tick.edit'), { class: 'small', onclick: () => editAppointment(e.item) });
+      : playRing({ label: t(`today.tick.start_${e.type}`), ...lock, onclick: () => { location.hash = `#/checkin/${e.type}`; } });
+    else action = plainLink(t('today.tick.edit'), { 'aria-label': t('today.tick.edit_aria', { label: e.label }), onclick: () => editAppointment(e.item) });
     rows.push(h('li', { 'data-module': e.mod, class: `entry k-${e.kind}${e.done ? ' done' : ''}${past ? ' past' : ''}${missed ? ' missed' : ''}${e.ref && e.ref === popped ? ' pop' : ''}` },
       h('span', { class: 't' }, fmtTime(e.time)),
       h('span', { class: 'what' }, e.href ? h('a', { href: e.href }, e.label) : e.label, e.sub && h('small', {}, e.sub)),
@@ -163,27 +156,32 @@ export function todayBlocks({ day = today(), horizon = 7 } = {}) {
   const three = picked.length
     ? h('div', {},
         h('ul', { class: 'list three' }, picked.map((task) => h('li', { class: task.data.done ? 'done' : '' },
-          checkbox({ checked: task.data.done, 'aria-label': t('lists.shared.done_aria', { title: task.data.title }), onchange: () => toggleTask(task).catch((err) => toast(err.message, 'bad')) }),
+          tickBox({ checked: task.data.done, label: t('lists.shared.done_aria', { title: task.data.title }), onchange: () => toggleTask(task).catch((err) => toast(err.message, 'bad')) }),
           button(h('span', {}, task.data.title), { variant: 'row', class: 'row-main', onclick: () => editTask(task) }),
           (task.data.done || task.data.est > 0) && h('span', { class: 'meta' }, task.data.done ? t('today.three.done') : t('lists.shared.allow', { duration: fmtDuration(task.data.est * pace) }))))),
         needs > 0 && h('p', { class: 'note' }, t('today.three.needs', { duration: fmtDuration(needs) })),
         needs > 0 && left > 0 && needs > left && h('p', { class: 'note late' }, t('today.three.over', { duration: fmtDuration(left) })))
-    : h('p', { class: 'empty' }, t('today.three.empty_lead'), ' ', button(t('today.three.choose'), { class: 'small', onclick: () => { location.hash = '#/tasks'; } }), ' ', t('today.three.empty_tail'));
+    : h('p', { class: 'empty' }, t('today.three.empty_lead'), ' ', plainLink(t('today.three.choose'), { href: '#/tasks' }), ' ', t('today.three.empty_tail'));
+
+  const payBox = (c) => {
+    const box = tickBox({ checked: false, label: t('today.coming.mark_paid', { name: c.name }), ...lock, onchange: () => c.pay().catch((err) => { box.checked = false; toast(err.message, 'bad'); }) });
+    return box;
+  };
 
   const limit = addDays(day, horizon);
   const coming = [];
   for (const a of isOn('diary') ? store.byKind('appointment') : [])
     if (a.data.date > day && a.data.date <= addDays(day, a.data.court ? horizon * 2 : horizon))
-      coming.push({ day: a.data.date, text: `${a.data.title}, ${fmtTime(a.data.time)}`, tag: t(a.data.court ? 'today.coming.court' : 'today.coming.appointment'), open: () => editAppointment(a) });
+      coming.push({ day: a.data.date, text: `${a.data.title}, ${fmtTime(a.data.time)}`, tag: t(a.data.court ? 'today.coming.court' : 'today.coming.appointment'), href: '#/diary', open: () => editAppointment(a) });
   for (const task of isOn('tasks') ? store.byKind('task') : [])
     if (!task.data.done && task.data.due && task.data.due <= limit)
-      coming.push({ day: task.data.due, text: task.data.title, tag: t('today.coming.task_due'), open: () => editTask(task) });
+      coming.push({ day: task.data.due, text: task.data.title, tag: t('today.coming.task_due'), href: '#/tasks', open: () => editTask(task) });
   for (const b of isOn('bills') ? store.byKind('bill') : [])
     if (!b.data.finished && b.data.due <= limit)
-      coming.push({ day: b.data.due, text: `${b.data.name}${b.data.amount ? `, ${fmtMoney(b.data.amount)}` : ''}`, tag: t(b.data.autopay ? 'today.coming.bill_auto' : 'today.coming.bill'), open: () => editBill(b), pay: b.data.autopay ? null : () => payBill(b) });
+      coming.push({ day: b.data.due, text: `${b.data.name}${b.data.amount ? `, ${fmtMoney(b.data.amount)}` : ''}`, tag: t(b.data.autopay ? 'today.coming.bill_auto' : 'today.coming.bill'), name: b.data.name, href: '#/bills', open: () => editBill(b), pay: b.data.autopay ? null : () => payBill(b) });
   for (const it of isOn('tracker') ? store.byKind('pm_item') : [])
     if (it.data.due && !it.data.closed_at && it.data.due <= limit)
-      coming.push({ day: it.data.due, text: it.data.title, tag: t('today.coming.tracker', { ref: trackerRef(it) }), open: () => { location.hash = `#/tracker/${trackerRef(it)}`; } });
+      coming.push({ day: it.data.due, text: it.data.title, tag: t('today.coming.tracker', { ref: trackerRef(it) }), href: `#/tracker/${trackerRef(it)}` });
   coming.sort((a, b) => a.day.localeCompare(b.day));
 
   const nudge = planNudge();
@@ -198,20 +196,23 @@ export function todayBlocks({ day = today(), horizon = 7 } = {}) {
       h('p', { class: 'next-head' }, up.head),
       up.title && h('p', { class: 'next-title' }, up.title),
       up.sub && h('p', { class: 'next-sub' }, up.pin && [icon('tabler/map-pin'), ' '], up.sub)),
-    three: isOn('today.three') && isOn('tasks.three') && h('section', { class: 'col-side' }, h('div', { class: 'sec-head' }, h('h2', {}, t('today.three.heading')), h('a', { href: '#/tasks' }, t('today.three.all_tasks'))), three),
-    day: isOn('today.day') && h('section', { class: 'col-day' }, h('div', { class: 'sec-head' }, h('h2', {}, t('today.day.heading')), isOn('routine') && h('a', { href: '#/routine' }, t('today.day.edit_routine'))),
+    three: isOn('today.three') && isOn('tasks.three') && h('section', { class: 'col-side' }, h('div', { class: 'sec-head' }, h('h2', {}, t('today.three.heading')), plainLink(t('today.three.all_tasks'), { href: '#/tasks' })), three),
+    day: isOn('today.day') && h('section', { class: 'col-day' }, h('div', { class: 'sec-head' }, h('h2', {}, t('today.day.heading')), isOn('routine') && plainLink(t('today.day.edit_routine'), { href: '#/routine' })),
       h('ol', { class: 'dayline' }, rows)),
     coming: isOn('today.coming') && h('section', { class: 'col-side' }, h('div', { class: 'sec-head' }, h('h2', {}, t('today.coming.heading'))),
       coming.length
-        ? h('ul', { class: 'list' }, coming.map((c) => {
+        ? h('ul', { class: 'list coming' }, coming.map((c) => {
             const late = daysBetween(day, c.day) < 0;
+            // The row opens its item in a form (or the tracker); the href keeps it a real link.
+            const row = linkRow({ title: c.text, sub: `${c.tag}, ${late ? t('lists.shared.overdue_since', { day: fmtDay(c.day) }) : relDay(c.day)}`, href: c.href });
+            if (c.open) row.addEventListener('click', (ev) => { ev.preventDefault(); c.open(); });
+            // Paying is the row's done state, so it is a tick box beside the row, not a worded button.
             return h('li', { class: late ? 'late' : '' },
-              button([h('span', {}, c.text), h('small', {}, `${c.tag}, ${late ? t('lists.shared.overdue_since', { day: fmtDay(c.day) }) : relDay(c.day)}`)],
-                { variant: 'row', class: 'row-main', onclick: c.open }),
-              c.pay && button(t('lists.shared.paid'), { class: 'small', onclick: () => c.pay().catch((err) => toast(err.message, 'bad')) }));
+              row,
+              c.pay && payBox(c));
           }))
         : h('p', { class: 'empty' }, t('today.coming.empty'))),
-    plan: nudge && h('section', { class: 'col-side' }, h('p', { class: 'nudge' }, nudge.text, ' ', button(t('today.nudge.open'), { class: 'small', onclick: () => { location.hash = '#/plan'; } }))),
+    plan: nudge && h('section', { class: 'col-side' }, h('p', { class: 'nudge' }, nudge.text, ' ', plainLink(t('today.nudge.open'), { href: '#/plan' }))),
   };
   return { blocks, greeting, day };
 }

@@ -97,7 +97,7 @@ with sync_playwright() as p:
     expect(page.get_by_role("button", name="Turn on notifications")).to_be_visible()
 
     # --- offline: Today says so and will not take a tick; back online it clears
-    breakfast = page.locator(".dayline .entry", has_text="Breakfast").get_by_role("button")
+    breakfast = page.locator(".dayline .entry", has_text="Breakfast").get_by_role("checkbox")
     page.context.set_offline(True)
     expect(page.locator(".callout-slot", has_text="No connection")).to_be_visible()
     expect(breakfast).to_be_disabled()
@@ -229,7 +229,7 @@ with sync_playwright() as p:
     expect(page.locator(".dayline .k-checkin.done")).to_have_count(2)
 
     # --- today: tick a routine item
-    page.locator(".dayline .entry", has_text="Breakfast").get_by_role("button").click()
+    page.locator(".dayline .entry", has_text="Breakfast").get_by_role("checkbox").evaluate("el => el.click()")
     expect(page.locator(".dayline .entry.done", has_text="Breakfast")).to_have_count(1)
     expect(page.locator(".next-head")).not_to_be_empty()
     page.screenshot(path=SHOTS / "01-today-phone.png", full_page=True)

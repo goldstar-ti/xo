@@ -360,7 +360,7 @@ details > summary { cursor: pointer; padding: 0.6rem 0; color: var(--leaf); font
 .dayline .entry.done .what, .dayline .entry.past.k-appt .what { color: var(--c-done); }
 .dayline .entry.missed .what::before { border-color: var(--c-missed); }
 .dayline .entry.missed .t { color: var(--c-missed); font-weight: var(--fw-semibold); }
-.dayline li > :is(button, wa-button), .dayline li > a.tick { align-self: center; margin-block: 0.25rem; }
+.dayline li > :is(button, wa-button, .xo-tick, wa-checkbox), .dayline li > a.tick { align-self: center; margin-block: 0.25rem; }
 .dayline .t { white-space: nowrap; }
 .dayline .now .t { color: var(--c-now); font-weight: var(--fw-bold); padding-top: 0.35rem; padding-bottom: 0.35rem; }
 .dayline .now-rule {
@@ -381,6 +381,8 @@ details > summary { cursor: pointer; padding: 0.6rem 0; color: var(--leaf); font
 .tick:disabled { opacity: 0.45; }
 .list.three li.done .row-main > span { text-decoration: none; }
 .list.three li.done .row-main > span, .list.three li.done .meta { color: var(--muted); }
+.list.coming li > .link-row { flex: 1; min-width: 0; }
+.list.coming .link-row-title { overflow-wrap: anywhere; }
 .list.three .meta { margin-left: auto; color: var(--muted); font-size: 0.82rem; flex: none; }
 
 /* Today on a wide screen: the day on the left, the rest in a column on the right. */
@@ -406,7 +408,7 @@ details > summary { cursor: pointer; padding: 0.6rem 0; color: var(--leaf); font
 .list li > :is(input[type="time"], wa-input[type="time"]) { width: auto; flex: none; max-width: 9.5rem; }
 .list .row-main .meta { margin-left: 0.6rem; }
 .list li.done .row-main > span { text-decoration: line-through; color: var(--muted); }
-.list li.late small:last-of-type, .list li.late .meta { color: var(--c-late); font-weight: var(--fw-semibold); }
+.list li.late small:last-of-type, .list li.late .meta, .list li.late .link-row-sub { color: var(--c-late); font-weight: var(--fw-semibold); }
 .list li.off .row-main { color: var(--muted); }
 .list.timed li { display: grid; grid-template-columns: var(--time-col) 1fr auto; column-gap: 0.47rem; }
 .list.timed .t { align-self: start; padding-top: calc(0.15rem + 0.1rem); text-align: right; font-family: var(--font-num); font-variant-numeric: tabular-nums; color: var(--muted); font-size: 0.82rem; }
@@ -569,8 +571,8 @@ dialog.sheet::backdrop { background: color-mix(in srgb, var(--c-backdrop) 55%, t
 
 /* tick feedback */
 @keyframes pop { 0% { transform: scale(0.8); } 55% { transform: scale(1.14); } 100% { transform: scale(1); } }
-:root[data-pop="on"] .entry.pop .tick { animation: pop 0.32s ease-out; }
-:root[data-xo-motion="still"][data-pop="on"] .entry.pop .tick { animation: none; }
+:root[data-pop="on"] .entry.pop :is(.tick, .xo-tickbox, .xo-tick-wa) { animation: pop 0.32s ease-out; }
+:root[data-xo-motion="still"][data-pop="on"] .entry.pop :is(.tick, .xo-tickbox, .xo-tick-wa) { animation: none; }
 
 /* ---- the Look button, quick panel and Appearance screen ---- */
 .head-actions { display: flex; gap: 0.5rem; align-items: center; }
@@ -1016,3 +1018,7 @@ wa-checkbox.xo-tick-wa { min-height: 2.5rem; --checked-icon-color: var(--paper);
 @media (prefers-reduced-motion: reduce) {
   input.xo-tickbox, .xo-ring-bar, .xo-step-bar { transition: none; }
 }
+
+/* Today: Web Awesome's tick box is centred in its row and drawn at the same size as the round one. */
+.dayline wa-checkbox.xo-tick-wa, .list.coming wa-checkbox.xo-tick-wa, .list.three wa-checkbox.xo-tick-wa { display: inline-flex; align-items: center; justify-content: center; --toggle-size: 1.5rem; }
+.dayline wa-checkbox.xo-tick-wa::part(control), .list.coming wa-checkbox.xo-tick-wa::part(control), .list.three wa-checkbox.xo-tick-wa::part(control) { width: 1.5rem; height: 1.5rem; }

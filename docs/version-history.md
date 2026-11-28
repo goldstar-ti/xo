@@ -4,6 +4,7 @@
 
 | Version | Date | Change |
 |---|---|---|
+| 2.39.0 | 2026-11-28 | Today uses the new controls: round tick boxes on the day line, today's three and bills coming up (a bill's tick box marks it paid), a play ring to start a check-in, whole Coming up rows as links with a chevron, and plain links for Edit, Edit routine, All tasks, Choose up to three tasks and Open my plan. Canvas widgets drawn from Today follow. |
 | 2.38.0 | 2026-11-28 | New controls from the design handoff in `ui.js`, drawn for all three kits: a round tick box, a play ring with progress, a filled stepped scale, a three-dot menu and a plain link. Picture options take a drawn sample. |
 | 2.37.0 | 2026-11-28 | Inter Tight (headings) and Google Sans Flex (body) are the default fonts for new looks, vendored locally under the SIL Open Font License. Stored looks keep their fonts. |
 | 2.36.0 | 2026-11-28 | Ink is the default theme for new looks (stored looks keep theirs). Each module has its own colour from the design handoff, used for the widget icon chip, the Next up card, buttons and chips inside the module, with a Today colour choice (Module colour or Ink) and "A colour for each module" in Appearance. Font weights are tokens, and page titles and small text follow the handoff sizes. |

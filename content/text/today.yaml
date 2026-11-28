@@ -39,12 +39,11 @@ today:
     progress: 'My plan: {filled} of {total} boxes written. Next box: “{question}”'
     open: Open my plan
   tick:
-    done: Done
-    tick: Tick
-    start: Start
     edit: Edit
-    state_done: '{label}: done'
-    state_open: '{label}: not done'
+    edit_aria: 'Edit {label}'
+    start_morning: Start the morning check-in
+    start_evening: Start the evening check-in
+    start_weekly: Start the weekly review
   three:
     heading: Today’s three
     all_tasks: All tasks
@@ -67,6 +66,7 @@ today:
     tracker: 'Tracker {ref}'
     bill: Bill
     bill_auto: Bill, automatic
+    mark_paid: 'Mark {name} paid'
   lines:
   - One thing at a time. The next thing is enough.
   - You do not have to catch the first link. Catching any link early still steers you back.
