@@ -36,6 +36,7 @@ import * as tasksView from './views/tasks.js';
 import * as trackerView from './views/tracker.js';
 import * as notesView from './views/notes.js';
 import * as trackerWidgets from './tracker/widgets.js';
+import { BRIDGE_WIDGETS } from './bridgewidgets.js';
 
 export const WIDGETS = {};
 
@@ -203,3 +204,22 @@ registerWidget('notes', {
 registerWidget('tracker-due', { title: 'canvas.widgets.tracker-due', w: 8, h: 12, render: trackerWidgets.due });
 registerWidget('tracker-summary', { title: 'canvas.widgets.tracker-summary', w: 8, h: 10, render: trackerWidgets.summary });
 registerWidget('tracker-board', { title: 'canvas.widgets.tracker-board', w: 16, h: 20, render: trackerWidgets.board });
+
+// The content widgets from the Bridge (static/js/bridgewidgets.js): each draws from a screen's own part and stays live.
+// The body gets the cw-body class (their styles) and is drawn again on a store change, a timer and a new day.
+for (const [id, def] of BRIDGE_WIDGETS) {
+  const { draw, tick, ...rest } = def;
+  registerWidget(id, {
+    ...rest,
+    title: `canvas.widgets.${id}`,
+    tick,
+    render: (body, ctx) => {
+      body.classList.add('cw-body');
+      const every = tick === 'second' && !ctx.opts.seconds ? 'minute' : tick || null;
+      return liveWidget(() => {
+        body.replaceChildren();
+        draw(body, ctx.opts, ctx);
+      }, { tick: every, root: body });
+    },
+  });
+}

@@ -144,3 +144,86 @@
 .xo-iconfield-btn { display: inline-flex; align-items: center; gap: 0.5rem; min-height: 2.5rem; padding: 0.35rem 0.8rem; background: transparent; border: var(--rule) solid var(--line); border-radius: 0.5rem; color: var(--ink); font: inherit; cursor: pointer; }
 .xo-iconfield-btn .ico { width: 1.25rem; height: 1.25rem; }
 .xo-tab-btn .ico { width: 1rem; height: 1rem; margin-right: 0.4rem; vertical-align: -0.15em; }
+
+/* ---- content widgets from the Bridge (static/js/bridgewidgets.js): their body class is cw-body ---- */
+.cw-body { container-type: inline-size; }
+.cw-body .next { padding: 0 0 0.5rem; border-top: 0; border-bottom: 0; }
+.cw-body .next-head { font-size: calc(1.875rem * var(--loud)); }
+.cw-body[data-past="fade"] .dayline .entry.past { opacity: 0.45; }
+.cw-body[data-past="hide"] .dayline .entry.past { display: none; }
+.cw-body .line, .cw-body .note, .cw-body .empty, .cw-body .nudge, .cw-body .stack, .cw-body .history { max-width: none; }
+.cw-line { color: var(--ink); }
+.cw-quiet { color: var(--muted); font-size: 0.875rem; }
+
+.cw-clock { display: flex; flex-direction: column; justify-content: center; min-height: 100%; }
+.cw-time { margin: 0; font-family: var(--font-num); font-variant-numeric: tabular-nums; font-weight: 700; line-height: 1; letter-spacing: -0.02em; }
+.cw-clock.s-s .cw-time { font-size: 2rem; }
+.cw-clock.s-m .cw-time { font-size: 3rem; }
+.cw-clock.s-l .cw-time { font-size: 4.5rem; }
+.cw-clock.s-xl .cw-time { font-size: 6.5rem; }
+.cw-sec { font-size: 0.42em; margin-left: 0.2em; color: var(--muted); vertical-align: 0.9em; }
+.cw-date { margin-top: 0.4rem; font-weight: 600; }
+.cw-greet { color: var(--muted); }
+
+.cw-ev .row-main, .cw-count .row-main {
+  display: flex; align-items: center; width: 100%; min-width: 0; margin: 0; border: 0; background: transparent;
+  color: inherit; font: inherit; cursor: pointer;
+}
+.cw-ev .row-main { min-height: 2.5rem; padding: 0.2rem 0 0.2rem 0.5rem; gap: 0.45rem; border-left: 3px solid var(--leaf); font-size: 0.875rem; text-align: left; }
+.cw-ev.k-court .row-main { border-left-color: var(--ochre); }
+.cw-ev.k-bill .row-main { border-left-color: var(--ink); }
+.cw-ev.k-task .row-main { border-left-color: var(--muted); }
+.cw-ev-t { font-family: var(--font-num); font-variant-numeric: tabular-nums; color: var(--muted); white-space: nowrap; }
+@media (pointer: fine) { .cw-month .cw-ev .row-main, .cw-week .cw-ev .row-main { min-height: 1.75rem; } }
+
+.cw-week { display: grid; grid-template-columns: repeat(var(--n, 7), minmax(0, 1fr)); gap: 0.6rem; }
+.cw-day { border-top: 3px solid var(--line); padding-top: 0.35rem; min-width: 0; }
+.cw-day.is-today { border-top-color: var(--leaf); }
+.cw-day.is-past { opacity: 0.6; }
+.cw-day-head { display: flex; flex-direction: column; margin-bottom: 0.35rem; }
+.cw-day-head small { color: var(--muted); }
+.cw-day ul { display: grid; gap: 0.2rem; }
+@container (max-width: 34rem) { .cw-week { grid-template-columns: 1fr; } .cw-day-head { flex-direction: row; gap: 0.5rem; } }
+
+.cw-month-title { font-weight: 700; margin-bottom: 0.4rem; }
+.cw-month { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: var(--rule); background: var(--line); border: var(--rule) solid var(--line); }
+.cw-wd { background: var(--paper); padding: 0.2rem 0.35rem; font-size: 0.75rem; font-weight: 700; color: var(--muted); }
+.cw-cell { background: var(--surface); min-height: 4.25rem; padding: 0.2rem 0.3rem; min-width: 0; overflow: hidden; }
+.cw-cell.out { background: var(--paper); color: var(--muted); }
+.cw-cell.is-past:not(.is-today) .cw-cell-n { color: var(--muted); }
+.cw-cell.is-today { box-shadow: inset 0 0 0 2px var(--leaf); }
+.cw-cell-n { font-family: var(--font-num); font-size: 0.8125rem; font-weight: 700; }
+.cw-cell ul { display: grid; gap: 0.1rem; margin-top: 0.1rem; }
+.cw-cell .cw-ev .row-main { font-size: 0.75rem; padding-left: 0.3rem; border-left-width: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
+.cw-more { font-size: 0.75rem; color: var(--muted); }
+.cw-dots { display: flex; flex-wrap: wrap; gap: 0.2rem; margin-top: 0.3rem; }
+.cw-dots i { width: 0.55rem; height: 0.55rem; border-radius: 50%; background: var(--leaf); }
+.cw-dots i.k-court { background: var(--ochre); }
+.cw-dots i.k-bill { background: var(--ink); }
+.cw-dots i.k-task { background: var(--muted); }
+
+.cw-figs { display: grid; grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr)); gap: 0.6rem; }
+.cw-fig { display: flex; flex-direction: column; padding: 0.5rem 0.65rem; background: var(--paper); border-radius: var(--radius); }
+.cw-fig strong { font-family: var(--font-num); font-size: 1.5rem; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.cw-fig span { font-weight: 600; font-size: 0.875rem; }
+.cw-fig small { color: var(--muted); }
+.cw-fig.late { background: var(--ochre-soft); }
+.cw-fig.late strong { color: var(--ochre); }
+
+.cw-answers + .cw-answers { border-top: var(--rule) solid var(--line); padding-top: 0.75rem; }
+.cw-answers h3 { font-size: 0.9375rem; margin-bottom: 0.35rem; }
+.cw-answers dl { display: grid; grid-template-columns: minmax(6rem, max-content) 1fr; gap: 0.2rem 0.75rem; margin: 0; }
+.cw-answers dt { color: var(--muted); font-size: 0.875rem; }
+.cw-answers dd { margin: 0; font-size: 0.9375rem; }
+@container (max-width: 22rem) { .cw-answers dl { grid-template-columns: 1fr; } .cw-answers dd { margin-bottom: 0.35rem; } }
+
+.cw-count li { display: grid; grid-template-columns: 3.5ch auto 1fr; align-items: center; gap: 0.5rem; border-top: var(--rule) solid var(--line); }
+.cw-count strong { font-family: var(--font-num); font-size: 1.6rem; text-align: right; font-variant-numeric: tabular-nums; }
+.cw-count li > span { color: var(--muted); font-size: 0.8125rem; }
+.cw-launch { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.cw-body-log li { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem 0.75rem; padding: 0.35rem 0; border-top: var(--rule) solid var(--line); }
+.cw-body-log .chips { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+.cw-body-log .chip { min-height: 0; padding: 0.1rem 0.55rem; font-size: 0.8125rem; cursor: default; }
+.cw-history { width: 100%; max-width: none; }
+.cw-week .cw-ev .row-main { flex-wrap: wrap; gap: 0 0.4rem; }
+.cw-ev-t { margin-right: 0.3rem; }

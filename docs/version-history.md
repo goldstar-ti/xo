@@ -4,6 +4,7 @@
 
 | Version | Date | Change |
 |---|---|---|
+| 2.34.0 | 2026-11-28 | The Canvas gains 22 content widgets from the Bridge: clock, week strip, month calendar, days until, next up, the day, today's three, coming up, daily line, task list, add a task, diary, routine, duties, bills, money totals, check-ins this week, check-in answers, body log, plan card, plan progress and shortcuts. Each is drawn from its screen's own code, has options and is grouped in Widgets. |
 | 2.33.0 | 2026-11-28 | Canvas widgets can be placed more than once, renamed and given options: an Options tool on each title bar, an Add another button in Widgets, and a Show the page heading option on every screen widget. Widgets can redraw themselves on a timer and when the day changes. |
 | 2.32.0 | 2026-11-28 | The Diary flows into columns on a wide main area (84rem and up). Day line times stay on one line, buttons get a little space above and below, and the Web Awesome kit widens the time column with letter spacing. |
 | 2.31.0 | 2026-11-28 | A right-hand pane on wide screens (60rem and up): Settings, Appearance, check-ins, the Look panel and the plan card open as tabs beside the main screen, with a drag handle for its width. Phones keep full screens and dialogs. |

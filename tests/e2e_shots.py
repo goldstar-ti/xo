@@ -144,6 +144,22 @@ with sync_playwright() as p:
             page.keyboard.press("Escape")
             expect(page.locator("dialog[open]")).to_have_count(0)
 
+    # --- the canvas with the Bridge widgets on it, xo kit, every width
+    page.evaluate("k => window.XOLook.change((s, look) => { look.kit = k; })", "xo")
+    page.goto(BASE)
+    page.reload()
+    page.goto(f"{BASE}/#/canvas")
+    page.wait_for_selector(".xo-canvas .xo-board", timeout=20000)
+    page.set_viewport_size(SIZES["1920"])
+    for wid in ("clock", "month", "dayline", "tasks-list", "bills-list", "plancard"):
+        page.get_by_role("button", name="Widgets", exact=True).click()
+        page.locator(f"dialog.xo-pop[open] [data-widget='{wid}']").check()
+        page.evaluate("document.querySelectorAll('dialog.xo-pop[open]').forEach((d) => d.close())")
+    for width, size in SIZES.items():
+        page.set_viewport_size(size)
+        page.wait_for_timeout(400)
+        shot(page, "xo", "canvas", width)
+
     # --- the pane on (no xo-pane value), xo kit only, at the two widest sizes
     pane_ctx = browser.new_context(viewport=SIZES["1920"], timezone_id=TZ, locale="en-AU", reduced_motion="reduce")
     pane_page = pane_ctx.new_page()

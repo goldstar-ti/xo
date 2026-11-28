@@ -218,7 +218,8 @@ with sync_playwright() as p:
     expect(w.get_by_text("No widget matches.")).to_be_visible()
     expect(w.locator(".xo-wlist li:visible")).to_have_count(0)
     w.get_by_role("searchbox", name="Find a widget").fill("bill")
-    expect(w.locator(".xo-wlist li:visible")).to_have_count(1)
+    # Bills and Bills list.
+    expect(w.locator(".xo-wlist li:visible")).to_have_count(2)
     pg.get_by_role("button", name="Widgets", exact=True).click()
     expect(pop(pg)).to_have_count(0)
     assert node(pg, "bills")["h"] == 16
@@ -387,7 +388,32 @@ with sync_playwright() as p:
     pop(pg).locator("#f-title").fill("Everything")
     pop(pg).get_by_role("button", name="Create canvas").click()
     ids = pg.evaluate("async () => Object.keys((await import('/js/widgets.js')).WIDGETS)")
-    assert len(ids) >= 13, ids
+    assert len(ids) >= 35, ids
+    bridge = [
+        "clock",
+        "next",
+        "dayline",
+        "three",
+        "coming",
+        "line",
+        "nudge",
+        "week",
+        "month",
+        "tasks-list",
+        "quick",
+        "diary-list",
+        "routine-list",
+        "bills-list",
+        "money",
+        "obligations-list",
+        "checkins-week",
+        "history",
+        "plancard",
+        "launcher",
+        "body",
+        "countdown",
+    ]
+    assert len(bridge) == 22 and all(b in ids for b in bridge), ids
     for wid in ids:
         pg.get_by_role("button", name="Widgets", exact=True).click()
         pop(pg).locator(f"[data-widget='{wid}']").check()
@@ -399,6 +425,37 @@ with sync_playwright() as p:
     pg.get_by_role("button", name="Reset layout").click()
     assert node(pg, "today")["w"] == 12 and node(pg, "today")["h"] == 24
     pg.screenshot(path=SHOTS / "canvas-everything.png", full_page=True)
+
+    # The Bridge widgets: the clock shows seconds when asked, the month moves, the countdown follows its option.
+    expect(widget(pg, "clock").locator(".cw-time")).to_be_visible()
+    expect(widget(pg, "clock").locator(".cw-sec")).to_have_count(0)
+    tool(pg, "clock", "Options")
+    pop(pg).locator("#f-seconds").check()
+    pop(pg).get_by_role("button", name="Save options").click()
+    expect(widget(pg, "clock").locator(".cw-sec")).to_have_text(re.compile(r"^\d\d$"))
+    title = widget(pg, "month").locator(".cw-month-title")
+    first = title.inner_text()
+    tool(pg, "month", "Next")
+    expect(title).not_to_have_text(first)
+    tool(pg, "month", "Previous")
+    expect(title).to_have_text(first)
+    expect(widget(pg, "countdown").locator(".cw-body, .xo-w-body").first).not_to_contain_text("Countdown test bill")
+    pg.evaluate(
+        """async () => {
+          const store = await import('/js/store.js');
+          const u = await import('/js/util.js');
+          const due = u.addDays(u.today(), 3);
+          const data = { name: 'Countdown test bill', amount: 10, due, repeat: 'monthly', finished: false, custom: {} };
+          await store.save('bill', u.uid(), data);
+        }"""
+    )
+    tool(pg, "countdown", "Options")
+    pop(pg).locator("#f-what").select_option("bills")
+    pop(pg).get_by_role("button", name="Save options").click()
+    expect(widget(pg, "countdown").locator(".cw-count")).to_contain_text("Countdown test bill")
+    expect(
+        widget(pg, "countdown").locator(".cw-count li", has_text="Countdown test bill").locator("strong")
+    ).to_have_text("3")
 
     # A check-in saved inside its widget stays on the canvas.
     widget(pg, "checkin-weekly").get_by_role("button", name="Save check-in").click()

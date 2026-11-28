@@ -85,10 +85,108 @@ canvas:
     to_pane: opening a widget in a side tab
     options: changing a widget's options
   # Group headings in the Widgets list: add 'key: Heading' for each `group` a widget names in widgets.js.
-  groups: {}
+  groups:
+    today: Today
+    time: Time and dates
+    lists: Lists
+    money: Money
+    checkins: Check-ins
+    plan: Plan and shortcuts
   # Option labels, by widget: opts.<widget>.<option>, and for a choice opts.<widget>.<option>_<value>.
   opts:
     heading: Show the page heading
+    clock:
+      seconds: Show seconds
+      date: Show the date
+      greet: Show the greeting from Appearance
+      scale: Size
+      scale_s: Small
+      scale_m: Medium
+      scale_l: Large
+      scale_xl: Extra large
+    week:
+      from: Start on
+      from_today: Today
+      from_monday: Monday
+      days: Days shown
+      days_5: 5 days
+      days_7: 7 days
+      days_14: 14 days
+    month:
+      weekStart: Week starts on
+      weekStart_monday: Monday
+      weekStart_sunday: Sunday
+      detail: Show entries as
+      detail_dots: Dots
+      detail_titles: Titles
+    countdown:
+      what: Count down to
+      what_court: Court dates
+      what_appointments: All appointments
+      what_bills: Bills
+      what_all: Appointments and bills
+    dayline:
+      past: Entries that have passed
+      past_show: Show as they are
+      past_fade: Fade
+      past_hide: Hide
+    coming:
+      ahead: How far ahead
+      ahead_7: 7 days
+      ahead_14: 14 days
+      ahead_30: 30 days
+      ahead_60: 60 days
+    tasks-list:
+      quick: Show the add box
+      review: Show review, Done and Archived
+    diary-list:
+      ahead: How far ahead
+      ahead_0: Everything
+      ahead_7: 7 days
+      ahead_14: 14 days
+      ahead_30: 30 days
+      ahead_90: 90 days
+    obligations-list:
+      part: Section
+      part_all: All four sections
+      part_court: Court dates
+      part_courtTasks: Court tasks
+      part_conditions: Conditions
+      part_reports: Reports to the officer
+    bills-list:
+      ahead: How far ahead
+      ahead_0: Everything
+      ahead_14: 14 days
+      ahead_30: 30 days
+      ahead_60: 60 days
+    money:
+      count: Bills listed
+      count_3: '3'
+      count_5: '5'
+      count_10: '10'
+      count_20: '20'
+    checkins-week:
+      days: Days in the table
+      days_3: 3 days
+      days_7: 7 days
+      days_14: 14 days
+      days_28: 28 days
+    history:
+      type: Which check-ins
+      type_all: All check-ins
+      type_morning: Morning check-ins
+      type_evening: Evening check-ins
+      type_weekly: Weekly reviews
+      days: Period
+      days_3: 3 days
+      days_7: 7 days
+      days_14: 14 days
+      days_35: 35 days
+    body:
+      days: Period
+      days_3: 3 days
+      days_7: 7 days
+      days_14: 14 days
   widgets:
     today: Today
     diary: Diary
@@ -110,3 +208,107 @@ canvas:
     tracker-due: Tracker due
     tracker-summary: Tracker summary
     tracker-board: Tracker board
+    clock: Clock
+    week: Week strip
+    month: Month calendar
+    countdown: Days until
+    next: Next up
+    dayline: The day
+    three: Today's three
+    coming: Coming up
+    line: Daily line
+    tasks-list: Task list
+    quick: Add a task
+    diary-list: Diary list
+    routine-list: Routine list
+    obligations-list: Duties list
+    bills-list: Bills list
+    money: Money
+    checkins-week: Check-ins this week
+    history: Check-in answers
+    body: Body log
+    plancard: Plan card
+    nudge: Plan progress
+    launcher: Shortcuts
+  # What each widget shows, one line each (for the widget picker and docs).
+  about:
+    clock: The time and the date, large.
+    week: Each day side by side with its appointments, bills and task due dates.
+    month: A month grid with appointments, court dates, bills and task due dates.
+    countdown: The number of days until each coming date, in order.
+    next: The next thing on the day line, or when to get ready and leave.
+    dayline: Routines, conditions, appointments and check-ins in time order, with Now marked.
+    three: The tasks you picked for today.
+    coming: Appointments, task due dates and bills ahead, soonest first.
+    line: One line for the day, from the built-in lines and your own.
+    tasks-list: The task lists, with the add box.
+    quick: The add box on its own.
+    diary-list: Appointments by day, with travel and getting-ready times.
+    routine-list: Each routine with its time and the last seven days of ticks.
+    obligations-list: Court dates, court tasks, conditions and reports. Choose one section or all four.
+    bills-list: Open bills, soonest first, with the total for the next 30 days.
+    money: Totals for bills overdue, due this week and due this month, paid by hand or automatically.
+    checkins-week: Start today's check-ins and see which days have one saved.
+    history: Your saved check-in answers, as you wrote and picked them.
+    body: What you picked for your body in each check-in, day by day.
+    plancard: 'Your plan card: warning signs, what you do instead, people and services.'
+    nudge: How many plan boxes are filled, and the next one to write.
+    launcher: Buttons for every add form and check-in.
+  # Wording inside the widgets, by widget.
+  cw:
+    week:
+      free: Nothing booked
+    month:
+      previous: Previous
+      this_month: This month
+      next: Next
+      count: '{n} entries'
+      more: '{n} more'
+      weekdays: [Sun, Mon, Tue, Wed, Thu, Fri, Sat]
+    countdown:
+      empty: No dates ahead.
+      day: day
+      days: days
+    diary:
+      add: Add appointment
+    routine:
+      add: Add routine
+    bills:
+      add: Add bill
+    money:
+      bills: '{n} bills'
+      bills_one: 1 bill
+      overdue: Overdue
+      week: Due in 7 days
+      month: Due in 30 days
+      manual: To pay by hand, 30 days
+      autopay: Paid automatically, 30 days
+    checkins:
+      done_today: '{title}, saved today'
+    history:
+      empty: No check-ins saved in this period.
+      fields:
+        sleep: Sleep
+        body: Body
+        fuel: Food and water
+        goodlife: For the life I want
+        did: Today I
+        ok: Went all right
+        first: First thing tomorrow
+        signs: Early warning signs
+        signsAction: What I did about it
+    body:
+      empty: No body answers saved in this period.
+    plancard:
+      open: Open
+    nudge:
+      complete: Every box in your plan has something in it.
+    launcher:
+      appointment: Add appointment
+      court: Add court date
+      task: Add task
+      routine: Add routine
+      bill: Add bill
+      condition: Add condition
+      report: Add report
+      plan_card: My plan card
