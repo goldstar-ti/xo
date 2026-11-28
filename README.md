@@ -17,6 +17,8 @@ Version 1 covers:
 - **My plan**: the Relapse Prevention Plan, one box at a time, and a plan card one tap from every screen
 - **Appearance**: Standard and Advanced views in six groups (Colour, Text, Layout, Effects, Screens, Share and reset). Standard has the common choices; Advanced adds 151 colour themes, 493 fonts, sizes for each kind of text, colours for every element, spacing, zoom, shape, texture, layout variants, widget and tab colours, scheduled looks and look codes. A "Look" button in the header opens the quick panel on any screen
 
+On a wide window, Appearance and Settings open in a side pane beside the screen (`static/js/pane.js`). The canvas can start from a Bridge layout on very wide screens, and on a phone the screens share one round add button and a sheet.
+
 Not built yet, specced in `docs/ROADMAP.md`: the workbook in daily sittings, outputs for named readers, and the life story.
 `CLAUDE.md` is the guide for working on the code with Claude Code.
 
@@ -144,7 +146,7 @@ Dockerfile, docker-compose.yml, docker-compose.test.yml, Makefile
 
 ```bash
 make test-api     # API tests against a throwaway database in its own compose project
-make test-e2e     # tests/e2e.py once per kit (XO_KIT=xo, daisy, wa), then tests/e2e_look.py and tests/e2e_kits.py, on a throwaway app with an empty database
+make test-e2e     # tests/e2e.py once per kit (XO_KIT=xo, daisy, wa), then tests/e2e_look.py, tests/e2e_pane.py, tests/e2e_phone.py and tests/e2e_kits.py, on a throwaway app with an empty database
 make lint         # ruff check and format check
 make format       # ruff format and auto-fix
 ```
@@ -161,4 +163,4 @@ what is safe to record in check-ins before you use the warning-signs question. I
 This app is a personal organiser. Nobody monitors it, and it does not replace your psychologist,
 your lawyer, or your reporting contact.
 
-Typefaces: Atkinson Hyperlegible Next, Lexend, Fraunces, Space Grotesk and JetBrains Mono, all under the SIL Open Font License (see `static/fonts`).
+Typefaces: Inter Tight and Google Sans Flex are the default fonts, vendored with their licences. Atkinson Hyperlegible Next, Lexend, Fraunces, Space Grotesk and JetBrains Mono are also available, all under the SIL Open Font License (see `static/fonts`).

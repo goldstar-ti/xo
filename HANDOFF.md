@@ -4,19 +4,87 @@
 
 ### Design port run (2026-11-28, branch design-port)
 
-- An unattended run is under way from `/home/pj/.claude/plans/the-ui-is-still-federated-robin-of-f3ce7733-e502-4ca2-961d-837eda7af482.md`: phase A (Bridge port onto Canvas), phase B (design handoff, `docs/design/xo-design-handoff.md`, gaps in `docs/design/gap-list.md`), phase C (wrap-up).
-- Not merged and not deployed. The orchestrator fills in results here when the run ends.
+- Outcome: all steps A0 to B6e and C0 are committed on `design-port`. Draft PR #2 "XO design port" (https://github.com/goldstar-ti/xo/pull/2). Not merged, not deployed. Versions 2.29.0 to 2.50.0, decisions D-39 to D-50.
+- Plan sources: `docs/design/xo-design-handoff.md` (the design) and `docs/design/gap-list.md` (the gaps).
+- Commits per step:
+  - A0 `752a0ae` handoff doc, gap list, shot sizes.
+  - A1 `92d7f52` screen parts (2.29.0).
+  - A2 `238623d` fluid text (D-39, 2.30.0).
+  - A3 `d6d08c7` right-split pane (D-40, 2.31.0).
+  - A4 `9c06a9a` + `eee530a` Diary columns, wider time column (D-43, 2.32.0).
+  - A5 `2bcb206` widget options, names, copies (D-41, 2.33.0).
+  - A6 `6680712` 22 Bridge widgets (D-44, 2.34.0).
+  - A7 `17230d2` widget dials, starter layout, phone order, layout codes (D-42, 2.35.0).
+  - Orchestrator `20d9740` lint wrap.
+  - B1 `92cee79` + `72caddd` Ink default, module colours, Today colour, weight tokens (D-45, 2.36.0).
+  - B2 `2e452d5` Inter Tight, Google Sans Flex (D-46, 2.37.0).
+  - B3 `6f0ef9e` tickBox, playRing, stepScale, menu, plainLink (D-47, 2.38.0).
+  - B4a `5825a2f` Today (D-48, 2.39.0).
+  - B4b `8183587` Diary, Routine (2.40.0).
+  - B4c `38aa24e` Tasks (2.41.0).
+  - B4d `14d7895` Duties, Bills (2.42.0).
+  - B4e `bb101f9` Check-ins, My plan (2.43.0).
+  - B4f `a0ed11c` + `d6c1659` Settings, Appearance, Appearance fits the pane (2.44.0).
+  - B5 `c7cc439` + `0b4b439` Bridge starter layout, 17 widgets, Board and Focus, rail dot, narrow widgets (D-49, 2.45.0).
+  - B6a `0304bfe` phone pattern C: shared round button and sheet, Today (D-50, 2.46.0).
+  - B6b `3d5c64d` Diary (2.47.0).
+  - B6c `baf7727` Tasks (2.48.0).
+  - B6d `274025e` Duties, Bills (2.49.0).
+  - B6e `1a7cd0f` Check-ins, My plan, Routine, More (2.50.0).
+  - C0 `8019870` dark Ink and light Foliage shots.
+- New files: `static/js/pane.js`, `content/text/pane.yaml`, `static/js/bridgewidgets.js`, `static/js/morewidgets.js`, `static/js/sheet.js`, `static/fonts/inter-tight.woff2`, `static/fonts/google-sans-flex.woff2` (with their licences), `tests/e2e_pane.py`, `tests/e2e_phone.py`, `docs/design/xo-design-handoff.md`, `docs/design/gap-list.md`.
+- Parked:
+  - Maximal mode (handoff section 8 item 6).
+  - Workbook, Life story and Outputs widgets (ROADMAP sections 1 to 3 are not built and have no data).
+  - Swatch strips for colour overrides (native hex inputs kept).
+- Tests: `make test-api`, `make lint` and `make test-e2e` pass on every step. New: `tests/e2e_pane.py`, `tests/e2e_phone.py`.
+- Flakes seen:
+  - `tests/e2e_look.py` "Reset Colours: Buttons" after the wa run (known, item 18 below); cleared on rerun after `docker compose -f docker-compose.test.yml down -v`.
+  - `tests/e2e.py` Settings download through the "Data actions" menu, once (menus close on scroll).
+- Not checked by a person in a browser: everything. Checked only through Playwright tests and screenshots (360, 1280, 1920 and 5120 px; dark Ink and light Foliage at 360 and 1920 px).
+- Defaults worth vetoing (most consequential first):
+  1. Ink is the default theme for new looks only; old XO2 look codes that left out the theme (because it was Foliage) now decode as Ink.
+  2. The Bridge layout lives on a canvas, and canvases sync to every device, so a Bridge canvas opened on a laptop squeezes nine columns (narrow widgets such as Routine list break). Suggest putting the Bridge on its own canvas tab.
+  3. Bridge is chosen by pixel width: a board of 3200 px or wider gets the Bridge flow; a brand-new first canvas on a 3840 px or wider window starts on the Bridge. 2 grid columns per track.
+  4. Fluid text is on by default (root about 26 px at 5120 wide).
+  5. Module colours on by default; Next up is the only solid block; the Today colour defaults to Module (indigo).
+  6. Sliders replaced by stepped scales plus preset chips (text size Smaller 92, Standard 100, Larger 114, Largest 128; zoom 75, 100, 125, 150; spacing 0.8, 1, 1.2, 1.4).
+  7. Appearance stacks its preview and tabs below 56rem of its own width (fits the side pane).
+  8. Pick stays a worded button on task rows; Add, Add task, Save bill and Save check-in stay worded as main actions.
+  9. The opening screen choice (auto, canvas, today) sits in Appearance, Screens, not Settings.
+  10. Check-ins on the phone show one question per screen with Back and Next.
+  11. Scratch pad saves to a visible note `note:scratch` (it also shows in Notes).
+  12. Narrow canvas widgets (under 20rem) hide their tools inside the three-dot menu.
+  13. The Bills chevron sits before the amount on rows (looks odd; a small follow-up).
+  14. Google Sans Flex is a Latin subset from the Google Fonts API (51 KB).
+  15. A1 (pure refactor) has no decisions entry; D-41 is written after D-43 in `docs/decisions.md`.
+- PJ to-do:
+  1. Review and merge PR #2 "XO design port" on GitHub.
+  2. Deploy from /home/pj/projects/xo on main after the merge: `make db-backup`, then `make up`, then `docker inspect xo-app --format '{{range .Mounts}}{{.Source}} -> {{.Destination}}{{println}}{{end}}'` and check the content/text mount source is /home/pj/projects/xo/content/text, then `curl -s http://172.17.0.1:8010/api/text | wc -c` and check it is well over 10000 bytes.
+  3. Decide about the `bridge-and-large-screens` branch: everything it had is now on design-port (rewritten), so it can be deleted with `git push origin --delete bridge-and-large-screens` once PR #2 is merged.
+  4. Decide where the Bridge lives: on its own canvas tab (suggested) or the main canvas (it squeezes on a laptop, see default 2).
+  5. On the 5K screen: open Canvas, Starter layout, Bridge (very wide screens); open Appearance and Settings to see them in the side pane.
+  6. On the phone: Today, Diary, Tasks, Duties, Bills, Check-ins, My plan, Routine, More: tap the round + button to try each sheet.
+  7. Answer the handoff section 10 open questions (light 300 or 350 for grey detail text; copper and sepia closeness; indigo as the Today default).
+  8. Veto any default above.
 
 - Deployed on gs-sv-008 at `https://xo.tifunction.com`, behind Cloudflare Access. The Access policy allows only the owner's email.
 - Private repository `goldstar-ti/xo`, branch `main`.
 - Stack: Docker Compose project `xo` (`xo-app`, `xo-db`), app published on `172.17.0.1:8010` behind NOBBIE's nginx. See `docs/RUNBOOK.md`.
-- Both component kits are served locally from `static/vendor/` and `static/tw.css`: daisyUI 5 (Tailwind plugin, `tw:` prefix) and Web Awesome 3 (`static/js/kit.js`). Forms, dialogs and toasts follow the Kit choice in Appearance (`ui.js`); screens do not yet.
+- Both component kits are served locally from `static/vendor/` and `static/tw.css`: daisyUI 5 (Tailwind plugin, `tw:` prefix) and Web Awesome 3 (`static/js/kit.js`). Forms, dialogs, toasts and the screens follow the Kit choice in Appearance (`ui.js`); the screens moved onto the kit controls in D-48.
 - Canvas screen `#/canvas` (D-9, 2.4.0): `static/js/views/canvas.js` mounts `static/js/canvas.js` (`mountCanvas(root)`; widget management in the More menu and the canvas bar, side tabs, undo), `static/js/tabs.js` (`tabStrip`, `tabSet`), registry `static/js/widgets.js` (every screen is a widget; 24 columns of 28px rows), styles `static/canvas.css`, text `content/text/canvas.yaml`, GridStack in `static/vendor/gridstack`. Covered by `tests/e2e_canvas.py`. The canvas bar and widget title bars use icon buttons (`iconButton()` in `static/js/icons.js`); the Widgets popover replaces Add widget; Redo is Ctrl+Shift+Z or Ctrl+Y; New canvas and Rename canvas are form popovers with an Icon field (`openIconPicker` in `static/js/iconpicker.js`); popovers are `openPopover()` in `static/js/popover.js`. Decision D-32.
 - Tracker screen `#/tracker` (D-10, 2.5.0): `static/js/views/tracker.js` and `static/js/tracker/` (model, list, detail, board, reports, projects, keys, widgets, nobbie). NOBBIE's tracker shows read-only once `NOBBIE_URL`, `NOBBIE_USER` and `NOBBIE_PASSWORD` are in `.env` (`app/nobbie.py`). Covered by `tests/e2e_tracker.py` and two API tests.
 - Tasks (2.8.0 to 2.11.0, D-19 to D-22): priority, categories, subtasks, repeats, dependencies, board and table views, filters, stale review, time blocks, pacing, close the day, command palette. Logic in `static/js/tasks.js`, data in `static/js/taskdata.js`, screen in `static/js/views/tasks.js`, palette in `static/js/palette.js`. Covered by `tests/e2e_tasks.py`.
 - Shortcuts, custom fields, Notes and dictation (2.12.0 to 2.17.0, D-24 and D-26 to D-29): every keyboard shortcut is configurable in Settings (`static/js/keymap.js`); custom fields on every kind of record (`static/js/customfields.js`); a Notes screen in Markdown with a toolbar and preview (`static/js/views/notes.js`, `mdeditor.js`, `markdown.js`, marked 18.2.0 vendored); dictation through the browser's speech service (`static/js/voice.js`). Covered by `tests/e2e_extras.py`.
 - Version 1 screens are built (Today, Diary, Tasks, Routine, Bills, Duties, Check-ins, My plan, Appearance). Specs for the rest are in `docs/ROADMAP.md`.
 - House style brought in from the owner's other project: `ruff.toml`, `docs/voice.md`, the Code style section of `CLAUDE.md`, `.claude/` skills, commands and guides, and `docs/decisions.md`.
+- Right-split pane (D-40): Appearance and Settings open beside the screen on wide windows; `static/js/pane.js`, text in `content/text/pane.yaml`, covered by `tests/e2e_pane.py`.
+- Fluid desktop text (D-39): the root text size scales with the window width; `static/js/boot.js`, `static/app.css`.
+- Ink and module colours (D-45): Ink is the default for new looks and each module has its own colour; `static/js/boot.js`.
+- Fonts (D-46): Inter Tight and Google Sans Flex are the default fonts, vendored in `static/fonts/`; `static/js/boot.js`.
+- New controls (D-47, D-48): tick box, play ring, stepped scale, three-dot menu and plain link in `static/js/ui.js`, one set for all three kits.
+- Bridge widgets and starter layout (D-44, D-49): 17 widgets in `static/js/bridgewidgets.js`, the starter layout in `static/js/canvas.js`; the canvas chooses the Bridge flow by width.
+- Phone pattern C (D-50): one round add button and a shared sheet, `static/js/sheet.js`, on Today, Diary, Tasks, Duties, Bills, Check-ins, My plan, Routine and More; covered by `tests/e2e_phone.py`.
 
 ## Next steps
 

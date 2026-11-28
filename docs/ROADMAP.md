@@ -6,6 +6,24 @@ Settings, Canvas, Tracker, Notes (in Markdown), and the full Appearance system (
 What follows are the next features, in build order: Records (the first smaller items), sections 1 to 3, then the Reporting register (4), GTD core (5), and sections 6 to 12 in the order set by D-18. Each is specced from decisions already made.
 Build one at a time, with tests, and keep each first version small. Each section gets its own plan session before building.
 
+## Built from the design port (2.29.0 to 2.50.0, D-39 to D-50)
+
+- **Fluid desktop text** (D-39): the text size scales with the window width.
+- **Right-split pane** (D-40): Appearance and Settings open beside the screen; `static/js/pane.js`.
+- **Bridge widgets and starter layout** (D-44, D-49): 22 Bridge widgets in `static/js/bridgewidgets.js`, and a canvas starter layout of 17 widgets.
+- **Design handoff items 1 to 5** (`docs/design/xo-design-handoff.md`, section 8):
+  1. Tokens and dials: Ink default, module colours, weight and size tokens, Inter Tight and Google Sans Flex (D-45, D-46).
+  2. Controls in `static/js/ui.js`: tick box, play ring, stepped scale, menu and plain link (D-47).
+  3. Screens moved onto the controls in batches (D-48).
+  4. Bridge canvas layout (D-49).
+  5. Phone screens in pattern C (D-50).
+
+## Parked from the design handoff
+
+- Maximal mode (handoff section 8 item 6): an 8-column phone grid with text that resizes to fit.
+- Workbook, Life story and Outputs widgets: sections 1 to 3 below are not built, so there is no data for them.
+- Swatch strips for colour overrides: the native hex inputs stay.
+
 ---
 
 ## 1. Workbook in daily sittings
