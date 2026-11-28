@@ -5,7 +5,8 @@ TEST := docker compose -f docker-compose.test.yml
 BACKUP_DIR := ./backups
 BUN := docker run --rm --user "$$(id -u):$$(id -g)" -e HOME=/tmp -v "$(CURDIR)":/x -w /x/tailwind oven/bun:1-debian
 
-.PHONY: family-themes icons help up down restart-app logs ps health db-backup db-restore confirm css test test-api test-e2e test-down shots lint format
+.PHONY: family-themes icons help up down restart-app logs ps health db-backup db-restore confirm css test test-api test-e2e test-down shots lint format seed-demo seed-demo-remove
+SEED_COMPOSE ?= docker compose
 RUFF := docker run --rm -w /srv/xo
 RUFF_PATHS := app scripts tests
 
@@ -87,3 +88,9 @@ shots: ## Screenshots of every screen in every kit and two widths into ./.scratc
 
 test-down: ## Remove the throwaway test stack if a run was interrupted.
 	$(TEST) down -v
+
+seed-demo: ## Fill the running app with made-up data (overwrites check-ins and the plan). See scripts/seed_demo.py.
+	$(SEED_COMPOSE) exec -T app python - < scripts/seed_demo.py
+
+seed-demo-remove: ## Soft-delete the made-up data (the plan stays).
+	$(SEED_COMPOSE) exec -T app python - --remove < scripts/seed_demo.py
