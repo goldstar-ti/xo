@@ -84,8 +84,8 @@ export const isOn = (id) => {
   return !BY_ID[id] || BY_ID[id].core === true || !offList().includes(id);
 };
 
-/** True when the canvas widget's module is on. A widget with no module is always on. */
-export const widgetOn = (id) => isOn(BY_WIDGET[id]);
+/** True when the canvas widget's module is on. Takes a placed id (`bills:2` counts as `bills`). A widget with no module is always on. */
+export const widgetOn = (id) => isOn(BY_WIDGET[String(id).split(':')[0]]);
 
 /** True when the module that owns this reminder kind is on. */
 export const reminderOn = (kind) => {

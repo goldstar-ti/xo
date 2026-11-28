@@ -6,8 +6,21 @@
 //   id:     key of WIDGETS, matching ^[a-z0-9-]{1,40}$
 //   title:  text key of the widget's title ('canvas.widgets.<id>')
 //   w, h:   default size in grid cells (24 columns; a row is 28px)
-//   render: (body, ctx) => optional cleanup function. body is the empty widget body to fill;
-//           ctx is { id, canvasId }. Called each time the widget is placed or the canvas is redrawn.
+//   render: (body, ctx) => optional cleanup function. body is the empty widget body to fill. Called each
+//           time the widget is placed or the canvas is redrawn. ctx is
+//             { id, type, canvasId, opts, state, redraw }
+//           id is the placed id (`bills`, or `bills:2` for a second copy), type the registry id, opts the
+//           widget's options with defaults filled in (plus `title` when it has been renamed), state a plain
+//           object kept in memory for this placed widget while the canvas is open, and redraw() draws it again.
+//   opts:   optional [{ k, type: 'bool' | 'choice', def, values, label }]. The title bar's Options tool shows a
+//           Name field and one control per option. label is a text key; it defaults to
+//           'canvas.opts.<id>.<k>', and a choice value is labelled 'canvas.opts.<id>.<k>_<value>'.
+//   group:  optional string key; the Widgets popover groups rows under the heading 'canvas.groups.<group>'.
+//   tools:  optional (ctx) => [{ key, ico, label, run }]: extra title bar buttons (label already translated).
+//   tick:   optional 'minute' | 'second', a hint for liveWidget (the widget passes it there itself).
+//
+// A widget can be placed more than once. A copy's placed id is `<type>:<n>` (n from 2); always use typeOf(id)
+// to reach the registry entry for a placed id.
 //
 // Every screen is a widget (viewWidget): the screen draws into the widget body exactly as it
 // draws into the page, and a live screen redraws when the store changes, as app.js does for the page.
@@ -33,11 +46,96 @@ export function registerWidget(id, def) {
   return WIDGETS[id];
 }
 
+/** The registry id of a placed id: `bills:2` is `bills`. */
+export const typeOf = (id) => String(id).split(':')[0];
+
+/**
+ * The options a stored widget may carry: known keys with valid values only, plus `title` (trimmed, at most 60
+ * characters) when it is not empty. Unknown types keep only the title. Missing options are left out; use
+ * optsFor() for the values with defaults filled in.
+ *
+ * @param {string} type The registry id.
+ * @param {object} raw Whatever was stored or typed.
+ * @returns {object} A new object.
+ */
+export function cleanOpts(type, raw) {
+  raw = raw && typeof raw === 'object' ? raw : {};
+  const out = {};
+  const title = typeof raw.title === 'string' ? raw.title.trim().slice(0, 60) : '';
+  if (title) out.title = title;
+  for (const o of WIDGETS[type]?.opts || []) {
+    if (!(o.k in raw)) continue;
+    if (o.type === 'bool') { if (typeof raw[o.k] === 'boolean') out[o.k] = raw[o.k]; }
+    else if (typeof raw[o.k] === 'string' && (o.values || []).includes(raw[o.k])) out[o.k] = raw[o.k];
+  }
+  return out;
+}
+
+/** cleanOpts() with every option's default filled in: what a widget reads as ctx.opts. */
+export function optsFor(type, raw) {
+  const out = {};
+  for (const o of WIDGETS[type]?.opts || []) out[o.k] = o.def;
+  return { ...out, ...cleanOpts(type, raw) };
+}
+
+const dayKey = () => new Date().toDateString();
+const typingIn = (root) => {
+  const a = document.activeElement;
+  return !!a && root.contains(a) && !!a.closest?.('input, textarea, select, [contenteditable]:not([contenteditable="false"])');
+};
+
+/**
+ * Keeps a widget drawn. Calls draw() once now, then again when the store changes, on a minute or second timer
+ * (tick), and when the day changes. A redraw waits while a dialog or form popover is open, or (with root) while
+ * the keyboard focus is in a field inside root, and runs when that ends. With root, nothing redraws while root
+ * is off screen or the tab is hidden; it catches up when it is seen again.
+ *
+ * @param {Function} draw Redraws the widget. Takes no arguments.
+ * @param {object} [options] { tick: 'minute' | 'second' | null, root: the widget body, for the guards above }.
+ * @returns {Function} Cleanup: call it when the widget goes. Returning it from render() does that.
+ */
+export function liveWidget(draw, { tick = null, root = null } = {}) {
+  let pending = false;
+  let visible = true;
+  let day = dayKey();
+  const hidden = () => document.visibilityState !== 'visible' || !visible;
+  const go = () => {
+    if (root && !root.isConnected) return;
+    if (dialogOpen() || hidden() || (root && typingIn(root))) { pending = true; return; }
+    pending = false;
+    draw();
+  };
+  const flush = () => { if (pending) go(); };
+  draw();
+  const off = store.onChange(go);
+  const timer = setInterval(() => {
+    const today = dayKey();
+    if (today !== day) { day = today; go(); } else if (tick) go();
+  }, tick === 'second' ? 1000 : 60000);
+  const io = root && typeof IntersectionObserver === 'function'
+    ? new IntersectionObserver((entries) => { visible = entries[entries.length - 1].isIntersecting; flush(); })
+    : null;
+  io?.observe(root);
+  document.addEventListener('close', flush, true);
+  document.addEventListener('visibilitychange', flush);
+  root?.addEventListener('focusout', flush);
+  return () => {
+    off();
+    clearInterval(timer);
+    io?.disconnect();
+    document.removeEventListener('close', flush, true);
+    document.removeEventListener('visibilitychange', flush);
+    root?.removeEventListener('focusout', flush);
+  };
+}
+
 // A render function that shows a screen (a module with render(root, ...params) and live) in a widget.
 // A live screen redraws when the store changes, waiting while a dialog is open; Today also redraws
 // each minute so its clock moves. The body keeps its scroll position across a redraw.
 export function viewWidget(view, ...params) {
-  return (body) => {
+  return (body, ctx) => {
+    // The Show heading option hides the screen's own page heading (the widget title bar already names it).
+    body.classList.toggle('xo-hide-head', ctx?.opts?.heading === false);
     const draw = () => {
       const y = body.scrollTop;
       body.replaceChildren();
@@ -80,7 +178,13 @@ const SCREENS = [
   ['appearance', appearanceView, [], 12, 24],
 ];
 for (const [id, view, params, w, h] of SCREENS) {
-  registerWidget(id, { title: `canvas.widgets.${id}`, w, h, render: viewWidget(view, ...params) });
+  registerWidget(id, {
+    title: `canvas.widgets.${id}`,
+    w,
+    h,
+    opts: [{ k: 'heading', type: 'bool', def: true, label: 'canvas.opts.heading' }],
+    render: viewWidget(view, ...params),
+  });
 }
 
 // The Tracker screen as a widget (it redraws itself), then the tracker's own widgets.

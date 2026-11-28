@@ -312,6 +312,68 @@ with sync_playwright() as p:
     widget(pg, "bills").get_by_role("button", name="Roll down").click()
     assert node(pg, "bills")["h"] == 16
 
+    # Copies, names and options: Add another puts a second Bills beside the first; the Options tool renames it
+    # and hides its page heading; Undo takes both back; after a reload both copies keep their names.
+    pg.get_by_role("button", name="Widgets", exact=True).click()
+    row = pop(pg).locator(".xo-wlist li:has([data-widget='bills'])")
+    expect(row.locator(".xo-wcount")).to_be_hidden()
+    row.get_by_role("button", name="Add another Bills").click()
+    expect(widget(pg, "bills:2")).to_have_count(1)
+    expect(row.locator(".xo-wcount")).to_have_text("2 on this canvas")
+    pop(pg).get_by_role("button", name="Close", exact=True).click()
+    expect(widget(pg, "bills:2").locator(".xo-w-title")).to_have_text("Bills")
+    expect(widget(pg, "bills:2").locator(".page-head h1")).to_be_visible()
+    tool(pg, "bills:2", "Options")
+    pop(pg).locator("#f-title").fill("  Rent  ")
+    pop(pg).locator("#f-heading").uncheck()
+    pop(pg).get_by_role("button", name="Save options").click()
+    expect(widget(pg, "bills:2").locator(".xo-w-title")).to_have_text("Rent")
+    expect(widget(pg, "bills:2").locator(".page-head h1")).to_be_hidden()
+    expect(widget(pg, "bills")).to_have_count(1)
+    expect(widget(pg, "bills").locator(".xo-w-title")).to_have_text("Bills")
+    pg.get_by_role("button", name="Undo").click()
+    expect(pg.locator("#toast")).to_contain_text("Undone: changing a widget's options.")
+    expect(widget(pg, "bills:2").locator(".xo-w-title")).to_have_text("Bills")
+    expect(widget(pg, "bills:2").locator(".page-head h1")).to_be_visible()
+    pg.get_by_role("button", name="Redo").click()
+    expect(widget(pg, "bills:2").locator(".xo-w-title")).to_have_text("Rent")
+    tool(pg, "bills", "Options")
+    pop(pg).locator("#f-title").fill("Household")
+    pop(pg).get_by_role("button", name="Save options").click()
+    expect(widget(pg, "bills").locator(".xo-w-title")).to_have_text("Household")
+    with pg.expect_response(lambda r: r.request.method == "PUT" and "/api/items/canvas" in r.url):
+        pg.locator(".side").get_by_role("link", name="Today").click()
+    pg.wait_for_selector(".dayline")
+    pg.reload()
+    pg.wait_for_selector(".dayline", timeout=20000)
+    open_canvas(pg)
+    expect(widget(pg, "bills")).to_have_count(1)
+    expect(widget(pg, "bills:2")).to_have_count(1)
+    expect(widget(pg, "bills").locator(".xo-w-title")).to_have_text("Household")
+    expect(widget(pg, "bills:2").locator(".xo-w-title")).to_have_text("Rent")
+    expect(widget(pg, "bills:2").locator(".page-head h1")).to_be_hidden()
+    expect(widget(pg, "bills").locator(".page-head h1")).to_be_visible()
+    # Unticking Bills in Widgets takes both copies off, and one Undo brings both back with their names.
+    pg.get_by_role("button", name="Widgets", exact=True).click()
+    pop(pg).get_by_role("checkbox", name="Bills", exact=True).uncheck()
+    expect(widget(pg, "bills")).to_have_count(0)
+    expect(widget(pg, "bills:2")).to_have_count(0)
+    pop(pg).get_by_role("button", name="Close", exact=True).click()
+    pg.get_by_role("button", name="Undo").click()
+    expect(widget(pg, "bills:2").locator(".xo-w-title")).to_have_text("Rent")
+    expect(widget(pg, "bills").locator(".xo-w-title")).to_have_text("Household")
+    helpers = pg.evaluate("""async () => {
+      const { cleanOpts, typeOf } = await import('/js/widgets.js');
+      return {
+        type: typeOf('bills:2'), plain: typeOf('bills'),
+        kept: cleanOpts('bills', { title: '  Name  ', heading: false, bogus: 1 }),
+        dropped: cleanOpts('bills', { heading: 'yes', title: 7 }),
+        long: cleanOpts('bills', { title: 'x'.repeat(100) }).title.length,
+      };
+    }""")
+    want = {"type": "bills", "plain": "bills", "kept": {"title": "Name", "heading": False}, "dropped": {}, "long": 60}
+    assert helpers == want, helpers
+
     # Delete the second canvas through Rename: two presses on Delete.
     tabs.get_by_role("tab", name="Second").click()
     pg.get_by_role("button", name="Rename canvas").click()

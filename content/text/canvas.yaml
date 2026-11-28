@@ -26,6 +26,9 @@ canvas:
   widgets_note: Ticked widgets are on this canvas.
   widgets_search: Find a widget
   widgets_none: No widget matches.
+  add_another: Add another
+  add_another_for: Add another {name}
+  copies: '{n} on this canvas'
   new: New canvas
   new_title: New canvas
   new_save: Create canvas
@@ -49,6 +52,11 @@ canvas:
   m_focus: 'Focus: roll up the others'
   m_fit: Fit to content
   m_reset_size: Reset size
+  m_options: Options
+  opt_title: 'Options: {name}'
+  opt_name: Name
+  opt_name_hint: Leave empty to use the widget's own name.
+  opt_save: Save options
   m_to_pane: Open in side tab
   m_move_to: Move to canvas
   leave_zoom: Leave zoom
@@ -75,6 +83,12 @@ canvas:
     focus: focus
     move_canvas: moving a widget to another canvas
     to_pane: opening a widget in a side tab
+    options: changing a widget's options
+  # Group headings in the Widgets list: add 'key: Heading' for each `group` a widget names in widgets.js.
+  groups: {}
+  # Option labels, by widget: opts.<widget>.<option>, and for a choice opts.<widget>.<option>_<value>.
+  opts:
+    heading: Show the page heading
   widgets:
     today: Today
     diary: Diary

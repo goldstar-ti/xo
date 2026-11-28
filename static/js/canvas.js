@@ -4,15 +4,18 @@
 //   const canvas = await mountCanvas(root);   // and canvas.destroy() when the screen leaves
 //
 // Each canvas is one item of kind `canvas`, id `canvas:<uuid>`, synced like any other item:
-//   { title, order, items: { <widgetId>: { x, y, w, h } }, closed: { <widgetId>: { w, h } },
-//     rolled: { <widgetId>: { h } } }
-// items are the widgets on the board; closed keeps the size of a widget taken off, so ticking it in
-// Widgets puts it back at that size; rolled keeps the height to restore when a rolled-up widget opens.
+//   { title, icon, order, items: { <placedId>: { x, y, w, h } }, closed: { <placedId>: { w, h, opts? } },
+//     rolled: { <placedId>: { h } }, opts: { <placedId>: { title?, ...options } } }
+// items are the widgets on the board; closed keeps the size (and options) of a widget taken off, so ticking
+// it in Widgets puts it back as it was; rolled keeps the height to restore when a rolled-up widget opens.
+// A placed id is the registry id (`bills`) for the first copy and `bills:2`, `bills:3` for more; typeOf()
+// gives the registry id. opts holds each widget's name and options (cleanOpts() in widgets.js); never put
+// options in items, which are overwritten with bare geometry.
 // Widgets come from WIDGETS (static/js/widgets.js). An id no longer in the registry is kept in
 // the saved canvas and simply not shown.
 //
-// Widget title bar: icon tools (Refresh, Zoom, Focus, Fit to content, Reset size, Open in side
-// tab; they show on hover or focus and drop into More when the bar is narrow), then Roll up, More,
+// Widget title bar: icon tools (Refresh, Zoom, Focus, Fit to content, Reset size, Options, the widget's own
+// tools, Open in side tab; they show on hover or focus and drop into More when the bar is narrow), then Roll up, More,
 // grip (Alt+Arrow moves, Alt+Shift+Arrow resizes) and Take off. The More menu lists the tools the
 // bar had no room for, then Move to another canvas. The canvas bar is icon buttons: Widgets (a
 // popover of ticks that puts widgets on and takes them off), Fit all, Reset layout, Undo (also
@@ -37,7 +40,7 @@ import { t } from './text.js';
 import { button, checkbox, field, searchBox } from './ui.js';
 import { dialogOpen, h, motionStill, openForm, toast, uid } from './util.js';
 import { widgetOn } from './modules.js';
-import { WIDGETS } from './widgets.js';
+import { WIDGETS, cleanOpts, optsFor, typeOf } from './widgets.js';
 
 const COLUMNS = 24;
 const CELL_PX = 28; // Two rows hold a 2.5rem title bar once the margins are taken off.
@@ -51,7 +54,29 @@ const ACTIVE_KEY = 'xo-canvas';
 const PANE_KEY = 'xo-canvas-pane';
 const PHONE = '(max-width: 39.99rem)';
 
-const blank = (title, order, icon = '') => ({ title, icon, order, items: {}, closed: {}, rolled: {} });
+const blank = (title, order, icon = '') => ({ title, icon, order, items: {}, closed: {}, rolled: {}, opts: {} });
+const PLACED_RE = /^[a-z0-9-]{1,40}(:[0-9]{1,3})?$/;
+const MAX_COPIES = 99;
+const defOf = (id) => WIDGETS[typeOf(id)];
+
+// Per-widget options, kept only for placed ids that are well formed, each cleaned for its widget type.
+function cleanOptsMap(raw) {
+  const out = {};
+  if (!raw || typeof raw !== 'object') return out;
+  for (const [id, o] of Object.entries(raw)) {
+    if (!PLACED_RE.test(id)) continue;
+    const kept = cleanOpts(typeOf(id), o);
+    if (Object.keys(kept).length) out[id] = kept;
+  }
+  return out;
+}
+
+// The first free placed id for a widget type on a canvas: `bills`, then `bills:2`, `bills:3`.
+function freeId(c, type) {
+  if (!c.items[type]) return type;
+  for (let n = 2; n <= MAX_COPIES; n++) if (!c.items[`${type}:${n}`]) return `${type}:${n}`;
+  return null;
+}
 const copy = (v) => JSON.parse(JSON.stringify(v));
 
 function clean(data) {
@@ -63,6 +88,7 @@ function clean(data) {
     items: d.items && typeof d.items === 'object' ? d.items : {},
     closed: d.closed && typeof d.closed === 'object' ? d.closed : {},
     rolled: d.rolled && typeof d.rolled === 'object' ? d.rolled : {},
+    opts: cleanOptsMap(d.opts),
   };
 }
 
@@ -77,7 +103,7 @@ function writeLocal(key, value) {
 function renderWidget(id, body, ctx) {
   body.replaceChildren();
   try {
-    const done = WIDGETS[id].render?.(body, ctx);
+    const done = defOf(id).render?.(body, ctx);
     return typeof done === 'function' ? done : null;
   } catch (err) {
     console.error(`widget ${id} failed`, err);
@@ -140,7 +166,20 @@ export async function mountCanvas(root) {
 
   const current = () => canvases.get(activeId);
   const itemEl = (id) => board.querySelector(`.grid-stack-item[data-widget="${CSS.escape(id)}"], .xo-board-list > [data-widget="${CSS.escape(id)}"]`);
-  const placed = (c = current()) => Object.keys(c.items).filter((id) => WIDGETS[id] && widgetOn(id));
+  const placed = (c = current()) => Object.keys(c.items).filter((id) => defOf(id) && widgetOn(id));
+  // The name a widget shows: the owner's own, or the registry's.
+  const nameOf = (id, c = current()) => c.opts[id]?.title || t(defOf(id).title);
+  const states = new Map(); // `${canvasId}|${placedId}` -> the widget's in-memory state
+  // What a widget's render() and tools() receive. canvasId is null for a widget in a side tab.
+  function ctxFor(id, canvasId = activeId) {
+    const c = canvasId ? canvases.get(canvasId) : current();
+    const key = `${canvasId}|${id}`;
+    if (!states.has(key)) states.set(key, {});
+    return {
+      id, type: typeOf(id), canvasId, opts: optsFor(typeOf(id), c?.opts[id] || c?.closed[id]?.opts), state: states.get(key),
+      redraw: () => refresh(id),
+    };
+  }
 
   function drawTabs() {
     strip.set([...canvases].map(([key, c]) => ({ key, label: c.title, icon: c.icon })), activeId);
@@ -232,15 +271,28 @@ export async function mountCanvas(root) {
         : { key: 'focus', ico: 'eye-closed', label: t('canvas.m_focus'), run: () => focusOn(id) },
       { key: 'fit', ico: 'arrows-out-line-vertical', label: t('canvas.m_fit'), run: () => { checkpoint('fit'); fitWidget(id); readGeometry(); } },
       { key: 'reset', ico: 'arrow-counter-clockwise', label: t('canvas.m_reset_size'), run: () => resetSize(id) },
+      { key: 'options', ico: 'adjustments', label: t('canvas.m_options'), run: (e) => openOptions(id, e?.currentTarget) },
+      ...extraTools(id),
       { key: 'pane', ico: 'sidebar-simple', label: t('canvas.m_to_pane'), run: () => toPane(id) },
     ];
+  }
+
+  // The widget's own title bar buttons, from its registry entry's tools(ctx). A broken one is skipped.
+  function extraTools(id) {
+    try {
+      const list = defOf(id).tools?.(ctxFor(id)) || [];
+      return list.filter((d) => d && /^[a-z0-9-]{1,30}$/.test(d.key) && d.label).map((d) => ({ ...d, ico: d.ico || 'dots-three' }));
+    } catch (err) {
+      console.error(`widget ${id} tools failed`, err);
+      return [];
+    }
   }
 
   // Relabels the Zoom and Focus tools (they read Leave ... while on) on every title bar.
   function syncTools() {
     for (const el of board.querySelectorAll('[data-widget]')) {
       const id = el.dataset.widget;
-      if (!WIDGETS[id]) continue;
+      if (!defOf(id)) continue;
       for (const def of toolList(id)) {
         const btn = el.querySelector(`.xo-w-tools [data-tool="${def.key}"]`);
         if (!btn) continue;
@@ -264,7 +316,7 @@ export async function mountCanvas(root) {
   }
 
   function widgetEl(id) {
-    const title = t(WIDGETS[id].title);
+    const title = nameOf(id);
     const rolled = !!current().rolled[id];
     const btn = (cls, label, ico, onclick, attrs = {}) =>
       iconButton(ico, label, { class: `xo-w-btn ${cls}`, ...(onclick ? { onclick } : {}), ...attrs });
@@ -289,7 +341,7 @@ export async function mountCanvas(root) {
     const body = h('div', { class: 'xo-w-body' });
     const content = h('section', { class: 'grid-stack-item-content xo-w', 'aria-label': title }, head, body);
     const item = h('div', { class: rolled ? 'grid-stack-item xo-w-rolled' : 'grid-stack-item', 'gs-id': id, 'data-widget': id }, content);
-    const done = renderWidget(id, body, { id, canvasId: activeId });
+    const done = renderWidget(id, body, ctxFor(id));
     if (done) cleanups.set(id, done);
     return item;
   }
@@ -315,7 +367,7 @@ export async function mountCanvas(root) {
   }
 
   function place(id, g) {
-    const def = WIDGETS[id];
+    const def = defOf(id);
     const el = widgetEl(id);
     board.append(el);
     grid.makeWidget(el, {
@@ -371,12 +423,13 @@ export async function mountCanvas(root) {
   }
 
   function addWidget(id, { focus = true } = {}) {
-    const def = WIDGETS[id];
+    const def = defOf(id);
     const c = current();
     checkpoint('add');
     if (pane?.has(id)) pane.close(id);
     const size = c.closed[id] || { w: def.w, h: def.h };
     delete c.closed[id];
+    if (size.opts) c.opts[id] = copy(size.opts);
     c.items[id] = { w: size.w, h: size.h };
     if (grid) {
       const el = place(id, c.items[id]);
@@ -395,9 +448,12 @@ export async function mountCanvas(root) {
     const g = c.items[id];
     if (!g) return null;
     const size = { w: g.w, h: c.rolled[id]?.h || g.h };
-    c.closed[id] = size;
+    const opts = c.opts[id] ? copy(c.opts[id]) : null;
+    c.closed[id] = opts ? { ...size, opts } : size;
     delete c.items[id];
     delete c.rolled[id];
+    delete c.opts[id];
+    states.delete(`${activeId}|${id}`);
     focusRolled?.delete(id);
     if (zoomedId === id) unzoom();
     dropCleanup(id);
@@ -406,13 +462,14 @@ export async function mountCanvas(root) {
     else el?.remove();
     persist();
     syncBar();
-    return size;
+    return { ...size, opts };
   }
 
   function closeWidget(id, { focus = true } = {}) {
+    const name = nameOf(id);
     checkpoint('close');
     takeOff(id);
-    toast(t('canvas.w_closed', { name: t(WIDGETS[id].title) }));
+    toast(t('canvas.w_closed', { name }));
     if (focus) board.querySelector('.xo-w-btn')?.focus();
   }
 
@@ -446,8 +503,9 @@ export async function mountCanvas(root) {
     const body = itemEl(id)?.querySelector('.xo-w-body');
     if (!body) return;
     dropCleanup(id);
-    const done = renderWidget(id, body, { id, canvasId: activeId });
+    const done = renderWidget(id, body, ctxFor(id));
     if (done) cleanups.set(id, done);
+    syncTools();
   }
 
   // Rows that show the whole widget without a scroll bar, at its current width.
@@ -480,7 +538,7 @@ export async function mountCanvas(root) {
     if (!grid || !el) return;
     checkpoint('reset_size');
     setRolled(id, false);
-    grid.update(el, { w: WIDGETS[id].w, h: WIDGETS[id].h });
+    grid.update(el, { w: defOf(id).w, h: defOf(id).h });
     readGeometry();
   }
 
@@ -491,7 +549,7 @@ export async function mountCanvas(root) {
     const c = current();
     for (const id of placed()) {
       delete c.rolled[id];
-      c.items[id] = { w: WIDGETS[id].w, h: WIDGETS[id].h };
+      c.items[id] = { w: defOf(id).w, h: defOf(id).h };
     }
     focusRolled = null;
     focusId = null;
@@ -552,19 +610,69 @@ export async function mountCanvas(root) {
   function moveTo(id, targetId) {
     const target = canvases.get(targetId);
     if (!target) return;
+    const to = freeId(target, typeOf(id));
+    if (!to) return;
+    const name = nameOf(id);
     checkpoint('move_canvas', [activeId, targetId]);
     const size = takeOff(id);
     delete current().closed[id];
-    delete target.closed[id];
-    target.items[id] = { w: size.w, h: size.h };
+    delete target.closed[to];
+    target.items[to] = { w: size.w, h: size.h };
+    if (size.opts) target.opts[to] = size.opts;
     persist(targetId);
-    toast(t('canvas.w_moved', { name: t(WIDGETS[id].title), canvas: target.title }));
+    toast(t('canvas.w_moved', { name, canvas: target.title }));
   }
 
   function toPane(id) {
     checkpoint('to_pane');
     takeOff(id);
     openInPane(id);
+  }
+
+  // ---- options and names ----
+  // Updates a widget's title bar after it was renamed.
+  function retitle(id) {
+    const el = itemEl(id);
+    if (!el) return;
+    const name = nameOf(id);
+    const set = (sel, label) => { const b = el.querySelector(sel); if (b) setLabel(b, label); };
+    const h2 = el.querySelector('.xo-w-title');
+    if (h2) h2.textContent = name;
+    el.querySelector('section')?.setAttribute('aria-label', name);
+    set('.xo-w-more', t('canvas.w_more', { name }));
+    set('.xo-w-grip', t('canvas.w_move', { name }));
+    set('.xo-w-close', t('canvas.w_close', { name }));
+  }
+
+  // The Options tool: a form (anchored to its button) with a Name field and one control per option.
+  function openOptions(id, opener) {
+    const cid = activeId;
+    const c = current();
+    const def = defOf(id);
+    const type = typeOf(id);
+    const anchor = opener?.isConnected && !opener.hidden ? opener : itemEl(id)?.querySelector('.xo-w-more');
+    const label = (o) => t(o.label || `canvas.opts.${type}.${o.k}`);
+    openForm({
+      title: t('canvas.opt_title', { name: nameOf(id) }),
+      fields: [
+        { name: 'title', label: t('canvas.opt_name'), placeholder: t(def.title), hint: t('canvas.opt_name_hint') },
+        ...(def.opts || []).map((o) => (o.type === 'bool'
+          ? { name: o.k, label: label(o), type: 'checkbox' }
+          : { name: o.k, label: label(o), type: 'select', options: o.values.map((v) => [v, t(`canvas.opts.${type}.${o.k}_${v}`)]) })),
+      ],
+      values: { title: c.opts[id]?.title || '', ...optsFor(type, c.opts[id]) },
+      saveLabel: t('canvas.opt_save'),
+      anchor,
+      onSave: (out) => {
+        if (cid !== activeId || !c.items[id]) return;
+        const kept = cleanOpts(type, out);
+        checkpoint('options');
+        if (Object.keys(kept).length) c.opts[id] = kept; else delete c.opts[id];
+        persist();
+        retitle(id);
+        refresh(id);
+      },
+    });
   }
 
   // ---- the More menu ----
@@ -583,7 +691,7 @@ export async function mountCanvas(root) {
   }
   function openMenu(id, opener) {
     if (menu) { const was = closeMenu(); if (was === opener) return; }
-    const name = t(WIDGETS[id].title);
+    const name = nameOf(id);
     const entry = (label, run, ico = null) => h('button', {
       type: 'button',
       role: 'menuitem',
@@ -629,13 +737,13 @@ export async function mountCanvas(root) {
     wrap.classList.toggle('xo-has-pane', !paneEl.hidden);
   }
   function openInPane(id) {
-    if (!pane || !WIDGETS[id]) return;
-    pane.open(id, t(WIDGETS[id].title), (body) => {
+    if (!pane || !defOf(id)) return;
+    pane.open(id, current().closed[id]?.opts?.title || nameOf(id), (body) => {
       const content = h('div', { class: 'xo-pane-body' });
       body.append(
         h('div', { class: 'xo-pane-tools' }, button(t('canvas.p_to_canvas'), { class: 'small', onclick: () => backToCanvas(id) })),
         content);
-      return renderWidget(id, content, { id, canvasId: null });
+      return renderWidget(id, content, ctxFor(id, null));
     });
     syncPane();
   }
@@ -650,7 +758,7 @@ export async function mountCanvas(root) {
       label: t('canvas.pane_aria'),
       onChange: ({ keys }) => { writeLocal(PANE_KEY, keys); syncPane(); },
     });
-    for (const id of Array.isArray(reopen) ? reopen : []) if (WIDGETS[id] && !current().items[id]) openInPane(id);
+    for (const id of Array.isArray(reopen) ? reopen : []) if (typeof id === 'string' && PLACED_RE.test(id) && defOf(id) && !current().items[id]) openInPane(id);
   }
   syncPane();
 
@@ -692,37 +800,78 @@ export async function mountCanvas(root) {
 
   // ---- dialogs ----
   // The Widgets popover: one tick per widget in the registry. Ticking puts a widget on this canvas; unticking takes it off.
+  let popRows = []; // [{ type, cb, count, add }] for the open Widgets popover
+  const copiesOf = (type, c = current()) => Object.keys(c.items).filter((id) => typeOf(id) === type);
   function syncWidgetsPop() {
     if (!widgetsPop) return;
-    for (const cb of widgetsPop.querySelectorAll('[data-widget]')) cb.checked = !!current().items[cb.dataset.widget];
+    for (const r of popRows) {
+      const n = copiesOf(r.type).length;
+      r.cb.checked = n > 0;
+      r.count.textContent = n > 1 ? t('canvas.copies', { n }) : '';
+      r.count.hidden = n < 2;
+      r.add.hidden = n < 1;
+    }
+  }
+  // Unticking takes every copy of the widget off, as one undo step.
+  function closeCopies(type) {
+    const ids = copiesOf(type);
+    if (ids.length < 2) { for (const id of ids) closeWidget(id, { focus: false }); return; }
+    checkpoint('close');
+    for (const id of ids) takeOff(id);
+    toast(t('canvas.w_closed', { name: t(WIDGETS[type].title) }));
   }
   function openWidgets(anchor) {
     if (widgetsPop) { widgetsPop.close(); return; }
     const none = h('p', { class: 'empty', hidden: true }, t('canvas.widgets_none'));
-    const rows = Object.values(WIDGETS).filter((w) => widgetOn(w.id)).map((w) => {
+    const adding = (type) => { const id = freeId(current(), type); if (id) addWidget(id, { focus: false }); };
+    popRows = [];
+    const groups = new Map(); // group key ('' for none) -> { el, rows: [li] }
+    for (const w of Object.values(WIDGETS).filter((x) => widgetOn(x.id))) {
+      const name = t(w.title);
       const cb = checkbox({
         'data-widget': w.id,
-        checked: !!current().items[w.id],
-        onchange: (e) => (e.target.checked ? addWidget(w.id, { focus: false }) : closeWidget(w.id, { focus: false })),
+        checked: copiesOf(w.id).length > 0,
+        onchange: (e) => (e.target.checked ? adding(w.id) : closeCopies(w.id)),
       });
-      return h('li', { 'data-title': t(w.title).toLowerCase() }, field(t(w.title), cb));
-    });
+      const count = h('span', { class: 'xo-wcount', hidden: true });
+      const add = button(t('canvas.add_another'), {
+        class: 'small', 'aria-label': t('canvas.add_another_for', { name }), hidden: true, onclick: () => adding(w.id),
+      });
+      const li = h('li', { 'data-title': name.toLowerCase() }, field(name, cb), count, add);
+      popRows.push({ type: w.id, cb, count, add });
+      const key = typeof w.group === 'string' ? w.group : '';
+      if (!groups.has(key)) {
+        const ul = h('ul', { class: 'xo-wlist' });
+        groups.set(key, { el: h('section', { class: 'xo-wgroup' }, key ? h('h3', {}, t(`canvas.groups.${key}`)) : null, ul), ul, rows: [] });
+      }
+      const g = groups.get(key);
+      g.ul.append(li);
+      g.rows.push(li);
+    }
+    const ordered = [...groups].sort((a, b) => (a[0] === '' ? -1 : 0) - (b[0] === '' ? -1 : 0));
     const filter = (text) => {
       const q = (text || '').trim().toLowerCase();
       let shown = 0;
-      for (const li of rows) {
-        li.hidden = !li.dataset.title.includes(q);
-        if (!li.hidden) shown++;
+      for (const [, g] of ordered) {
+        let n = 0;
+        for (const li of g.rows) {
+          li.hidden = !li.dataset.title.includes(q);
+          if (!li.hidden) n++;
+        }
+        g.el.hidden = n === 0;
+        shown += n;
       }
       none.hidden = shown > 0;
     };
     const find = searchBox({ 'aria-label': t('canvas.widgets_search'), placeholder: t('canvas.widgets_search'), oninput: filter });
-    const body = h('div', { class: 'xo-widgets' }, h('p', { class: 'note' }, t('canvas.widgets_note')), find, none, h('ul', { class: 'xo-wlist' }, rows));
+    const body = h('div', { class: 'xo-widgets' }, h('p', { class: 'note' }, t('canvas.widgets_note')), find, none,
+      h('div', { class: 'xo-wgroups' }, ordered.map(([, g]) => g.el)));
     anchor.setAttribute('aria-expanded', 'true');
     widgetsPop = openPopover({
       title: t('canvas.widgets_title'), body, anchor, form: false, pinKey: 'xo-canvas-widgets-pinned',
-      onClose: () => { widgetsPop = null; anchor.setAttribute('aria-expanded', 'false'); },
+      onClose: () => { widgetsPop = null; popRows = []; anchor.setAttribute('aria-expanded', 'false'); },
     });
+    syncWidgetsPop();
   }
 
   function openNew() {

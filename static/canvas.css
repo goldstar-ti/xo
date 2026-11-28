@@ -109,10 +109,18 @@
 /* ---- the Widgets popover ---- */
 .xo-widgets { display: grid; gap: 0.5rem; }
 .xo-widgets .note { margin: 0; }
-.xo-wlist { list-style: none; margin: 0; padding: 0; max-height: min(22rem, 50dvh); overflow: auto; }
-.xo-wlist li { min-height: 2.5rem; display: flex; align-items: center; }
+.xo-wgroups { max-height: min(22rem, 50dvh); overflow: auto; }
+.xo-wgroup[hidden] { display: none; }
+.xo-wgroup h3 { margin: 0.75rem 0 0.25rem; font-size: 0.8125rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); }
+.xo-wlist { list-style: none; margin: 0; padding: 0; }
+.xo-wlist li { min-height: 2.5rem; display: flex; align-items: center; gap: 0.5rem; }
+.xo-wcount { flex: none; font-size: 0.8125rem; color: var(--muted); }
+.xo-wlist .button[hidden], .xo-wlist button[hidden] { display: none; }
 .xo-wlist li[hidden] { display: none; }
-.xo-wlist .field { margin: 0; width: 100%; }
+.xo-wlist .field { margin: 0; flex: 1 1 auto; min-width: 0; }
+
+/* The Show heading option off: the screen's own page heading is hidden, the title bar names the widget. */
+.xo-w-body.xo-hide-head .page-head h1 { display: none; }
 
 /* A screen inside a widget: its page heading drops to the widget's scale. */
 .xo-w-body .page-head { margin-bottom: calc(0.75rem * var(--d)); }
