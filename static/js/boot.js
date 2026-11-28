@@ -107,8 +107,8 @@
   ];
   const COLOUR_TOKENS = COLOUR_GROUPS.flatMap(([, tokens]) => tokens);
   const SIZE_PRESETS = {
-    compact: { base: 12, space: 0.75, chrome: 0.9 }, regular: { base: 13, space: 1, chrome: 1 },
-    comfortable: { base: 14, space: 1, chrome: 1 }, large: { base: 16, space: 1, chrome: 1.1 },
+    compact: { base: 12, space: 0.65, chrome: 0.9 }, regular: { base: 13, space: 0.8, chrome: 1 },
+    comfortable: { base: 14, space: 1, chrome: 1 }, large: { base: 16, space: 1.2, chrome: 1.1 },
   };
   // Auto base size: 13 px with a mouse on a wide screen, 16 px on a phone or tablet.
   const autoBase = () => (matchMedia('(min-width: 40rem) and (pointer: fine)').matches ? 13 : 16);
@@ -138,7 +138,7 @@
   const DEFAULT_LOOK = {
     mode: 'auto', theme: 'ink', c: colourOf('ink'), strength: 1,
     body: 'gsflex', head: 'intertight', num: 'same', base: null, wShift: 0, lhMul: 1, lsShift: 0,
-    space: 1, chrome: 1, zoom: 100, mono: 'mono',
+    space: 0.8, chrome: 1, zoom: 100, mono: 'mono',
     fs: {}, colours: { light: {}, dark: {} }, rCard: null, rPill: null, rDialog: null,
     glassAlpha: 0, glassBlur: 14, figure: 'plain', ident: { widgets: {}, tabs: {} },
     corners: 'round', density: 'regular', rule: 'fine', texture: 'none',
@@ -227,7 +227,7 @@
     out.lhMul = snap(raw.lhMul !== undefined ? raw.lhMul : Number(raw.lh) / 1.5, R.lhMul, 1);
     out.lsShift = snap(raw.lsShift !== undefined ? raw.lsShift : raw.ls, R.lsShift, 0);
     // Spacing replaces the three density steps: an older look or XO1 code keeps its spacing.
-    out.space = clamp(raw.space !== undefined ? raw.space : DENSITY[raw.density], 0.5, 1.6, 1);
+    out.space = clamp(raw.space !== undefined ? raw.space : DENSITY[raw.density], 0.5, 1.6, 0.8);
     out.chrome = clamp(raw.chrome, 0.5, 1.5, 1);
     out.zoom = clamp(raw.zoom, 25, 175, 100);
     out.wScale = Math.round(clamp(raw.wScale, 60, 150, 100));

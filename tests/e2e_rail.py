@@ -44,8 +44,9 @@ with sync_playwright() as p:
         return z["y"] - (a["y"] + a["height"])
 
     notif, voice = pg.locator("#view > section").nth(0), pg.locator("#view > section").nth(1)
-    assert gap(notif, "> .push-status", "> .opt") >= 8
-    assert gap(voice, "> .opt", "> .field") >= 8
+    # The gap is 0.75rem times the Spacing dial: 0.8 by default, so 7.8 px at the 13 px desktop root (was 8 px at 1.0).
+    assert gap(notif, "> .push-status", "> .opt") >= 7
+    assert gap(voice, "> .opt", "> .field") >= 7
 
     # collapse to icons, kept after a reload, names as tooltips; then open again
     pg.locator(".side-toggle").click()
