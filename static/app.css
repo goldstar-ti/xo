@@ -941,19 +941,19 @@ dialog.sheet.form-sheet[open] { display: flex; flex-direction: column; padding: 
 /* ---- Module colour: --m (the hue, takes paper text) and --m-soft (the tint, takes ink) ----
    Set on the screen (body[data-view]) and on anything marked data-module: canvas widgets and day line entries.
    They apply only while Module colours is on (:root[data-concept-nav="on"]); off, everything stays on the accent. */
-body[data-view="today"], [data-module="today"] { --m: var(--concept-today); --m-soft: color-mix(in oklch, var(--m) 16%, var(--paper)); }
-body[data-view="canvas"], [data-module="canvas"] { --m: var(--concept-canvas); --m-soft: color-mix(in oklch, var(--m) 16%, var(--paper)); }
-body[data-view="tasks"], [data-module="tasks"] { --m: var(--concept-tasks); --m-soft: color-mix(in oklch, var(--m) 16%, var(--paper)); }
-body[data-view="diary"], [data-module="diary"] { --m: var(--concept-diary); --m-soft: color-mix(in oklch, var(--m) 16%, var(--paper)); }
-body[data-view="routine"], [data-module="routine"] { --m: var(--concept-routine); --m-soft: color-mix(in oklch, var(--m) 16%, var(--paper)); }
-body[data-view="obligations"], [data-module="obligations"] { --m: var(--concept-obligations); --m-soft: color-mix(in oklch, var(--m) 16%, var(--paper)); }
-body[data-view="bills"], [data-module="bills"] { --m: var(--concept-bills); --m-soft: color-mix(in oklch, var(--m) 16%, var(--paper)); }
-body[data-view="checkin"], [data-module="checkin"] { --m: var(--concept-checkin); --m-soft: color-mix(in oklch, var(--m) 16%, var(--paper)); }
-body[data-view="plan"], [data-module="plan"] { --m: var(--concept-plan); --m-soft: color-mix(in oklch, var(--m) 16%, var(--paper)); }
-body[data-view="tracker"], [data-module="tracker"] { --m: var(--concept-tracker); --m-soft: color-mix(in oklch, var(--m) 16%, var(--paper)); }
-body[data-view="notes"], [data-module="notes"] { --m: var(--concept-notes); --m-soft: color-mix(in oklch, var(--m) 16%, var(--paper)); }
-body[data-view="appearance"], [data-module="appearance"] { --m: var(--concept-appearance); --m-soft: color-mix(in oklch, var(--m) 16%, var(--paper)); }
-body[data-view="settings"], [data-module="settings"] { --m: var(--concept-settings); --m-soft: color-mix(in oklch, var(--m) 16%, var(--paper)); }
+body[data-view="today"], [data-module="today"] { --m: var(--concept-today); --m-soft: color-mix(in oklab, var(--m) 16%, var(--paper)); }
+body[data-view="canvas"], [data-module="canvas"] { --m: var(--concept-canvas); --m-soft: color-mix(in oklab, var(--m) 16%, var(--paper)); }
+body[data-view="tasks"], [data-module="tasks"] { --m: var(--concept-tasks); --m-soft: color-mix(in oklab, var(--m) 16%, var(--paper)); }
+body[data-view="diary"], [data-module="diary"] { --m: var(--concept-diary); --m-soft: color-mix(in oklab, var(--m) 16%, var(--paper)); }
+body[data-view="routine"], [data-module="routine"] { --m: var(--concept-routine); --m-soft: color-mix(in oklab, var(--m) 16%, var(--paper)); }
+body[data-view="obligations"], [data-module="obligations"] { --m: var(--concept-obligations); --m-soft: color-mix(in oklab, var(--m) 16%, var(--paper)); }
+body[data-view="bills"], [data-module="bills"] { --m: var(--concept-bills); --m-soft: color-mix(in oklab, var(--m) 16%, var(--paper)); }
+body[data-view="checkin"], [data-module="checkin"] { --m: var(--concept-checkin); --m-soft: color-mix(in oklab, var(--m) 16%, var(--paper)); }
+body[data-view="plan"], [data-module="plan"] { --m: var(--concept-plan); --m-soft: color-mix(in oklab, var(--m) 16%, var(--paper)); }
+body[data-view="tracker"], [data-module="tracker"] { --m: var(--concept-tracker); --m-soft: color-mix(in oklab, var(--m) 16%, var(--paper)); }
+body[data-view="notes"], [data-module="notes"] { --m: var(--concept-notes); --m-soft: color-mix(in oklab, var(--m) 16%, var(--paper)); }
+body[data-view="appearance"], [data-module="appearance"] { --m: var(--concept-appearance); --m-soft: color-mix(in oklab, var(--m) 16%, var(--paper)); }
+body[data-view="settings"], [data-module="settings"] { --m: var(--concept-settings); --m-soft: color-mix(in oklab, var(--m) 16%, var(--paper)); }
 /* Today colour: Ink makes Today and the Canvas neutral. */
 :root[data-today-colour="ink"] :is(body[data-view="today"], body[data-view="canvas"], [data-module="today"], [data-module="canvas"]) { --m: var(--ink); }
 .xo-w-ico { display: none; }
