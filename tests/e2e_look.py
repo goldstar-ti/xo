@@ -385,7 +385,7 @@ with sync_playwright() as p:
     expect(pg.locator(".look-panel h3", has_text="Effects")).to_be_visible()
     expect(pg.locator('[data-fk="glass-on"]')).to_be_visible()
     expect(pg.locator('[data-key="text"]')).not_to_have_attribute("aria-selected", "true")
-    pg.locator(".xo-search-x").click()
+    pg.locator(".look-bar .xo-search-x").click()
     expect(pg.locator('[data-fk="glass-on"]')).to_have_count(0)
     expect(pg.locator('[data-key="text"]')).to_have_attribute("aria-selected", "true")
     pg.locator("#look-search").fill("zzzz")
@@ -440,6 +440,34 @@ with sync_playwright() as p:
     cols = pg.evaluate("getComputedStyle(document.querySelector('.look-cols')).gridTemplateColumns.split(' ').length")
     assert cols == 3, cols
     pg.screenshot(path=SHOTS / "look-theme-desktop.png", full_page=True)
+    # the preview: a node for each section, built with the kit's own controls, adding nothing to the page body
+    for key in ("text", "controls", "rows", "today", "frames"):
+        expect(pg.locator(f'aside.look-preview [data-pv="{key}"]')).to_have_count(1)
+    assert pg.locator("aside.look-preview [data-role]").count() == pg.evaluate("Object.keys(XOLook.TYPE_ROLES).length")
+    for sel in (".xo-w", ".next.urgent", ".dayline", ".pv-pop", ".pv-dialog", ".pv-side", ".pv-tabs"):
+        assert pg.locator(f"aside.look-preview {sel}").count() >= 1, sel
+    assert pg.evaluate("getComputedStyle(document.querySelector('aside.look-preview')).overflowY") == "auto"
+    body_before = pg.evaluate("document.body.children.length")
+    page_y = pg.evaluate("window.scrollY")
+    pg.locator('aside.look-preview [data-fk="pv-jump-frames"]').click()
+    pg.wait_for_function("document.querySelector('aside.look-preview').scrollTop > 100")
+    assert pg.evaluate("window.scrollY") == page_y, "the jump chips scroll the preview, not the page"
+    pg.evaluate("XOLook.change((s, l) => { l.kit = 'daisy'; })")
+    pg.wait_for_function("document.documentElement.dataset.kit === 'daisy'")
+    primary = pg.locator("aside.look-preview .pv-sec[data-pv=controls] button").first
+    expect(primary).to_have_class(re.compile(r"tw:btn"))
+    pg.evaluate("XOLook.change((s, l) => { l.kit = 'xo'; })")
+    pg.wait_for_function("document.documentElement.dataset.kit === 'xo'")
+    primary = pg.locator("aside.look-preview .pv-sec[data-pv=controls] button").first
+    expect(primary).to_have_class(re.compile(r"primary"))
+    assert pg.evaluate("document.body.children.length") == body_before, "the preview adds nothing to body"
+    # the open tab moves the preview: Text to Text, Layout to Frames
+    pg.evaluate("document.querySelector('aside.look-preview').scrollTop = 0")
+    tab("layout")
+    pg.wait_for_function("document.querySelector('aside.look-preview').scrollTop > 100")
+    tab("text")
+    pg.wait_for_function("document.querySelector('aside.look-preview').scrollTop < 80")
+    tab("theme")
     # widget and tab colours: pick a palette for a widget on the screen, tune it, reset
     tab("screens")
     acc("ident")

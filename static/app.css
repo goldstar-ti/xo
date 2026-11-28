@@ -747,8 +747,8 @@ input.xo-hex { width: 6.5rem; min-height: 2.5rem; padding: 0.3rem 0.5rem; font-f
 .look-preview-body > * + * { margin-top: 0.9rem; }
 .look-w { min-height: 5.5rem; }
 /* The wide layout is chosen in appearance.js from the screen's own width (56rem), so it fits the side pane. */
-.look-wide { grid-template-columns: 11rem minmax(0, 1fr) 18rem; align-items: start; gap: 1.5rem; }
-.look-wide .look-preview { position: sticky; top: 1.5rem; }
+.look-wide { grid-template-columns: 11rem minmax(0, 1fr) 20rem; align-items: start; gap: 1.5rem; }
+.look-wide .look-preview { position: sticky; top: 1.5rem; max-height: calc(100vh - 3rem); overflow: auto; }
 @media (max-width: 40rem) { .look-acc { grid-template-columns: 1fr; } .look-acc > .field.half { grid-column: 1 / -1; } }
 .colour-row { display: grid; grid-template-columns: 1fr 1fr; align-items: center; gap: 0.5rem 0.9rem; padding: 0.35rem 0; border-bottom: 1px solid var(--line); }
 .colour-name { grid-column: 1 / -1; font-size: var(--fs-label, 0.9375rem); font-weight: var(--fw-label, 600); line-height: var(--lh-label, 1.5); letter-spacing: var(--ls-label, 0em); }
@@ -1141,13 +1141,14 @@ dialog.fab-sheet::backdrop { background: color-mix(in srgb, var(--c-backdrop) 55
 .xo-num-btn { min-width: 2.5rem; min-height: 2.5rem; padding: 0; display: inline-flex; align-items: center; justify-content: center; background: transparent; color: var(--ink); border: var(--rule) solid var(--line); border-radius: var(--pill); cursor: pointer; font: inherit; }
 .xo-num-btn:disabled { opacity: 0.4; cursor: default; }
 .xo-num-btn:focus-visible, .xo-num-in:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 1px; }
-.xo-num-in { width: 4.6rem; min-height: 2.5rem; padding: 0 0.2rem; text-align: center; font: inherit; font-variant-numeric: tabular-nums; color: var(--ink); background: transparent; border: 0; border-bottom: var(--rule) solid var(--line); border-radius: 0; }
+.xo-num-in { width: 4.6rem; min-width: calc(5ch + 0.5rem); min-height: 2.5rem; padding: 0 0.2rem; text-align: center; font: inherit; font-variant-numeric: tabular-nums; color: var(--ink); background: transparent; border: 0; border-bottom: var(--rule) solid var(--line); border-radius: 0; }
 .xo-num.inherited .xo-num-in { color: var(--muted); }
 .xo-num-wa wa-button.xo-num-btn { min-width: 2.5rem; min-height: 2.5rem; }
 
-/* Text styles table (Appearance, Text): one row per kind of text, four steppers each. Under 46rem (the four steppers need that much room; the side pane and a phone are narrower) a row shows a summary and opens its steppers on a tap. */
+/* Text styles table (Appearance, Text): a row for each kind of text, its name on one line and four steppers under it, in columns that line up with the headings at the top. Under 36rem (the side pane and a phone) a row shows a summary and opens its steppers on a tap. */
 .type-styles { container-type: inline-size; display: grid; gap: 0.3rem; }
-.ts-head, .ts-row { display: grid; grid-template-columns: minmax(6.5rem, 1fr) repeat(4, max-content) 2.5rem; gap: 0.3rem 0.4rem; align-items: center; }
+.ts-head, .ts-row { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.1rem 0.25rem; align-items: center; }
+.ts-row > .xo-icon-btn, .ts-row > span:last-child { grid-column: 4; grid-row: 1; justify-self: end; }
 .ts-head { color: var(--muted); font-size: var(--fs-small, 0.75rem); padding-bottom: 0.2rem; border-bottom: var(--rule) solid var(--line); }
 .ts-head > span { text-align: center; }
 .ts-group { margin-top: 0.4rem; }
@@ -1155,23 +1156,57 @@ dialog.fab-sheet::backdrop { background: color-mix(in srgb, var(--c-backdrop) 55
 .ts-group-btn::before { content: ""; width: 0.5rem; height: 0.5rem; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(-45deg); transition: transform 0.15s; }
 .ts-group-btn[aria-expanded="true"]::before { transform: rotate(45deg); }
 .ts-group-body[hidden] { display: none; }
-.ts-row { padding: 0.15rem 0; border-top: 1px solid var(--line); }
-.ts-name { display: flex; flex-direction: column; align-items: flex-start; gap: 0.1rem; min-width: 0; min-height: 2.5rem; justify-content: center; padding: 0; background: transparent; border: 0; color: var(--ink); text-align: left; cursor: default; font: inherit; }
+.ts-row { padding: 0.15rem 0 0.3rem; border-top: 1px solid var(--line); }
+.ts-name { grid-column: 1 / -1; grid-row: 1; padding: 0 2.5rem 0 0; display: flex; flex-direction: column; align-items: flex-start; gap: 0.1rem; min-width: 0; min-height: 2.5rem; justify-content: center; background: transparent; border: 0; color: var(--ink); text-align: left; cursor: default; font: inherit; }
 .ts-name-text { display: inline-flex; align-items: center; gap: 0.35rem; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .ts-dot { width: 0.5rem; height: 0.5rem; border-radius: 50%; background: var(--leaf); flex: none; }
 .ts-sum { display: none; color: var(--muted); font-size: var(--fs-small, 0.75rem); font-variant-numeric: tabular-nums; }
 .ts-cells { display: contents; }
-.ts-cell { display: flex; justify-content: center; }
+.ts-cell { display: flex; justify-content: center; min-width: 0; }
 .ts-col { display: none; }
-.ts-cell .xo-num-in { width: 3.4rem; }
-@container (max-width: 46rem) {
+.ts-cell .xo-num { width: 100%; gap: 0.1rem; }
+.ts-cell .xo-num-in { width: auto; flex: 1 1 0; padding: 0; min-width: calc(5ch + 0.2rem); }
+@container (max-width: 36rem) {
   .ts-head { display: none; }
   .ts-row { grid-template-columns: minmax(0, 1fr) 2.5rem; }
-  .ts-name { cursor: pointer; }
+  .ts-row > .xo-icon-btn, .ts-row > span:last-child { grid-column: 2; grid-row: auto; }
+  .ts-name { grid-column: auto; grid-row: auto; padding: 0; cursor: pointer; }
   .ts-sum { display: block; }
-  .ts-cells { display: none; grid-column: 1 / -1; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.4rem; padding-bottom: 0.3rem; }
+  .ts-cells { display: none; grid-column: 1 / -1; grid-template-columns: repeat(auto-fit, minmax(9.75rem, 1fr)); gap: 0.4rem; padding-bottom: 0.3rem; }
   .ts-row.open .ts-cells { display: grid; }
   .ts-cell { flex-direction: column; align-items: center; gap: 0.1rem; }
-  .ts-cell .xo-num-in { width: 4.2rem; }
+  .ts-cell .xo-num { width: auto; gap: 0.2rem; }
+  .ts-cell .xo-num-in { flex: none; width: calc(5ch + 1.5rem); }
   .ts-col { display: block; color: var(--muted); font-size: var(--fs-small, 0.75rem); }
 }
+
+/* Appearance preview: every styleable part, in five sections. The popover, dialog, sheet, toast, side bar and bottom bar are static boxes with the real classes' look, never opened (the real ones attach to the page). */
+.pv-jump { position: sticky; top: 0; z-index: 1; display: flex; flex-wrap: wrap; gap: 0.3rem; padding-bottom: 0.5rem; background: var(--paper); }
+.pv-sec { display: grid; gap: 0.7rem; padding-top: 0.5rem; }
+.pv-sec + .pv-sec { margin-top: 0.9rem; border-top: var(--rule) solid var(--line); }
+.pv-head { font-size: var(--fs-small, 0.75rem); font-weight: var(--fw-small, 400); line-height: var(--lh-small, 1.5); letter-spacing: var(--ls-small, 0em); color: var(--muted); text-transform: none; }
+.pv-sec > * { margin-top: 0; }
+.pv-role { margin: 0; overflow-wrap: anywhere; }
+.pv-code { margin: 0; }
+.preview .md { max-width: none; }
+.pv-toast { padding: 0.7rem 1.1rem; background: var(--ink); color: var(--paper); border-radius: var(--radius); font-weight: var(--fw-semibold); justify-self: start; }
+:root:not([data-kit="xo"]) .pv-toast { padding: 0; background: none; color: inherit; }
+.pv-box { padding: 0 0.85rem 0.85rem; background: var(--paper); color: var(--ink); border: var(--rule) solid var(--line); border-radius: var(--radius); box-shadow: 0 8px 24px rgb(0 0 0 / 0.18); }
+.pv-box .xo-pop-head { cursor: default; position: static; }
+.pv-box .sheet-head { padding-top: 0.85rem; margin-bottom: 0.5rem; }
+.pv-dialog { padding-top: 0; border-radius: var(--radius-dialog); }
+.pv-sheet { border-radius: var(--radius-dialog) var(--radius-dialog) 0 0; }
+.pv-side, .pv-tabs { display: flex; flex-direction: column; border: var(--rule) solid var(--line); border-radius: var(--radius); }
+.pv-side { padding: 0.75rem 1.25rem; color: var(--c-side-ink); background: var(--c-side-bg); }
+.pv-tabs { display: grid; grid-template-columns: repeat(2, 1fr); padding: 0; overflow: hidden; background: var(--c-tabs-bg); }
+.pv-side nav { display: flex; flex-direction: column; }
+.pv-side nav a { position: relative; display: flex; align-items: center; gap: 0.65rem; min-width: 0; padding: 0.5rem 0.75rem; margin-left: -0.75rem; color: var(--c-side-ink); text-decoration: none; font-weight: var(--fw-medium); border-left: 3px solid transparent; }
+.pv-side nav a.on { border-left-color: var(--c-side-on); color: var(--c-side-on); font-weight: var(--fw-bold); }
+.pv-side .nav-dot, .pv-tabs .nav-dot { position: absolute; top: 0.4rem; right: 0.5rem; width: 0.5rem; height: 0.5rem; border-radius: 50%; background: var(--leaf); }
+.pv-tabs a { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.15rem; min-height: 3.53rem; padding: 0 0.15rem; font-size: var(--fs-nav, 0.8125rem); font-weight: var(--fw-nav, 500); line-height: var(--lh-nav, 1.5); letter-spacing: var(--ls-nav, 0em); color: var(--c-tabs-ink); text-decoration: none; border-top: 3px solid transparent; }
+.pv-tabs a.on { color: var(--c-tabs-on); border-top-color: var(--c-tabs-on); font-weight: var(--fw-semibold); }
+:root[data-concept-nav="on"] :is(.pv-side, .pv-tabs) a[data-nav]:not(.on) .ico { color: var(--concept, inherit); }
+.pv-modules { display: grid; grid-template-columns: repeat(auto-fill, minmax(7rem, 1fr)); gap: 0.4rem; }
+.pv-module { display: flex; align-items: center; gap: 0.4rem; padding: 0.5rem 0.6rem; background: var(--m-soft, var(--leaf-soft)); color: var(--ink); border-left: 4px solid var(--m, var(--leaf)); border-radius: var(--radius); min-width: 0; }
+.pv-module .ico { color: var(--m, var(--leaf)); flex: none; }
+.pv-module span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

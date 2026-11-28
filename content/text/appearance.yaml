@@ -42,6 +42,72 @@ appearance:
     body: Body text looks like this.
     link: A link looks like this
     money: '0123456789 $612.50'
+    jump_aria: Jump to a part of the preview
+    sections:
+      text: Text
+      controls: Buttons and fields
+      rows: Rows and status
+      today: Today
+      frames: Frames and bars
+    samples:
+      code: 'bill = 42  # phone'
+      markdown: "### Walk to the shops\n\nTake the **long way** and pick up `milk`.\n\n- Milk\n- Bread\n\n> A quoted line."
+      save: Save
+      cancel: Cancel
+      delete: Delete
+      icon_button: Sample icon button
+      name: Walk to the shops
+      notes: Take the long way home.
+      select_label: Time of day
+      morning: Morning
+      afternoon: Afternoon
+      evening: Evening
+      check: Remind me the day before
+      toggle: Show on Today
+      seg_label: Show
+      day: Day
+      week: Week
+      month: Month
+      search: Find a task
+      stepper: Sample size
+      scale: Effort
+      tiny: Tiny
+      small: Small
+      medium: Medium
+      large: Large
+      huge: Huge
+      link_title: Phone bill
+      link_sub: Due on Friday
+      row_one: Pay the phone bill
+      row_late: Renew the licence
+      row_late_sub: 3 days late
+      tick: Mark as done
+      play: Start a sitting
+      tag_due: Due soon
+      tag_paid: Paid
+      progress: Boxes written
+      notice: Saved
+      callout: Read this first
+      nudge: One box is still empty.
+      nudge_link: Open the plan
+      guard: The tracker could not be reached. Try again soon.
+      figure_label: Done today
+      appt_title: Dentist
+      appt_edit: Edit
+      urgent_head: Leave now
+      urgent_title: Dentist
+      widget: Sample widget
+      widget_body: A widget looks like this.
+      widget_menu: Sample widget actions
+      tabs_label: Sample tabs
+      tab_one: First
+      tab_two: Second
+      popover_title: Sample popover
+      popover_body: A popover opens beside its button.
+      dialog_title: Sample dialog
+      dialog_body: A dialog asks one question.
+      sheet_title: Sample sheet
+      sheet_body: A sheet slides up on a phone.
   blocks:
     line: Daily line
     next: Next up
@@ -547,9 +613,6 @@ appearance:
     reset_one: 'Reset {name}'
     changed: '{n} changed'
   preview_label: Preview
-  preview_figure: Done today
-  preview_widget: Sample widget
-  preview_widget_body: A widget looks like this.
   reset_all_confirm: Reset every appearance setting on this device? Undo can bring it back.
   glass_toggle: Glass
   glass_off: Glass is off.

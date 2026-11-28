@@ -1,7 +1,8 @@
 // Appearance: the quick "Look" panel and the full Appearance screen.
 // All of it is stored on this device only (see boot.js).
 import { t, text } from '../text.js';
-import { badge, button, chip, numStep, colourField, disclosure, field, focusControl, fontPicker, input, kit, optionCards, menu, plainLink, searchBox, segmented, select, sortList, stat, stepScale, textarea, toggle } from '../ui.js';
+import { badge, button, callout, checkbox, chip, numStep, colourField, disclosure, field, focusControl, fontPicker, input, kit, linkRow, notice, optionCards, menu, playRing, plainLink, progress, searchBox, segmented, select, sortList, stat, stepScale, tag, textarea, tickBox, toggle } from '../ui.js';
+import { renderMarkdown } from '../markdown.js';
 import { tabStrip } from '../tabs.js';
 import * as store from '../store.js';
 import { MODULES, functionsOf, isOn, setSwitch } from '../modules.js';
@@ -197,15 +198,112 @@ export function openLookPanel() {
 }
 
 // ---- full screen ----
-function preview() {
-  return h('div', { class: 'preview', 'aria-label': t('appearance.preview.aria') },
-    h('section', { class: 'next' }, h('p', { class: 'next-head' }, t('appearance.preview.next_head')), h('p', { class: 'next-title' }, t('appearance.preview.next_title')), h('p', { class: 'next-sub' }, t('appearance.preview.next_sub', { time: fmtTime('14:30') }))),
+// The preview: every styleable part, built with the same ui.js builders as the screens so the Kit choice restyles it.
+// Nothing here saves or opens anything: callbacks do nothing, and the popover, dialog, sheet and toast are
+// static boxes with the real classes (they are never opened, so nothing is added to the page body).
+const PV_SECTIONS = ['text', 'controls', 'rows', 'today', 'frames'];
+const PV_FOR_TAB = { text: 'text', theme: 'controls', layout: 'frames' }; // the section that follows the open tab
+const noop = () => {};
+const pvs = (k, vars) => t(`appearance.preview.samples.${k}`, vars);
+const pvSection = (key, ...kids) => h('section', { class: 'pv-sec', 'data-pv': key },
+  h('h3', { class: 'pv-head' }, t(`appearance.preview.sections.${key}`)), kids);
+const pvStatic = (el) => { el.addEventListener('click', (e) => e.preventDefault()); return el; };
+
+function pvText() {
+  const T = text('appearance.text_styles');
+  const lines = [];
+  L.TYPE_GROUPS.forEach(([, roles]) => roles.forEach((k) => {
+    const v = k.replace(/_/g, '-');
+    const mono = k === 'code' ? 'font-family:var(--font-mono);' : '';
+    lines.push(h('p', { class: 'pv-role', 'data-role': k, style: `${mono}font-size:var(--fs-${v});font-weight:var(--fw-${v});line-height:var(--lh-${v});letter-spacing:var(--ls-${v})` }, T.roles[k]));
+  }));
+  return pvSection('text', h('div', { class: 'pv-roles' }, lines),
+    h('p', { class: 'pv-code' }, h('code', {}, pvs('code'))),
+    renderMarkdown(pvs('markdown')));
+}
+
+function pvControls() {
+  return pvSection('controls',
+    h('div', { class: 'row' }, button(pvs('save'), { variant: 'primary', onclick: noop }), button(pvs('cancel'), { onclick: noop }), button(pvs('delete'), { variant: 'danger', onclick: noop }),
+      iconButton('tabler/pencil', pvs('icon_button'), { onclick: noop })),
+    field(pvs('name'), input({ id: 'pv-name', value: pvs('name') })),
+    field(pvs('notes'), textarea({ id: 'pv-notes', rows: 2 })),
+    field(pvs('select_label'), select([['m', pvs('morning')], ['a', pvs('afternoon')], ['e', pvs('evening')]], { id: 'pv-select', value: 'a' })),
+    field(pvs('check'), checkbox({ id: 'pv-check', checked: true })),
+    toggle(pvs('toggle'), { checked: true, id: 'pv-toggle' }),
+    segmented(pvs('seg_label'), [['d', pvs('day')], ['w', pvs('week')], ['m', pvs('month')]], { value: 'w' }),
+    h('div', { class: 'row' }, chip(t('appearance.preview.chosen'), { pressed: true }), chip(t('appearance.preview.not_chosen'), { pressed: false })),
+    searchBox({ placeholder: pvs('search'), id: 'pv-search' }),
+    numStep({ label: pvs('stepper'), value: 13, min: 9, max: 48, step: 1, format: (v) => t('appearance.text_styles.px', { n: v }), onChange: noop }),
+    stepScale({ label: pvs('scale'), value: 3, steps: [{ value: 1, label: pvs('tiny') }, { value: 2, label: pvs('small') }, { value: 3, label: pvs('medium') }, { value: 4, label: pvs('large') }, { value: 5, label: pvs('huge') }] }));
+}
+
+function pvRows() {
+  const row = pvStatic(linkRow({ icon: 'tabler/calendar', title: pvs('link_title'), sub: pvs('link_sub'), href: '#/appearance' }));
+  const late = pvStatic(linkRow({ title: pvs('row_late'), sub: pvs('row_late_sub'), href: '#/appearance' }));
+  return pvSection('rows',
+    row,
+    h('ul', { class: 'list' },
+      h('li', {}, tickBox({ checked: false, label: pvs('tick') }), h('span', { class: 'row-main' }, h('span', {}, pvs('row_one')))),
+      h('li', { class: 'late' }, late)),
+    h('div', { class: 'row' }, playRing({ label: pvs('play'), progress: 0.25, onclick: noop }), tag(pvs('tag_due'), 'warning'), tag(pvs('tag_paid')), badge('3', 'accent'), badge('1', 'bad')),
+    progress(0.4, pvs('progress')),
+    h('div', { class: 'pv-toast' }, notice(pvs('notice'))),
+    callout(pvs('callout'), { kind: 'warning', icon: 'tabler/info-circle' }),
+    h('p', { class: 'nudge' }, pvs('nudge'), ' ', plainLink(pvs('nudge_link'), { href: '#/appearance', onclick: (e) => e.preventDefault() })),
+    h('p', { class: 'guard' }, pvs('guard')),
+    stat(pvs('figure_label'), '12'));
+}
+
+function pvToday() {
+  const nextCard = (urgent) => h('section', { class: `next${urgent ? ' urgent' : ''}`, 'data-module': 'today' },
+    h('p', { class: 'next-head' }, urgent ? pvs('urgent_head') : t('appearance.preview.next_head')),
+    h('p', { class: 'next-title' }, urgent ? pvs('urgent_title') : t('appearance.preview.next_title')),
+    h('p', { class: 'next-sub' }, t('appearance.preview.next_sub', { time: fmtTime('14:30') })));
+  const entry = (cls, time, label, action, mod = 'tasks') => h('li', { 'data-module': mod, class: `entry ${cls}` },
+    h('span', { class: 't' }, fmtTime(time)), h('span', { class: 'what' }, label), action);
+  return pvSection('today',
+    nextCard(false), nextCard(true),
     h('ol', { class: 'dayline' },
-      h('li', { class: 'entry k-tick done past' }, h('span', { class: 't' }, fmtTime('08:30')), h('span', { class: 'what' }, t('appearance.preview.breakfast')), h('span', { class: 'tick on' }, t('appearance.preview.done'))),
+      entry('k-tick done past', '08:30', t('appearance.preview.breakfast'), tickBox({ checked: true, label: t('appearance.preview.breakfast') }), 'routine'),
       h('li', { class: 'now' }, h('span', { class: 't' }, fmtTime('11:05')), h('span', { class: 'now-rule' }, t('appearance.preview.now'))),
-      h('li', { class: 'entry k-tick' }, h('span', { class: 't' }, fmtTime('12:30')), h('span', { class: 'what' }, t('appearance.preview.lunch')), h('span', { class: 'tick' }, t('appearance.preview.tick')))),
-    h('div', { class: 'row' }, h('span', { class: 'chip on' }, t('appearance.preview.chosen')), h('span', { class: 'chip' }, t('appearance.preview.not_chosen')), h('span', { class: 'primary' }, t('appearance.preview.button')), h('span', { class: 'ghost' }, t('appearance.preview.button'))),
-    h('p', { class: 'note' }, t('appearance.preview.body'), ' ', h('a', { href: '#/appearance' }, t('appearance.preview.link')), '. ', h('span', { class: 'num' }, t('appearance.preview.money'))));
+      entry('k-task past missed', '10:00', pvs('row_one'), tickBox({ checked: false, label: pvs('row_one') })),
+      entry('k-appt', '14:30', pvs('appt_title'), plainLink(pvs('appt_edit'), { onclick: noop }), 'diary')));
+}
+
+function pvFrames() {
+  const NAV = text('app.nav');
+  const mods = Object.keys(NAV).filter((k) => k !== 'more' && DEFAULT_ICONS[k]);
+  const navItem = (k, on) => pvStatic(h('a', { href: '#/appearance', class: on ? 'on' : null, 'data-nav': k, style: `--concept: var(--concept-${k})` },
+    icon(DEFAULT_ICONS[k]), h('span', { class: 'nav-label' }, NAV[k]), on && h('span', { class: 'nav-dot', 'aria-hidden': 'true' })));
+  const items = [{ key: 'a', label: pvs('tab_one') }, { key: 'b', label: pvs('tab_two') }];
+  const strip = tabStrip({ label: pvs('tabs_label'), onSelect: (k) => strip.set(items, k) });
+  strip.set(items, 'a');
+  return pvSection('frames',
+    h('section', { class: 'xo-w look-w', 'data-module': 'today', 'aria-label': pvs('widget') },
+      h('div', { class: 'xo-w-head' }, h('span', { class: 'xo-w-ico', 'aria-hidden': 'true' }, icon(DEFAULT_ICONS.today)), h('h2', { class: 'xo-w-title' }, pvs('widget')),
+        h('span', { class: 'xo-w-actions' }, menu({ label: pvs('widget_menu'), items: [{ label: pvs('appt_edit'), run: noop }] }))),
+      h('div', { class: 'xo-w-body' }, pvs('widget_body'))),
+    strip.el,
+    h('div', { class: 'pv-box pv-pop' }, h('div', { class: 'xo-pop-head' }, h('h2', {}, pvs('popover_title'))), h('p', {}, pvs('popover_body'))),
+    h('div', { class: 'pv-box pv-dialog' }, h('div', { class: 'sheet-head' }, h('h2', {}, pvs('dialog_title'))), h('p', {}, pvs('dialog_body'))),
+    h('div', { class: 'pv-box pv-dialog pv-sheet' }, h('div', { class: 'sheet-head' }, h('h2', {}, pvs('sheet_title'))), h('p', {}, pvs('sheet_body'))),
+    h('div', { class: 'pv-side' }, h('nav', {}, navItem('tasks', false), navItem('today', true))),
+    h('nav', { class: 'pv-tabs' }, navItem('diary', false), navItem('today', true)),
+    h('div', { class: 'pv-modules' }, mods.map((k) => h('div', { class: 'pv-module', 'data-module': k }, icon(DEFAULT_ICONS[k]), h('span', {}, NAV[k])))));
+}
+
+// Scrolls the preview column (never the page) to a section.
+function pvScroll(box, key) {
+  const sec = box?.querySelector(`[data-pv="${key}"]`);
+  if (!sec) return;
+  const top = sec.getBoundingClientRect().top - box.getBoundingClientRect().top + box.scrollTop;
+  const bar = box.querySelector('.pv-jump');
+  box.scrollTo({ top: Math.max(0, top - (bar ? bar.offsetHeight : 0)), behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+}
+
+function preview() {
+  return h('div', { class: 'preview', 'aria-label': t('appearance.preview.aria') }, pvText(), pvControls(), pvRows(), pvToday(), pvFrames());
 }
 
 // The font catalogue is fetched once, the first time Advanced is open, and kept here.
@@ -508,7 +606,7 @@ function typeStyles(lk, d) {
     const summary = t('appearance.text_styles.summary', { size: px(eff.size), weight: eff.weight, line: fmtLh(eff.lh), letter: fmtLs(eff.ls) });
     return rowEl(k, name, k, cells, summary, !!lk.fs[k], () => L.change((s, l) => { delete l.fs[k]; }));
   };
-  const head = h('div', { class: 'ts-head', 'aria-hidden': 'true' }, h('span'), ['size', 'weight', 'line', 'letter'].map((c) => h('span', {}, T.cols[c])), h('span'));
+  const head = h('div', { class: 'ts-head', 'aria-hidden': 'true' }, ['size', 'weight', 'line', 'letter'].map((c) => h('span', {}, T.cols[c])), h('span'));
   put(root, head, allRow);
   L.TYPE_GROUPS.forEach(([g, roles]) => {
     const open = typeGroupOpen.get(g) === true;
@@ -770,9 +868,12 @@ function resultsBody(q) {
       h('div', { class: 'look-acc' }, hits.filter((i) => i.group === g).map((i) => i.node))))];
 }
 
-function previewBody() {
-  return h('div', { class: 'look-preview-body' }, preview(), stat(t('appearance.preview_figure'), '12'),
-    h('div', { class: 'xo-w look-w' }, h('div', { class: 'xo-w-head' }, h('h2', { class: 'xo-w-title' }, t('appearance.preview_widget'))), h('div', { class: 'xo-w-body' }, t('appearance.preview_widget_body'))));
+function previewBody(box = null) {
+  const body = h('div', { class: 'look-preview-body' });
+  if (box) body.append(h('div', { class: 'pv-jump', role: 'group', 'aria-label': t('appearance.preview.jump_aria') },
+    PV_SECTIONS.map((k) => chip(t(`appearance.preview.sections.${k}`), { 'data-fk': `pv-jump-${k}`, onclick: () => pvScroll(box(), k) }))));
+  body.append(preview());
+  return body;
 }
 
 // The three-part layout (group nav, controls, preview) follows the width of the screen's own box, not the
@@ -812,6 +913,7 @@ export function render(root) {
       query = '';
       search.value = '';
       paint();
+      if (wide && PV_FOR_TAB[k]) pvScroll(root.querySelector('.look-preview'), PV_FOR_TAB[k]);
     } });
   const search = searchBox({ placeholder: t('appearance.search.placeholder'), label: t('appearance.search.label'), value: query, id: 'look-search',
     oninput: (v) => { query = v; paint(); } });
@@ -837,5 +939,5 @@ export function render(root) {
     h('div', { class: 'look-bar' }, viewSeg, search, undo),
     h('p', { class: 'hint' }, t('appearance.view.hint')),
     previewDisc,
-    h('div', { class: wide ? 'look-cols look-wide' : 'look-cols' }, tabs.el, panel, wide && h('aside', { class: 'look-preview', 'aria-label': t('appearance.preview_label') }, h('h2', {}, t('appearance.preview_label')), previewBody()))));
+    h('div', { class: wide ? 'look-cols look-wide' : 'look-cols' }, tabs.el, panel, wide && h('aside', { class: 'look-preview', 'aria-label': t('appearance.preview_label') }, h('h2', {}, t('appearance.preview_label')), previewBody(() => root.querySelector('.look-preview'))))));
 }

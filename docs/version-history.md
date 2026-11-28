@@ -4,6 +4,7 @@
 
 | Version | Date | Change |
 |---|---|---|
+| 2.53.0 | 2026-11-29 | The Appearance preview shows every styleable part in five sections (Text, Buttons and fields, Rows and status, Today, Frames and bars), built with the same controls as the screens so the Kit choice restyles it. Jump chips and the open tab move the preview column to a section. Text styles shows its table from 36rem up, with each kind's name on its own line and the four steppers under it; the value boxes no longer cut off numbers. |
 | 2.52.0 | 2026-11-29 | Every kind of text has its own size, weight, line spacing and letter spacing. Appearance, Text has one Text styles table: All text sets the base size and shifts weight, line spacing and letter spacing for everything, and each of 19 kinds (headlines, headings, body, small, code) overrides its own. Grey values follow the default. A new number stepper (`numStep`) is in `ui.js` for all three kits. Older looks convert once. |
 | 2.51.0 | 2026-11-28 | Body text is 13 px on a desktop and 16 px on a phone, set by a new base size in Appearance. Grow text with the window is off by default. Saved looks move once onto Ink and the new fonts. A stray brace in the stylesheet no longer drops a rule. |
 | 2.50.2 | 2026-11-28 | The Grow text with the window buttons show On and Off again, and each Weight and spacing control shows its name once. |
