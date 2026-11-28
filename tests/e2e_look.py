@@ -276,6 +276,7 @@ with sync_playwright() as p:
     pg.wait_for_selector('.look-screen[data-fonts="ready"]')
     acc("type")
     pg.locator('[data-fk="ts-group-headings"]').click()
+
     def open_row(rid):
         """In the narrow form (side pane, phone) a row's steppers show after a tap on its name."""
         if not pg.locator(f"#ts-{rid} .ts-cell").first.is_visible():
