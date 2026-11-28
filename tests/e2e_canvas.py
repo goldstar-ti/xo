@@ -149,7 +149,8 @@ with sync_playwright() as p:
         expect(widget(pg, wid).locator(".xo-w-body .page-head h1")).to_have_text(name)
     expect(pg.locator(".xo-canvas-empty")).to_be_hidden()
     assert node(pg, "tasks")["w"] == 8
-    # A screen heading that repeats the widget name is hidden by default (Appearance, Canvas widgets) and shows on request.
+    # A screen heading that repeats the widget name is hidden by default
+    # (Appearance, Canvas widgets) and shows on request.
     expect(widget(pg, "tasks").locator(".xo-w-body .page-head h1")).to_be_hidden()
     pg.evaluate("XOLook.change((s, l) => { l.wInner = 'show'; }, { quiet: true })")
     expect(widget(pg, "tasks").locator(".xo-w-body .page-head h1")).to_be_visible()
