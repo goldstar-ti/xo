@@ -214,7 +214,8 @@ plan:
   title: My plan
   choose_intro: The Relapse Prevention Plan comes in two versions. Choose the one you are working from. You can switch later and nothing you have written is lost.
   status_unsaved: Not saved yet
-  status_saved: Saved
+  status_idle: Saved as you type.
+  status_saved: 'Saved as you type. Last saved {time}'
   status_failed: Not saved
   card_button: Plan card
   fill_intro: 'Fill in the good life and support sections before the risk sections. One box in a sitting is enough. '

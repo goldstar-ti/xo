@@ -201,7 +201,7 @@ with sync_playwright() as p:
     )
     set_control(page.locator("#box-instead"), "Message Sam the same day. Put the phone on charge in the lounge.")
     set_control(page.locator("#box-team"), "Sam 0400 000 000\nDr Lee 08 5550 0111")
-    expect(page.locator(".page-head [role=status]")).to_have_text("Saved", timeout=5000)
+    expect(page.locator(".page-head [role=status]")).to_contain_text("Last saved", timeout=5000)
     page.screenshot(path=SHOTS / "06-plan.png")
     page.locator(".top .plan-btn").click()
     card = page.locator("dialog[open]")

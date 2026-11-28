@@ -266,7 +266,7 @@ with sync_playwright() as p:
     pg.goto(f"{BASE}/#/plan")
     pg.get_by_role("button", name="Plan with internet and device sections").click()
     set_control(pg.locator("#box-good_matters"), "Being someone my family can rely on.")
-    expect(pg.locator(".page-head [role=status]")).to_have_text("Saved", timeout=5000)
+    expect(pg.locator(".page-head [role=status]")).to_contain_text("Last saved", timeout=5000)
     pg.reload()
     pg.wait_for_selector("#box-good_matters", state="attached", timeout=20000)
     expect(pg.locator("#box-good_matters")).to_have_value("Being someone my family can rely on.")

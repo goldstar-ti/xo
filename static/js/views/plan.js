@@ -1,10 +1,10 @@
 import * as store from '../store.js';
 import { GUARD_TEXT, PLAN, PLAN_FIRST, PLAN_VARIANTS, SERVICES } from '../content.js';
-import { button, callout, disclosure, field, progress, select } from '../ui.js';
+import { button, callout, disclosure, field, plainLink, progress, select } from '../ui.js';
 import { mdEditor, mdField } from '../mdeditor.js';
 import { plainText } from '../markdown.js';
 import { t } from '../text.js';
-import { h, openDialog, toast, withPhoneLinks, put } from '../util.js';
+import { fmtTime, h, openDialog, toast, withPhoneLinks, put } from '../util.js';
 
 export const live = false;
 
@@ -17,7 +17,7 @@ function queueSave(plan, status) {
     saving = saving.then(async () => {
       try {
         await store.save('plan', 'plan', plan, { silent: true });
-        status.textContent = t('plan.status_saved');
+        status.textContent = t('plan.status_saved', { time: fmtTime(new Date()) });
       } catch (err) {
         status.textContent = t('plan.status_failed');
         toast(err.message, 'bad');
@@ -47,7 +47,7 @@ export function render(root) {
   if (!plan.variant) return chooser(root, plan);
   const sections = PLAN[plan.variant];
   const boxes = sections.flatMap((s) => s.boxes);
-  const status = h('span', { class: 'meta', role: 'status' }, '');
+  const status = h('span', { class: 'meta', role: 'status' }, t('plan.status_idle'));
   const count = h('span', { class: 'meta' });
   const bar = h('div', { class: 'plan-progress' });
   const recount = () => {
@@ -68,7 +68,7 @@ export function render(root) {
     bar,
     field(t('plan.jump'), jump, null, { half: true }),
     h('p', { class: 'note' }, t('plan.fill_intro')),
-    next && h('p', { class: 'nudge' }, t('plan.next_box'), h('a', { href: `#box-${next.k}`, onclick: (e) => { e.preventDefault(); const ed = editors[next.k]; ed.node.scrollIntoView({ block: 'center' }); ed.focus(); } }, next.q)),
+    next && h('p', { class: 'nudge' }, t('plan.next_box'), plainLink(next.q, { href: `#box-${next.k}`, onclick: (e) => { e.preventDefault(); const ed = editors[next.k]; ed.node.scrollIntoView({ block: 'center' }); ed.focus(); } })),
     sections.map((s) => h('section', { class: 'plan-sec', id: `sec-${s.n}` },
       h('h2', {}, t('plan.section_heading', { n: s.n, title: s.title })),
       s.note && h('p', { class: 'hint' }, s.note),
@@ -82,7 +82,7 @@ export function render(root) {
         return mdField(b.q, ed, b.eg && t('plan.example', { eg: b.eg }));
       }))),
     h('p', { class: 'note' }, t('plan.review')),
-    h('p', {}, button(t('plan.switch'), {
+    h('p', {}, plainLink(t('plan.switch'), {
       onclick: async () => { await store.save('plan', 'plan', { ...plan, variant: '' }, { silent: true }); render(root); },
     })),
   );
@@ -105,7 +105,7 @@ export function planCardBody() {
     disclosure(t('plan.card.services_title', { n: SERVICES.length }),
       h('ul', { class: 'services' }, SERVICES.map((s) => h('li', {},
         h('a', { href: `tel:${s.number.replace(/\s+/g, '')}` }, `${s.name} ${s.number}`), s.note && h('small', {}, s.note))))),
-    h('p', {}, h('a', { href: '#/plan', onclick: () => document.querySelector('dialog[open]')?.close() }, t('plan.card.edit'))),
+    h('p', {}, plainLink(t('plan.card.edit'), { href: '#/plan', onclick: () => document.querySelector('dialog[open]')?.close() })),
   );
 }
 

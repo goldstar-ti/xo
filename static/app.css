@@ -506,11 +506,6 @@ dialog.sheet::backdrop { background: color-mix(in srgb, var(--c-backdrop) 55%, t
 .plan-sec > * + * { margin-top: 0.75rem; }
 .plan-sec .field { margin-top: 1rem; }
 .plan-sec { padding-top: 1.5rem; border-top: var(--rule) solid var(--line); }
-.history { border-collapse: collapse; width: 100%; max-width: 26rem; }
-.history th, .history td { text-align: left; padding: 0.45rem 0.5rem 0.45rem 0; border-top: var(--rule) solid var(--line); font-weight: 500; }
-.history th { font-size: var(--fs-small, 0.75rem); color: var(--muted); border-top: 0; }
-.history a.yes { color: var(--leaf); font-weight: var(--fw-bold); }
-.history a.no { color: var(--muted); }
 
 /* ---- toast ---- */
 #toast {
@@ -935,8 +930,6 @@ dialog.sheet.form-sheet[open] { display: flex; flex-direction: column; padding: 
 .links .link-row { padding-left: 0; padding-right: 0; }
 .auth .callout { margin-top: 0.9rem; }
 .auth .auth-foot { display: flex; align-items: center; gap: 0.5rem; color: var(--muted); font-size: var(--fs-small, 0.75rem); }
-.history .mark { display: inline-flex; flex-direction: column; align-items: flex-start; gap: 0.15rem; }
-.history td .mark a { font-size: var(--fs-small, 0.75rem); color: var(--muted); font-weight: 500; }
 .list.links li > .link-row { flex: 1; min-width: 0; }
 
 /* Screen icons take their module's colour; the screen showing keeps the accent. */
@@ -1036,3 +1029,9 @@ wa-checkbox.xo-tick-wa { min-height: 2.5rem; --checked-icon-color: var(--paper);
 .task-table th > button { white-space: nowrap; }
 .task-table :is(th, td):first-child { padding-inline: 0.25rem; }
 .task-table td:first-child { text-align: center; }
+
+/* Check-ins list: a play ring per check-in, then the last ten days as link rows. */
+.checkin-starts { gap: calc(0.5rem * var(--d)); }
+.checkin-start { display: flex; align-items: center; gap: 0.75rem; font-weight: 600; }
+.checkin-past { display: grid; gap: calc(0.75rem * var(--d)); max-width: 26rem; }
+.checkin-day h3 { margin: 0 0 0.25rem; font-size: var(--fs-small, 0.75rem); color: var(--muted); font-weight: 600; }

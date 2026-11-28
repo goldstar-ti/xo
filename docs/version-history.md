@@ -4,6 +4,7 @@
 
 | Version | Date | Change |
 |---|---|---|
+| 2.43.0 | 2026-11-28 | Check-ins and My plan use the new controls: a play ring starts each check-in, the last ten days are link rows, the "what I did" choices are tick boxes, minor links are plain links, and the plan shows "Saved as you type. Last saved" with the time. |
 | 2.42.0 | 2026-11-28 | Duties and Bills use the new controls: a bill's tick box marks it paid, and each bill, court date, condition and reporting record is a whole-row link with a chevron that opens its form. The amount column on Bills is narrow and right-aligned. |
 | 2.41.0 | 2026-11-28 | Tasks uses the new controls: round tick boxes on list rows, table rows and subtasks, the view tabs as a segmented control, one three-dot menu for the Commands and Categories and places actions, one on each board card (Start, Done, Back, Reopen) and each row in the stale review, Restore and Clear filters as plain links, and a chevron at the end of each row. The table gives the title two shares, each text column one equal share, with no wrapping and narrow right-aligned numbers. |
 | 2.40.0 | 2026-11-28 | Diary and Routine use the new controls: each appointment and routine item is a whole-row link with a chevron that opens its form, and an appointment's Copy to Google Calendar sits in a three-dot menu. Canvas widgets drawn from them follow. |

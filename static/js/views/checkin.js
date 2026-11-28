@@ -3,7 +3,7 @@ import { GUARD_TEXT, WEEKLY_QUESTIONS } from '../content.js';
 import * as lookups from '../lookups.js';
 import { addDays, fmtDay, fmtDuration, fmtLong, h, toast, today, withPhoneLinks, ymd, put } from '../util.js';
 import { allTasks, pickTask, saveTask } from '../taskdata.js';
-import { button, callout, checkbox, chip, field, segmented, tag } from '../ui.js';
+import { button, callout, chip, linkRow, playRing, plainLink, segmented, tickBox } from '../ui.js';
 import { mdEditor } from '../mdeditor.js';
 import { plainText } from '../markdown.js';
 import { isOn } from '../modules.js';
@@ -45,15 +45,16 @@ function chips(options, state, name, { multi = true, onchange } = {}) {
 function checks(options, state, name) {
   const wrap = h('div', { class: 'checks', role: 'group' });
   options.forEach((opt) => {
-    const box = checkbox({
+    wrap.append(tickBox({
       checked: (state[name] || []).includes(opt),
-      onchange: (e) => {
+      label: opt,
+      showLabel: true,
+      onchange: (on) => {
         const set = new Set(state[name] || []);
-        e.target.checked ? set.add(opt) : set.delete(opt);
+        on ? set.add(opt) : set.delete(opt);
         state[name] = [...set];
       },
-    });
-    wrap.append(field(opt, box));
+    }));
   });
   return wrap;
 }
@@ -113,7 +114,7 @@ function morning(root, day, state) {
     q(t('checkin.morning.fuel'), chips(FUEL, state, 'fuel', { multi: false }), t('checkin.morning.fuel_hint')),
     q(t('checkin.morning.goodlife'), textBox(state, 'goodlife', t('checkin.morning.goodlife'), { rows: 2 }),
       plan.answers.good_ways ? t('checkin.morning.from_plan', { text: plainText(plan.answers.good_ways) }) : ''),
-    h('p', { class: 'note' }, picked ? t('checkin.morning.picked', { n: picked }) : t('checkin.morning.none_picked'), h('a', { href: '#/tasks' }, t('checkin.morning.choose_tasks'))),
+    h('p', { class: 'note' }, picked ? t('checkin.morning.picked', { n: picked }) : t('checkin.morning.none_picked'), plainLink(t('checkin.morning.choose_tasks'), { href: '#/tasks' })),
     customSection(state),
     saveBar('morning', day, state),
   );
@@ -123,7 +124,7 @@ function signsBlock(state) {
   const plan = store.plan();
   const signs = (plan.answers.signs || '').trim();
   if (!signs)
-    return q(t('checkin.signs.heading'), h('p', { class: 'note' }, t('checkin.signs.not_written'), h('a', { href: '#/plan' }, t('checkin.signs.open_plan'))));
+    return q(t('checkin.signs.heading'), h('p', { class: 'note' }, t('checkin.signs.not_written'), plainLink(t('checkin.signs.open_plan'), { href: '#/plan' })));
   const extra = h('div', { class: 'reveal' });
   const draw = () => {
     extra.replaceChildren();
@@ -133,7 +134,7 @@ function signsBlock(state) {
       callout([h('strong', {}, t('checkin.signs.instead')), h('p', { class: 'own' }, plainText(plan.answers.instead).trim() || t('checkin.signs.instead_missing'))], { kind: 'brand', icon: 'tabler/lifebuoy' }),
       h('h3', {}, t('checkin.signs.people')),
       h('p', { class: 'own' }, team ? withPhoneLinks(team) : t('checkin.signs.people_missing')),
-      button(t('checkin.signs.open_card'), { onclick: openPlanCard }),
+      plainLink(t('checkin.signs.open_card'), { onclick: openPlanCard }),
       h('h3', {}, t('checkin.signs.action')),
       textBox(state, 'signsAction', t('checkin.signs.action'), { rows: 3 }),
       store.settings().showGuard && h('p', { class: 'hint' }, GUARD_TEXT),
@@ -225,22 +226,20 @@ function weekly(root, day, state) {
 function landing(root) {
   const day = today();
   const days = [...Array(10)].map((_, i) => addDays(day, -i));
-  // A saved check-in shows "done", an earlier day with none shows "missed", and every cell links to that check-in.
-  const mark = (type, d) => {
+  const start = (type) => h('div', { class: 'checkin-start' },
+    playRing({ label: t(`today.tick.start_${type}`), onclick: () => { location.hash = `#/checkin/${type}`; } }),
+    h('span', {}, t(`checkin.landing.${type}`)));
+  // A saved check-in says "done", an earlier day with none says "missed", and every row opens that check-in.
+  const past = (type, d) => {
     const saved = !!store.get(checkinId(type, d));
-    const badge = saved ? tag(t('checkin.landing.done'), 'accent') : d < day ? tag(t('checkin.landing.missed'), 'warning') : null;
-    return h('span', { class: 'mark' }, badge, h('a', { href: `#/checkin/${type}/${d}`, class: saved ? 'yes' : 'no' }, t('checkin.landing.open')));
+    return linkRow({ title: t(`checkin.landing.${type}`), sub: saved ? t('checkin.landing.done') : d < day ? t('checkin.landing.missed') : '', href: `#/checkin/${type}/${d}` });
   };
   put(root, 
     h('header', { class: 'page-head' }, h('h1', {}, t('checkin.landing.heading'))),
-    h('div', { class: 'stack' },
-      h('a', { class: 'primary big', href: '#/checkin/morning' }, t('checkin.landing.morning')),
-      h('a', { class: 'primary big', href: '#/checkin/evening' }, t('checkin.landing.evening')),
-      h('a', { class: 'ghost big', href: '#/checkin/weekly' }, t('checkin.landing.weekly'))),
+    h('div', { class: 'stack checkin-starts' }, start('morning'), start('evening'), start('weekly')),
     h('section', {}, h('h2', {}, t('checkin.landing.last_10')),
-      h('table', { class: 'history' },
-        h('thead', {}, h('tr', {}, h('th', {}, t('checkin.landing.day')), h('th', {}, t('checkin.landing.col_morning')), h('th', {}, t('checkin.landing.col_evening')))),
-        h('tbody', {}, days.map((d) => h('tr', {}, h('td', {}, fmtDay(d)), h('td', {}, mark('morning', d)), h('td', {}, mark('evening', d))))))),
+      h('div', { class: 'checkin-past' }, days.map((d) => h('div', { class: 'checkin-day' },
+        h('h3', {}, fmtDay(d)), past('morning', d), past('evening', d))))),
   );
 }
 
