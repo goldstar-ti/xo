@@ -6,7 +6,7 @@
 // Tailwind compiles only the classes it finds written out in full under static/, so every
 // daisyUI class below is a complete literal string. Never build one from pieces.
 import { t } from './text.js';
-import { icon } from './icons.js';
+import { icon, iconButton } from './icons.js';
 import { h } from './util.js';
 
 export const kit = () => document.documentElement.dataset.kit || 'xo';
@@ -307,12 +307,14 @@ export function disclosure(title, body, { open = false, badge: tag = null, id, o
 }
 
 // A row of big choices, each with a title, one line of help and a small drawn sample.
-// cards: [{ value, title, hint, sample }] (sample: a node, optional).
+// cards: [{ value, title, hint, sample }]. sample is optional: a node, or a function (card) that returns
+// a node, which draws the corner of the look for a picture option.
 export function optionCards(label, cards, { value, onchange, ...attrs } = {}) {
   const k = kit();
   const daisy = k === 'daisy';
   const inner = (c) => {
-    const body = [c.sample ? h('span', { class: 'xo-opt-sample', 'aria-hidden': 'true' }, c.sample) : null,
+    const sample = typeof c.sample === 'function' ? c.sample(c) : c.sample;
+    const body = [sample ? h('span', { class: 'xo-opt-sample', 'aria-hidden': 'true' }, sample) : null,
       h('span', { class: 'xo-opt-title' }, c.title), c.hint ? h('span', { class: 'xo-opt-hint' }, c.hint) : null];
     return k === 'wa' ? h('wa-card', { class: 'xo-opt-card' }, body) : body;
   };
@@ -519,4 +521,171 @@ export function stat(label, value) {
   const k = kit();
   if (k === 'daisy') return h('div', { class: 'figure tw:stat tw:p-0' }, h('div', { class: 'tw:stat-title' }, label), h('div', { class: 'tw:stat-value' }, h('strong', {}, value)));
   return h('div', { class: 'figure' }, h('span', { class: 'figure-label' }, label), h('strong', {}, value));
+}
+
+// ---- Controls from the design handoff (section 5) ----------------------------------------
+// Each reads --m (the module colour) when it sits inside a module, else the accent.
+
+const SVG = 'http://www.w3.org/2000/svg';
+const svgEl = (tag, attrs = {}) => {
+  const el = document.createElementNS(SVG, tag);
+  for (const [a, v] of Object.entries(attrs)) el.setAttribute(a, v);
+  return el;
+};
+// Text for a screen reader only, for controls whose kit draws no visible label.
+const srText = (text) => h('span', { class: 'xo-sr' }, text);
+
+// A round tick box for "done or not done". label is its name: aria-label, or visible with showLabel.
+// Returns a node with .checked (get and set) and .input. onchange(checked) runs on a user change.
+export function tickBox({ checked = false, label, showLabel = false, onchange, ...attrs } = {}) {
+  const k = kit();
+  if (k === 'wa') {
+    const el = h('wa-checkbox', { ...attrs, checked: checked || null, class: join('xo-tick-wa', attrs.class) },
+      showLabel ? label : srText(label));
+    el.addEventListener('change', () => onchange?.(el.checked));
+    return el;
+  }
+  const cls = k === 'daisy' ? 'xo-tickbox tw:checkbox tw:checkbox-primary tw:rounded-full' : 'xo-tickbox';
+  const box = h('input', { ...attrs, type: 'checkbox', checked: checked || null, 'aria-label': showLabel ? null : label, class: join(cls, attrs.class) });
+  box.addEventListener('change', () => onchange?.(box.checked));
+  const el = h('label', { class: 'xo-tick' }, box, showLabel ? h('span', { class: 'xo-tick-label' }, label) : null);
+  Object.defineProperty(el, 'checked', { get: () => box.checked, set: (v) => { box.checked = !!v; }, configurable: true });
+  el.input = box;
+  return el;
+}
+
+// A round play button with a progress ring that starts a timed sitting. progress is 0 to 1.
+// Returns the button with .progress (get and set, redraws the ring).
+export function playRing({ label, progress: start = 0, onclick, ...attrs } = {}) {
+  const k = kit();
+  const track = svgEl('circle', { class: 'xo-ring-track', cx: 18, cy: 18, r: 16, pathLength: 100, fill: 'none', 'stroke-width': 3 });
+  const bar = svgEl('circle', { class: 'xo-ring-bar', cx: 18, cy: 18, r: 16, pathLength: 100, fill: 'none', 'stroke-width': 3, transform: 'rotate(-90 18 18)' });
+  const tri = svgEl('polygon', { class: 'xo-ring-play', points: '14.5,12 14.5,24 25,18', fill: 'currentColor' });
+  const ring = svgEl('svg', { class: 'xo-ring', viewBox: '0 0 36 36', 'aria-hidden': 'true', focusable: 'false' });
+  ring.append(track, bar, tri);
+  const cls = join('xo-play', k === 'wa' && 'xo-play-wa', k === 'daisy' && 'tw:btn tw:btn-circle tw:btn-ghost', attrs.class);
+  const el = h('button', { ...attrs, type: 'button', class: cls, 'aria-label': label, title: label, onclick }, ring);
+  let cur = 0;
+  const draw = (p) => {
+    cur = Math.min(1, Math.max(0, Number(p) || 0));
+    bar.setAttribute('stroke-dasharray', `${(cur * 100).toFixed(1)} 100`);
+  };
+  draw(start);
+  Object.defineProperty(el, 'progress', { get: () => cur, set: draw, configurable: true });
+  return el;
+}
+
+// A filled stepped scale in place of a slider. steps: a list of { value, label } or a count (values 1..n).
+// It is one role="slider" stop: Left and Down step back, Right and Up step on, Home and End jump.
+// Returns the wrapper with .value (get and set, no event) and .slider (the focusable bar).
+export function stepScale({ label, steps, value, onchange, ...attrs } = {}) {
+  const k = kit();
+  const list = typeof steps === 'number' ? Array.from({ length: steps }, (_, i) => ({ value: i + 1, label: String(i + 1) })) : steps;
+  let at = list.findIndex((s) => s.value === value);
+  const cells = list.map((s, i) => h('span', { class: 'xo-step', 'data-value': s.value, title: s.label, onclick: () => { pick(i); slider.focus(); } },
+    h('span', { class: join('xo-step-bar', k === 'daisy' && 'tw:rounded-full') })));
+  const slider = h('div', {
+    ...attrs, role: 'slider', tabindex: '0', 'aria-label': label, 'aria-valuemin': '1', 'aria-valuemax': String(list.length),
+    class: join('xo-scale', k === 'wa' && 'xo-scale-wa', attrs.class),
+  }, cells);
+  const caption = h('span', { class: 'xo-scale-val', 'aria-hidden': 'true' });
+  function paint() {
+    cells.forEach((c, i) => {
+      c.classList.toggle('on', i <= at);
+      const b = c.firstChild;
+      if (k === 'daisy') { b.classList.toggle('tw:bg-primary', i <= at); b.classList.toggle('tw:bg-base-300', i > at); }
+    });
+    slider.setAttribute('aria-valuenow', String(at + 1));
+    slider.setAttribute('aria-valuetext', at >= 0 ? list[at].label : '');
+    caption.textContent = at >= 0 ? list[at].label : '';
+  }
+  function pick(i, fire = true) {
+    const next = Math.min(list.length - 1, Math.max(0, i));
+    const changed = next !== at;
+    at = next;
+    paint();
+    if (changed && fire) onchange?.(list[at].value);
+  }
+  slider.addEventListener('keydown', (e) => {
+    const to = { ArrowRight: at + 1, ArrowUp: at + 1, ArrowLeft: at - 1, ArrowDown: at - 1, Home: 0, End: list.length - 1 }[e.key];
+    if (to === undefined) return;
+    e.preventDefault();
+    pick(to);
+  });
+  paint();
+  const el = labelled(label, h('div', { class: 'xo-scale-row' }, slider, caption));
+  el.slider = slider;
+  return withValue(el, { get: () => (at >= 0 ? list[at].value : null), set: (v) => { at = list.findIndex((s) => s.value === v); paint(); } });
+}
+
+// A three-dot button that opens a small list of secondary actions. items: [{ label, icon, run }].
+// Up and Down (and Home, End) move through the items, Enter or Space runs one, Escape closes and
+// returns focus to the button, a press outside closes. Returns the button, with .close().
+export function menu({ label = t('common.more_actions'), items = [], icon: ic = 'dots-three', ...attrs } = {}) {
+  const k = kit();
+  const btn = iconButton(ic, label, {
+    ...attrs, class: join(k === 'daisy' && 'tw:btn tw:btn-ghost tw:btn-circle', attrs.class), 'aria-haspopup': 'menu', 'aria-expanded': 'false',
+  });
+  let list = null;
+  const rows = () => (list ? [...list.querySelectorAll('[role=menuitem]')] : []);
+  function close(refocus = false) {
+    if (!list) return;
+    document.removeEventListener('pointerdown', outside, true);
+    window.removeEventListener('resize', shut);
+    window.removeEventListener('scroll', shut, true);
+    list.remove();
+    list = null;
+    btn.setAttribute('aria-expanded', 'false');
+    if (refocus) btn.focus();
+  }
+  const shut = () => close(false);
+  function outside(e) { if (list && !list.contains(e.target) && !btn.contains(e.target)) close(false); }
+  function place() {
+    const a = btn.getBoundingClientRect();
+    const vw = document.documentElement.clientWidth;
+    const vh = window.innerHeight;
+    const w = list.offsetWidth;
+    const hgt = list.offsetHeight;
+    const flip = a.bottom + 6 + hgt > vh - 8 && a.top - 6 - hgt > 8;
+    list.style.left = `${Math.min(Math.max(a.right - w, 8), Math.max(vw - w - 8, 8))}px`;
+    list.style.top = `${flip ? a.top - 6 - hgt : a.bottom + 6}px`;
+  }
+  function open() {
+    if (list) return;
+    list = h('ul', {
+      class: join('xo-menu', k === 'daisy' && 'tw:menu tw:bg-base-100 tw:rounded-box tw:shadow-lg tw:border tw:border-base-300', k === 'wa' && 'xo-menu-wa'),
+      role: 'menu', 'aria-label': label,
+    }, items.map((it) => h('li', { role: 'none' },
+      h('button', { type: 'button', role: 'menuitem', tabindex: '-1', disabled: it.disabled || null, onclick: () => { close(true); it.run?.(); } },
+        it.icon ? icon(it.icon) : null, h('span', {}, it.label)))));
+    list.addEventListener('keydown', (e) => {
+      const all = rows().filter((r) => !r.disabled);
+      const at = all.indexOf(document.activeElement);
+      if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); close(true); return; }
+      if (e.key === 'Tab') { close(false); return; }
+      const to = { ArrowDown: (at + 1) % all.length, ArrowUp: (at - 1 + all.length) % all.length, Home: 0, End: all.length - 1 }[e.key];
+      if (to === undefined) return;
+      e.preventDefault();
+      all[to]?.focus();
+    });
+    (btn.closest('dialog[open]') || document.body).append(list);
+    btn.setAttribute('aria-expanded', 'true');
+    place();
+    rows().find((r) => !r.disabled)?.focus();
+    document.addEventListener('pointerdown', outside, true);
+    window.addEventListener('resize', shut);
+    window.addEventListener('scroll', shut, true);
+  }
+  btn.addEventListener('click', () => (list ? close(true) : open()));
+  btn.addEventListener('keydown', (e) => { if (e.key === 'ArrowDown') { e.preventDefault(); open(); } });
+  btn.close = close;
+  return btn;
+}
+
+// A minor action drawn as text: an <a> when there is an href, else a <button>.
+export function plainLink(label, { href, onclick, ...attrs } = {}) {
+  const k = kit();
+  const cls = join('xo-link', k === 'daisy' && 'tw:link tw:link-hover', k === 'wa' && 'xo-link-wa', attrs.class);
+  if (href) return h('a', { ...attrs, href, class: cls, onclick }, label);
+  return h('button', { ...attrs, type: 'button', class: cls, onclick }, label);
 }

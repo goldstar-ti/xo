@@ -108,3 +108,14 @@ wa-color-picker { --grid-width: 14rem; }
 /* ui.js tag, progress and callout: keep Web Awesome's pill and bar on the XO tokens. */
 wa-progress-bar { --indicator-color: var(--leaf); --track-color: var(--line); }
 wa-callout [slot="icon"] { display: inline-flex; }
+
+/* ui.js tickBox, playRing, stepScale, menu and plainLink: the parts Web Awesome does not draw stay on its tokens. */
+wa-checkbox.xo-tick-wa::part(control) { border-radius: 50%; }
+wa-checkbox.xo-tick-wa { --checked-icon-color: var(--paper); }
+.xo-play-wa { color: var(--wa-color-brand-fill-loud); }
+.xo-play-wa .xo-ring-track { stroke: var(--wa-color-neutral-border-normal); }
+.xo-play-wa .xo-ring-bar { stroke: var(--wa-color-brand-fill-loud); }
+.xo-scale-wa .xo-step-bar { background: var(--wa-color-neutral-border-normal); }
+.xo-scale-wa .xo-step.on .xo-step-bar { background: var(--wa-color-brand-fill-loud); }
+.xo-menu-wa { background: var(--wa-color-surface-raised); border-color: var(--wa-color-surface-border); border-radius: var(--wa-border-radius-m); }
+.xo-link-wa { color: var(--wa-color-text-link); font-family: var(--wa-font-family-body); }

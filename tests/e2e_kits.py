@@ -97,6 +97,11 @@ with sync_playwright() as p:
         ui.progress(0.4, 'Boxes written'),
         ui.callout('Read this first', { kind: 'warning', icon: 'tabler/info-circle' }),
         ui.linkRow({ icon: 'tabler/calendar', title: 'My plan', sub: 'Week at a glance', href: '/plan' }),
+        ui.tickBox({ label: 'Done box', checked: true }),
+        ui.playRing({ label: 'Start sitting', progress: 0.25 }),
+        ui.stepScale({ label: 'Effort', steps: 4, value: 2 }),
+        ui.menu({ label: 'Row actions', items: [{ label: 'Edit row', run: count }] }),
+        ui.plainLink('Skip for now', { href: '#/skip' }),
       );
       document.body.append(host);
       if (kit === 'wa') {
@@ -113,7 +118,7 @@ with sync_playwright() as p:
       const { tabStrip } = await import('/js/tabs.js');
       const w = window;
       w.__seg = null; w.__tog = null; w.__card = null; w.__font = null; w.__q = null; w.__moved = null;
-      w.__tab = null; w.__col = null;
+      w.__tab = null; w.__col = null; w.__scale = null; w.__ran = null; w.__tick = null; w.__play = 0;
       const host = document.createElement('div');
       host.id = 'cmp-host';
       const fonts = [
@@ -140,6 +145,16 @@ with sync_playwright() as p:
           { render: (x) => document.createTextNode(x), onmove: (a, b) => { w.__moved = [a, b]; } })),
         one('cmp-stat', ui.stat('Due', '12')),
         one('cmp-tabs', strip.el),
+        one('cmp-tick', ui.tickBox({ label: 'Done', showLabel: true, onchange: (v) => { w.__tick = v; } })),
+        one('cmp-play', ui.playRing({ label: 'Start', progress: 0.5, onclick: () => { w.__play += 1; } })),
+        one('cmp-scale', ui.stepScale({ label: 'Size', value: 1, onchange: (v) => { w.__scale = v; },
+          steps: [{ value: 1, label: 'Tiny' }, { value: 2, label: 'Small' }, { value: 3, label: 'Medium' },
+            { value: 4, label: 'Large' }, { value: 5, label: 'Huge' }] })),
+        one('cmp-menu', ui.menu({ label: 'More', items: [
+          { label: 'First', run: () => { w.__ran = 'first'; } },
+          { label: 'Second', run: () => { w.__ran = 'second'; } },
+        ] })),
+        one('cmp-link', ui.plainLink('Not now', { onclick: () => { w.__ran = 'link'; } })),
       );
       document.body.append(host);
       if (kit === 'wa') {
@@ -195,6 +210,14 @@ with sync_playwright() as p:
         expect(row).to_have_attribute("href", "/plan")
         expect(row).to_contain_text("Week at a glance")
         expect(row.locator(".link-row-go")).to_have_count(1)
+        expect(host.get_by_role("checkbox", name="Done box")).to_be_checked()
+        expect(host.get_by_role("button", name="Start sitting")).to_be_visible()
+        expect(host.get_by_role("slider", name="Effort")).to_have_attribute("aria-valuenow", "2")
+        expect(host.get_by_role("button", name="Row actions")).to_have_attribute("aria-haspopup", "menu")
+        expect(host.get_by_role("link", name="Skip for now")).to_have_attribute("href", "#/skip")
+        for ctl in ("[aria-label='Start sitting']", "[role=slider] .xo-step", "[aria-label='Row actions']"):
+            box_h = host.locator(ctl).first.evaluate("(e) => e.getBoundingClientRect().height")
+            assert box_h >= 39, f"{ctl} tap target"
         assert row.evaluate("(e) => e.getBoundingClientRect().height") >= 40, "link row tap target"
         if kit == "daisy":
             assert page.evaluate(PRIMARY_BG) != "rgba(0, 0, 0, 0)", "daisyUI classes did not compile into tw.css"
@@ -265,6 +288,48 @@ with sync_playwright() as p:
         page.locator("#cmp-tabs [role=tab]").first.focus()
         page.keyboard.press("ArrowDown")
         assert page.evaluate("window.__tab") == "b", "vertical tabs arrow down"
+        # Tick box, play ring, stepped scale, three-dot menu, plain link.
+        tick = cmp.get_by_role("checkbox", name="Done")
+        if kit == "wa":
+            page.locator("#cmp-tick wa-checkbox").click(position={"x": 8, "y": 8})
+        else:
+            tick.check()
+        assert page.evaluate("window.__tick") is True, "tick box"
+        cmp.get_by_role("button", name="Start").click()
+        assert page.evaluate("window.__play") == 1, "play ring click"
+        assert page.evaluate("document.querySelector('#cmp-play button').progress") == 0.5
+        cmp.get_by_role("link", name="Not now").or_(cmp.get_by_role("button", name="Not now")).click()
+        assert page.evaluate("window.__ran") == "link", "plain link"
+        scale = cmp.get_by_role("slider", name="Size")
+        scale.focus()
+        page.keyboard.press("ArrowRight")
+        assert page.evaluate("window.__scale") == 2, "scale right"
+        page.keyboard.press("End")
+        assert page.evaluate("window.__scale") == 5, "scale end"
+        expect(scale).to_have_attribute("aria-valuenow", "5")
+        expect(scale).to_have_attribute("aria-valuetext", "Huge")
+        assert scale.locator(".xo-step.on").count() == 5, "scale fills up to the value"
+        page.keyboard.press("Home")
+        assert page.evaluate("window.__scale") == 1 and scale.locator(".xo-step.on").count() == 1
+        opener = cmp.get_by_role("button", name="More")
+        opener.click()
+        expect(opener).to_have_attribute("aria-expanded", "true")
+        items = page.get_by_role("menuitem")
+        expect(items).to_have_count(2)
+        expect(items.first).to_be_focused()
+        page.keyboard.press("ArrowDown")
+        expect(items.nth(1)).to_be_focused()
+        page.keyboard.press("Enter")
+        assert page.evaluate("window.__ran") == "second", "menu item runs"
+        expect(page.get_by_role("menu")).to_have_count(0)
+        opener.click()
+        page.keyboard.press("Escape")
+        expect(page.get_by_role("menu")).to_have_count(0)
+        expect(opener).to_be_focused()
+        opener.click()
+        page.mouse.click(2, 2)
+        expect(page.get_by_role("menu")).to_have_count(0)
+        expect(opener).to_have_attribute("aria-expanded", "false")
         page.evaluate("document.getElementById('cmp-host').remove()")
         print("appearance components ok:", kit)
         print("ui.js controls ok:", kit)
