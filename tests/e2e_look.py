@@ -428,6 +428,114 @@ with sync_playwright() as p:
     assert pg.evaluate("document.querySelector('#acc-preview').open") is False
     assert pg.evaluate("document.documentElement.scrollWidth <= window.innerWidth + 1")
     pg.evaluate("XOLook.change((s, l) => { l.mode = 'auto'; })")
+    # background pattern: per device, kept over a reload, cleared by None and by strength 0; look codes carry it
+    pg.set_viewport_size({"width": 1280, "height": 900})
+    fresh()
+    pattern_var = "document.documentElement.style.getPropertyValue('--xo-pattern')"
+    assert pg.evaluate(pattern_var) == "" and pg.evaluate("document.documentElement.dataset.pattern") == "off"
+    tab("layout")
+    acc("pattern")
+    pg.locator('[data-fk="pattern:hexagons"]').click()
+    pg.wait_for_function(f"{pattern_var}.startsWith('url(')")
+    assert pg.evaluate("document.documentElement.dataset.pattern") == "on"
+    assert pg.evaluate("XOLook.active().look.pattern.kind") == "hexagons"
+    assert pg.evaluate("/^[a-z0-9]{4,32}$/.test(XOLook.active().look.pattern.seed)")
+    assert pg.evaluate("getComputedStyle(document.body).backgroundImage").startswith("url(")
+    uri = pg.evaluate(pattern_var)
+    pg.reload()
+    pg.wait_for_selector(".look-screen")
+    pg.wait_for_function(f"{pattern_var}.startsWith('url(')")
+    assert pg.evaluate(pattern_var) == uri  # the same seed draws the same pattern
+    # a palette swatch changes the drawing; the strength dial at 0 clears it
+    pg.evaluate(
+        "XOLook.change((s, l) => { Object.assign(l.pattern, {"
+        " swatch: 'raspberry-tart', light: '#e63965', dark: '#f18fa8' }); })"
+    )
+    pg.wait_for_function(f"{pattern_var}.startsWith('url(') && {pattern_var} !== {uri!r}")
+    fresh()
+    tab("layout")
+    acc("pattern")
+    pg.locator('[data-fk="d-patpct-num"]').fill("0")
+    pg.locator('[data-fk="d-patpct-num"]').press("Enter")
+    pg.wait_for_function(f"{pattern_var} === ''")
+    assert pg.evaluate("document.documentElement.dataset.pattern") == "off"
+    pg.evaluate("XOLook.change((s, l) => { l.pattern.pct = 20; })")
+    pg.wait_for_function(f"{pattern_var}.startsWith('url(')")
+    pg.locator('[data-fk="pattern:none"]').click()
+    pg.wait_for_function(f"{pattern_var} === ''")
+    assert pg.evaluate("document.documentElement.dataset.pattern") == "off"
+    # look codes round-trip the new fields; junk is cleaned to the defaults
+    got = pg.evaluate(
+        """() => {
+          XOLook.change((s, l) => {
+            l.pattern = { kind: 'plaid', swatch: 'raspberry-tart', light: '#e63965',
+              dark: '#f18fa8', pct: 25, seed: 'abc12345' };
+            l.motion = 'reduce';
+          });
+          const back = XOLook.decode(XOLook.encode(XOLook.active().look));
+          return { pattern: back.pattern, motion: back.motion };
+        }"""
+    )
+    assert got["motion"] == "reduce", got
+    assert got["pattern"] == {
+        "kind": "plaid",
+        "swatch": "raspberry-tart",
+        "light": "#e63965",
+        "dark": "#f18fa8",
+        "pct": 25,
+        "seed": "abc12345",
+    }, got
+    junk = pg.evaluate(
+        """() => {
+          const raw = { motion: 'sideways',
+            pattern: { kind: 'zigzag', swatch: 'Bad Slug', light: 'red', dark: '#12', pct: 'lots', seed: '!!' } };
+          const bin = String.fromCharCode(...new TextEncoder().encode(JSON.stringify(raw)));
+          const code = 'XO2-' + btoa(bin).replaceAll('+', '-').replaceAll('/', '_').replace(/=+$/, '');
+          const back = XOLook.decode(code);
+          return { pattern: back.pattern, motion: back.motion };
+        }"""
+    )
+    assert junk["motion"] == "system", junk
+    assert junk["pattern"] == {"kind": "none", "swatch": "", "light": "", "dark": "", "pct": 12, "seed": ""}, junk
+    # Motion: Reduce and Full win over the device; Follow device follows it, live
+    motion = "document.documentElement.dataset.xoMotion"
+    pg.emulate_media(reduced_motion="reduce")
+    for choice, want in (("system", "still"), ("full", "full"), ("reduce", "still")):
+        pg.evaluate("c => XOLook.change((s, l) => { l.motion = c; })", choice)
+        assert pg.evaluate(motion) == want, (choice, pg.evaluate(motion))
+    pg.emulate_media(reduced_motion="no-preference")
+    assert pg.evaluate(motion) == "still"  # Reduce stays Reduce
+    pg.evaluate("XOLook.change((s, l) => { l.motion = 'system'; })")
+    assert pg.evaluate(motion) == "full"
+    pg.emulate_media(reduced_motion="reduce")
+    pg.wait_for_function(f"{motion} === 'still'")  # the device changed while Follow device was on
+    # the control in Appearance sets it
+    tab("effects")
+    pg.locator('[data-fk="motion:full"]').click()
+    assert pg.evaluate("XOLook.active().look.motion") == "full" and pg.evaluate(motion) == "full"
+    # a dialog fades and rises in with Full, and runs no animation at all with Reduce
+    tab("share")
+    pg.locator('[data-fk="reset-all"]').click()
+    expect(pg.locator("dialog[open]")).to_have_count(1)
+    pg.keyboard.press("Escape")
+    expect(pg.locator("dialog[open]")).to_have_count(0)
+    n_full = pg.evaluate(
+        "() => { document.querySelector('[data-fk=\"reset-all\"]').click();"
+        " return document.querySelector('dialog[open]').getAnimations().length; }"
+    )
+    assert n_full >= 1, n_full
+    pg.keyboard.press("Escape")
+    expect(pg.locator("dialog[open]")).to_have_count(0)
+    pg.evaluate("XOLook.change((s, l) => { l.motion = 'reduce'; })")
+    pg.locator('[data-fk="reset-all"]').click()
+    expect(pg.locator("dialog[open]")).to_have_count(1)
+    assert pg.evaluate("document.getAnimations().length") == 0, pg.evaluate(
+        "document.getAnimations().map(a => a.animationName)"
+    )
+    pg.keyboard.press("Escape")
+    expect(pg.locator("dialog[open]")).to_have_count(0)
+    pg.emulate_media(reduced_motion="no-preference")
+    pg.evaluate("XOLook.change((s, l) => { l.motion = 'system'; l.pattern.kind = 'none'; })")
     # reset everything through the confirm dialog; the view goes back to Standard
     tab("share")
     pg.locator('[data-fk="reset-all"]').click()

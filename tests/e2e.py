@@ -338,6 +338,7 @@ with sync_playwright() as p:
     page.get_by_role("button", name="Add appointment").click()
     form = page.locator("dialog[open]")
     expect(form.get_by_role("button", name="Save")).to_be_visible()
+    page.evaluate("Promise.all(document.getAnimations().map((a) => a.finished))")  # the sheet fades in first
     sheet = page.evaluate(
         """() => {
             const d = document.querySelector('dialog[open]').getBoundingClientRect();

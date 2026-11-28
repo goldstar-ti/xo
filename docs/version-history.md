@@ -4,6 +4,7 @@
 
 | Version | Date | Change |
 |---|---|---|
+| 2.24.0 | 2026-11-28 | Generated background patterns (GeoPattern) and a Motion setting (Follow device, Reduce, Full) with fade-in motion for screens, dialogs, popovers and canvas widgets. |
 | 2.23.0 | 2026-11-27 | Every long text box is now a Markdown editor with a toolbar, preview and dictation, and long text shows formatted. |
 | 2.22.0 | 2026-11-27 | Screens restyled to the design canvas: tighter spacing, Tabler icons, theme names inside two-column tiles, full-screen forms on a phone, offline and first-run notices on Today. |
 | 2.21.3 | 2026-11-27 | In the Web Awesome kit, popovers put the cursor in their first field, and the Widgets search box no longer shows its name twice. |

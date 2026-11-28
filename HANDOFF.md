@@ -28,6 +28,13 @@
 4. Canvas, parked: a resizable side pane, undo that survives a reload, and saved layout presets. Also parked: NOBBIE single-key canvas shortcuts (W Widgets, F Fit, R Reset); Appearance Iconography overrides (swap any app icon) and icons in the rest of XO; widget icons in the Widgets popover and title bars (a registry `icon` per widget); glass effect on popovers.
 5. Tasks, parked: manual card order on the board; subtasks as full tasks. Out of scope by the owner's decision: local-first sync and webhooks. OS-wide hotkeys are parked (D-29): a PWA cannot register them.
 
+## Background patterns and Motion (2.24.0, D-35)
+
+- Branch `feat/pattern-motion`, built in the worktree `/home/pj/projects/xo-motion`; not merged, not deployed.
+- Pattern: `static/js/pattern.js`, vendor `static/vendor/geopattern/` (un-ignored in `.gitignore`), look field `pattern` in `boot.js`, Appearance > Layout > Background pattern.
+- Motion: look field `motion`, `data-xo-motion` on `<html>`, `motionStill()` in `util.js`, Appearance > Effects > Motion. Entrance rules sit together in `app.css` under "motion".
+- Tests: `tests/e2e_look.py` (pattern and motion block near the end).
+
 ## Restyle to the design canvas and EasyMDE (2.21.1 to 2.23.0)
 
 - Shipped and live (2026-11-27, deployed from a clean worktree of `ca9e61a`; `sw.js` cache `xo-v34`): font list "null" rows fixed; theme names inside two-column tiles; tighter shell and page rhythm; Tabler default icons; `tag`, `progress`, `callout`, `linkRow` in `ui.js`; Today restyled with offline and first-run notices; list screens restyled; full-screen phone forms with a pinned footer; check-ins, My plan, plan card, Settings, More and sign-in restyled; EasyMDE (2.21.0, vendored) in every long text box; long text shown as Markdown, one-liners through `plainText()`. Decisions D-33, D-34. Plan: `~/.claude/plans/implement-this-design-in-quirky-teacup-of-759e7242-63e4-4407-9438-bec451419a02.md`.
