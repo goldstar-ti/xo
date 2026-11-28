@@ -252,7 +252,8 @@ window.addEventListener('xo:look', async (e) => {
   syncNav();
   if (e.detail.quiet) return;
   await ensureKit();
-  redrawPages();
+  // Check-ins in the pane keep what is typed until saved.
+  redrawPages((tab) => !tab.key.startsWith('page:checkin'));
   if (dialogOpen()) pending = true; else draw({ keepScroll: true, keepFocus: true });
 });
 
