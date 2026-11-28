@@ -120,8 +120,19 @@ let view = null;
 let pending = false;
 let loadedAt = 0;
 
+// The screen that opens when the address has none (Appearance, Screens, Opening screen). Automatic is Today on a
+// phone, and the Canvas on a window 120rem or wider once a canvas exists.
+function startName() {
+  const pick = L.prefs.start;
+  if (pick === 'canvas' || pick === 'today') return pick;
+  const rem = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+  const phone = window.matchMedia('(max-width: 39.99rem)').matches;
+  return !phone && window.innerWidth >= 120 * rem && store.byKind('canvas').length > 0 ? 'canvas' : 'today';
+}
+
 function route() {
-  const [name = 'today', ...params] = location.hash.replace(/^#\/?/, '').split('/');
+  const [first, ...params] = location.hash.replace(/^#\/?/, '').split('/');
+  const name = first || startName();
   // A screen whose module is off, or that does not exist, lands on Today, or on the first screen left when Today is off.
   return { name: VIEWS[name] && isOn(name) ? name : visibleNav()[0], params };
 }
@@ -152,7 +163,7 @@ function draw({ keepScroll = false, keepFocus = false } = {}) {
     history.replaceState(null, '', mainHash); // the first draw of the page: show Today behind the pane
     r = route();
   } else if (!(r.name === 'settings' || r.name === 'appearance' || (r.name === 'checkin' && r.params[0]))) {
-    mainHash = location.hash || '#/today';
+    mainHash = location.hash || `#/${r.name}`;
   }
   const { name, params } = r;
   // A new screen fades in; a redraw of the same screen (a store change, a slider) does not.

@@ -574,6 +574,14 @@ function build(lk, d) {
   defAcc('today_layout', 'layout', A('today_layout'), { reset: () => L.change((s, l) => { ['hero', 'dayline', 'loud', 'line'].forEach((k) => { l[k] = d[k]; }); }) });
   ['hero', 'dayline', 'loud', 'line'].forEach((k) => reg('layout', 'today_layout', t(`appearance.layout.${k}`), cards(t(`appearance.layout.${k}`), k), { adv: true, changed: chg(k) }));
 
+  // Canvas widgets: how a widget on the Canvas screen looks. Per device, in the look.
+  defAcc('canvas_widgets', 'layout', A('canvas_widgets'), { reset: () => L.change((s, l) => { ['wChrome', 'wHead', 'wTitleFont', 'wInner', 'wScale'].forEach((k) => { l[k] = d[k]; }); }) });
+  reg('layout', 'canvas_widgets', t('appearance.widgets_look.chrome'), seg(t('appearance.widgets_look.chrome'), 'wChrome'), { changed: chg('wChrome') });
+  reg('layout', 'canvas_widgets', t('appearance.widgets_look.head'), seg(t('appearance.widgets_look.head'), 'wHead'), { adv: true, changed: chg('wHead') });
+  reg('layout', 'canvas_widgets', t('appearance.widgets_look.title_font'), seg(t('appearance.widgets_look.title_font'), 'wTitleFont'), { adv: true, changed: chg('wTitleFont') });
+  reg('layout', 'canvas_widgets', t('appearance.widgets_look.inner'), h('div', { class: 'opt' }, seg(t('appearance.widgets_look.inner'), 'wInner'), h('p', { class: 'hint' }, t('appearance.widgets_look.inner_hint'))), { adv: true, changed: chg('wInner') });
+  reg('layout', 'canvas_widgets', t('appearance.widgets_look.scale'), dl(t('appearance.widgets_look.scale'), 'd-wscale', 'wScale', { min: 60, max: 150, step: 5, unit: '%' }), { adv: true, changed: chg('wScale') });
+
   // 4. Effects
   reg('effects', null, t('appearance.behaviour.pop'), toggle(t('appearance.behaviour.pop'), { checked: p.pop, 'data-fk': 'p-pop', onchange: (on) => setPrefs({ pop: on }) }), { changed: !p.pop });
   reg('effects', null, t('appearance.motion.label'), h('div', { class: 'opt' }, seg(t('appearance.motion.label'), 'motion'), h('p', { class: 'hint' }, t('appearance.motion.hint'))), { changed: chg('motion') });
@@ -612,6 +620,8 @@ function build(lk, d) {
   reg('screens', null, t('appearance.kit.label'), h('div', { class: 'opt' }, cards(t('appearance.kit.label'), 'kit', null, kitLabels), h('p', { class: 'hint' }, t('appearance.kit.hint'))), { changed: chg('kit') });
   reg('screens', null, t('appearance.behaviour.clock'), fkAll(segmented(t('appearance.behaviour.clock'), [['12', t('appearance.behaviour.clock_12')], ['24', t('appearance.behaviour.clock_24')]],
     { value: p.clock24 ? '24' : '12', onchange: (v) => { setPrefs({ clock24: v === '24' }); kvSet('clock24', v === '24').catch(() => {}); } }), 'clock'), { changed: p.clock24 });
+  reg('screens', null, t('appearance.behaviour.start'), h('div', { class: 'opt' }, fkAll(segmented(t('appearance.behaviour.start'), L.START_CHOICES.map((o) => [o, text('appearance.behaviour.start_choices')[o]]),
+    { value: p.start, onchange: (v) => setPrefs({ start: v }) }), 'start'), h('p', { class: 'hint' }, t('appearance.behaviour.start_hint'))), { changed: p.start !== 'auto' });
   reg('screens', null, t('appearance.behaviour.header_title'), field(t('appearance.behaviour.header_title'), input({ id: 'p-title', type: 'text', maxlength: 24, value: p.title, 'data-fk': 'p-title', onchange: (e) => setPrefs({ title: e.target.value }) }), null, { half: true }), { changed: p.title !== 'XO' });
   reg('screens', null, t('appearance.behaviour.call_me'), field(t('appearance.behaviour.call_me'), input({ id: 'p-call', type: 'text', maxlength: 30, value: p.callMe, placeholder: t('appearance.behaviour.call_me_placeholder'), 'data-fk': 'p-call', onchange: (e) => setPrefs({ callMe: e.target.value }) }), t('appearance.behaviour.call_me_hint'), { half: true }), { changed: p.callMe !== '' });
   const sections = text('app.nav');

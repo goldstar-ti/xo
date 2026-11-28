@@ -33,6 +33,11 @@ def node(pg, wid):
     )
 
 
+def board_ids(pg):
+    """The placed ids on the board, sorted."""
+    return pg.evaluate("[...document.querySelectorAll('.xo-board [data-widget]')].map((e) => e.dataset.widget).sort()")
+
+
 def widget(pg, wid):
     """The widget on the board (not its tick in the Widgets popover)."""
     return pg.locator(f".xo-board [data-widget='{wid}']")
@@ -102,11 +107,39 @@ with sync_playwright() as p:
     pg.get_by_role("button", name="Sign in").click()
     pg.wait_for_selector(".dayline", timeout=20000)
 
-    # The Canvas screen: one unsaved canvas called Main, nothing on it.
+    # The Canvas screen: a brand-new first canvas called Main starts from the starter layout.
     open_canvas(pg)
     tabs = pg.get_by_role("tablist", name="Canvases")
     expect(tabs.get_by_role("tab")).to_have_count(1)
     expect(tabs.get_by_role("tab", name="Main")).to_have_attribute("aria-selected", "true")
+    expect(pg.locator(".xo-board [data-widget]").first).to_be_attached()
+    starter_ids = board_ids(pg)
+    assert len(starter_ids) >= 8 and "clock" in starter_ids and "tasks-list" in starter_ids, starter_ids
+    expect(pg.locator(".xo-canvas-empty")).to_be_hidden()
+    pg.screenshot(path=SHOTS / "canvas-starter.png")
+
+    def clear_board():
+        """Takes every widget off the board with its own close button."""
+        while pg.locator(".xo-board [data-widget]").count():
+            pg.locator(".xo-board [data-widget] .xo-w-close").first.click()
+
+    # Empty it and reload so the empty canvas is the saved one; Starter layout brings the widgets back, Undo reverts.
+    clear_board()
+    expect(pg.locator(".xo-canvas-empty")).to_be_visible()
+    with pg.expect_response(lambda r: r.request.method == "PUT" and "/api/items/canvas" in r.url):
+        pg.locator(".side").get_by_role("link", name="Today").click()
+    pg.wait_for_selector(".dayline")
+    pg.reload()
+    pg.wait_for_selector(".dayline", timeout=20000)
+    open_canvas(pg)
+    expect(pg.locator(".xo-canvas-empty")).to_be_visible()
+    expect(pg.get_by_role("button", name="Undo")).to_be_disabled()
+    pg.get_by_role("button", name="Starter layout", exact=True).click()
+    expect(pg.locator(".xo-board [data-widget]").first).to_be_attached()
+    back_ids = board_ids(pg)
+    assert back_ids == starter_ids, (back_ids, starter_ids)
+    pg.get_by_role("button", name="Undo", exact=True).click()
+    expect(pg.locator(".xo-board [data-widget]")).to_have_count(0)
     expect(pg.locator(".xo-canvas-empty")).to_be_visible()
     expect(pg.get_by_role("button", name="Undo")).to_be_disabled()
 
@@ -116,6 +149,10 @@ with sync_playwright() as p:
         expect(widget(pg, wid).locator(".xo-w-body .page-head h1")).to_have_text(name)
     expect(pg.locator(".xo-canvas-empty")).to_be_hidden()
     assert node(pg, "tasks")["w"] == 8
+    # A screen heading that repeats the widget name is hidden by default (Appearance, Canvas widgets) and shows on request.
+    expect(widget(pg, "tasks").locator(".xo-w-body .page-head h1")).to_be_hidden()
+    pg.evaluate("XOLook.change((s, l) => { l.wInner = 'show'; }, { quiet: true })")
+    expect(widget(pg, "tasks").locator(".xo-w-body .page-head h1")).to_be_visible()
 
     # Widget and tab colours: a chosen palette tints the frame and the active tab's underline; reset clears it.
     frame = "document.querySelector('[data-widget=\"tasks\"] > .xo-w')"
@@ -462,6 +499,8 @@ with sync_playwright() as p:
     expect(pg.locator("#toast")).to_be_visible()
     assert pg.evaluate("location.hash") == "#/canvas"
     tabs.get_by_role("tab", name="Home base").click()
+    expect(tabs.get_by_role("tab", name="Home base")).to_have_attribute("aria-selected", "true")
+    expect(widget(pg, "bills:2")).to_be_attached()
 
     # Phone width: a plain list, nothing to drag, no Widgets button and no side pane.
     pg.set_viewport_size({"width": 390, "height": 860})
@@ -470,8 +509,74 @@ with sync_playwright() as p:
     expect(pg.get_by_role("button", name="Widgets", exact=True)).to_be_hidden()
     expect(widget(pg, "tasks").locator(".xo-w-grip")).to_have_count(0)
     pg.screenshot(path=SHOTS / "canvas-phone.png")
+
+    # Phone order and hide: Arrange, Hide Tasks, the choice survives a reload, Down changes the order.
+    def phone_ids():
+        return pg.evaluate(
+            "[...document.querySelectorAll('.xo-board-list > [data-widget]')].map((e) => e.dataset.widget)"
+        )
+
+    start = phone_ids()
+    assert len(start) >= 2, start
+    first, second = start[0], start[1]
+
+    def arr(wid, which):
+        return pg.locator(f".xo-board-list > [data-widget='{wid}'] [data-arr='{which}']")
+
+    pg.get_by_role("button", name="Arrange", exact=True).click()
+    arr(first, "hide").click()
+    assert phone_ids() == start[1:], phone_ids()
+    expect(pg.locator(f".xo-arr-hidden [data-hidden-widget='{first}']")).to_be_visible()
+    pg.wait_for_timeout(1200)  # the canvas saves half a second after a change
+    pg.set_viewport_size({"width": 1400, "height": 900})
+    pg.reload()
+    pg.wait_for_selector(".xo-canvas .xo-board", timeout=20000)
+    pg.set_viewport_size({"width": 390, "height": 860})
+    expect(pg.locator(".xo-board-list")).to_be_attached()
+    assert phone_ids() == start[1:], phone_ids()
+    pg.get_by_role("button", name="Arrange", exact=True).click()
+    pg.locator(f".xo-arr-hidden [data-hidden-widget='{first}'] button").dispatch_event("click")
+    assert phone_ids() == start, phone_ids()
+    arr(first, "down").click()
+    assert phone_ids()[:2] == [second, first], phone_ids()
+    arr(first, "up").click()
+    assert phone_ids() == start, phone_ids()
+    arr(second, "up").click()
+    assert phone_ids()[:2] == [second, first], phone_ids()
+    pg.get_by_role("button", name="Done arranging", exact=True).click()
+    expect(pg.locator(".xo-arr")).to_have_count(0)
+    pg.screenshot(path=SHOTS / "canvas-phone-arranged.png")
     pg.set_viewport_size({"width": 1400, "height": 900})
     expect(pg.locator(".xo-board.grid-stack")).to_have_count(1)
+
+    # Layout code: copy the code, clear the board, paste it back; the same widgets return. Junk is refused.
+    before = board_ids(pg)
+    assert len(before) >= 2, before
+    pg.get_by_role("button", name="Rename canvas").click()
+    code = pop(pg).locator("#f-code").input_value()
+    assert code.startswith("XC1-"), code
+    pg.keyboard.press("Escape")
+    expect(pop(pg)).to_have_count(0)
+    clear_board()
+    pg.get_by_role("button", name="Rename canvas").click()
+    pop(pg).locator("#f-code").fill("XC1-not-a-layout")
+    pop(pg).get_by_role("button", name="Paste layout code").click()
+    expect(pg.locator("#toast")).to_contain_text("not a layout code")
+    expect(pg.locator(".xo-board [data-widget]")).to_have_count(0)
+    pop(pg).locator("#f-code").fill(code)
+    pop(pg).get_by_role("button", name="Paste layout code").click()
+    expect(pg.locator(".xo-board [data-widget]")).to_have_count(len(before))
+    after = board_ids(pg)
+    assert after == before, (after, before)
+    # float: the Rename toggle turns GridStack float on for this canvas and it is saved
+    pop(pg).locator("#f-float").check()
+    pop(pg).get_by_role("button", name="Save", exact=True).click()
+    expect(pop(pg)).to_have_count(0)
+    assert pg.evaluate("document.querySelector('.xo-board').gridstack.opts.mode") == "float"
+    pg.get_by_role("button", name="Undo", exact=True).click()
+    expect(pg.locator(".xo-board [data-widget]")).to_have_count(0)
+    pg.get_by_role("button", name="Redo", exact=True).click()
+    expect(pg.locator(".xo-board [data-widget]")).to_have_count(len(before))
 
     # tabSet on its own: panels built on first show and kept; Delete closes the focused tab.
     result = pg.evaluate("""async () => {

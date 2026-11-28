@@ -540,6 +540,50 @@ with sync_playwright() as p:
     assert code == "on", code
     pg.evaluate("XOLook.change((s, l) => { l.fluid = 'on'; })")
     pg.set_viewport_size({"width": 1280, "height": 900})
+    # Canvas widget dials: attributes and --w-scale follow the look, survive an XO2- code, and junk cleans to defaults
+    root_attr = "(n) => document.documentElement.getAttribute(n)"
+    pg.evaluate(
+        "XOLook.change((s, l) => { Object.assign(l, { wChrome: 'stripe', wHead: 'slim', wTitleFont: 'num',"
+        " wInner: 'show', wScale: 120 }); })"
+    )
+    assert pg.evaluate(root_attr, "data-w-chrome") == "stripe"
+    assert pg.evaluate(root_attr, "data-w-head") == "slim"
+    assert pg.evaluate(root_attr, "data-w-title-font") == "num"
+    assert pg.evaluate(root_attr, "data-w-inner") == "show"
+    assert pg.evaluate("document.documentElement.style.getPropertyValue('--w-scale')") == "1.2"
+    back = pg.evaluate(
+        "() => { const b = XOLook.decode(XOLook.encode(XOLook.active().look));"
+        " return [b.wChrome, b.wHead, b.wTitleFont, b.wInner, b.wScale]; }"
+    )
+    assert back == ["stripe", "slim", "num", "show", 120], back
+    junk = pg.evaluate(
+        """() => {
+          const raw = { wChrome: 'neon', wHead: 7, wTitleFont: 'comic', wInner: null, wScale: 'big' };
+          const bin = String.fromCharCode(...new TextEncoder().encode(JSON.stringify(raw)));
+          const code = 'XO2-' + btoa(bin).replaceAll('+', '-').replaceAll('/', '_').replace(/=+$/, '');
+          const b = XOLook.decode(code);
+          const hi = XOLook.decode('XO2-eyJ3U2NhbGUiOjkwMH0');
+          return [b.wChrome, b.wHead, b.wTitleFont, b.wInner, b.wScale, hi.wScale];
+        }"""
+    )
+    assert junk == ["card", "full", "head", "hide", 100, 150], junk
+    # the controls in Appearance: Layout, Canvas widgets
+    tab("layout")
+    acc("canvas_widgets")
+    pg.locator('[data-fk="wChrome:outline"]').click()
+    assert pg.evaluate("XOLook.active().look.wChrome") == "outline"
+    assert pg.evaluate(root_attr, "data-w-chrome") == "outline"
+    pg.evaluate(
+        "XOLook.change((s, l) => { Object.assign(l, { wChrome: 'card', wHead: 'full',"
+        " wTitleFont: 'head', wInner: 'hide', wScale: 100 }); })"
+    )
+    # the opening screen pref is cleaned and set in Appearance, Screens
+    assert pg.evaluate("XOLook.state.prefs.start") == "auto"
+    tab("screens")
+    pg.locator('[data-fk="start:canvas"]').click()
+    assert pg.evaluate("XOLook.state.prefs.start") == "canvas"
+    pg.evaluate("XOLook.change((s) => { s.prefs.start = 'sideways'; })")
+    assert pg.evaluate("XOLook.state.prefs.start") == "auto"
     # the control in Appearance sets it
     tab("effects")
     pg.locator('[data-fk="motion:full"]').click()

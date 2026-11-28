@@ -63,6 +63,26 @@ canvas:
   leave_focus: Leave focus
   fit_all: Fit all
   reset_layout: Reset layout
+  starter: Starter layout
+  arrange: Arrange
+  arrange_done: Done arranging
+  arr_up: Move {name} up
+  arr_down: Move {name} down
+  arr_hide: Hide {name} on this phone
+  arr_show: Show
+  arr_show_for: Show {name}
+  arr_hidden: Hidden on this phone
+  phone_all_hidden: Every widget is hidden on this phone. Arrange shows them again.
+  float_label: Leave gaps between widgets
+  float_hint: Widgets stay where you drop them instead of moving up to fill the space.
+  code_label: Layout code
+  code_hint: Copy the code to keep this layout or use it on another device. Paste a code and choose Paste layout code to replace the widgets on this canvas.
+  code_copy: Copy layout code
+  code_paste: Paste layout code
+  code_copied: Layout code copied.
+  code_select: The code is selected. Copy it with your keyboard.
+  code_pasted: Layout pasted.
+  code_bad: That is not a layout code.
   undo: Undo
   undone: 'Undone: {what}.'
   redo: Redo
@@ -80,6 +100,7 @@ canvas:
     fit_all: fitting all widgets
     reset_size: resetting a widget's size
     reset_layout: resetting the layout
+    paste_layout: pasting a layout
     focus: focus
     move_canvas: moving a widget to another canvas
     to_pane: opening a widget in a side tab

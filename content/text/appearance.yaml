@@ -62,6 +62,10 @@ appearance:
     figure: {plain: Plain, tint: Tint, accent: Accent, inset: Inset}
     motion: {system: Follow device, reduce: Reduce, full: Full}
     fluid: {on: 'On', off: 'Off'}
+    wChrome: {card: Card, outline: Outline, flat: Flat, stripe: Stripe}
+    wHead: {full: Full, slim: Slim, none: None}
+    wTitleFont: {head: Headings, body: Body, num: Numerals}
+    wInner: {hide: Hide, show: Show}
   accent:
     group: Accent colour
     theme: Theme
@@ -117,6 +121,9 @@ appearance:
     clock: Clock
     clock_12: 12-hour (2:30 pm)
     clock_24: 24-hour (14:30)
+    start: Opening screen
+    start_choices: {auto: Automatic, canvas: Canvas, today: Today}
+    start_hint: Used when the address has no screen. Automatic opens Today on a phone, and the Canvas on a wide window when you have one.
     tabs_heading: Phone bottom bar
     tabs_hint: Four sections, left to right. Everything else sits under More.
     position: 'Position {n}'
@@ -376,6 +383,13 @@ appearance:
   fluid:
     label: Grow text with the window
     hint: On wide screens, text grows with the window. Turn off to keep it the same size as on a laptop.
+  widgets_look:
+    chrome: Widget frame
+    head: Widget title bar
+    title_font: Widget title font
+    inner: Screen headings inside widgets
+    inner_hint: Hide removes a screen's own heading inside a widget when it repeats the widget's name.
+    scale: Widget text size
   motion:
     label: Motion
     hint: Follow device uses your device's reduce-motion setting. Reduce turns every animation off. Full keeps them on.
@@ -514,6 +528,7 @@ appearance:
     glass: Glass
     figures: Figures
     pattern: Background pattern
+    canvas_widgets: Canvas widgets
     motion: Motion
     bottom_tabs: Bottom tabs
     icons: Icons

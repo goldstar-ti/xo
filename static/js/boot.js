@@ -48,6 +48,11 @@
     figure: ['plain', 'tint', 'accent', 'inset'],
     motion: ['system', 'reduce', 'full'], // Follow device, Reduce, Full
     fluid: ['on', 'off'], // Grow text with the window on wide screens
+    // Canvas widget styles (static/canvas.css), per device like the rest of the look.
+    wChrome: ['card', 'outline', 'flat', 'stripe'], // Widget frame
+    wHead: ['full', 'slim', 'none'], // Widget title bar
+    wTitleFont: ['head', 'body', 'num'], // Font of the widget title
+    wInner: ['hide', 'show'], // Hide a screen's own heading inside a widget when it repeats the widget title
   };
   // Generated background patterns (GeoPattern): 'auto' lets the generator pick from the seed. Drawn by static/js/pattern.js.
   const PATTERN_KINDS = ['none', 'auto', 'octogons', 'overlappingCircles', 'plusSigns', 'xes', 'sineWaves', 'hexagons', 'overlappingRings', 'plaid',
@@ -117,13 +122,15 @@
     glassAlpha: 0, glassBlur: 14, figure: 'plain', ident: { widgets: {}, tabs: {} },
     corners: 'round', density: 'regular', rule: 'fine', texture: 'none',
     hero: 'plain', dayline: 'line', loud: 'regular', line: 'plain', kit: 'xo', axes: {}, motion: 'system', fluid: 'on',
+    wChrome: 'card', wHead: 'full', wTitleFont: 'head', wInner: 'hide', wScale: 100,
     // swatch is a palette slug ('' follows the accent); light and dark are its step 500 and step 300, copied in so it paints before the list loads.
     pattern: { kind: 'none', swatch: '', light: '', dark: '', pct: 12, seed: '' },
   };
   const SECTIONS = ['today', 'diary', 'tasks', 'obligations', 'routine', 'bills', 'checkin', 'plan', 'settings', 'appearance', 'canvas', 'tracker', 'notes'];
   const LOOK_TABS = ['theme', 'text', 'layout', 'effects', 'modules', 'screens', 'share']; // the Appearance screen's groups
   const BLOCKS = ['line', 'next', 'three', 'day', 'coming', 'plan'];
-  const DEFAULT_PREFS = { clock24: false, tabs: ['today', 'diary', 'tasks', 'obligations'], blocks: BLOCKS.slice(), hidden: [], title: 'XO', callMe: '', pop: true, view: 'standard', lookTab: 'theme', navIcons: true, conceptNav: true, icons: {}, sideW: 240, side: 'open' };
+  const DEFAULT_PREFS = { clock24: false, tabs: ['today', 'diary', 'tasks', 'obligations'], blocks: BLOCKS.slice(), hidden: [], title: 'XO', callMe: '', pop: true, view: 'standard', lookTab: 'theme', navIcons: true, conceptNav: true, icons: {}, sideW: 240, side: 'open', start: 'auto' };
+  const START_CHOICES = ['auto', 'canvas', 'today']; // Which screen opens when the address has none
   const ICON_KEYS = SECTIONS.concat(['more']); // screens whose icon the owner can change
   const ICON_RE = /^(tabler\/)?[a-z0-9-]{1,60}(:fill)?$/;
 
@@ -196,6 +203,7 @@
     out.zoom = clamp(raw.zoom, 25, 175, 100);
     out.monoSize = clamp(raw.monoSize, 70, 150, 100);
     out.monoLs = clamp(raw.monoLs, -0.05, 0.15, 0);
+    out.wScale = Math.round(clamp(raw.wScale, 60, 150, 100));
     out.glassAlpha = clamp(raw.glassAlpha, 0, 60, 0);
     out.glassBlur = clamp(raw.glassBlur, 0, 30, 14);
     out.rCard = raw.rCard === null || raw.rCard === undefined ? null : clamp(raw.rCard, 0, 32, null);
@@ -235,6 +243,7 @@
       icons: Object.fromEntries(ICON_KEYS.filter((k) => raw.icons && typeof raw.icons[k] === 'string' && ICON_RE.test(raw.icons[k])).map((k) => [k, raw.icons[k]])),
       sideW: Math.round(clamp(raw.sideW, 180, 420, 240)),
       side: raw.side === 'icons' ? 'icons' : 'open',
+      start: START_CHOICES.includes(raw.start) ? raw.start : 'auto',
     };
   }
   const isTime = (v) => typeof v === 'string' && /^([01]\d|2[0-3]):[0-5]\d$/.test(v);
@@ -362,6 +371,11 @@
     root.dataset.kit = look.kit;
     root.dataset.figure = look.figure;
     root.dataset.fluid = look.fluid;
+    root.dataset.wChrome = look.wChrome;
+    root.dataset.wHead = look.wHead;
+    root.dataset.wTitleFont = look.wTitleFont;
+    root.dataset.wInner = look.wInner;
+    set('--w-scale', look.wScale / 100);
     // Motion: Follow device is still when the device asks for reduced motion. CSS and scripts read data-xo-motion.
     const still = look.motion === 'reduce' || (look.motion === 'system' && matchMedia('(prefers-reduced-motion: reduce)').matches);
     root.dataset.xoMotion = still ? 'still' : 'full';
@@ -499,7 +513,7 @@
   }
 
   window.XOLook = {
-    THEMES, FONTS, CHOICES, PATTERN_KINDS, SECTIONS, BLOCKS, COLOUR_RANGE, DEFAULT_LOOK,
+    THEMES, FONTS, CHOICES, START_CHOICES, PATTERN_KINDS, SECTIONS, BLOCKS, COLOUR_RANGE, DEFAULT_LOOK,
     FS_ROLES, FS_STEPS, COLOUR_GROUPS, COLOUR_TOKENS, SIZE_PRESETS, presetOf, stackOf, ensureFont,
     get state() { return state; },
     get prefs() { return state.prefs; },

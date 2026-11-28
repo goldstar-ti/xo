@@ -4,6 +4,7 @@
 
 | Version | Date | Change |
 |---|---|---|
+| 2.35.0 | 2026-11-28 | Canvas widget styles and layouts: Appearance gains Canvas widgets (frame, title bar, title font, text size, hiding a screen's repeated heading), a canvas can leave gaps between widgets, a new canvas starts from a Starter layout (also a button), the phone can order and hide widgets with Arrange, layout codes copy and paste a canvas, and Opening screen picks Today or the Canvas. |
 | 2.34.0 | 2026-11-28 | The Canvas gains 22 content widgets from the Bridge: clock, week strip, month calendar, days until, next up, the day, today's three, coming up, daily line, task list, add a task, diary, routine, duties, bills, money totals, check-ins this week, check-in answers, body log, plan card, plan progress and shortcuts. Each is drawn from its screen's own code, has options and is grouped in Widgets. |
 | 2.33.0 | 2026-11-28 | Canvas widgets can be placed more than once, renamed and given options: an Options tool on each title bar, an Add another button in Widgets, and a Show the page heading option on every screen widget. Widgets can redraw themselves on a timer and when the day changes. |
 | 2.32.0 | 2026-11-28 | The Diary flows into columns on a wide main area (84rem and up). Day line times stay on one line, buttons get a little space above and below, and the Web Awesome kit widens the time column with letter spacing. |

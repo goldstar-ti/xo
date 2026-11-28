@@ -26,8 +26,14 @@
 // Side pane (desktop): widgets opened in a side tab leave the board and show in a tab set beside
 // it (static/js/tabs.js). The open side tabs are kept per device in localStorage `xo-canvas-pane`.
 //
-// Phone (under 40rem): the widgets are a plain list in reading order, nothing is dragged, there is
-// no side pane and no geometry is saved, so the phone never rewrites the desktop layout.
+// Phone (under 40rem): the widgets are a plain list, nothing is dragged, there is no side pane and no
+// geometry is saved, so the phone never rewrites the desktop layout. The list follows `phone.order`
+// (then reading order) and skips `phone.hidden`; Arrange moves widgets up and down and hides or shows them.
+//
+// Also per canvas: `float` (widgets do not pack upward), a Starter layout button and a layout code
+// (`XC1-` plus the canvas as base64url JSON) that Rename copies and pastes. STARTERS holds the starter
+// layouts by name; starter(widthRem, name) places one in tracks to suit the width.
+// The look of a widget (frame, title bar, title font, size) is per device: see wChrome and friends in boot.js.
 //
 // The active canvas is remembered per device in localStorage under `xo-canvas`.
 import * as store from './store.js';
@@ -37,7 +43,7 @@ import { VALUE_RE, icon, iconButton, setIcon, setLabel } from './icons.js';
 import { openPopover } from './popover.js';
 import { tabSet, tabStrip } from './tabs.js';
 import { t } from './text.js';
-import { button, checkbox, field, searchBox } from './ui.js';
+import { button, checkbox, field, searchBox, textarea } from './ui.js';
 import { dialogOpen, h, motionStill, openForm, toast, uid } from './util.js';
 import { widgetOn } from './modules.js';
 import { WIDGETS, cleanOpts, optsFor, typeOf } from './widgets.js';
@@ -54,7 +60,36 @@ const ACTIVE_KEY = 'xo-canvas';
 const PANE_KEY = 'xo-canvas-pane';
 const PHONE = '(max-width: 39.99rem)';
 
-const blank = (title, order, icon = '') => ({ title, icon, order, items: {}, closed: {}, rolled: {}, opts: {} });
+// Starter layouts: widget types in reading order. A new canvas, and the Starter layout button, place one.
+export const STARTERS = {
+  default: ['clock', 'next', 'line', 'dayline', 'three', 'coming', 'week', 'tasks-list', 'checkins-week',
+    'money', 'month', 'diary-list', 'countdown', 'obligations-list', 'routine-list', 'history', 'launcher', 'plancard', 'nudge'],
+};
+
+// Places a starter layout in tracks (columns of widgets) to suit the board's width in rem: six tracks on a 5K
+// screen, two on a small laptop. Wide widgets take two tracks. Returns [{ id, type, x, y, w, h }].
+export function starter(widthRem, name = 'default') {
+  const tracks = widthRem >= 160 ? 6 : widthRem >= 120 ? 4 : widthRem >= 80 ? 3 : 2;
+  const tw = Math.floor(COLUMNS / tracks);
+  const tops = Array(tracks).fill(0);
+  const out = [];
+  for (const type of STARTERS[name] || STARTERS.default) {
+    const def = WIDGETS[type];
+    if (!def || !widgetOn(type)) continue;
+    const span = Math.min(def.w > 12 ? 2 : 1, tracks >= 4 ? 2 : 1);
+    let best = 0;
+    let bestTop = Infinity;
+    for (let i = 0; i + span <= tracks; i++) {
+      const top = Math.max(...tops.slice(i, i + span));
+      if (top < bestTop) { bestTop = top; best = i; }
+    }
+    out.push({ id: type, type, x: best * tw, y: bestTop, w: tw * span, h: def.h });
+    for (let i = best; i < best + span; i++) tops[i] = bestTop + def.h;
+  }
+  return out;
+}
+
+const blank = (title, order, icon = '') => ({ title, icon, order, items: {}, closed: {}, rolled: {}, opts: {}, float: false, phone: { order: [], hidden: [] } });
 const PLACED_RE = /^[a-z0-9-]{1,40}(:[0-9]{1,3})?$/;
 const MAX_COPIES = 99;
 const defOf = (id) => WIDGETS[typeOf(id)];
@@ -79,6 +114,20 @@ function freeId(c, type) {
 }
 const copy = (v) => JSON.parse(JSON.stringify(v));
 
+// Replaces a canvas's widgets with a starter layout.
+function fillStarter(c, widthRem) {
+  Object.assign(c, { items: {}, closed: {}, rolled: {}, opts: {}, phone: { order: [], hidden: [] } });
+  for (const g of starter(widthRem)) c.items[g.id] = { x: g.x, y: g.y, w: g.w, h: g.h };
+}
+
+// Placed ids for the phone's order and hidden lists: well formed and unique.
+function cleanIds(list) {
+  const out = [];
+  for (const id of Array.isArray(list) ? list : []) if (typeof id === 'string' && PLACED_RE.test(id) && !out.includes(id)) out.push(id);
+  return out.slice(0, 200);
+}
+const cleanPhone = (raw) => ({ order: cleanIds(raw?.order), hidden: cleanIds(raw?.hidden) });
+
 function clean(data) {
   const d = data && typeof data === 'object' ? data : {};
   return {
@@ -89,7 +138,64 @@ function clean(data) {
     closed: d.closed && typeof d.closed === 'object' ? d.closed : {},
     rolled: d.rolled && typeof d.rolled === 'object' ? d.rolled : {},
     opts: cleanOptsMap(d.opts),
+    float: d.float === true,
+    phone: cleanPhone(d.phone),
   };
+}
+
+// ---- layout codes ----
+// A layout code is `XC1-` and the canvas item as base64url JSON. Pasting one keeps only widgets in the registry,
+// with their geometry clamped, so a code from anywhere cannot put a bad value on the board.
+const int = (v, lo, hi) => { const n = Number(v); return Number.isFinite(n) ? Math.min(hi, Math.max(lo, Math.round(n))) : null; };
+function cleanGeo(g, withPos) {
+  g = g && typeof g === 'object' ? g : {};
+  const out = {};
+  const keep = (k, v) => { if (v !== null) out[k] = v; };
+  if (withPos) { keep('x', int(g.x, 0, COLUMNS - 1)); keep('y', int(g.y, 0, 9999)); }
+  keep('w', int(g.w, MIN_W, COLUMNS));
+  keep('h', int(g.h, ROLLED_H, 200));
+  return out;
+}
+
+export function layoutCode(c) {
+  const bytes = new TextEncoder().encode(JSON.stringify(clean(c)));
+  let bin = '';
+  bytes.forEach((b) => { bin += String.fromCharCode(b); });
+  return `XC1-${btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')}`;
+}
+
+// The canvas a layout code holds, cleaned, or null when it is not a layout code.
+export function readLayoutCode(code) {
+  const text = String(code || '').trim();
+  if (!/^XC1-[A-Za-z0-9_-]+$/.test(text)) return null;
+  try {
+    const b64 = text.slice(4).replace(/-/g, '+').replace(/_/g, '/');
+    const bin = atob(b64 + '='.repeat((4 - (b64.length % 4)) % 4));
+    const raw = JSON.parse(new TextDecoder().decode(Uint8Array.from(bin, (ch) => ch.charCodeAt(0))));
+    if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return null;
+    const c = clean(raw);
+    const known = (id) => PLACED_RE.test(id) && !!defOf(id);
+    const items = {};
+    for (const [id, g] of Object.entries(c.items).slice(0, 200)) if (known(id)) items[id] = cleanGeo(g, true);
+    const closed = {};
+    for (const [id, g] of Object.entries(c.closed).slice(0, 200)) {
+      if (!known(id)) continue;
+      const size = cleanGeo(g, false);
+      const opts = cleanOpts(typeOf(id), g?.opts);
+      closed[id] = Object.keys(opts).length ? { ...size, opts } : size;
+    }
+    const rolled = {};
+    for (const [id, g] of Object.entries(c.rolled)) {
+      const h = int(g?.h, ROLLED_H, 200);
+      if (items[id] && h !== null) rolled[id] = { h };
+    }
+    const opts = {};
+    for (const [id, o] of Object.entries(c.opts)) if (known(id)) opts[id] = o;
+    const phone = { order: c.phone.order.filter((id) => items[id]), hidden: c.phone.hidden.filter((id) => items[id]) };
+    return { ...c, items, closed, rolled, opts, phone };
+  } catch {
+    return null;
+  }
 }
 
 function readLocal(key, fallback) {
@@ -122,7 +228,11 @@ export async function mountCanvas(root) {
   const canvases = new Map(store.byKind('canvas')
     .map((i) => [i.id, clean(i.data)])
     .sort((a, b) => a[1].order - b[1].order));
-  if (!canvases.size) canvases.set(`canvas:${uid()}`, blank(t('canvas.first_title'), 0));
+  if (!canvases.size) {
+    const first = blank(t('canvas.first_title'), 0);
+    fillStarter(first, window.innerWidth / (parseFloat(getComputedStyle(document.documentElement).fontSize) || 16));
+    canvases.set(`canvas:${uid()}`, first);
+  }
   const saved = readLocal(ACTIVE_KEY, null);
   let activeId = canvases.has(saved) ? saved : canvases.keys().next().value;
 
@@ -137,6 +247,8 @@ export async function mountCanvas(root) {
   let zoomedId = null;
   let focusRolled = null; // ids rolled up by Focus, or null when Focus is off
   let focusId = null;
+  let arranging = false; // phone only: the Arrange mode that moves and hides widgets
+  const dupObs = new Map(); // widgetId -> MutationObserver that hides a screen heading repeating the title
 
   // ---- layout ----
   const strip = tabStrip({ label: t('canvas.tabs_aria'), onSelect: (id) => switchTo(id) });
@@ -146,6 +258,8 @@ export async function mountCanvas(root) {
     { 'aria-haspopup': 'dialog', 'aria-expanded': 'false' });
   const fitAllBtn = bar1('frame-corners', t('canvas.fit_all'), () => fitAll());
   const resetBtn = bar1('arrows-counter-clockwise', t('canvas.reset_layout'), () => resetLayout());
+  const starterBtn = bar1('layout', t('canvas.starter'), () => applyStarter());
+  const arrangeBtn = bar1('arrows-down-up', t('canvas.arrange'), () => toggleArrange(), { 'aria-pressed': 'false' });
   const undoBtn = bar1('arrow-u-up-left', t('canvas.undo'), () => undo(), { 'aria-keyshortcuts': ariaKeys(keyFor('canvas.undo')) });
   const redoBtn = bar1('arrow-u-up-right', t('canvas.redo'), () => redo(),
     { 'aria-keyshortcuts': `${ariaKeys(keyFor('canvas.redo'))} ${ariaKeys(keyFor('canvas.redo_alt'))}`.trim() });
@@ -153,9 +267,9 @@ export async function mountCanvas(root) {
   const renameBtn = bar1('pencil-simple', t('canvas.rename'), () => openRename());
   const leaveBtn = tool('', () => (zoomedId ? unzoom() : unfocus()));
   const divider = h('span', { class: 'xo-bar-div', 'aria-hidden': 'true' });
-  const deskOnly = [widgetsBtn, fitAllBtn, resetBtn, undoBtn, redoBtn, divider];
+  const deskOnly = [widgetsBtn, fitAllBtn, resetBtn, starterBtn, undoBtn, redoBtn, divider];
   const toolbar = h('div', { class: 'xo-canvas-tools' },
-    leaveBtn, widgetsBtn, fitAllBtn, resetBtn, undoBtn, redoBtn, divider, newBtn, renameBtn);
+    leaveBtn, widgetsBtn, fitAllBtn, resetBtn, starterBtn, undoBtn, redoBtn, divider, arrangeBtn, newBtn, renameBtn);
   const empty = h('p', { class: 'xo-canvas-empty empty' }, t('canvas.empty'));
   const board = h('div', { class: 'xo-board', 'aria-label': t('canvas.board_aria'), role: 'region' });
   const bar = h('div', { class: 'xo-canvas-bar' }, strip.el, toolbar);
@@ -190,6 +304,9 @@ export async function mountCanvas(root) {
     leaveBtn.hidden = !mode;
     if (mode) leaveBtn.textContent = mode === 'zoom' ? t('canvas.leave_zoom') : t('canvas.leave_focus');
     for (const b of deskOnly) b.hidden = phone.matches;
+    arrangeBtn.hidden = !phone.matches;
+    arrangeBtn.setAttribute('aria-pressed', String(arranging));
+    setLabel(arrangeBtn, arranging ? t('canvas.arrange_done') : t('canvas.arrange'));
     undoBtn.disabled = !undoStack.length;
     redoBtn.disabled = !redoStack.length;
     empty.hidden = placed().length > 0;
@@ -343,7 +460,24 @@ export async function mountCanvas(root) {
     const item = h('div', { class: rolled ? 'grid-stack-item xo-w-rolled' : 'grid-stack-item', 'gs-id': id, 'data-widget': id }, content);
     const done = renderWidget(id, body, ctxFor(id));
     if (done) cleanups.set(id, done);
+    watchHeadings(id, body);
     return item;
+  }
+
+  // A screen drawn in a widget often opens with its own heading ("The day" in the day widget). Mark any that repeats
+  // the widget's name so the Appearance option can hide it; the screen may redraw, so watch the body.
+  function watchHeadings(id, body) {
+    const norm = (s) => String(s || '').replace(/\s+/g, ' ').trim().toLowerCase();
+    const mark = () => {
+      const names = new Set([norm(nameOf(id)), norm(t(defOf(id).title))]);
+      for (const el of body.querySelectorAll('h1, h2')) el.classList.toggle('xo-dup-head', names.has(norm(el.textContent)));
+    };
+    mark();
+    if (typeof MutationObserver !== 'function') return;
+    dupObs.get(id)?.disconnect();
+    const mo = new MutationObserver(mark);
+    mo.observe(body, { childList: true, subtree: true, characterData: true });
+    dupObs.set(id, mo);
   }
 
   function dropCleanup(id) {
@@ -351,10 +485,12 @@ export async function mountCanvas(root) {
     cleanups.delete(id);
     observers.get(id)?.disconnect();
     observers.delete(id);
+    dupObs.get(id)?.disconnect();
+    dupObs.delete(id);
   }
 
   function teardown() {
-    for (const id of new Set([...cleanups.keys(), ...observers.keys()])) dropCleanup(id);
+    for (const id of new Set([...cleanups.keys(), ...observers.keys(), ...dupObs.keys()])) dropCleanup(id);
     if (grid) { grid.destroy(false); grid = null; }
     board.replaceChildren();
   }
@@ -376,6 +512,78 @@ export async function mountCanvas(root) {
     return el;
   }
 
+  // Reading order: top to bottom, then left to right.
+  const readingOrder = (a, b) => {
+    const ga = current().items[a];
+    const gb = current().items[b];
+    return (ga.y ?? 0) - (gb.y ?? 0) || (ga.x ?? 0) - (gb.x ?? 0);
+  };
+
+  // ---- phone order and hide ----
+  // Every placed widget in the phone's order: the owner's `phone.order` first, then the rest in reading order.
+  function phoneOrder(ids = placed().sort(readingOrder)) {
+    const ord = current().phone.order.filter((id) => ids.includes(id));
+    return [...ord, ...ids.filter((id) => !ord.includes(id))];
+  }
+  // One Arrange bar over a widget: its name with Up, Down and Hide.
+  function arrangeBar(id, i, n) {
+    const name = nameOf(id);
+    const b = (key, ico, label, run, off) => iconButton(ico, label, { class: 'xo-w-btn', 'data-arr': key, disabled: off, onclick: run });
+    return h('div', { class: 'xo-arr' }, h('span', { class: 'xo-arr-name' }, name),
+      b('up', 'arrow-up', t('canvas.arr_up', { name }), () => phoneMove(id, -1), i === 0),
+      b('down', 'arrow-down', t('canvas.arr_down', { name }), () => phoneMove(id, 1), i === n - 1),
+      b('hide', 'eye-slash', t('canvas.arr_hide', { name }), () => phoneHide(id), false));
+  }
+  function phoneMove(id, delta) {
+    const c = current();
+    const all = phoneOrder();
+    const hid = new Set(c.phone.hidden);
+    const shown = all.filter((x) => !hid.has(x));
+    const i = shown.indexOf(id);
+    const j = i + delta;
+    if (i < 0 || j < 0 || j >= shown.length) return;
+    [shown[i], shown[j]] = [shown[j], shown[i]];
+    c.phone.order = [...shown, ...all.filter((x) => hid.has(x))];
+    persist();
+    show();
+    const again = itemEl(id)?.querySelector(`[data-arr="${delta < 0 ? 'up' : 'down'}"]:not([disabled])`) || itemEl(id)?.querySelector('[data-arr="hide"]');
+    again?.focus();
+  }
+  function phoneHide(id) {
+    const c = current();
+    c.phone.order = phoneOrder();
+    if (!c.phone.hidden.includes(id)) c.phone.hidden.push(id);
+    persist();
+    show();
+    board.querySelector('[data-arr="hide"]')?.focus();
+  }
+  function phoneShow(id) {
+    const c = current();
+    c.phone.hidden = c.phone.hidden.filter((x) => x !== id);
+    persist();
+    show();
+    itemEl(id)?.querySelector('[data-arr="hide"]')?.focus();
+  }
+  function toggleArrange() {
+    arranging = !arranging;
+    show();
+    arrangeBtn.focus();
+  }
+
+  // The Starter layout button: the current canvas's widgets are replaced by the starter set. Undo puts them back.
+  function applyStarter() {
+    if (!grid) return;
+    checkpoint('reset_layout');
+    const rem = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+    fillStarter(current(), (board.clientWidth || window.innerWidth) / rem);
+    for (const k of [...states.keys()]) if (k.startsWith(`${activeId}|`)) states.delete(k);
+    focusRolled = null;
+    focusId = null;
+    zoomedId = null;
+    show();
+    readGeometry();
+  }
+
   function show() {
     teardown();
     drawTabs();
@@ -384,19 +592,33 @@ export async function mountCanvas(root) {
     board.classList.toggle('grid-stack', !phone.matches);
     // A widget never shows on the board and in a side tab at once.
     for (const id of placed()) if (pane?.has(id)) pane.close(id);
-    const ids = placed().sort((a, b) => {
-      const ga = current().items[a];
-      const gb = current().items[b];
-      return (ga.y ?? 0) - (gb.y ?? 0) || (ga.x ?? 0) - (gb.x ?? 0);
-    });
+    const ids = placed().sort(readingOrder);
     if (phone.matches) {
-      board.append(...ids.map((id, i) => enterIn(widgetEl(id), i)));
+      const all = phoneOrder(ids);
+      const hid = new Set(current().phone.hidden);
+      const shown = all.filter((id) => !hid.has(id));
+      const els = shown.map((id, i) => {
+        const el = enterIn(widgetEl(id), i);
+        if (arranging) el.prepend(arrangeBar(id, i, shown.length));
+        return el;
+      });
+      board.append(...els);
+      if (!shown.length && !arranging && all.length) board.append(h('p', { class: 'empty' }, t('canvas.phone_all_hidden')));
+      if (arranging) {
+        const hiddenIds = all.filter((id) => hid.has(id));
+        if (hiddenIds.length) {
+          board.append(h('section', { class: 'xo-arr-hidden' }, h('h3', {}, t('canvas.arr_hidden')),
+            hiddenIds.map((id) => h('div', { class: 'xo-arr-row', 'data-hidden-widget': id },
+              h('span', {}, nameOf(id)),
+              button(t('canvas.arr_show'), { class: 'small', 'aria-label': t('canvas.arr_show_for', { name: nameOf(id) }), onclick: () => phoneShow(id) })))));
+        }
+      }
     } else {
       grid = GridStack.init({
         column: COLUMNS,
         cellHeight: CELL_PX,
         margin: MARGIN_PX,
-        float: false,
+        float: current().float === true,
         animate: !motionStill(),
         handle: '.xo-w-head',
         resizable: { handles: 'e, se, s, sw, w' },
@@ -417,6 +639,7 @@ export async function mountCanvas(root) {
     focusRolled = null;
     focusId = null;
     zoomedId = null;
+    arranging = false;
     activeId = id;
     writeLocal(ACTIVE_KEY, id);
     show();
@@ -505,6 +728,7 @@ export async function mountCanvas(root) {
     dropCleanup(id);
     const done = renderWidget(id, body, ctxFor(id));
     if (done) cleanups.set(id, done);
+    watchHeadings(id, body);
     syncTools();
   }
 
@@ -638,6 +862,8 @@ export async function mountCanvas(root) {
     const set = (sel, label) => { const b = el.querySelector(sel); if (b) setLabel(b, label); };
     const h2 = el.querySelector('.xo-w-title');
     if (h2) h2.textContent = name;
+    const body = el.querySelector('.xo-w-body');
+    if (body) watchHeadings(id, body);
     el.querySelector('section')?.setAttribute('aria-label', name);
     set('.xo-w-more', t('canvas.w_more', { name }));
     set('.xo-w-grip', t('canvas.w_move', { name }));
@@ -892,18 +1118,52 @@ export async function mountCanvas(root) {
     });
   }
 
+  // The layout code box in Rename: the canvas's code to copy, and a Paste layout code button that replaces the canvas.
+  function codeField(c) {
+    const area = textarea({ rows: 3, id: 'f-code', 'aria-label': t('canvas.code_label'), 'data-fk': 'layout-code', spellcheck: 'false' });
+    area.value = layoutCode(c);
+    const copyBtn = button(t('canvas.code_copy'), {
+      class: 'small', 'data-fk': 'layout-copy',
+      onclick: async () => {
+        area.value = layoutCode(c);
+        try { await navigator.clipboard.writeText(area.value); toast(t('canvas.code_copied')); } catch { area.select(); toast(t('canvas.code_select')); }
+      },
+    });
+    const pasteBtn = button(t('canvas.code_paste'), { class: 'small', 'data-fk': 'layout-paste', onclick: () => pasteLayout(c, area.value) });
+    return { node: h('div', { class: 'xo-code' }, area, h('div', { class: 'xo-code-btns' }, copyBtn, pasteBtn)), read: () => area.value };
+  }
+  // Replaces canvas c's widgets with those of a layout code. Its name, icon and place in the tabs stay.
+  function pasteLayout(c, code) {
+    const next = readLayoutCode(code);
+    if (!next) { toast(t('canvas.code_bad'), 'bad'); return; }
+    checkpoint('paste_layout', [activeId]);
+    Object.assign(c, { items: next.items, closed: next.closed, rolled: next.rolled, opts: next.opts, float: next.float, phone: next.phone });
+    for (const k of [...states.keys()]) if (k.startsWith(`${activeId}|`)) states.delete(k);
+    focusRolled = null;
+    focusId = null;
+    zoomedId = null;
+    show();
+    readGeometry();
+    persist();
+    toast(t('canvas.code_pasted'));
+  }
+
   function openRename() {
     const c = current();
     openForm({
       title: t('canvas.rename_title'),
       fields: [{ name: 'title', label: t('canvas.name_label'), required: true },
-        { name: 'icon', label: t('canvas.icon_label'), type: 'icon' }],
-      values: { title: c.title, icon: c.icon },
+        { name: 'icon', label: t('canvas.icon_label'), type: 'icon' },
+        { name: 'float', label: t('canvas.float_label'), type: 'checkbox', hint: t('canvas.float_hint') },
+        { name: 'code', label: t('canvas.code_label'), type: 'custom', hint: t('canvas.code_hint'), build: () => codeField(c) }],
+      values: { title: c.title, icon: c.icon, float: c.float === true },
       anchor: renameBtn,
-      onSave: async ({ title, icon: pickedIcon }) => {
+      onSave: async ({ title, icon: pickedIcon, float }) => {
         if (!title) return t('canvas.name_needed');
         c.title = title;
         c.icon = pickedIcon;
+        c.float = float === true;
+        grid?.mode(c.float ? 'float' : 'top');
         await store.save('canvas', activeId, c, { silent: true });
         drawTabs();
       },
@@ -928,6 +1188,7 @@ export async function mountCanvas(root) {
     if (dirty.size) flush();
     closeMenu();
     widgetsPop?.close();
+    arranging = false;
     focusRolled = null;
     focusId = null;
     zoomedId = null;

@@ -227,3 +227,48 @@
 .cw-history { width: 100%; max-width: none; }
 .cw-week .cw-ev .row-main { flex-wrap: wrap; gap: 0 0.4rem; }
 .cw-ev-t { margin-right: 0.3rem; }
+
+/* ---- phone Arrange: a bar of Up, Down and Hide over each widget, and the hidden ones listed at the end ---- */
+.xo-canvas-tools .xo-icon-btn[aria-pressed="true"] { background: var(--leaf-soft); color: var(--ink); }
+.xo-arr { display: flex; align-items: center; gap: 0.25rem; padding: 0.25rem 0.25rem 0.25rem 0.85rem; margin-bottom: 0.25rem; background: var(--leaf-soft); border-radius: var(--radius); }
+.xo-arr-name { flex: 1 1 0; min-width: 0; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.xo-arr .xo-w-btn:disabled { opacity: 0.35; cursor: default; }
+.xo-arr-hidden h3 { margin: 1rem 0 0.25rem; font-size: 0.8125rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); }
+.xo-arr-row { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; min-height: 2.5rem; border-bottom: var(--rule) solid var(--line); }
+
+/* ---- layout code box in Rename ---- */
+.xo-code { display: grid; gap: 0.5rem; }
+.xo-code textarea, .xo-code wa-textarea { width: 100%; font-family: var(--font-mono, ui-monospace, monospace); font-size: 0.8125rem; }
+.xo-code-btns { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+
+/* ---- widget looks: the Canvas widgets accordion in Appearance (per device, data attributes on <html>) ---- */
+/* Size: Widget text size scales the body of every widget. 100% is no change. */
+.xo-w-body { zoom: var(--w-scale, 1); }
+
+/* Title font. */
+.xo-w-title { font-family: var(--font-head); }
+html[data-w-title-font="body"] .xo-w-title { font-family: var(--font-body); }
+html[data-w-title-font="num"] .xo-w-title { font-family: var(--font-num); }
+
+/* Frame: card (the default above), outline, flat or stripe. */
+html[data-w-chrome="outline"] .xo-w { background: transparent; border-color: var(--line); }
+html[data-w-chrome="outline"] .xo-w-head { border-bottom-color: var(--line); }
+html[data-w-chrome="flat"] .xo-w { background: transparent; border-color: transparent; }
+html[data-w-chrome="flat"] .xo-w-head { border-bottom: var(--rule) solid var(--line); }
+html[data-w-chrome="stripe"] .xo-w { border-color: transparent; border-left: 0.3rem solid var(--c-w-title); border-radius: 0 var(--radius) var(--radius) 0; }
+html[data-w-chrome="stripe"] .xo-w-head { border-bottom-color: transparent; }
+
+/* Title bar: full (the default), slim, or none (a bar that shows on hover or focus so a widget can still be moved). */
+html[data-w-head="slim"] .xo-w-head { min-height: 1.75rem; padding-left: 0.6rem; }
+html[data-w-head="slim"] .xo-w-title { font-size: 0.8125rem; }
+html[data-w-head="slim"] .xo-w-btn { min-width: 1.75rem; min-height: 1.75rem; }
+html[data-w-head="none"] .xo-w { position: relative; }
+html[data-w-head="none"] .xo-w-head {
+  position: absolute; inset: 0 0 auto 0; z-index: 2; background: var(--surface); opacity: 0; transition: opacity 0.12s;
+}
+html[data-w-head="none"] .xo-w:hover .xo-w-head, html[data-w-head="none"] .xo-w:focus-within .xo-w-head,
+html[data-w-head="none"] .xo-w-rolled .xo-w-head { opacity: 1; }
+html[data-w-head="none"] .xo-board-list .xo-w-head { display: none; }
+
+/* A screen's own heading inside a widget that repeats the widget's name. */
+html[data-w-inner="hide"] .xo-w-body .xo-dup-head { display: none; }
