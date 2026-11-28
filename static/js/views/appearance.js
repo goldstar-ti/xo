@@ -1,7 +1,7 @@
 // Appearance: the quick "Look" panel and the full Appearance screen.
 // All of it is stored on this device only (see boot.js).
 import { t, text } from '../text.js';
-import { badge, button, checkbox, colourField, disclosure, field, focusControl, fontPicker, input, kit, optionCards, searchBox, segmented, select, sortList, stat, textarea, toggle } from '../ui.js';
+import { badge, button, chip, colourField, disclosure, field, focusControl, fontPicker, input, kit, optionCards, menu, plainLink, searchBox, segmented, select, sortList, stat, stepScale, textarea, toggle } from '../ui.js';
 import { tabStrip } from '../tabs.js';
 import * as store from '../store.js';
 import { MODULES, functionsOf, isOn, setSwitch } from '../modules.js';
@@ -36,38 +36,33 @@ function cards(label, key, sample = null, labels = text(`appearance.choices.${ke
     { value: look()[key], onchange: (v) => setLook({ [key]: v }) }), key);
 }
 
-// A slider with a reset button, - and + buttons and a number box, like NOBBIE's Appearance sliders.
-// `scale` and `unit` turn the stored value into what the number box shows (for example 0.05 -> 100%).
-// Dragging applies quietly (no screen rebuild); letting go, a button or the box counts as one undo step.
-function dial(label, { id, min, max, step, value, def, scale = 1, unit = '', maxLabel = '', apply }) {
-  let dragging = false;
+// A stepped scale with a reset link and, where the dial has them, preset chips (Smaller, Standard, Larger).
+// `scale` and `unit` turn the stored value into what a step shows (for example 0.05 -> 100%). The stored
+// value keeps its range; one that sits between two steps shows the nearest step and its exact figure.
+// Every choice is one undo step and rebuilds the screen, so the changed marks and counts stay true.
+function dial(label, { id, min, max, step, value, def, scale = 1, unit = '', maxLabel = '', presets = null, apply }) {
   const dec = scale === 1 && step < 1 ? 2 : 0;
-  const show = (v) => String(Number((v * scale).toFixed(dec)));
   const snap = (v) => Number(Math.min(max, Math.max(min, v)).toFixed(6));
-  const box = h('input', { type: 'number', class: 'dial-num', min: Number((min * scale).toFixed(dec)), max: Number((max * scale).toFixed(dec)), step: scale >= 100 ? 1 : Number((step * scale).toFixed(4)), inputmode: 'decimal', 'aria-label': `${label} value`, 'data-fk': `${id}-num`, value: show(value) });
-  const range = h('input', { id, type: 'range', min, max, step, value, 'data-fk': id });
-  const reset = h('button', { type: 'button', class: 'dial-btn', title: t('appearance.slider.reset'), 'aria-label': t('appearance.slider.reset_label', { label }), 'data-fk': `${id}-reset` }, '\u21BA');
-  const less = h('button', { type: 'button', class: 'dial-btn', title: t('appearance.slider.less'), 'aria-label': t('appearance.slider.less_label', { label }), 'data-fk': `${id}-less` }, '-');
-  const more = h('button', { type: 'button', class: 'dial-btn', title: t('appearance.slider.more'), 'aria-label': t('appearance.slider.more_label', { label }), 'data-fk': `${id}-more` }, '+');
-  const unitEl = h('span', { class: 'dial-unit' }, unit);
-  const sync = (v) => {
-    range.value = String(v);
-    box.value = show(v);
-    reset.hidden = Math.abs(v - def) < 1e-9;
-    less.disabled = v <= min;
-    more.disabled = v >= max;
-    if (maxLabel) unitEl.textContent = v >= max ? maxLabel : unit;
-  };
-  const commit = (v) => { v = snap(v); sync(v); dragging = false; apply(v, {}); redraw(); };
-  range.oninput = (e) => { const v = Number(e.target.value); sync(v); apply(v, { quiet: true, sameStep: dragging }); dragging = true; };
-  range.onchange = () => { dragging = false; redraw(); };
-  box.onchange = () => { const n = Number(box.value); if (box.value === '' || Number.isNaN(n)) sync(Number(range.value)); else commit(n / scale); };
-  reset.onclick = () => commit(def);
-  less.onclick = () => commit(Number(range.value) - step);
-  more.onclick = () => commit(Number(range.value) + step);
-  sync(value);
-  return h('div', { class: 'dial' }, h('label', { for: id }, label), range,
-    h('span', { class: 'dial-ctl' }, reset, less, more, h('span', { class: 'dial-numwrap' }, box, (unit || maxLabel) && unitEl)));
+  const show = (v) => (maxLabel && v >= max ? maxLabel : `${Number((v * scale).toFixed(dec))}${unit}`);
+  const grid = Math.max(1, Math.round((max - min) / step));
+  const count = Math.min(grid + 1, 9);
+  const values = new Set();
+  for (let i = 0; i < count; i += 1) values.add(snap(min + Math.round((grid * i) / (count - 1 || 1)) * step));
+  if (def >= min && def <= max && !values.has(snap(def))) {
+    const near = [...values].reduce((a, b) => (Math.abs(b - def) < Math.abs(a - def) ? b : a));
+    values.delete(near);
+    values.add(snap(def));
+  }
+  const steps = [...values].sort((a, b) => a - b).map((v) => ({ value: v, label: show(v) }));
+  const nearest = steps.reduce((a, b) => (Math.abs(b.value - value) < Math.abs(a.value - value) ? b : a)).value;
+  const exact = Math.abs(nearest - value) > 1e-6;
+  const scaleEl = stepScale({ id, label, steps, value: nearest, 'data-fk': id, onchange: (v) => apply(snap(v), {}) });
+  const reset = plainLink(t('appearance.slider.reset'), { 'data-fk': `${id}-reset`, 'aria-label': t('appearance.slider.reset_label', { label }), onclick: () => apply(def, {}) });
+  reset.hidden = Math.abs(value - def) < 1e-9;
+  const chips = presets && h('div', { class: 'dial-presets' }, presets.map(([key, v], i) => chip(t(`appearance.presets_scale.${key}`), {
+    pressed: Math.abs(value - v) < 1e-6, 'data-fk': `${id}-preset-${i}`, onclick: () => apply(snap(v), {}) })));
+  return h('div', { class: 'dial' }, h('span', { class: 'dial-name' }, label), scaleEl,
+    h('span', { class: 'dial-ctl' }, exact && h('span', { class: 'dial-exact' }, show(value)), reset), chips);
 }
 const colourDial = (label, key, scale, unit) => {
   const [min, max] = L.COLOUR_RANGE[key];
@@ -143,7 +138,7 @@ function accentRow() {
       return el;
     }));
 }
-const sizeDial = () => dial(t('appearance.type.size'), { id: 'd-size', min: 85, max: 135, step: 1, value: look().size, def: L.DEFAULT_LOOK.size, unit: '%', apply: (v, o) => setLook({ size: v }, o) });
+const sizeDial = () => dial(t('appearance.type.size'), { id: 'd-size', min: 85, max: 135, step: 1, value: look().size, def: L.DEFAULT_LOOK.size, unit: '%', presets: [['smaller', 92], ['standard', 100], ['larger', 114], ['largest', 128]], apply: (v, o) => setLook({ size: v }, o) });
 const modeSeg = () => seg(t('appearance.mode'), 'mode');
 
 // Standard and Advanced: an Advanced item is hidden in Standard unless it was changed from its default
@@ -317,9 +312,10 @@ function themeRow(m) {
   };
   li.append(
     button(t('appearance.my_themes.apply'), { class: 'small', 'data-fk': `apply-${m.id}`, onclick: () => L.change((s, lk) => { lk.theme = `my:${m.id}`; lk.c = { ...m.c }; lk.strength = m.strength; lk.colours = JSON.parse(JSON.stringify(m.colours)); }) }),
-    button(t('appearance.my_themes.rename'), { class: 'small', onclick: rename }),
-    button(t('appearance.my_themes.export'), { class: 'small', 'data-fk': `export-${m.id}`, onclick: () => download(fileName(m.name), L.exportThemes([m.id])) }),
-    button(t('appearance.my_themes.delete'), { class: 'small', 'data-fk': `delete-${m.id}`, onclick: () => L.change((s) => { s.myThemes = s.myThemes.filter((x) => x.id !== m.id); }) }));
+    menu({ label: t('appearance.my_themes.actions', { name: m.name }), 'data-fk': `theme-menu-${m.id}`, items: [
+      { label: t('appearance.my_themes.rename'), icon: 'tabler/pencil', run: rename },
+      { label: t('appearance.my_themes.export'), icon: 'tabler/download', run: () => download(fileName(m.name), L.exportThemes([m.id])) },
+      { label: t('appearance.my_themes.delete'), icon: 'tabler/trash', run: () => L.change((s) => { s.myThemes = s.myThemes.filter((x) => x.id !== m.id); }) }] }));
   return li;
 }
 
@@ -339,9 +335,10 @@ function themeTools() {
       ? h('ul', { class: 'blocks theme-list' }, L.state.myThemes.map(themeRow))
       : h('p', { class: 'note' }, t('appearance.my_themes.none')),
     h('div', { class: 'row' },
-      button(t('appearance.my_themes.export_all'), { 'data-fk': 'export-all', onclick: () => download('xo-themes.json', L.exportThemes(ids())) }),
-      button(t('appearance.my_themes.copy_text'), { 'data-fk': 'copy-themes', onclick: () => navigator.clipboard.writeText(JSON.stringify(L.exportThemes(ids()))).then(() => toast(t('appearance.my_themes.copied')), () => toast(t('appearance.my_themes.copy_failed'), 'bad')) }),
-      button(t('appearance.my_themes.import_file'), { 'data-fk': 'import-file', onclick: () => file.click() }), file),
+      menu({ label: t('appearance.my_themes.tools'), 'data-fk': 'theme-tools', items: [
+        { label: t('appearance.my_themes.export_all'), icon: 'tabler/download', run: () => download('xo-themes.json', L.exportThemes(ids())) },
+        { label: t('appearance.my_themes.copy_text'), icon: 'tabler/copy', run: () => navigator.clipboard.writeText(JSON.stringify(L.exportThemes(ids()))).then(() => toast(t('appearance.my_themes.copied')), () => toast(t('appearance.my_themes.copy_failed'), 'bad')) },
+        { label: t('appearance.my_themes.import_file'), icon: 'tabler/upload', run: () => file.click() }] }), file),
     disclosure(t('appearance.my_themes.paste_heading'), [paste, h('div', { class: 'row' }, button(t('appearance.my_themes.import'), { 'data-fk': 'theme-import', onclick: () => result(parse(paste.value)) }))], { id: 'acc-paste-theme', open: accOpen.get('paste-theme') === true, onToggle: (o) => accOpen.set('paste-theme', o) }));
 }
 
@@ -436,7 +433,7 @@ function identRow(kind, id, name, lk) {
     ? dial(t('appearance.ident.opacity'), { id: `d-ident-${key}-${id}`, min: 20, max: 100, step: 5, value: e.op, def: 100, unit: '%', apply: (v, o) => set((m) => { m[id].op = v; }, o) })
     : null;
   const title = kind === 'widgets' && e
-    ? checkbox({ checked: e.title, 'aria-label': `${t('appearance.ident.title')}: ${name}`, 'data-fk': `ident-title-${id}`, onchange: (ev) => set((m) => { m[id].title = ev.target.checked; }) })
+    ? toggle(`${t('appearance.ident.title')}: ${name}`, { checked: e.title, 'data-fk': `ident-title-${id}`, onchange: (on) => set((m) => { m[id].title = on; }) })
     : null;
   return h('tr', {}, h('th', { scope: 'row' }, name), h('td', {}, swatch), h('td', {}, op), kind === 'widgets' && h('td', {}, title, title && ` ${t('appearance.ident.title')}`));
 }
@@ -473,7 +470,8 @@ function build(lk, d) {
   };
   const A = (key) => text('appearance.acc')[key];
   const dl = (label, id, key, o) => dial(label, { id, value: lk[key], def: d[key], apply: (v, op) => setLook({ [key]: v }, op), ...o });
-  const pct = (label, id, key, min, max, step) => dl(label, id, key, { min, max, step, scale: key === 'zoom' ? 1 : 100, unit: '%' });
+  const PRESETS = { zoom: [['smaller', 75], ['standard', 100], ['larger', 125], ['largest', 150]], space: [['smaller', 0.8], ['standard', 1], ['larger', 1.2], ['largest', 1.4]], chrome: [['smaller', 0.8], ['standard', 1], ['larger', 1.2], ['largest', 1.4]] };
+  const pct = (label, id, key, min, max, step) => dl(label, id, key, { min, max, step, scale: key === 'zoom' ? 1 : 100, unit: '%', presets: PRESETS[key] || null });
   const chg = (key) => lk[key] !== d[key];
   const fontItem = (label, key, allowSame) => {
     const current = lk[key];
@@ -580,7 +578,7 @@ function build(lk, d) {
   reg('layout', 'canvas_widgets', t('appearance.widgets_look.head'), seg(t('appearance.widgets_look.head'), 'wHead'), { adv: true, changed: chg('wHead') });
   reg('layout', 'canvas_widgets', t('appearance.widgets_look.title_font'), seg(t('appearance.widgets_look.title_font'), 'wTitleFont'), { adv: true, changed: chg('wTitleFont') });
   reg('layout', 'canvas_widgets', t('appearance.widgets_look.inner'), h('div', { class: 'opt' }, seg(t('appearance.widgets_look.inner'), 'wInner'), h('p', { class: 'hint' }, t('appearance.widgets_look.inner_hint'))), { adv: true, changed: chg('wInner') });
-  reg('layout', 'canvas_widgets', t('appearance.widgets_look.scale'), dl(t('appearance.widgets_look.scale'), 'd-wscale', 'wScale', { min: 60, max: 150, step: 5, unit: '%' }), { adv: true, changed: chg('wScale') });
+  reg('layout', 'canvas_widgets', t('appearance.widgets_look.scale'), dl(t('appearance.widgets_look.scale'), 'd-wscale', 'wScale', { min: 60, max: 150, step: 5, unit: '%', presets: [['smaller', 80], ['standard', 100], ['larger', 125], ['largest', 150]] }), { adv: true, changed: chg('wScale') });
 
   // 4. Effects
   reg('effects', null, t('appearance.behaviour.pop'), toggle(t('appearance.behaviour.pop'), { checked: p.pop, 'data-fk': 'p-pop', onchange: (on) => setPrefs({ pop: on }) }), { changed: !p.pop });

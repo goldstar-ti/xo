@@ -4,6 +4,7 @@
 
 | Version | Date | Change |
 |---|---|---|
+| 2.44.0 | 2026-11-28 | Settings and Appearance use the new controls: every slider is now a stepped scale with a Back to default link, and size, zoom, spacing, chrome and widget scale also offer preset chips. On and off settings are switches, Settings shows "Saved as you type" with the last saved time, the data actions and each saved theme's actions sit in three-dot menus. |
 | 2.43.0 | 2026-11-28 | Check-ins and My plan use the new controls: a play ring starts each check-in, the last ten days are link rows, the "what I did" choices are tick boxes, minor links are plain links, and the plan shows "Saved as you type. Last saved" with the time. |
 | 2.42.0 | 2026-11-28 | Duties and Bills use the new controls: a bill's tick box marks it paid, and each bill, court date, condition and reporting record is a whole-row link with a chevron that opens its form. The amount column on Bills is narrow and right-aligned. |
 | 2.41.0 | 2026-11-28 | Tasks uses the new controls: round tick boxes on list rows, table rows and subtasks, the view tabs as a segmented control, one three-dot menu for the Commands and Categories and places actions, one on each board card (Start, Done, Back, Reopen) and each row in the stale review, Restore and Clear filters as plain links, and a chevron at the end of each row. The table gives the title two shares, each text column one equal share, with no wrapping and narrow right-aligned numbers. |

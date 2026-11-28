@@ -53,6 +53,10 @@ with sync_playwright() as p:
         pg.goto(BASE + "/#/appearance")
         pg.wait_for_selector(".look-screen")
 
+    def step_to(sel, value):
+        """Click one step of a stepped scale (the step carries its value)."""
+        pg.locator(f'{sel} .xo-step[data-value="{value}"]').click()
+
     pg.locator(".top .look-btn").click()
     d = pg.locator("dialog[open]")
     d.get_by_role("button", name="Deep Space").click()
@@ -101,8 +105,7 @@ with sync_playwright() as p:
     pg.locator("#p-call").blur()
     tab("layout")
     acc("spacing_size")
-    pg.locator("#d-size").fill("110")
-    pg.locator("#d-size").dispatch_event("change")
+    step_to("#d-size", 110)
     st = pg.evaluate("JSON.parse(localStorage.getItem('xo-look'))")
     assert (
         st["base"]["hero"] == "banner"
@@ -114,21 +117,20 @@ with sync_playwright() as p:
         and st["prefs"]["callMe"] == "Captain"
         and st["base"]["size"] == 110
     ), st
-    # slider controls: - and + buttons, number box, reset (size is 110 here)
-    pg.locator('[data-fk="d-size-more"]').click()
-    assert pg.evaluate("JSON.parse(localStorage.getItem('xo-look'))")["base"]["size"] == 111
-    pg.locator('[data-fk="d-size-num"]').fill("120")
-    pg.locator('[data-fk="d-size-num"]').dispatch_event("change")
-    assert pg.evaluate("JSON.parse(localStorage.getItem('xo-look'))")["base"]["size"] == 120
+    # stepped scale: an arrow key moves one step, a preset chip sets a common value, reset goes back (size is 110 here)
+    pg.locator("#d-size").focus()
+    pg.keyboard.press("ArrowRight")
+    assert pg.evaluate("JSON.parse(localStorage.getItem('xo-look'))")["base"]["size"] == 116
+    pg.locator('[data-fk="d-size-preset-3"]').click()
+    assert pg.evaluate("JSON.parse(localStorage.getItem('xo-look'))")["base"]["size"] == 128
     pg.locator('[data-fk="d-size-reset"]').click()
     assert pg.evaluate("JSON.parse(localStorage.getItem('xo-look'))")["base"]["size"] == 100
-    pg.locator("#d-size").fill("110")
-    pg.locator("#d-size").dispatch_event("change")
+    step_to("#d-size", 110)
     # my theme + look code round trip
     tab("theme")
     acc("fine_tune")
-    pg.locator("#c-ah").fill("200")
-    pg.locator("#c-ah").dispatch_event("change")
+    pg.locator("#c-ah").focus()
+    pg.keyboard.press("End")
     acc("my_themes")
     pg.fill('[data-fk="mytheme-name"]', "Tuesday Brain")
     pg.get_by_role("button", name="Save current colours").click()
@@ -141,7 +143,7 @@ with sync_playwright() as p:
     tab("share")  # Undo restores the group that was showing then
     pg.fill('[data-fk="paste"]', code)
     pg.get_by_role("button", name="Apply code").click()
-    assert pg.evaluate("JSON.parse(localStorage.getItem('xo-look')).base.c.ah") == 200
+    assert pg.evaluate("JSON.parse(localStorage.getItem('xo-look')).base.c.ah") == 360
     pg.fill('[data-fk="paste"]', "XO1-nope")
     pg.get_by_role("button", name="Apply code").click()
     expect(pg.locator("#toast")).to_contain_text("look code is incomplete")
@@ -288,8 +290,7 @@ with sync_playwright() as p:
     expect(pg.locator('[data-fk="size:custom"]')).to_have_count(0)
     tab("layout")
     acc("spacing_size")
-    pg.locator("#d-size").fill("110")
-    pg.locator("#d-size").dispatch_event("change")
+    step_to("#d-size", 110)
     tab("text")
     expect(pg.locator('[data-fk="size:custom"]')).to_have_attribute("aria-checked", "true")
     pg.locator('[data-fk="size:regular"]').click()
@@ -339,14 +340,16 @@ with sync_playwright() as p:
     pg.get_by_role("button", name="Save current colours").click()
     expect(pg.locator(".theme-list li")).to_have_count(1)
     with pg.expect_download() as dl:
-        pg.locator('.theme-list [data-fk^="export-"]').click()
+        pg.locator('.theme-list [data-fk^="theme-menu-"]').click()
+        pg.get_by_role("menuitem", name="Export").evaluate("el => el.click()")
     saved = Path(dl.value.path())
     assert dl.value.suggested_filename == "e2e-theme.xo-theme.json"
     import json
 
     file = json.loads(saved.read_text())
     assert file["xo"] == "colour-themes" and len(file["themes"]) == 1 and file["themes"][0]["name"] == "e2e theme"
-    pg.locator('.theme-list [data-fk^="delete-"]').click()
+    pg.locator('.theme-list [data-fk^="theme-menu-"]').click()
+    pg.get_by_role("menuitem", name="Delete").evaluate("el => el.click()")
     expect(pg.locator(".theme-list li")).to_have_count(0)
     pg.set_input_files('[data-fk="theme-file"]', str(saved))
     expect(pg.locator("#toast")).to_contain_text("1 imported, 0 skipped.")
@@ -372,8 +375,7 @@ with sync_playwright() as p:
     pg.locator('[data-fk="ident-pick-raspberry-tart"]').click()
     ident = pg.evaluate("XOLook.active().look.ident.widgets.tasks")
     assert ident["swatch"] == "raspberry-tart" and ident["light"] == "#e63965" and ident["dark"] == "#f18fa8", ident
-    pg.locator('[data-fk="d-ident-w-tasks-num"]').fill("60")
-    pg.locator('[data-fk="d-ident-w-tasks-num"]').dispatch_event("change")
+    step_to("#d-ident-w-tasks", 60)
     assert pg.evaluate("XOLook.active().look.ident.widgets.tasks.op") == 60
     pg.locator('[data-fk="ident-title-tasks"]').check()
     assert pg.evaluate("XOLook.active().look.ident.widgets.tasks.title") is True
@@ -475,8 +477,7 @@ with sync_playwright() as p:
     fresh()
     tab("layout")
     acc("pattern")
-    pg.locator('[data-fk="d-patpct-num"]').fill("0")
-    pg.locator('[data-fk="d-patpct-num"]').press("Enter")
+    step_to("#d-patpct", 0)
     pg.wait_for_function(f"{pattern_var} === ''")
     assert pg.evaluate("document.documentElement.dataset.pattern") == "off"
     pg.evaluate("XOLook.change((s, l) => { l.pattern.pct = 20; })")

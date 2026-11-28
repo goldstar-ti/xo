@@ -36,7 +36,7 @@ def set_control(el, value):
         ed.locator(".CodeMirror").evaluate("(e, v) => e.CodeMirror.setValue(v)", str(value))
         return
     if tag.startswith("WA-"):
-        if tag == "WA-CHECKBOX":
+        if tag in ("WA-CHECKBOX", "WA-SWITCH"):
             el.evaluate("(e, v) => { e.checked = v; e.dispatchEvent(new Event('change', { bubbles: true })); }", value)
         elif tag == "WA-SELECT":
             el.evaluate(
@@ -244,7 +244,11 @@ with sync_playwright() as p:
     page.goto(f"{BASE}/#/settings")
     expect(page.locator("h1")).to_have_text("Settings")
     with page.expect_download() as dl:
-        page.get_by_role("button", name="Download everything").click()
+        _b = page.get_by_role("button", name="Data actions")
+        _b.scroll_into_view_if_needed()
+        page.wait_for_timeout(600)  # let any smooth scroll finish: a scroll closes a menu
+        _b.click()
+        page.get_by_role("menuitem", name="Download everything").evaluate("el => el.click()")
     exported = Path(dl.value.path()).read_text()
     assert "GP appointment" in exported and "Being someone my family can rely on." in exported
     page.screenshot(path=SHOTS / "09-settings.png", full_page=True)
@@ -313,7 +317,11 @@ with sync_playwright() as p:
     page.goto(f"{BASE}/#/settings")
 
     # --- sign out, wrong password, right password
-    page.get_by_role("button", name="Sign out of this device").click()
+    _b = page.get_by_role("button", name="Data actions")
+    _b.scroll_into_view_if_needed()
+    page.wait_for_timeout(600)  # let any smooth scroll finish: a scroll closes a menu
+    _b.click()
+    page.get_by_role("menuitem", name="Sign out of this device").evaluate("el => el.click()")
     set_control(page.locator("#a-name"), "tester")
     set_control(page.locator("#a-pass"), "not the password")
     page.get_by_role("button", name="Sign in").click()

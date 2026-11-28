@@ -83,7 +83,11 @@ with sync_playwright() as p:
 
     # The list shows every entry, old ticks included, and filters by kind and search.
     pg.goto(f"{BASE}/#/settings")
-    pg.get_by_role("button", name="Review and delete entries").click()
+    _b = pg.get_by_role("button", name="Data actions")
+    _b.scroll_into_view_if_needed()
+    pg.wait_for_timeout(600)  # let any smooth scroll finish: a scroll closes a menu
+    _b.click()
+    pg.get_by_role("menuitem", name="Review and delete entries").evaluate("el => el.click()")
     dlg = pg.locator("dialog[open]")
     expect(dlg.get_by_role("heading", name="Delete entries")).to_be_visible()
     expect(dlg.locator("tr[data-id='tick:e2e:2025-01-01']")).to_have_count(1)

@@ -1,6 +1,6 @@
 import * as store from '../store.js';
-import { h, kvSet, toast, today, put, uid } from '../util.js';
-import { button, callout, checkbox, field, focusControl, input, select, textarea } from '../ui.js';
+import { fmtTime, h, kvSet, toast, today, put, uid } from '../util.js';
+import { button, callout, field, focusControl, input, menu, select, textarea, toggle } from '../ui.js';
 import { t, text } from '../text.js';
 import * as lookups from '../lookups.js';
 import { allTasks } from '../taskdata.js';
@@ -52,6 +52,11 @@ async function exportAll() {
   link.click();
   link.remove();
   setTimeout(() => URL.revokeObjectURL(link.href), 5000);
+}
+
+// One on or off setting: a switch with its own label, and a hint under it.
+function switchRow(label, name, checked, onchange, hint) {
+  return h('div', { class: 'opt' }, toggle(label, { id: `s-${name}`, checked, onchange }), hint && h('p', { class: 'hint' }, hint));
 }
 
 // The lookup table: pick a list, then edit its rows in place. Every change saves the whole list
@@ -121,7 +126,7 @@ function lookupEditor(s, saveSettings) {
     field(t('settings.lookups.list'), picker, null, { half: true }),
     status, table,
     h('div', { class: 'row' }, add, reset),
-    field(t('settings.lookups.headings'), checkbox({ id: 's-groupHeadings', checked: !!s.groupHeadings, onchange: (e) => saveSettings({ groupHeadings: e.target.checked }) }), t('settings.lookups.headings_hint')));
+    switchRow(t('settings.lookups.headings'), 'groupHeadings', !!s.groupHeadings, (on) => saveSettings({ groupHeadings: on }), t('settings.lookups.headings_hint')));
 }
 
 // The keyboard shortcuts table: pick where, then change, clear or reset each key. Every change saves to settings.keys.
@@ -232,7 +237,7 @@ function fieldsEditor() {
           value: r.options.join(', '), placeholder: t('settings.fields.options_placeholder'), 'aria-label': t('settings.fields.options'),
           onchange: (e) => { r.options = e.target.value.split(',').map((x) => x.trim()).filter(Boolean); persist(); },
         })),
-        cell(checkbox({ checked: r.show !== false, 'aria-label': t('settings.fields.show'), onchange: (e) => { r.show = e.target.checked; persist(); } })),
+        cell(toggle(t('settings.fields.show'), { checked: r.show !== false, onchange: (on) => { r.show = on; persist(); } })),
         cell(
           button(t('settings.lookups.up'), { variant: 'row', 'data-f': `up-${r.id}`, 'aria-label': aria('up_aria', r), title: aria('up_aria', r), disabled: i === 0, onclick: () => move(i, -1, `up-${r.id}`) }),
           button(t('settings.lookups.down'), { variant: 'row', 'data-f': `down-${r.id}`, 'aria-label': aria('down_aria', r), title: aria('down_aria', r), disabled: i === rows.length - 1, onclick: () => move(i, 1, `down-${r.id}`) }),
@@ -273,20 +278,22 @@ function paceLine() {
 function voiceSection(s, saveSettings) {
   const langs = Object.entries(text('settings.voice.langs'));
   return h('section', {}, h('h2', {}, t('settings.voice.heading')),
-    field(t('settings.voice.show'), checkbox({ id: 's-voice', checked: s.voice !== false, onchange: (e) => saveSettings({ voice: e.target.checked }) }), t('settings.voice.show_hint')),
+    switchRow(t('settings.voice.show'), 'voice', s.voice !== false, (on) => saveSettings({ voice: on }), t('settings.voice.show_hint')),
     field(t('settings.voice.lang'), select(langs, { id: 's-voiceLang', value: s.voiceLang || 'en-AU', onchange: (e) => saveSettings({ voiceLang: e.target.value }) }), null, { half: true }));
 }
 
 export function render(root) {
   root.replaceChildren();
   const s = store.settings();
+  const status = h('span', { class: 'meta', role: 'status' }, t('settings.status_idle'));
   const saveSettings = async (patch) => {
     Object.assign(s, patch);
     try {
       await store.save('settings', 'settings', s, { silent: true });
       await kvSet('details', !!s.details);
+      status.textContent = t('settings.status_saved', { time: fmtTime(new Date()) });
       toast(t('forms.saved'));
-    } catch (err) { toast(err.message, 'bad'); }
+    } catch (err) { status.textContent = t('settings.status_failed'); toast(err.message, 'bad'); }
   };
 
   const showPush = (msg, kind) => pushLine.replaceChildren(callout(msg, { kind, icon: 'tabler/bell' }));
@@ -316,11 +323,11 @@ export function render(root) {
   drawPush();
 
   const time = (name, label) => field(label, input({ id: `s-${name}`, type: 'time', value: s[name], onchange: (e) => e.target.value && saveSettings({ [name]: e.target.value }) }), null, { half: true });
-  const toggle = (name, label, hint) => field(label, checkbox({ id: `s-${name}`, checked: !!s[name], onchange: (e) => saveSettings({ [name]: e.target.checked }) }), hint);
+  const toggle = (name, label, hint) => switchRow(label, name, !!s[name], (on) => saveSettings({ [name]: on }), hint);
   const weekdays = Object.entries(text('forms.weekdays'));
 
   put(root,
-    h('header', { class: 'page-head' }, h('h1', {}, t('settings.heading')), h('div', { class: 'actions' }, h('a', { class: 'ghost', href: '#/appearance' }, t('settings.appearance_link')))),
+    h('header', { class: 'page-head' }, h('h1', {}, t('settings.heading')), h('div', { class: 'actions' }, status, h('a', { class: 'ghost', href: '#/appearance' }, t('settings.appearance_link')))),
     h('section', {}, h('h2', {}, t('settings.notifications.heading')), pushLine, h('div', { class: 'row' }, pushBtn, testBtn),
       toggle('details', t('settings.notifications.details'), t('settings.notifications.details_hint'))),
     voiceSection(s, saveSettings),
@@ -345,9 +352,10 @@ export function render(root) {
     h('section', {}, h('h2', {}, t('settings.data.heading')),
       h('p', { class: 'note' }, t('settings.data.note')),
       h('div', { class: 'row' },
-        button(t('settings.data.download'), { onclick: () => exportAll().catch((err) => toast(err.message, 'bad')) }),
-        button(t('settings.data.review'), { onclick: () => openCleanup({ download: exportAll }) }),
-        button(t('settings.data.sign_out'), { onclick: () => window.dispatchEvent(new Event('xo:sign-out')) })),
+        menu({ label: t('settings.data.actions'), items: [
+          { label: t('settings.data.download'), icon: 'tabler/download', run: () => exportAll().catch((err) => toast(err.message, 'bad')) },
+          { label: t('settings.data.review'), icon: 'tabler/trash', run: () => openCleanup({ download: exportAll }) },
+          { label: t('settings.data.sign_out'), icon: 'tabler/logout', run: () => window.dispatchEvent(new Event('xo:sign-out')) }] })),
       h('p', { class: 'hint' }, t('settings.data.hint'))),
   );
 }

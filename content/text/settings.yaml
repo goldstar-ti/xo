@@ -13,6 +13,9 @@
 settings:
   heading: Settings
   appearance_link: Appearance
+  status_idle: Saved as you type.
+  status_saved: 'Saved as you type. Last saved {time}'
+  status_failed: Not saved
   checking: Checking…
   push:
     turn_on: Turn on notifications on this device
@@ -113,6 +116,7 @@ settings:
   data:
     heading: My data
     note: Your entries are stored on the server and you sign in with your password.
+    actions: Data actions
     download: Download everything
     sign_out: Sign out of this device
     review: Review and delete entries

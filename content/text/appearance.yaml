@@ -83,6 +83,8 @@ appearance:
     rename: Rename
     export: Export
     delete: Delete
+    actions: 'Actions for {name}'
+    tools: Export and import
     export_all: Export all
     copy_text: Copy as text
     copied: Themes copied.
@@ -170,14 +172,15 @@ appearance:
     accent_hue: Accent hue
     accent_vivid: Accent vividness
     attention_hue: Attention hue
-    attention_hint: Attention is the colour used for Now, overdue and leave-now. Text stays readable wherever the sliders sit.
+    attention_hint: Attention is the colour used for Now, overdue and leave-now. Text stays readable wherever the scales sit.
+  presets_scale:
+    smaller: Smaller
+    standard: Standard
+    larger: Larger
+    largest: Largest
   slider:
     reset: Back to default
     reset_label: Reset {label}
-    less: Decrease
-    less_label: Decrease {label}
-    more: Increase
-    more_label: Increase {label}
   type:
     heading: Type
     body: Body
@@ -194,7 +197,7 @@ appearance:
     code_spacing: Code letter spacing
     built_in: Built in
     hint_variable: 'Weight: {min} to {max}, smooth.'
-    hint_static: 'Weight: {weights} only. The slider uses the nearest.'
+    hint_static: 'Weight: {weights} only. The scale uses the nearest.'
     axes:
       wdth: Width
       opsz: Optical size
