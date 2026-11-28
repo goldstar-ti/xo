@@ -201,6 +201,40 @@ with sync_playwright() as p:
     pane_page.locator(".pane").wait_for(state="visible")
     pane_page.wait_for_timeout(1500)
     shot(pane_page, "xo", "bridge-pane", "5120")
+
+    # --- the theme pass: dark Ink and light Foliage, xo kit only, at 360 and 1920
+    def set_look(pg, mode, theme):
+        pg.evaluate(
+            "([m, t]) => window.XOLook.change((s, look) => { look.mode = m; look.theme = t; })",
+            [mode, theme],
+        )
+        pg.reload()
+        pg.locator(".dayline").first.wait_for(timeout=20000)
+
+    saved = page.evaluate("(() => { const l = XOLook.active().look; return [l.mode, l.theme]; })()")
+    for label, mode, theme in (("dark-ink", "dark", "ink"), ("foliage", "light", "foliage")):
+        set_look(page, mode, theme)
+        set_look(pane_page, mode, theme)
+        assert page.evaluate("document.documentElement.dataset.scheme") == mode
+        for width in ("360", "1920"):
+            page.set_viewport_size(SIZES[width])
+            for name in ("today", "tasks", "canvas"):
+                page.goto(f"{BASE}/#/{name}")
+                if name == "canvas":
+                    page.wait_for_selector(".xo-canvas .xo-board", timeout=20000)
+                    page.wait_for_timeout(400)
+                else:
+                    ready(page)
+                shot(page, "theme", f"{label}-{name}", width)
+        pane_page.set_viewport_size(SIZES["1920"])
+        pane_page.goto(f"{BASE}/#/today")
+        ready(pane_page)
+        pane_page.goto(f"{BASE}/#/appearance")
+        pane_page.locator(".pane").wait_for(state="visible")
+        shot(pane_page, "theme", f"{label}-appearance", "1920")
+    # Put the look back so nothing after this pass is affected.
+    set_look(page, *saved)
+    set_look(pane_page, *saved)
     browser.close()
 
 print("files written:", len(written))
