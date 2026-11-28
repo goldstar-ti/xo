@@ -4,7 +4,7 @@ import { t, text } from '../text.js';
 import { badge, button, checkbox, colourField, disclosure, field, focusControl, fontPicker, input, kit, optionCards, searchBox, segmented, select, sortList, stat, textarea, toggle } from '../ui.js';
 import { tabStrip } from '../tabs.js';
 import * as store from '../store.js';
-import { MODULES, isOn, setModule } from '../modules.js';
+import { MODULES, functionsOf, isOn, setSwitch } from '../modules.js';
 import { WIDGETS } from '../widgets.js';
 import { DEFAULT_ICONS, icon, paintIcon } from '../icons.js';
 import { pickScreenIcon } from '../iconpicker.js';
@@ -593,8 +593,13 @@ function build(lk, d) {
   reg('modules', null, t('appearance.modules.hint'), h('p', { class: 'hint' }, t('appearance.modules.hint')));
   MODULES.forEach((m) => {
     const sw = toggle(moduleNames[m.id], { checked: isOn(m.id), disabled: m.core || null, 'data-fk': `mod:${m.id}`,
-      onchange: (on) => setModule(m.id, on).catch((err) => { toast(err.message, 'bad'); redraw(); }) });
-    reg('modules', null, moduleNames[m.id], h('div', { class: 'opt' }, sw, h('p', { class: 'hint' }, m.core ? t('appearance.modules.core') : moreSub[m.id])), { changed: !isOn(m.id) });
+      onchange: (on) => setSwitch(m.id, on).then(redraw, (err) => { toast(err.message, 'bad'); redraw(); }) });
+    // The module's functions: each its own switch, dimmed while the module is off.
+    const fnNames = text('appearance.modules.functions');
+    const fns = functionsOf(m.id).map((id) => h('li', {}, toggle(fnNames[id].name, { checked: isOn(id), disabled: !isOn(m.id) || null, 'data-fk': `mod:${id}`,
+      onchange: (on) => setSwitch(id, on).then(redraw, (err) => { toast(err.message, 'bad'); redraw(); }) }), h('p', { class: 'hint' }, fnNames[id].hint)));
+    reg('modules', null, moduleNames[m.id], h('div', { class: 'opt' }, sw, h('p', { class: 'hint' }, m.core ? t('appearance.modules.core') : moreSub[m.id]), fns.length > 0 && h('ul', { class: 'mod-fns' }, fns)),
+      { changed: !isOn(m.id) || functionsOf(m.id).some((id) => !isOn(id)) });
   });
   reg('modules', null, t('appearance.modules.tint'), h('div', { class: 'opt' }, toggle(t('appearance.modules.tint'), { checked: p.conceptNav, 'data-fk': 'p-conceptnav', onchange: (on) => setPrefs({ conceptNav: on }) }),
     h('p', { class: 'hint' }, t('appearance.modules.tint_hint'))), { changed: !p.conceptNav });

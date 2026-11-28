@@ -417,6 +417,34 @@ appearance:
     tint: Colour screen icons by module
     tint_hint: Tints the icons in the side bar and the bottom bar with each module's colour. The screen you are on keeps the accent colour.
     colour: Colour
+    functions:
+      tasks.three:
+        name: Today's three
+        hint: Pick up to three tasks for the day, on Tasks, Today and in the evening check-in.
+      tasks.board:
+        name: Board view
+        hint: Tasks as To do, Doing and Done columns, and the Task board widget.
+      tasks.table:
+        name: Table view
+        hint: Tasks as a sortable table, and the Task table widget.
+      tasks.subtasks:
+        name: Subtasks
+        hint: A checklist inside a task.
+      tasks.repeats:
+        name: Repeating tasks
+        hint: A task that adds its next one when you finish it.
+      tasks.dependencies:
+        name: Blocked by
+        hint: Mark a task as waiting on others, with a Waiting list and a ready-only filter.
+      tasks.timeblocks:
+        name: Time blocks
+        hint: A time to do a task, shown on Today with its reminder.
+      tasks.stale:
+        name: Stale review
+        hint: A list of tasks left untouched, to keep or archive.
+      tasks.closeday:
+        name: Close the day
+        hint: The evening check-in step that carries tasks over to tomorrow.
   groups:
     theme: Colour
     text: Text

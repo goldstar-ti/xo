@@ -1,4 +1,5 @@
 // Store-bound task actions. Every task write goes through saveTask(), so touched, created and done stay right.
+import { isOn } from './modules.js';
 import * as store from './store.js';
 import { t, text } from './text.js';
 import { fmtDay, toast, today, uid } from './util.js';
@@ -31,7 +32,7 @@ export async function setStatus(item, status) {
   const finishing = status === 'done' && d.status !== 'done';
   const data = { ...d, status, done: status === 'done', doneAt: status === 'done' ? (finishing ? nowIso() : d.doneAt || nowIso()) : '' };
   let next = null;
-  if (finishing && d.repeat.every !== 'none' && !d.spawned) {
+  if (finishing && isOn('tasks.repeats') && d.repeat.every !== 'none' && !d.spawned) {
     const due = nextRepeat(d.repeat, d.due, today());
     if (due) {
       next = {
@@ -49,7 +50,7 @@ export async function setStatus(item, status) {
   await saveTask(item.id, data);
   if (next) {
     toast(t('forms.task.next_added', { day: fmtDay(next.due) }));
-  } else if (finishing) {
+  } else if (finishing && isOn('tasks.dependencies')) {
     const all = allTasks();
     const byId = new Map(all.map((i) => [i.id, i.data]));
     const ready = all.find((i) => i.id !== item.id && i.data.status !== 'done' && !i.data.archived && i.data.blockedBy.includes(item.id) && !isBlocked(i.data, byId));

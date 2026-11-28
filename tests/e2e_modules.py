@@ -57,7 +57,7 @@ with sync_playwright() as p:
     assert reminders("bill_%") > 0
 
     # switch Bills off: gone from the side bar and More, its route lands on Today, its reminders stop
-    pg.evaluate("async () => (await import('/js/modules.js')).setModule('bills', false)")
+    pg.evaluate("async () => (await import('/js/modules.js')).setSwitch('bills', false)")
     expect(side.locator('a[data-nav="bills"]')).to_have_count(0)
     expect(side.locator("a")).to_have_count(12)
     assert reminders("bill_%") == 0
@@ -74,22 +74,22 @@ with sync_playwright() as p:
 
     # Appearance and Settings cannot be switched off
     err = pg.evaluate(
-        "async () => (await import('/js/modules.js')).setModule('settings', false).then(() => '', (e) => e.message)"
+        "async () => (await import('/js/modules.js')).setSwitch('settings', false).then(() => '', (e) => e.message)"
     )
     assert "cannot be switched" in err
 
     # switch it on again: back in the side bar, reminders return
-    pg.evaluate("async () => (await import('/js/modules.js')).setModule('bills', true)")
+    pg.evaluate("async () => (await import('/js/modules.js')).setSwitch('bills', true)")
     expect(side.locator('a[data-nav="bills"]')).to_have_count(1)
     assert reminders("bill_%") > 0
 
     # Today off: Today leaves the side bar and the first screen left takes its place
-    pg.evaluate("async () => (await import('/js/modules.js')).setModule('today', false)")
+    pg.evaluate("async () => (await import('/js/modules.js')).setSwitch('today', false)")
     expect(side.locator('a[data-nav="today"]')).to_have_count(0)
     pg.goto(BASE + "/#/today")
     pg.wait_for_selector("#view")
     assert pg.evaluate("document.body.dataset.view") == "diary"
-    pg.evaluate("async () => (await import('/js/modules.js')).setModule('today', true)")
+    pg.evaluate("async () => (await import('/js/modules.js')).setSwitch('today', true)")
     # the Modules tab: a switch per module, kept on the server, and the colour tint on the screen icons
     pg.goto(BASE + "/#/appearance")
     pg.wait_for_selector(".look-screen")
@@ -106,6 +106,36 @@ with sync_playwright() as p:
     ico, link = side.locator('a[data-nav="diary"]').evaluate(icon_colour)
     assert ico == link, "no tint when the setting is off"
     pg.locator('[data-fk="p-conceptnav"]').click()
+    # Tasks functions: Board off removes the view chip and falls back to the list; Close the day hides its check-in step
+    pg.locator('[data-fk="mod:tasks.board"]').click()
+    pg.goto(BASE + "/#/tasks/board")
+    pg.wait_for_selector("#view h1")
+    assert pg.evaluate("document.body.dataset.view") == "tasks"
+    expect(pg.get_by_role("button", name="Board")).to_have_count(0)
+    expect(pg.get_by_role("button", name="Table")).to_have_count(1)
+    pg.goto(BASE + "/#/appearance")
+    pg.wait_for_selector(".look-screen")
+    pg.locator('[data-key="modules"]').click()
+    pg.locator('[data-fk="mod:tasks.board"]').click()
+    # a function is dimmed while its module is off
+    pg.locator('[data-fk="mod:tasks"]').click()
+    expect(pg.locator('[data-fk="mod:tasks.subtasks"]')).to_be_disabled()
+    pg.locator('[data-fk="mod:tasks"]').click()
+    expect(pg.locator('[data-fk="mod:tasks.subtasks"]')).to_be_enabled()
+    # Time blocks off stops the block reminder of a task with a time
+    pg.evaluate(
+        """async () => {
+          const s = await import('/js/store.js');
+          const d = new Date(Date.now() + 3 * 86400000).toISOString().slice(0, 10);
+          await s.save('task', 'task-mod-test', { title: 'Module task', status: 'todo', today: d, at: '10:00' });
+        }"""
+    )
+    assert reminders("task_block") > 0
+    pg.evaluate("async () => (await import('/js/modules.js')).setSwitch('tasks.timeblocks', false)")
+    assert reminders("task_block") == 0
+    pg.evaluate("async () => (await import('/js/modules.js')).setSwitch('tasks.timeblocks', true)")
+    assert reminders("task_block") > 0
+    pg.evaluate("async () => (await (await import('/js/store.js')).remove('task-mod-test'))")
     pg.evaluate("async () => (await (await import('/js/store.js')).remove('bill-mod-test'))")
     b.close()
 print("errors:", errs or "none")

@@ -60,7 +60,7 @@ export function dayEntries(day = today()) {
     out.push({ time: a.data.time, label: a.data.title, kind: 'appt', item: a, times: tm, sub: [bits.join(', ').replace(/^./, (c) => c.toUpperCase()), a.data.where].filter(Boolean).join('. ') });
   }
   const pace = currentPace();
-  for (const task of isOn('tasks') ? allTasks() : []) {
+  for (const task of isOn('tasks.timeblocks') ? allTasks() : []) {
     const d = task.data;
     if (d.today !== day || !d.at || d.archived) continue;
     out.push({ time: d.at, label: d.title, kind: 'task', item: task, done: d.done, sub: d.est > 0 ? t('lists.shared.allow', { duration: fmtDuration(d.est * pace) }) : '' });
@@ -198,7 +198,7 @@ export function render(root) {
       h('p', { class: 'next-head' }, up.head),
       up.title && h('p', { class: 'next-title' }, up.title),
       up.sub && h('p', { class: 'next-sub' }, up.pin && [icon('tabler/map-pin'), ' '], up.sub)),
-    three: isOn('tasks') && h('section', { class: 'col-side' }, h('div', { class: 'sec-head' }, h('h2', {}, t('today.three.heading')), h('a', { href: '#/tasks' }, t('today.three.all_tasks'))), three),
+    three: isOn('tasks.three') && h('section', { class: 'col-side' }, h('div', { class: 'sec-head' }, h('h2', {}, t('today.three.heading')), h('a', { href: '#/tasks' }, t('today.three.all_tasks'))), three),
     day: h('section', { class: 'col-day' }, h('div', { class: 'sec-head' }, h('h2', {}, t('today.day.heading')), isOn('routine') && h('a', { href: '#/routine' }, t('today.day.edit_routine'))),
       h('ol', { class: 'dayline' }, rows)),
     coming: h('section', { class: 'col-side' }, h('div', { class: 'sec-head' }, h('h2', {}, t('today.coming.heading'))),

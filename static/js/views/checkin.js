@@ -6,6 +6,7 @@ import { allTasks, pickTask, saveTask } from '../taskdata.js';
 import { button, callout, checkbox, chip, field, segmented, tag } from '../ui.js';
 import { mdEditor } from '../mdeditor.js';
 import { plainText } from '../markdown.js';
+import { isOn } from '../modules.js';
 import { t, text } from '../text.js';
 import { customEditor } from '../customfields.js';
 import { checkinId, dayEntries } from './today.js';
@@ -174,7 +175,7 @@ function shutdown(day) {
           h('span', { class: 'row-main' }, i.data.title),
           options(i.data.est).map((mins) => chip(fmtDuration(mins), { class: 'small', onclick: () => act(saveTask(i.id, { ...i.data, actual: mins })) }))))),
         t('checkin.shutdown.actual_hint')),
-      q(t('checkin.shutdown.tomorrow_heading'),
+      isOn('tasks.three') && q(t('checkin.shutdown.tomorrow_heading'),
         h('ul', { class: 'list' }, [...plannedTomorrow, ...candidates].map((i) => h('li', {},
           h('span', { class: 'row-main' }, i.data.title),
           chip(t(i.data.today === tomorrow ? 'checkin.shutdown.picked' : 'checkin.shutdown.pick'), { class: 'small', pressed: i.data.today === tomorrow, onclick: () => act(pickTask(i, tomorrow)) })))),
@@ -187,14 +188,14 @@ function shutdown(day) {
 function evening(root, day, state) {
   const entries = dayEntries(day).filter((e) => e.kind === 'tick');
   const ticked = entries.filter((e) => e.done).length;
-  const three = store.byKind('task').filter((task) => task.data.today === day);
+  const three = isOn('tasks.three') ? store.byKind('task').filter((task) => task.data.today === day) : [];
   const summary = [
     entries.length && t('checkin.evening.routine', { done: ticked, total: entries.length }),
     three.length && t('checkin.evening.three', { done: three.filter((task) => task.data.done).length, total: three.length }),
   ].filter(Boolean).join('. ');
   put(root, 
     summary && h('p', { class: 'note' }, summary + '.'),
-    store.settings().shutdown && shutdown(day),
+    store.settings().shutdown && isOn('tasks.closeday') && shutdown(day),
     q(t('checkin.evening.did'), lookupChips('did', state, 'did', { as: checks }), t('checkin.evening.did_hint')),
     q(t('checkin.evening.body'), lookupChips('body', state, 'body')),
     store.settings().logSigns && signsBlock(state),

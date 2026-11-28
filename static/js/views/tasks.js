@@ -5,6 +5,7 @@ import { customMeta, defs, valueText } from '../customfields.js';
 import * as store from '../store.js';
 import { editTask } from '../forms.js';
 import { matchKey } from '../keymap.js';
+import { isOn } from '../modules.js';
 import { openPalette, setScreenKeys } from '../palette.js';
 import { allTasks, pickTask, quickTask, saveMeta, saveTask, setStatus, taskMeta, toggleTask } from '../taskdata.js';
 import { ENERGIES, PRIORITIES, STATUSES, compareTasks, isBlocked, isStale, pace, parseQuick } from '../tasks.js';
@@ -17,6 +18,7 @@ export const live = true;
 
 const KEY = 'xo-tasks';
 const VIEWS = ['list', 'board', 'table'];
+const views = () => VIEWS.filter((v) => v === 'list' || isOn(`tasks.${v}`)); // the views whose function is on
 const DEFAULT_PREFS = { view: 'list', tags: [], focus: '', places: [], readyOnly: false, custom: {} };
 const FOCUS_OK = { low: ['', 'low'], medium: ['', 'low', 'medium'] };
 const COLUMNS = ['done', 'title', 'priority', 'status', 'due', 'tags', 'energy', 'est', 'subtasks'];
@@ -55,7 +57,7 @@ function matches(d, p, byId) {
   const ok = FOCUS_OK[p.focus];
   if (ok && !ok.includes(d.energy)) return false;
   if (p.places.length && d.places.length && !d.places.some((x) => p.places.includes(x))) return false;
-  if (p.readyOnly && isBlocked(d, byId)) return false;
+  if (p.readyOnly && isOn('tasks.dependencies') && isBlocked(d, byId)) return false;
   for (const [id, chosen] of Object.entries(p.custom)) {
     const def = defs('task').find((x) => x.id === id);
     if (!def) continue;
@@ -89,8 +91,8 @@ function metaParts(d, ctx) {
   if (d.priority === 'high' || d.priority === 'low') parts.push(t(`lists.tasks.priority.${d.priority}`));
   parts.push(...names(ctx.meta.tags, d.tags));
   if (d.notes) parts.push(t('lists.tasks.has_notes'));
-  if (d.subtasks.length) parts.push(t('lists.tasks.subtasks', { done: d.subtasks.filter((s) => s.done).length, total: d.subtasks.length }));
-  const waiting = d.blockedBy.map((id) => ctx.byId.get(id)).filter((o) => o && o.status !== 'done').map((o) => o.title);
+  if (d.subtasks.length && isOn('tasks.subtasks')) parts.push(t('lists.tasks.subtasks', { done: d.subtasks.filter((s) => s.done).length, total: d.subtasks.length }));
+  const waiting = (isOn('tasks.dependencies') ? d.blockedBy : []).map((id) => ctx.byId.get(id)).filter((o) => o && o.status !== 'done').map((o) => o.title);
   if (waiting.length) parts.push(t('lists.tasks.waiting', { titles: waiting.join(', ') }));
   parts.push(...customMeta('task', d.custom));
   return parts;
@@ -122,7 +124,7 @@ export function taskRow(task, { showPick = true, actions = [], ctx = null } = {}
       !d.done && d.step && h('small', {}, t('lists.shared.start_with', { step: d.step })),
       meta.length > 0 && h('small', {}, meta.join(', ')),
     ], { variant: 'row', class: 'row-main', onclick: () => editTask(item) }),
-    showPick && !d.done && pickChip(item, d),
+    showPick && isOn('tasks.three') && !d.done && pickChip(item, d),
     actions);
 }
 
@@ -185,10 +187,10 @@ function listView(visible, ctx, day) {
   const open = visible.filter((i) => i.data.status !== 'done');
   const picked = visible.filter((i) => i.data.today === day).sort(bySort);
   const afterPicked = open.filter((i) => i.data.today !== day);
-  const stale = afterPicked.filter((i) => isStale(i.data, { today: day, staleDays }));
+  const stale = isOn('tasks.stale') ? afterPicked.filter((i) => isStale(i.data, { today: day, staleDays })) : [];
   const doing = afterPicked.filter((i) => i.data.status === 'doing' && !stale.includes(i)).sort(bySort);
   const todo = afterPicked.filter((i) => i.data.status === 'todo' && !stale.includes(i));
-  const waiting = todo.filter((i) => isBlocked(i.data, ctx.byId)).sort(bySort);
+  const waiting = isOn('tasks.dependencies') ? todo.filter((i) => isBlocked(i.data, ctx.byId)).sort(bySort) : [];
   const ready = todo.filter((i) => !waiting.includes(i));
   const soon = ready.filter((i) => i.data.due && i.data.due <= addDays(day, 7)).sort(bySort);
   const other = ready.filter((i) => !soon.includes(i)).sort(bySort);
@@ -207,7 +209,7 @@ function listView(visible, ctx, day) {
   });
   const restore = (i) => ({ showPick: false, actions: [button(t('lists.tasks.restore'), { class: 'small', onclick: () => saveTask(i.id, { ...i.data, archived: '' }).catch(fail) })] });
   return [
-    section(t('lists.tasks.todays_three'), picked, t('lists.tasks.pick_empty')),
+    isOn('tasks.three') && section(t('lists.tasks.todays_three'), picked, t('lists.tasks.pick_empty')),
     doing.length > 0 && section(t('lists.tasks.doing_heading'), doing),
     soon.length > 0 && section(t('lists.tasks.due_week'), soon),
     section(t('lists.tasks.ready'), other, open.length || picked.length ? null : t('lists.tasks.none_open')),
@@ -296,7 +298,7 @@ function tableView(visible, ctx, redraw) {
   });
   const priorities = text('forms.task.priorities');
   const energies = text('forms.task.energies');
-  const columns = [...COLUMNS.map((c) => [c, t(`lists.tasks.table.${c}`)]), ...shown.map((d) => [`cf_${d.id}`, d.name])];
+  const columns = [...COLUMNS.filter((c) => c !== 'subtasks' || isOn('tasks.subtasks')).map((c) => [c, t(`lists.tasks.table.${c}`)]), ...shown.map((d) => [`cf_${d.id}`, d.name])];
   const head = columns.map(([c, label]) => h('th', { scope: 'col', class: 'tw:text-left', 'aria-sort': tableSort.key === c ? (tableSort.dir > 0 ? 'ascending' : 'descending') : null },
     button(label, {
       variant: 'row',
@@ -314,7 +316,7 @@ function tableView(visible, ctx, redraw) {
       h('td', {}, names(ctx.meta.tags, d.tags).join(', ')),
       h('td', {}, energies[d.energy] && d.energy ? energies[d.energy] : ''),
       h('td', {}, d.est > 0 ? fmtDuration(d.est) : ''),
-      h('td', {}, d.subtasks.length ? `${d.subtasks.filter((s) => s.done).length}/${d.subtasks.length}` : ''),
+      isOn('tasks.subtasks') && h('td', {}, d.subtasks.length ? `${d.subtasks.filter((s) => s.done).length}/${d.subtasks.length}` : ''),
       shown.map((def) => h('td', {}, valueText(def, d.custom?.[def.id]))));
   });
   return h('div', { class: 'tw:overflow-x-auto' },
@@ -342,7 +344,7 @@ function filterBar(p, ctx, redraw) {
       const chosen = p.custom[def.id] || [];
       return chip(label, { pressed: chosen.includes(value), onclick: () => set({ custom: { ...p.custom, [def.id]: toggle(chosen, value) } }) });
     }))),
-    field(t('lists.tasks.filter.ready_only'), ready),
+    isOn('tasks.dependencies') && field(t('lists.tasks.filter.ready_only'), ready),
     anyFilter(p) && h('div', {}, button(t('lists.tasks.filter.clear'), { class: 'small', onclick: () => set({ tags: [], focus: '', places: [], readyOnly: false, custom: {} }) })));
 }
 
@@ -444,6 +446,7 @@ function taskKeys(root, e) {
   if (action === 'tasks.next' || action === 'tasks.next_alt') { stepFocus(root, 1); return true; }
   if (action === 'tasks.prev' || action === 'tasks.prev_alt') { stepFocus(root, -1); return true; }
   const view = { 'tasks.view_list': 'list', 'tasks.view_board': 'board', 'tasks.view_table': 'table' }[action];
+  if (view && !views().includes(view)) return false;
   if (view) { savePrefs({ view }); location.hash = `#/tasks/${view}`; return true; }
   if (action === 'tasks.edit_alt' && e.target.closest?.('button, a, summary, [role="button"]')) return false;
   const id = currentId(root);
@@ -452,7 +455,7 @@ function taskKeys(root, e) {
   const d = item.data;
   if (action === 'tasks.edit' || action === 'tasks.edit_alt') editTask(item);
   else if (action === 'tasks.done') toggleTask(item).catch(fail);
-  else if (action === 'tasks.pick') pickTask(item).catch(fail);
+  else if (action === 'tasks.pick' && isOn('tasks.three')) pickTask(item).catch(fail);
   else if (action === 'tasks.priority') saveTask(item.id, { ...d, priority: PRIORITIES[(PRIORITIES.indexOf(d.priority) + 1) % PRIORITIES.length] }).catch(fail);
   else if (action === 'tasks.left' || action === 'tasks.right') {
     const to = STATUSES[STATUSES.indexOf(d.status) + (action === 'tasks.right' ? 1 : -1)];
@@ -476,7 +479,7 @@ export function render(root, param) {
   const p = prefs();
   const page = root.id === 'view';
   const asked = (!page && root.dataset.tasksView) || param;
-  const mode = VIEWS.includes(asked) ? asked : p.view;
+  const mode = views().includes(asked) ? asked : views().includes(p.view) ? p.view : 'list';
   const day = today();
   const ctx = gather();
   const redraw = () => redrawIn(root, param);
@@ -498,8 +501,8 @@ export function render(root, param) {
   put(root,
     h('header', { class: 'page-head' }, h('h1', {}, t('lists.tasks.heading')),
       h('div', { class: 'actions' },
-        h('div', { role: 'group', 'aria-label': t('lists.tasks.view_aria'), class: 'chips' },
-          VIEWS.map((v) => chip(t(`lists.tasks.views.${v}`), { pressed: v === mode, onclick: () => setView(v) }))),
+        views().length > 1 && h('div', { role: 'group', 'aria-label': t('lists.tasks.view_aria'), class: 'chips' },
+          views().map((v) => chip(t(`lists.tasks.views.${v}`), { pressed: v === mode, onclick: () => setView(v) }))),
         page && button(t('palette.open'), { onclick: openPalette }),
         button(t('lists.tasks.manage'), { onclick: manage }))),
     quickAdd(t('lists.tasks.add_placeholder'), {}, 'task', { preview: true }),

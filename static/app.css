@@ -893,3 +893,7 @@ dialog.sheet.form-sheet[open] { display: flex; flex-direction: column; padding: 
 
 /* Screen icons take their module's colour; the screen showing keeps the accent. */
 :root[data-concept-nav="on"] :is(.side nav, .tabs) a[data-nav]:not(.on) .ico { color: var(--concept, inherit); }
+
+/* A module's functions on the Modules tab: indented under the module's switch. */
+.mod-fns { list-style: none; margin: 0.4rem 0 0; padding: 0 0 0 1.25rem; display: grid; gap: 0.4rem; border-left: var(--rule) solid var(--line); }
+.mod-fns .hint { margin: 0; }

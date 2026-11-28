@@ -41,7 +41,7 @@ function setTasksView(view) {
 function COMMANDS() {
   const go = Object.entries(text('app.nav')).filter(([key]) => isOn(key)).map(([key, label]) => ({ label: t('palette.go', { screen: label }), run: () => { location.hash = `#/${key}`; } }));
   const checkins = ['morning', 'evening', 'weekly'].filter(() => isOn('checkin')).map((type) => ({ label: t(`palette.checkin_${type}`), run: () => { location.hash = `#/checkin/${type}`; } }));
-  const views = ['list', 'board', 'table'].filter(() => isOn('tasks')).map((v) => ({ label: t('palette.view', { view: t(`lists.tasks.views.${v}`) }), run: () => setTasksView(v) }));
+  const views = ['list', 'board', 'table'].filter((v) => v === 'list' ? isOn('tasks') : isOn(`tasks.${v}`)).map((v) => ({ label: t('palette.view', { view: t(`lists.tasks.views.${v}`) }), run: () => setTasksView(v) }));
   const open = allTasks()
     .filter((i) => isOn('tasks') && i.data.status !== 'done' && !i.data.archived)
     .map((i) => ({ label: t('palette.open_task', { title: i.data.title }), run: () => editTask(i) }));

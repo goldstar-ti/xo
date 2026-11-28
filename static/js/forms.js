@@ -1,6 +1,7 @@
 // Add and edit dialogs for each kind of item.
 import { customValues, formFields, readCustom } from './customfields.js';
 import { mdEditor } from './mdeditor.js';
+import { isOn } from './modules.js';
 import * as store from './store.js';
 import { saveTask, taskMeta } from './taskdata.js';
 import { blockedEditor, chipSet, repeatEditor, subtaskEditor } from './taskfields.js';
@@ -59,18 +60,18 @@ export function editTask(item, preset = {}) {
       fld('task', 'priority', { type: 'custom', build: (v) => chipSet(Object.entries(text('forms.task.priorities')), v) }),
       fld('task', 'est', { type: 'number', half: true, hint: true }),
       fld('task', 'due', { type: 'date', half: true }),
-      fld('task', 'at', { type: 'time', half: true }),
+      isOn('tasks.timeblocks') && fld('task', 'at', { type: 'time', half: true }),
       fld('task', 'tags', { type: 'custom', build: (v) => chipSet(labelled(meta.tags), v, { multi: true }) }),
-      fld('task', 'subtasks', { type: 'custom', hint: true, build: (v) => subtaskEditor(v) }),
+      isOn('tasks.subtasks') && fld('task', 'subtasks', { type: 'custom', hint: true, build: (v) => subtaskEditor(v) }),
       fld('task', 'energy', { type: 'custom', more: true, build: (v) => chipSet(Object.entries(text('forms.task.energies')), v) }),
       fld('task', 'places', { type: 'custom', more: true, build: (v) => chipSet(labelled(meta.places), v, { multi: true }) }),
-      fld('task', 'repeat', { type: 'custom', more: true, hint: true, filled: (v) => v.every !== 'none', build: (v) => repeatEditor(v) }),
-      { name: 'blockedBy', label: t('forms.task.labels.blocked_by'), hint: t('forms.task.hints.blocked_by'), type: 'custom', more: true, build: (v) => blockedEditor(v, item?.id) },
+      isOn('tasks.repeats') && fld('task', 'repeat', { type: 'custom', more: true, hint: true, filled: (v) => v.every !== 'none', build: (v) => repeatEditor(v) }),
+      isOn('tasks.dependencies') && { name: 'blockedBy', label: t('forms.task.labels.blocked_by'), hint: t('forms.task.hints.blocked_by'), type: 'custom', more: true, build: (v) => blockedEditor(v, item?.id) },
       fld('task', 'project', { more: true, placeholder: t('forms.task.placeholders.project') }),
       fld('task', 'actual', { type: 'number', more: true, half: true, hint: true }),
       fld('task', 'notes', { type: 'custom', more: true, hint: true, build: (v) => mdEditor({ value: v || '', label: t('forms.task.labels.notes'), rows: 5 }) }),
       ...formFields('task', values.custom),
-    ],
+    ].filter(Boolean),
     async onSave(v) {
       const custom = { ...(values.custom || {}), ...readCustom(v) };
       const data = { ...values, ...v, custom };
