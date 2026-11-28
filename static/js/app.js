@@ -15,6 +15,7 @@ import * as trackerView from './views/tracker.js';
 import { bills, diary, obligations, routine } from './views/lists.js';
 import * as tasksView from './views/tasks.js';
 import * as notesView from './views/notes.js';
+import { startPattern } from './pattern.js';
 import { installPalette, setScreenKeys } from './palette.js';
 import { CHROME, DEFAULT_ICONS, icon, paintIcon } from './icons.js';
 import { pickScreenIcon } from './iconpicker.js';
@@ -126,12 +127,19 @@ function draw({ keepScroll = false, keepFocus = false } = {}) {
   if (!root) return;
   const focusKey = keepFocus && document.activeElement?.dataset?.fk;
   const { name, params } = route();
+  // A new screen fades in; a redraw of the same screen (a store change, a slider) does not.
+  const enter = document.body.dataset.view !== name;
   document.body.dataset.view = name;
   view?.leave?.(); // A screen that holds resources (the canvas) lets them go.
   view = VIEWS[name];
   const y = window.scrollY;
   root.replaceChildren();
   setScreenKeys(null);
+  if (enter) {
+    root.classList.remove('xo-enter');
+    void root.offsetWidth; // restart the animation when screens change in quick succession
+    root.classList.add('xo-enter');
+  }
   view.render(root, ...params);
   document.querySelectorAll('[data-nav]').forEach((a) => {
     const on = a.dataset.nav === name || (a.dataset.nav === 'more' && !tabs().includes(name));
@@ -301,4 +309,5 @@ navigator.serviceWorker?.addEventListener('message', async (e) => {
   }
 });
 
+startPattern();
 boot();

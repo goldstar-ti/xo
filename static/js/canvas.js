@@ -35,7 +35,7 @@ import { openPopover } from './popover.js';
 import { tabSet, tabStrip } from './tabs.js';
 import { t } from './text.js';
 import { button, checkbox, field, searchBox } from './ui.js';
-import { dialogOpen, h, openForm, toast, uid } from './util.js';
+import { dialogOpen, h, motionStill, openForm, toast, uid } from './util.js';
 import { WIDGETS } from './widgets.js';
 
 const COLUMNS = 24;
@@ -306,6 +306,13 @@ export async function mountCanvas(root) {
     board.replaceChildren();
   }
 
+  // Widgets fade in one after another when a canvas loads: 40 ms apart, the ninth and later together with the eighth.
+  function enterIn(el, i) {
+    el.classList.add('xo-w-in');
+    el.style.setProperty('--i', String(Math.min(i, 7)));
+    return el;
+  }
+
   function place(id, g) {
     const def = WIDGETS[id];
     const el = widgetEl(id);
@@ -330,19 +337,19 @@ export async function mountCanvas(root) {
       return (ga.y ?? 0) - (gb.y ?? 0) || (ga.x ?? 0) - (gb.x ?? 0);
     });
     if (phone.matches) {
-      board.append(...ids.map((id) => widgetEl(id)));
+      board.append(...ids.map((id, i) => enterIn(widgetEl(id), i)));
     } else {
       grid = GridStack.init({
         column: COLUMNS,
         cellHeight: CELL_PX,
         margin: MARGIN_PX,
         float: false,
-        animate: !window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+        animate: !motionStill(),
         handle: '.xo-w-head',
         resizable: { handles: 'e, se, s, sw, w' },
       }, board);
       grid.batchUpdate();
-      for (const id of ids) place(id, current().items[id]);
+      ids.forEach((id, i) => enterIn(place(id, current().items[id]), i));
       grid.batchUpdate(false);
       grid.on('change', readGeometry);
       grid.on('dragstart', () => checkpoint('move'));

@@ -60,6 +60,7 @@ appearance:
     loud: {quiet: Quiet, regular: Regular, loud: Loud}
     line: {plain: Plain, quote: Pull-quote, hidden: Hidden}
     figure: {plain: Plain, tint: Tint, accent: Accent, inset: Inset}
+    motion: {system: Follow device, reduce: Reduce, full: Full}
   accent:
     group: Accent colour
     theme: Theme
@@ -358,6 +359,37 @@ appearance:
     pick_title: Palette for {name}
     current: '{name}: {palette}'
     load_failed: The palettes could not be loaded. Check your connection and try again.
+  motion:
+    label: Motion
+    hint: Follow device uses your device's reduce-motion setting. Reduce turns every animation off. Full keeps them on.
+  pattern:
+    label: Pattern
+    kind: Pattern style
+    swatch: Pattern colour
+    accent: Accent
+    pick: Choose a colour
+    strength: Strength
+    shuffle: Another arrangement
+    hint: A generated pattern drawn faintly behind the page and the canvas. It stays on this device. If you also choose a background texture, the pattern is shown instead.
+    kinds:
+      none: None
+      auto: Automatic
+      octogons: Octagons
+      overlappingCircles: Overlapping circles
+      plusSigns: Plus signs
+      xes: Crosses
+      sineWaves: Sine waves
+      hexagons: Hexagons
+      overlappingRings: Overlapping rings
+      plaid: Plaid
+      triangles: Triangles
+      squares: Squares
+      concentricCircles: Concentric circles
+      diamonds: Diamonds
+      tessellation: Tessellation
+      nestedSquares: Nested squares
+      mosaicSquares: Mosaic squares
+      chevrons: Chevrons
   glass:
     heading: Glass
     alpha: Transparency
@@ -410,6 +442,8 @@ appearance:
     today_layout: Today layout
     glass: Glass
     figures: Figures
+    pattern: Background pattern
+    motion: Motion
     bottom_tabs: Bottom tabs
     icons: Icons
     blocks: Today blocks

@@ -46,7 +46,11 @@
     line: ['plain', 'quote', 'hidden'],
     kit: ['xo', 'daisy', 'wa'],
     figure: ['plain', 'tint', 'accent', 'inset'],
+    motion: ['system', 'reduce', 'full'], // Follow device, Reduce, Full
   };
+  // Generated background patterns (GeoPattern): 'auto' lets the generator pick from the seed. Drawn by static/js/pattern.js.
+  const PATTERN_KINDS = ['none', 'auto', 'octogons', 'overlappingCircles', 'plusSigns', 'xes', 'sineWaves', 'hexagons', 'overlappingRings', 'plaid',
+    'triangles', 'squares', 'concentricCircles', 'diamonds', 'tessellation', 'nestedSquares', 'mosaicSquares', 'chevrons'];
   const CORNERS = { square: ['0px', '0px'], soft: ['6px', '8px'], round: ['10px', '999px'], pill: ['20px', '999px'] };
   const DIALOG_RADIUS = { square: '0px', soft: '10px', round: '14px', pill: '20px' };
   const DENSITY = { compact: 0.7, regular: 1, roomy: 1.4 };
@@ -109,7 +113,9 @@
     fs: {}, colours: { light: {}, dark: {} }, rCard: null, rPill: null, rDialog: null,
     glassAlpha: 0, glassBlur: 14, figure: 'plain', ident: { widgets: {}, tabs: {} },
     corners: 'round', density: 'regular', rule: 'fine', texture: 'none',
-    hero: 'plain', dayline: 'line', loud: 'regular', line: 'plain', kit: 'xo', axes: {},
+    hero: 'plain', dayline: 'line', loud: 'regular', line: 'plain', kit: 'xo', axes: {}, motion: 'system',
+    // swatch is a palette slug ('' follows the accent); light and dark are its step 500 and step 300, copied in so it paints before the list loads.
+    pattern: { kind: 'none', swatch: '', light: '', dark: '', pct: 12, seed: '' },
   };
   const SECTIONS = ['today', 'diary', 'tasks', 'obligations', 'routine', 'bills', 'checkin', 'plan', 'settings', 'appearance', 'canvas', 'tracker', 'notes'];
   const LOOK_TABS = ['theme', 'text', 'layout', 'effects', 'screens', 'share']; // the Appearance screen's groups
@@ -135,6 +141,21 @@
       out[k] = { swatch: v.swatch, light: v.light.toLowerCase(), dark: v.dark.toLowerCase(), op: Math.round(clamp(v.op, 20, 100, 100) / 5) * 5, title: v.title === true };
     });
     return out;
+  }
+
+  // The background pattern: a kind, a palette swatch (slug plus its two hex steps, or '' for the accent), a strength and a seed.
+  function cleanPattern(raw) {
+    raw = raw && typeof raw === 'object' ? raw : {};
+    const hex = (v) => typeof v === 'string' && /^#[0-9a-f]{6}$/i.test(v);
+    const named = typeof raw.swatch === 'string' && /^[a-z0-9-]{1,60}$/.test(raw.swatch) && hex(raw.light) && hex(raw.dark);
+    return {
+      kind: PATTERN_KINDS.includes(raw.kind) ? raw.kind : 'none',
+      swatch: named ? raw.swatch : '',
+      light: named ? raw.light.toLowerCase() : '',
+      dark: named ? raw.dark.toLowerCase() : '',
+      pct: Math.round(clamp(raw.pct, 0, 40, 12)),
+      seed: typeof raw.seed === 'string' && /^[a-z0-9]{4,32}$/.test(raw.seed) ? raw.seed : '',
+    };
   }
 
   // Never trust what comes out of storage or a pasted look code: rebuild it field by field.
@@ -187,6 +208,7 @@
       COLOUR_TOKENS.forEach((k) => { if (typeof mm[k] === 'string' && /^#[0-9a-f]{6}$/i.test(mm[k])) out.colours[m][k] = mm[k].toLowerCase(); });
     });
     out.ident = { widgets: cleanIdent(raw.ident && raw.ident.widgets), tabs: cleanIdent(raw.ident && raw.ident.tabs) };
+    out.pattern = cleanPattern(raw.pattern);
     return out;
   }
   function cleanPrefs(raw) {
@@ -279,6 +301,12 @@
     el.textContent = rules.join('');
   }
 
+  // What a drawn pattern depends on, so a cached drawing is only reused when none of it has changed.
+  const patternKey = (look) => {
+    const scheme = document.documentElement.dataset.scheme || 'light';
+    return JSON.stringify([look.pattern, look.c, look.strength, (look.colours[scheme] || {}).leaf || '', scheme]);
+  };
+
   function apply() {
     const { look, item } = active();
     const root = document.documentElement;
@@ -328,6 +356,20 @@
     root.dataset.line = look.line;
     root.dataset.kit = look.kit;
     root.dataset.figure = look.figure;
+    // Motion: Follow device is still when the device asks for reduced motion. CSS and scripts read data-xo-motion.
+    const still = look.motion === 'reduce' || (look.motion === 'system' && matchMedia('(prefers-reduced-motion: reduce)').matches);
+    root.dataset.xoMotion = still ? 'still' : 'full';
+    // Background pattern: pattern.js draws it; the last drawing is kept so a reload paints it before the first frame.
+    const pat = look.pattern;
+    const patOn = pat.kind !== 'none' && pat.pct > 0;
+    root.dataset.pattern = patOn ? 'on' : 'off';
+    if (!patOn) root.style.removeProperty('--xo-pattern');
+    else {
+      try {
+        const hit = JSON.parse(localStorage.getItem('xo-pattern') || 'null');
+        if (hit && hit.key === patternKey(look) && typeof hit.uri === 'string') set('--xo-pattern', hit.uri);
+      } catch (e) { /* no cached drawing: pattern.js makes one */ }
+    }
     colourOverrides(look.colours);
     identStyle(look.ident);
     root.dataset.pop = state.prefs.pop ? 'on' : 'off';
@@ -450,12 +492,13 @@
   }
 
   window.XOLook = {
-    THEMES, FONTS, CHOICES, SECTIONS, BLOCKS, COLOUR_RANGE, DEFAULT_LOOK,
+    THEMES, FONTS, CHOICES, PATTERN_KINDS, SECTIONS, BLOCKS, COLOUR_RANGE, DEFAULT_LOOK,
     FS_ROLES, FS_STEPS, COLOUR_GROUPS, COLOUR_TOKENS, SIZE_PRESETS, presetOf, stackOf, ensureFont,
     get state() { return state; },
     get prefs() { return state.prefs; },
     get canUndo() { return undoStack.length > 0; },
     get editing() { return editing; },
+    patternKey: () => patternKey(active().look),
     active, scheduledNow, apply, change, undo, encode, decode, surprise, colourOf, exportThemes, importThemes,
     defaultLook: () => cleanLook({}),
     setEditing(id) { editing = id; apply(); announce(false); },
@@ -464,6 +507,7 @@
 
   apply();
   matchMedia('(prefers-color-scheme: dark)').addEventListener('change', apply);
+  matchMedia('(prefers-reduced-motion: reduce)').addEventListener('change', apply);
   // Scheduled looks switch over on their own.
   const recheck = () => {
     const a = active();

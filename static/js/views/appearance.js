@@ -7,6 +7,7 @@ import * as store from '../store.js';
 import { WIDGETS } from '../widgets.js';
 import { DEFAULT_ICONS, icon, paintIcon } from '../icons.js';
 import { pickScreenIcon } from '../iconpicker.js';
+import { previewPattern } from '../pattern.js';
 import { fmtTime, h, kvSet, openDialog, put, toast, uid } from '../util.js';
 
 export const live = false;
@@ -409,13 +410,13 @@ function scheduled() {
 
 // ---- Widget and tab colours ----
 // A palette is chosen with familyPicker. The look keeps the palette's step 500 (light mode) and step 300 (dark mode), so it paints before the list loads.
-function openPalettePicker(name, current, onPick) {
+function openPalettePicker(name, current, onPick, noneLabel = t('appearance.ident.none')) {
   let dlg = null;
   const pick = (value) => { onPick(value); dlg.close(); };
   const body = h('div', { class: 'ident-pick' },
     familyPicker({ current: current ? `fam:${current}` : null, label: t('appearance.ident.pick', { name }), fk: (th) => `ident-pick-${th.id.slice(4)}`,
       onPick: (th) => pick({ swatch: th.id.slice(4), light: th.swatch, dark: th.dark }) }),
-    button(t('appearance.ident.none'), { 'data-fk': 'ident-pick-none', onclick: () => pick(null) }));
+    button(noneLabel, { 'data-fk': 'ident-pick-none', onclick: () => pick(null) }));
   dlg = openDialog(t('appearance.ident.pick_title', { name }), body, { wide: true });
 }
 
@@ -548,11 +549,32 @@ function build(lk, d) {
   defAcc('lines_texture', 'layout', A('lines_texture'), { reset: () => L.change((s, l) => { l.rule = d.rule; l.texture = d.texture; }) });
   reg('layout', 'lines_texture', t('appearance.shape.rule'), seg(t('appearance.shape.rule'), 'rule'), { adv: true, changed: chg('rule') });
   reg('layout', 'lines_texture', t('appearance.shape.texture'), cards(t('appearance.shape.texture'), 'texture', (o) => drawn('tex-sample', o)), { adv: true, changed: chg('texture') });
+  // Background pattern: per device, in the look. The seed is made when a kind is first chosen, so the drawing stays the same.
+  const pat = lk.pattern;
+  const setPattern = (patch, opts) => L.change((s, l) => { l.pattern = { ...l.pattern, ...patch }; }, opts);
+  const newSeed = () => uid().replace(/[^a-z0-9]/gi, '').toLowerCase().padEnd(8, '0').slice(0, 12);
+  const kindLabels = text('appearance.pattern.kinds');
+  const patSample = (o) => { const el = drawn('pat-sample', o === 'none' ? 'none' : 'on'); previewPattern(el, o); return el; };
+  defAcc('pattern', 'layout', A('pattern'), { reset: () => L.change((s, l) => { l.pattern = { ...d.pattern }; }) });
+  reg('layout', 'pattern', t('appearance.pattern.kind'), h('div', { class: 'opt' },
+    fkAll(optionCards(t('appearance.pattern.kind'), L.PATTERN_KINDS.map((o) => ({ value: o, title: kindLabels[o], sample: patSample(o) })),
+      { value: pat.kind, onchange: (v) => setPattern({ kind: v, seed: pat.seed || newSeed() }) }), 'pattern'),
+    h('p', { class: 'hint' }, t('appearance.pattern.hint'))), { changed: pat.kind !== 'none' });
+  if (pat.kind !== 'none') {
+    const sw = h('button', { type: 'button', class: 'ident-swatch', 'data-fk': `pattern-swatch-${pat.swatch || 'accent'}`, 'aria-label': t('appearance.pattern.pick'),
+      title: pat.swatch ? pat.swatch.replace(/-/g, ' ') : t('appearance.pattern.accent'),
+      onclick: () => openPalettePicker(t('appearance.pattern.swatch'), pat.swatch, (v) => setPattern(v ? { swatch: v.swatch, light: v.light, dark: v.dark } : { swatch: '', light: '', dark: '' }), t('appearance.pattern.accent')) }, pat.swatch ? '' : 'A');
+    if (pat.swatch) sw.style.setProperty('--swatch', pat.light);
+    reg('layout', 'pattern', t('appearance.pattern.swatch'), h('div', { class: 'opt' }, h('span', {}, t('appearance.pattern.swatch')), sw), { adv: true, changed: !!pat.swatch });
+    reg('layout', 'pattern', t('appearance.pattern.strength'), dial(t('appearance.pattern.strength'), { id: 'd-patpct', min: 0, max: 40, step: 1, value: pat.pct, def: d.pattern.pct, unit: '%', apply: (v, o) => setPattern({ pct: v }, o) }), { adv: true, changed: pat.pct !== d.pattern.pct });
+    reg('layout', 'pattern', t('appearance.pattern.shuffle'), h('div', { class: 'row' }, button(t('appearance.pattern.shuffle'), { 'data-fk': 'pattern-shuffle', onclick: () => setPattern({ seed: newSeed() }) })), { adv: true, changed: false });
+  }
   defAcc('today_layout', 'layout', A('today_layout'), { reset: () => L.change((s, l) => { ['hero', 'dayline', 'loud', 'line'].forEach((k) => { l[k] = d[k]; }); }) });
   ['hero', 'dayline', 'loud', 'line'].forEach((k) => reg('layout', 'today_layout', t(`appearance.layout.${k}`), cards(t(`appearance.layout.${k}`), k), { adv: true, changed: chg(k) }));
 
   // 4. Effects
   reg('effects', null, t('appearance.behaviour.pop'), toggle(t('appearance.behaviour.pop'), { checked: p.pop, 'data-fk': 'p-pop', onchange: (on) => setPrefs({ pop: on }) }), { changed: !p.pop });
+  reg('effects', null, t('appearance.motion.label'), h('div', { class: 'opt' }, seg(t('appearance.motion.label'), 'motion'), h('p', { class: 'hint' }, t('appearance.motion.hint'))), { changed: chg('motion') });
   defAcc('glass', 'effects', A('glass'), { reset: () => L.change((s, l) => { l.glassAlpha = d.glassAlpha; l.glassBlur = d.glassBlur; }) });
   const glassOn = lk.glassAlpha > 0;
   reg('effects', 'glass', t('appearance.glass_toggle'), h('div', { class: 'opt' }, toggle(t('appearance.glass_toggle'), { checked: glassOn, 'data-fk': 'glass-on', onchange: (on) => setLook({ glassAlpha: on ? 18 : 0 }) }), h('p', { class: 'hint' }, t('appearance.glass.hint'))), { adv: true, changed: glassOn || lk.glassBlur !== d.glassBlur });

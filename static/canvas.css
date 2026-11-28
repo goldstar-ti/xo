@@ -123,9 +123,7 @@
 .xo-board > .grid-stack-item > .ui-resizable-sw { background-image: none; }
 .xo-board > .grid-stack-item > .ui-resizable-se { right: 4px; bottom: 4px; }
 
-@media (prefers-reduced-motion: reduce) {
-  .xo-board.grid-stack-animate .grid-stack-item { transition: none; }
-}
+:root[data-xo-motion="still"] .xo-board.grid-stack-animate .grid-stack-item { transition: none; }
 
 /* ---- vertical tab strip (tabStrip({ vertical: true })): the Appearance groups ---- */
 .xo-tabs-v { overflow: visible; }

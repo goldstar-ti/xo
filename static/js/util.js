@@ -6,6 +6,9 @@ import { icon, paintIcon, parseIcon } from './icons.js';
 import { openIconPicker } from './iconpicker.js';
 import { mdEditor, mdField } from './mdeditor.js';
 
+/** True when animation is off: the Motion setting says Reduce, or Follow device on a device that asks for less motion. */
+export const motionStill = () => document.documentElement.dataset.xoMotion === 'still';
+
 export function h(tag, attrs, ...kids) {
   const el = document.createElement(tag);
   let value;

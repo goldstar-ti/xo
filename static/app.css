@@ -239,7 +239,7 @@ button:disabled { opacity: 0.55; cursor: default; }
   :root[data-side="icons"] .side .head-actions :is(button, wa-button) { min-width: 2.5rem; padding-inline: 0.5rem; }
   #view { padding: 2.5rem 3rem 4rem; }
 }
-@media (min-width: 60rem) and (prefers-reduced-motion: reduce) { :root #app { transition: none; } }
+:root[data-xo-motion="still"] #app { transition: none; }
 
 /* ---- page parts ---- */
 .page-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.75rem; }
@@ -472,7 +472,7 @@ dialog.sheet::backdrop { background: color-mix(in srgb, var(--c-backdrop) 55%, t
 #toast.bad { background: var(--danger); color: #fff; }
 /* The other kits draw their own message box inside the toast. */
 :root:not([data-kit="xo"]) #toast, :root:not([data-kit="xo"]) #toast.bad { padding: 0; background: none; color: inherit; }
-@media (prefers-reduced-motion: reduce) { #toast { transition: none; } }
+:root[data-xo-motion="still"] #toast { transition: none; }
 
 /* ================= appearance variants (set by boot.js as data attributes) ================= */
 
@@ -483,6 +483,20 @@ dialog.sheet::backdrop { background: color-mix(in srgb, var(--c-backdrop) 55%, t
 :root[data-texture="ruled"] body { background-image: linear-gradient(var(--tex) 1px, transparent 1px); background-size: 100% 1.75rem; }
 :root[data-texture="diagonal"] body { background-image: repeating-linear-gradient(45deg, var(--tex) 0 1px, transparent 1px 14px); }
 :root:not([data-texture="none"]) body { background-attachment: fixed; }
+
+/* Background pattern (static/js/pattern.js sets --xo-pattern): drawn on the page behind everything, so it is also the canvas surface.
+   It wins over a texture when both are set. */
+:root[data-pattern="on"] body { background-image: var(--xo-pattern, none); background-attachment: fixed; }
+
+/* ---- motion: transform and opacity only, 100 to 240 ms, never blocking input; none of it runs when data-xo-motion is still ---- */
+@keyframes xo-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes xo-fade-rise { from { opacity: 0; translate: 0 8px; } to { opacity: 1; translate: 0 0; } }
+:root[data-xo-motion="full"] dialog[open] { animation: xo-fade-rise 200ms ease-out; }
+:root[data-xo-motion="full"] dialog.sheet[open]::backdrop { animation: xo-fade 200ms ease-out; }
+:root[data-xo-motion="full"] #view.xo-enter { animation: xo-fade-rise 180ms ease-out; }
+:root[data-xo-motion="full"] .xo-board > .xo-w-in { animation: xo-fade-rise 240ms ease-out backwards; animation-delay: calc(var(--i, 0) * 40ms); }
+:root[data-xo-motion="full"] :is(button, .primary, .ghost, .chip, a.big, [role="button"]):not(:disabled) { transition: transform 120ms ease-out; }
+:root[data-xo-motion="full"] :is(button, .primary, .ghost, .chip, a.big, [role="button"]):not(:disabled):active { transform: scale(0.97); }
 
 /* next-up block */
 :root[data-hero="banner"] .next { background: var(--leaf); border: 0; border-radius: var(--radius); padding: 1.25rem; }
@@ -511,7 +525,7 @@ dialog.sheet::backdrop { background: color-mix(in srgb, var(--c-backdrop) 55%, t
 /* tick feedback */
 @keyframes pop { 0% { transform: scale(0.8); } 55% { transform: scale(1.14); } 100% { transform: scale(1); } }
 :root[data-pop="on"] .entry.pop .tick { animation: pop 0.32s ease-out; }
-@media (prefers-reduced-motion: reduce) { :root[data-pop="on"] .entry.pop .tick { animation: none; } }
+:root[data-xo-motion="still"][data-pop="on"] .entry.pop .tick { animation: none; }
 
 /* ---- the Look button, quick panel and Appearance screen ---- */
 .head-actions { display: flex; gap: 0.5rem; align-items: center; }
@@ -621,7 +635,7 @@ input.xo-switch { appearance: none; position: relative; flex: none; width: 2.75r
 input.xo-switch::after { content: ""; position: absolute; top: 0.2rem; left: 0.2rem; width: 1.1rem; height: 1.1rem; border-radius: 50%; background: var(--surface); box-shadow: 0 0 0 var(--rule) var(--muted); transition: transform 0.15s; }
 input.xo-switch:checked { background: var(--leaf); }
 input.xo-switch:checked::after { transform: translateX(1.25rem); }
-@media (prefers-reduced-motion: reduce) { input.xo-switch, input.xo-switch::after { transition: none; } }
+:root[data-xo-motion="still"] input.xo-switch, :root[data-xo-motion="still"] input.xo-switch::after { transition: none; }
 
 .badge { display: inline-flex; align-items: center; justify-content: center; min-width: 1.4rem; height: 1.4rem; padding: 0 0.4rem; border-radius: var(--pill); background: var(--leaf-soft); color: var(--ink); font-size: var(--fs-tag, 0.75rem); font-weight: 700; line-height: 1; }
 .badge.accent { background: var(--leaf); color: var(--leaf-ink); }
@@ -635,7 +649,7 @@ input.xo-switch:checked::after { transform: translateX(1.25rem); }
 .xo-disc[open] > summary::after { transform: rotate(-135deg); }
 .xo-disc-title { display: inline-flex; align-items: center; gap: 0.5rem; }
 .xo-disc-body { padding: 0.25rem 0.9rem calc(0.9rem * var(--d)); }
-@media (prefers-reduced-motion: reduce) { .xo-disc > summary::after { transition: none; } }
+:root[data-xo-motion="still"] .xo-disc > summary::after { transition: none; }
 
 .xo-opts { display: grid; grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr)); gap: 0.6rem; }
 .xo-opt { display: flex; flex-direction: column; align-items: flex-start; gap: 0.3rem; min-height: 2.5rem; padding: 0.7rem; text-align: left; background: var(--surface); border: calc(var(--rule) + 0.5px) solid var(--line); border-radius: var(--radius); }
@@ -712,6 +726,7 @@ input.xo-hex { width: 6.5rem; min-height: 2.5rem; padding: 0.3rem 0.5rem; font-f
 .tex-sample-dots { background-image: radial-gradient(var(--muted) 1px, transparent 1.5px); background-size: 10px 10px; }
 .tex-sample-ruled { background-image: linear-gradient(var(--line) 1px, transparent 1px); background-size: 100% 10px; }
 .tex-sample-diagonal { background-image: repeating-linear-gradient(45deg, var(--line) 0 1px, transparent 1px 9px); }
+.pat-sample { display: block; width: 100%; height: 2.25rem; border: 1px solid var(--line); background-color: var(--paper); background-repeat: repeat; }
 .fig-sample { display: block; width: 100%; padding: 0.4rem 0.6rem; border-radius: var(--radius); font-weight: 700; font-family: var(--font-num); font-size: 1.25rem; }
 .fig-sample-tint { background: var(--leaf-soft); }
 .fig-sample-accent { background: var(--leaf); color: var(--leaf-ink); }
