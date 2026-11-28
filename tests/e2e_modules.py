@@ -143,8 +143,8 @@ with sync_playwright() as p:
     pg.goto(BASE + "/#/tasks/board")
     pg.wait_for_selector("#view h1")
     assert pg.evaluate("document.body.dataset.view") == "tasks"
-    expect(pg.get_by_role("button", name="Board")).to_have_count(0)
-    expect(pg.get_by_role("button", name="Table")).to_have_count(1)
+    expect(pg.get_by_role("radio", name="Board")).to_have_count(0)
+    expect(pg.get_by_role("radio", name="Table")).to_have_count(1)
     pg.goto(BASE + "/#/appearance")
     pg.wait_for_selector(".look-screen")
     pg.locator('[data-key="modules"]').click()

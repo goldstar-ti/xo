@@ -1023,5 +1023,15 @@ wa-checkbox.xo-tick-wa { min-height: 2.5rem; --checked-icon-color: var(--paper);
 }
 
 /* Today: Web Awesome's tick box is centred in its row and drawn at the same size as the round one. */
-.dayline wa-checkbox.xo-tick-wa, .list.coming wa-checkbox.xo-tick-wa, .list.three wa-checkbox.xo-tick-wa { display: inline-flex; align-items: center; justify-content: center; --toggle-size: 1.5rem; }
-.dayline wa-checkbox.xo-tick-wa::part(control), .list.coming wa-checkbox.xo-tick-wa::part(control), .list.three wa-checkbox.xo-tick-wa::part(control) { width: 1.5rem; height: 1.5rem; }
+.dayline wa-checkbox.xo-tick-wa, .list.coming wa-checkbox.xo-tick-wa, .list.three wa-checkbox.xo-tick-wa, .list li > wa-checkbox.xo-tick-wa, .task-table wa-checkbox.xo-tick-wa, .subtasks wa-checkbox.xo-tick-wa { display: inline-flex; align-items: center; justify-content: center; --toggle-size: 1.5rem; }
+.dayline wa-checkbox.xo-tick-wa::part(control), .list.coming wa-checkbox.xo-tick-wa::part(control), .list.three wa-checkbox.xo-tick-wa::part(control), .list li > wa-checkbox.xo-tick-wa::part(control), .task-table wa-checkbox.xo-tick-wa::part(control), .subtasks wa-checkbox.xo-tick-wa::part(control) { width: 1.5rem; height: 1.5rem; }
+
+/* Tasks: the row's chevron, and the table (title two shares, text columns one each, no wrapping, numbers narrow and right-aligned). */
+.list li > .row-go { flex: none; display: inline-flex; align-items: center; cursor: pointer; }
+.task-table { table-layout: fixed; min-width: 46rem; border-collapse: collapse; }
+.task-table :is(th, td) { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: left; padding: calc(0.4rem * var(--d)) 0.5rem; }
+.task-table :is(th, td).num { text-align: right; }
+.task-table td > .row-main { display: block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: left; font-weight: var(--fw-semibold); }
+.task-table th > button { white-space: nowrap; }
+.task-table :is(th, td):first-child { padding-inline: 0.25rem; }
+.task-table td:first-child { text-align: center; }

@@ -192,10 +192,10 @@ with sync_playwright() as p:
     expect(row).to_contain_text("Cost: 12")
     expect(row).to_contain_text("Who: Partner")
 
-    views = pg.locator('[role="group"][aria-label="Show tasks as"]')
-    views.get_by_role("button", name="Table", exact=True).click()
+    views = pg.get_by_role("radiogroup", name="Show tasks as")
+    views.get_by_role("radio", name="Table", exact=True).click()
     expect(pg.get_by_role("button", name="Sort by Cost", exact=True)).to_be_visible()
-    views.get_by_role("button", name="List", exact=True).click()
+    views.get_by_role("radio", name="List", exact=True).click()
     pg.get_by_role("group", name="Who").get_by_role("button", name="Partner", exact=True).click()
     expect(pg.locator(".list li", has_text="Field test")).to_have_count(1)
     expect(pg.locator(".list li", has_text="Other field task")).to_have_count(0)

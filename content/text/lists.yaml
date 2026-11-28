@@ -100,9 +100,11 @@ lists:
     manage_add_tag: Add category
     manage_add_place: Add place
     manage_new: New name
-    manage_up: 'Move up: {name}'
-    manage_down: 'Move down: {name}'
-    manage_remove: 'Remove: {name}'
+    manage_up: Move up
+    manage_down: Move down
+    manage_remove: Remove
+    row_menu: 'More actions for {title}'
+    screen_menu: More for tasks
     manage_note: Removing one takes its label off every task.
   routine:
     heading: Routine

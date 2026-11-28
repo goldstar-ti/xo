@@ -207,7 +207,9 @@ with sync_playwright() as p:
     set_control(dlg.locator("#f-repeat-n"), 3)
     dlg.get_by_role("button", name="Save").click()
     expect(pg.locator("dialog[open]")).to_have_count(0)
-    set_control(pg.locator(".list li", has_text="Plan the week").locator("input[type=checkbox]").first, True)
+    set_control(
+        pg.locator(".list li", has_text="Plan the week").locator("wa-checkbox, input[type=checkbox]").first, True
+    )
     expect(pg.locator("#toast")).to_contain_text("The next one is due")
     expect(pg.locator(".list li", has_text="Plan the week")).to_have_count(2)
     expect(pg.locator(".list li.done", has_text="Plan the week")).to_have_count(1)
@@ -223,12 +225,12 @@ with sync_playwright() as p:
     expect(dlg.locator(".blocked li", has_text="First thing")).to_have_count(1)
     dlg.get_by_role("button", name="Save").click()
     expect(pg.locator("dialog[open]")).to_have_count(0)
-    set_control(pg.locator(".list li", has_text="First thing").locator("input[type=checkbox]").first, True)
+    set_control(pg.locator(".list li", has_text="First thing").locator("wa-checkbox, input[type=checkbox]").first, True)
     expect(pg.locator("#toast")).to_contain_text("Ready now: Second thing")
 
     # 3. The Tasks screen: board, table, filters, review, canvas widget.
     def view(name):
-        pg.locator('[role="group"][aria-label="Show tasks as"]').get_by_role("button", name=name, exact=True).click()
+        pg.get_by_role("radiogroup", name="Show tasks as").get_by_role("radio", name=name, exact=True).click()
 
     def column(status):
         return pg.locator(f"section[data-status='{status}']")
@@ -236,7 +238,10 @@ with sync_playwright() as p:
     view("Board")
     expect(pg.locator("section[data-status] h2")).to_have_count(3)
     expect(column("todo").locator("article", has_text="Second thing")).to_have_count(1)
-    column("todo").locator("article", has_text="Second thing").get_by_role("button", name="Start", exact=True).click()
+    column("todo").locator("article", has_text="Second thing").get_by_role(
+        "button", name="More actions for Second thing"
+    ).click()
+    pg.get_by_role("menuitem", name="Start", exact=True).click()
     expect(column("doing").locator("article", has_text="Second thing")).to_have_count(1)
     column("doing").locator("article", has_text="Second thing").drag_to(column("done"))
     expect(column("done").locator("article", has_text="Second thing")).to_have_count(1)
@@ -268,7 +273,8 @@ with sync_playwright() as p:
     pg.locator("summary", has_text="Time to review").click()
     row = pg.locator(".list li", has_text="Old idea")
     expect(row).to_have_count(1)
-    row.get_by_role("button", name="Archive", exact=True).click()
+    row.get_by_role("button", name="More actions for Old idea").click()
+    pg.get_by_role("menuitem", name="Archive", exact=True).evaluate("el => el.click()")
     pg.locator("summary", has_text="Archived (1)").click()
     expect(pg.locator(".list li", has_text="Old idea")).to_have_count(1)
     pg.locator(".list li", has_text="Old idea").get_by_role("button", name="Restore", exact=True).click()

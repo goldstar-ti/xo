@@ -11,7 +11,8 @@ import { allTasks, pickTask, quickTask, saveMeta, saveTask, setStatus, taskMeta,
 import { ENERGIES, PRIORITIES, STATUSES, compareTasks, isBlocked, isStale, pace, parseQuick } from '../tasks.js';
 import { t, text } from '../text.js';
 import { micButton } from '../voice.js';
-import { button, checkbox, chip, field, focusControl, input } from '../ui.js';
+import { icon } from '../icons.js';
+import { button, checkbox, chip, field, focusControl, input, menu, plainLink, segmented, tickBox } from '../ui.js';
 import { addDays, fmtDay, fmtDuration, h, openDialog, put, relDay, toast, today, uid } from '../util.js';
 
 export const live = true;
@@ -118,14 +119,15 @@ export function taskRow(task, { showPick = true, actions = [], ctx = null } = {}
   const late = d.status !== 'done' && d.due && d.due < today();
   const meta = metaParts(d, c);
   return h('li', { class: `${d.done ? 'done' : ''}${late ? ' late' : ''}`, 'data-task-id': task.id, tabindex: '-1' },
-    checkbox({ checked: d.done, 'aria-label': t('lists.shared.done_aria', { title: d.title }), onchange: () => toggleTask(item).catch(fail) }),
+    tickBox({ checked: d.done, label: t('lists.shared.done_aria', { title: d.title }), onchange: () => toggleTask(item).catch(fail) }),
     button([
       h('span', {}, d.title),
       !d.done && d.step && h('small', {}, t('lists.shared.start_with', { step: d.step })),
       meta.length > 0 && h('small', {}, meta.join(', ')),
     ], { variant: 'row', class: 'row-main', onclick: () => editTask(item) }),
     showPick && isOn('tasks.three') && !d.done && pickChip(item, d),
-    actions);
+    actions,
+    h('span', { class: 'row-go', 'aria-hidden': 'true', onclick: () => editTask(item) }, icon('tabler/chevron-right', 'link-row-go')));
 }
 
 function previewText(raw, meta) {
@@ -203,11 +205,16 @@ function listView(visible, ctx, day) {
   const archived = all.filter((i) => i.data.archived).sort((a, b) => b.data.archived.localeCompare(a.data.archived));
   const reviewActions = (i) => ({
     actions: [
-      button(t('lists.tasks.keep'), { class: 'small', onclick: () => saveTask(i.id, i.data).catch(fail) }),
-      button(t('lists.tasks.archive'), { class: 'small', onclick: () => saveTask(i.id, { ...i.data, archived: nowIso(), today: '' }).catch(fail) }),
+      menu({
+        label: t('lists.tasks.row_menu', { title: i.data.title }),
+        items: [
+          { label: t('lists.tasks.keep'), run: () => saveTask(i.id, i.data).catch(fail) },
+          { label: t('lists.tasks.archive'), run: () => saveTask(i.id, { ...i.data, archived: nowIso(), today: '' }).catch(fail) },
+        ],
+      }),
     ],
   });
-  const restore = (i) => ({ showPick: false, actions: [button(t('lists.tasks.restore'), { class: 'small', onclick: () => saveTask(i.id, { ...i.data, archived: '' }).catch(fail) })] });
+  const restore = (i) => ({ showPick: false, actions: [plainLink(t('lists.tasks.restore'), { onclick: () => saveTask(i.id, { ...i.data, archived: '' }).catch(fail) })] });
   return [
     isOn('tasks.three') && section(t('lists.tasks.todays_three'), picked, t('lists.tasks.pick_empty')),
     doing.length > 0 && section(t('lists.tasks.doing_heading'), doing),
@@ -242,9 +249,13 @@ function card(item, ctx) {
   return h('article', { class: 'tw:border tw:border-line tw:rounded-xo tw:bg-surface tw:p-2', draggable: 'true', 'data-task-id': item.id, tabindex: '-1' },
     button(d.title, { variant: 'row', class: 'row-main', onclick: () => editTask(item) }),
     meta.length > 0 && h('small', {}, meta.join(', ')),
-    h('div', { class: 'tw:flex tw:flex-wrap tw:gap-2 tw:mt-2' },
+    h('div', { class: 'tw:flex tw:flex-wrap tw:items-center tw:gap-2 tw:mt-2' },
       d.status !== 'done' && pickChip(item, d),
-      moves.map(([key, to]) => button(t(`lists.tasks.move.${key}`), { class: 'small', onclick: () => setStatus(item, to).catch(fail) }))));
+      menu({
+        label: t('lists.tasks.row_menu', { title: d.title }),
+        class: 'tw:ml-auto',
+        items: moves.map(([key, to]) => ({ label: t(`lists.tasks.move.${key}`), run: () => setStatus(item, to).catch(fail) })),
+      })));
 }
 
 function boardView(visible, ctx) {
@@ -306,8 +317,16 @@ function tableView(visible, ctx, redraw) {
   });
   const priorities = text('forms.task.priorities');
   const energies = text('forms.task.energies');
-  const columns = [...COLUMNS.filter((c) => c !== 'subtasks' || isOn('tasks.subtasks')).map((c) => [c, t(`lists.tasks.table.${c}`)]), ...shown.map((d) => [`cf_${d.id}`, d.name])];
-  const head = columns.map(([c, label]) => h('th', { scope: 'col', class: 'tw:text-left', 'aria-sort': tableSort.key === c ? (tableSort.dir > 0 ? 'ascending' : 'descending') : null },
+  // Each column is a tick box, the title (two shares), a text column (one share) or a number (narrow, right-aligned).
+  const columns = [
+    ...COLUMNS.filter((c) => c !== 'subtasks' || isOn('tasks.subtasks')).map((c) => [c, t(`lists.tasks.table.${c}`), c === 'done' ? 'tick' : c === 'title' ? 'title' : c === 'est' || c === 'subtasks' ? 'num' : 'text']),
+    ...shown.map((d) => [`cf_${d.id}`, d.name, d.type === 'number' ? 'num' : 'text']),
+  ];
+  const fixed = columns.reduce((n, [, , kind]) => n + (kind === 'tick' ? 3 : kind === 'num' ? 5 : 0), 0);
+  const shares = columns.reduce((n, [, , kind]) => n + (kind === 'title' ? 2 : kind === 'text' ? 1 : 0), 0);
+  const widthOf = (kind) => (kind === 'tick' ? '3rem' : kind === 'num' ? '5rem' : `calc((100% - ${fixed}rem) * ${kind === 'title' ? 2 : 1} / ${shares})`);
+  const cols = h('colgroup', {}, columns.map(([, , kind]) => h('col', { style: `width: ${widthOf(kind)}` })));
+  const head = columns.map(([c, label, kind]) => h('th', { scope: 'col', class: kind === 'num' ? 'num' : '', 'aria-sort': tableSort.key === c ? (tableSort.dir > 0 ? 'ascending' : 'descending') : null },
     button(label, {
       variant: 'row',
       'aria-label': t('lists.tasks.table.sort', { column: label }),
@@ -315,20 +334,21 @@ function tableView(visible, ctx, redraw) {
     })));
   const body = rows.map((item) => {
     const d = item.data;
+    const tags = names(ctx.meta.tags, d.tags).join(', ');
     return h('tr', { 'data-task-id': item.id, tabindex: '-1' },
-      h('td', {}, checkbox({ checked: d.done, 'aria-label': t('lists.shared.done_aria', { title: d.title }), onchange: () => toggleTask(item).catch(fail) })),
-      h('td', {}, button(d.title, { variant: 'row', class: 'row-main', onclick: () => editTask(item) })),
+      h('td', {}, tickBox({ checked: d.done, label: t('lists.shared.done_aria', { title: d.title }), onchange: () => toggleTask(item).catch(fail) })),
+      h('td', { title: d.title }, button(d.title, { variant: 'row', class: 'row-main', onclick: () => editTask(item) })),
       h('td', {}, priorities[d.priority]),
       h('td', {}, t(`lists.tasks.columns.${d.status}`)),
       h('td', {}, d.due ? relDay(d.due) : ''),
-      h('td', {}, names(ctx.meta.tags, d.tags).join(', ')),
+      h('td', { title: tags }, tags),
       h('td', {}, energies[d.energy] && d.energy ? energies[d.energy] : ''),
-      h('td', {}, d.est > 0 ? fmtDuration(d.est) : ''),
-      isOn('tasks.subtasks') && h('td', {}, d.subtasks.length ? `${d.subtasks.filter((s) => s.done).length}/${d.subtasks.length}` : ''),
-      shown.map((def) => h('td', {}, valueText(def, d.custom?.[def.id]))));
+      h('td', { class: 'num' }, d.est > 0 ? fmtDuration(d.est) : ''),
+      isOn('tasks.subtasks') && h('td', { class: 'num' }, d.subtasks.length ? `${d.subtasks.filter((s) => s.done).length}/${d.subtasks.length}` : ''),
+      shown.map((def) => h('td', { class: def.type === 'number' ? 'num' : '' }, valueText(def, d.custom?.[def.id]))));
   });
   return h('div', { class: 'tw:overflow-x-auto' },
-    h('table', { class: 'tw:w-full tw:text-sm' }, h('thead', {}, h('tr', {}, head)), h('tbody', {}, body)));
+    h('table', { class: 'task-table tw:w-full tw:text-sm' }, cols, h('thead', {}, h('tr', {}, head)), h('tbody', {}, body)));
 }
 
 // ---- filters ----
@@ -353,7 +373,7 @@ function filterBar(p, ctx, redraw) {
       return chip(label, { pressed: chosen.includes(value), onclick: () => set({ custom: { ...p.custom, [def.id]: toggle(chosen, value) } }) });
     }))),
     isOn('tasks.dependencies') && field(t('lists.tasks.filter.ready_only'), ready),
-    anyFilter(p) && h('div', {}, button(t('lists.tasks.filter.clear'), { class: 'small', onclick: () => set({ tags: [], focus: '', places: [], readyOnly: false, custom: {} }) })));
+    anyFilter(p) && h('div', {}, plainLink(t('lists.tasks.filter.clear'), { onclick: () => set({ tags: [], focus: '', places: [], readyOnly: false, custom: {} }) })));
 }
 
 // ---- categories and places ----
@@ -386,17 +406,21 @@ function manage() {
         commit({ ...meta, [key]: list }).catch(fail);
       };
       return h('li', { class: 'tw:flex tw:items-center tw:gap-2 tw:mt-2' }, box,
-        button('^', { class: 'small', 'aria-label': t('lists.tasks.manage_up', { name: x.name }), disabled: i === 0, onclick: () => swap(i - 1) }),
-        button('v', { class: 'small', 'aria-label': t('lists.tasks.manage_down', { name: x.name }), disabled: i === meta[key].length - 1, onclick: () => swap(i + 1) }),
-        button('x', {
-          class: 'small',
-          'aria-label': t('lists.tasks.manage_remove', { name: x.name }),
-          onclick: async () => {
-            try {
-              await stripLabel(key, x.id);
-              await commit({ ...meta, [key]: meta[key].filter((y) => y.id !== x.id) });
-            } catch (err) { fail(err); }
-          },
+        menu({
+          label: t('lists.tasks.row_menu', { title: x.name }),
+          items: [
+            { label: t('lists.tasks.manage_up'), disabled: i === 0, run: () => swap(i - 1) },
+            { label: t('lists.tasks.manage_down'), disabled: i === meta[key].length - 1, run: () => swap(i + 1) },
+            {
+              label: t('lists.tasks.manage_remove'),
+              run: async () => {
+                try {
+                  await stripLabel(key, x.id);
+                  await commit({ ...meta, [key]: meta[key].filter((y) => y.id !== x.id) });
+                } catch (err) { fail(err); }
+              },
+            },
+          ],
         }));
     });
     const add = input({ type: 'text', placeholder: t('lists.tasks.manage_new'), 'aria-label': addLabel, autocomplete: 'off' });
@@ -509,10 +533,14 @@ export function render(root, param) {
   put(root,
     h('header', { class: 'page-head' }, h('h1', {}, t('lists.tasks.heading')),
       h('div', { class: 'actions' },
-        views().length > 1 && h('div', { role: 'group', 'aria-label': t('lists.tasks.view_aria'), class: 'chips' },
-          views().map((v) => chip(t(`lists.tasks.views.${v}`), { pressed: v === mode, onclick: () => setView(v) }))),
-        page && button(t('palette.open'), { onclick: openPalette }),
-        button(t('lists.tasks.manage'), { onclick: manage }))),
+        views().length > 1 && segmented(t('lists.tasks.view_aria'), views().map((v) => [v, t(`lists.tasks.views.${v}`)]), { value: mode, onchange: setView }),
+        menu({
+          label: t('lists.tasks.screen_menu'),
+          items: [
+            page && { label: t('palette.open'), run: openPalette },
+            { label: t('lists.tasks.manage'), run: manage },
+          ].filter(Boolean),
+        }))),
     quickAdd(t('lists.tasks.add_placeholder'), {}, 'task', { preview: true }),
     filterBar(p, ctx, redraw),
     hidden > 0 && h('p', { class: 'note' }, t('lists.tasks.filter.hidden', { count: hidden })),

@@ -3,7 +3,7 @@ import { allTasks } from './taskdata.js';
 import { wouldCycle } from './tasks.js';
 import { t, text } from './text.js';
 import { h, uid } from './util.js';
-import { button, checkbox, chip, field, input, select } from './ui.js';
+import { button, chip, field, input, select, tickBox } from './ui.js';
 
 /** Choice chips. options: [[value, label]]. A single set reads one value, a multi set reads an array. */
 export function chipSet(options, value, { multi = false } = {}) {
@@ -32,7 +32,7 @@ export function subtaskEditor(list) {
   const node = h('div', { class: 'subtasks' });
   const rowFor = (s) => {
     const row = { id: s.id || uid() };
-    row.cb = checkbox({ checked: !!s.done, 'aria-label': t('forms.task.labels.subtasks') });
+    row.cb = tickBox({ checked: !!s.done, label: t('forms.task.labels.subtasks') });
     row.inp = input({ type: 'text', value: s.title || '', placeholder: t('forms.task.subtask_placeholder'), autocomplete: 'off', 'aria-label': t('forms.task.subtask_placeholder') });
     row.remove = button('x', { class: 'small', 'aria-label': t('forms.task.subtask_remove', { title: s.title || '' }), onclick: () => { rows.splice(rows.indexOf(row), 1); draw(); } });
     row.el = h('div', { class: 'tw:flex tw:items-center tw:gap-2 tw:mt-2' }, row.cb, row.inp, row.remove);
