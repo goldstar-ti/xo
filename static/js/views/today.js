@@ -1,12 +1,13 @@
 import * as store from '../store.js';
 import { LINES, PLAN, PLAN_FIRST } from '../content.js';
-import { editAppointment, editBill, editTask, payBill } from '../forms.js';
+import { editAppointment, editBill, editRoutine, editTask, payBill } from '../forms.js';
 import { allTasks, currentPace, toggleTask } from '../taskdata.js';
 import { t } from '../text.js';
 import { icon } from '../icons.js';
 import { plainText } from '../markdown.js';
 import { isOn } from '../modules.js';
-import { button, callout, linkRow, playRing, plainLink, tag, tickBox } from '../ui.js';
+import { button, callout, chip, disclosure, linkRow, playRing, plainLink, tag, tickBox } from '../ui.js';
+import { dropFab, fabSheet } from '../sheet.js';
 import { enablePush } from './settings.js';
 import { addDays, daysBetween, fmtDay, fmtDuration, fmtLong, fmtMoney, fmtTime, h, hm, relDay, toast, today, toDate, put } from '../util.js';
 
@@ -217,7 +218,83 @@ export function todayBlocks({ day = today(), horizon = 7 } = {}) {
   return { blocks, greeting, day };
 }
 
+// Below 40rem Today follows pattern C: Next up as the lead card, a ribbon of jump chips, The day open,
+// and the other sections folded up. todayBlocks() is the same on both; only render() lays it out.
+const PHONE = '(max-width: 39.99rem)';
+const folds = {};
+let watching = null;
+
+export const leave = dropFab;
+
+function watchPhone(root, mq) {
+  if (watching) watching.mq.removeEventListener('change', watching.fn);
+  const fn = () => { if (root.isConnected && root.querySelector('[data-today]')) { root.replaceChildren(); render(root); } };
+  mq.addEventListener('change', fn);
+  watching = { mq, fn };
+}
+
+function jump(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  if (el.localName === 'details' || el.localName === 'wa-details') el.open = true;
+  const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  el.scrollIntoView({ behavior: calm ? 'auto' : 'smooth', block: 'start' });
+}
+
+function addTab({ close }) {
+  const go = (fn) => () => { close(); fn(null); };
+  const choices = [
+    isOn('tasks') && ['add_task', 'tabler/checkbox', editTask],
+    isOn('diary') && ['add_appointment', 'tabler/calendar-event', editAppointment],
+    isOn('bills') && ['add_bill', 'tabler/receipt', editBill],
+    isOn('routine') && ['add_routine', 'tabler/repeat', editRoutine],
+  ].filter(Boolean);
+  return h('ul', { class: 'fab-choices' }, choices.map(([key, ic, fn]) =>
+    h('li', {}, button([icon(ic), t(`today.sheet.${key}`)], { variant: 'ghost', class: 'fab-choice', onclick: go(fn) }))));
+}
+
+function checkinTab({ close }) {
+  const off = offline();
+  return h('ul', { class: 'fab-choices' }, ['morning', 'evening', 'weekly'].map((type) =>
+    h('li', { class: 'fab-checkin' },
+      playRing({ label: t(`today.tick.start_${type}`), ...(off ? { disabled: true } : {}), onclick: () => { close(); location.hash = `#/checkin/${type}`; } }),
+      h('span', {}, t(`today.entries.${type === 'weekly' ? 'weekly_review' : `${type}_checkin`}`)))));
+}
+
+function renderPhone(root, { blocks, greeting, day }, extras) {
+  const prefs = window.XOLook.prefs;
+  const hidden = (k) => prefs.hidden.includes(k) || !blocks[k];
+  const lead = !hidden('next') && blocks.next;
+  const folded = [['three', 'today.three.heading'], ['coming', 'today.coming.heading'], ['plan', 'today.phone.plan_heading']].filter(([k]) => !hidden(k));
+  const showDay = !hidden('day');
+  const targets = [
+    showDay && ['today-day', t('today.phone.ribbon_day')],
+    ...folded.map(([k]) => [`today-${k}`, t(`today.phone.ribbon_${k}`)]),
+  ].filter(Boolean);
+  if (showDay) blocks.day.id = 'today-day';
+  put(root,
+    greeting && h('p', { class: 'greet' }, greeting),
+    h('header', { class: 'page-head', 'data-today': '' }, h('h1', {}, fmtLong(day))),
+    ...extras,
+    !hidden('line') && blocks.line,
+    lead,
+    targets.length > 1 && h('nav', { class: 'ribbon', 'aria-label': t('today.phone.ribbon') },
+      targets.map(([id, label]) => { const c = chip(label, { onclick: () => jump(id) }); c.removeAttribute('aria-pressed'); return c; })),
+    showDay && blocks.day,
+    folded.map(([k, title], n) => {
+      const d = disclosure(t(title), blocks[k], { id: `today-${k}`, open: k in folds ? folds[k] : n === 0, onToggle: (o) => { folds[k] = o; } });
+      d.classList.add('today-fold');
+      return d;
+    }));
+  const tabs = [
+    (isOn('tasks') || isOn('diary') || isOn('bills') || isOn('routine')) && { key: 'add', label: t('today.sheet.add_tab'), body: addTab },
+    isOn('checkin') && { key: 'checkin', label: t('today.sheet.checkin_tab'), body: checkinTab },
+  ].filter(Boolean);
+  if (tabs.length) fabSheet({ label: t('today.sheet.fab'), icon: 'tabler/plus', tabs });
+}
+
 export function render(root) {
+  dropFab();
   const { blocks, greeting, day } = todayBlocks();
   const off = offline();
   const prefs = window.XOLook.prefs;
@@ -226,10 +303,14 @@ export function render(root) {
     h('p', {}, t('today.notify_body')),
     button(t('today.notify_on'), { class: 'small', onclick: (ev) => enablePush().then(() => ev.target.closest('.callout-slot')?.remove()).catch((err) => toast(err.message, 'bad')) }),
   ], { kind: 'neutral', icon: 'tabler/bell' }));
+  const offlineNote = off && h('section', { class: 'callout-slot' }, callout(t('today.offline'), { kind: 'warning', icon: 'tabler/wifi-off' }));
+  const mq = window.matchMedia(PHONE);
+  watchPhone(root, mq);
+  if (mq.matches) return renderPhone(root, { blocks, greeting, day }, [offlineNote, notify]);
   put(root,
     greeting && h('p', { class: 'greet' }, greeting),
-    h('header', { class: 'page-head' }, h('h1', {}, fmtLong(day))),
-    off && h('section', { class: 'callout-slot' }, callout(t('today.offline'), { kind: 'warning', icon: 'tabler/wifi-off' })),
+    h('header', { class: 'page-head', 'data-today': '' }, h('h1', {}, fmtLong(day))),
+    offlineNote,
     notify,
     prefs.blocks.filter((k) => !prefs.hidden.includes(k)).map((k) => blocks[k]),
   );

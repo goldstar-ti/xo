@@ -1030,3 +1030,49 @@ wa-checkbox.xo-tick-wa { min-height: 2.5rem; --checked-icon-color: var(--paper);
 .checkin-start { display: flex; align-items: center; gap: 0.75rem; font-weight: 600; }
 .checkin-past { display: grid; gap: calc(0.75rem * var(--d)); max-width: 26rem; }
 .checkin-day h3 { margin: 0 0 0.25rem; font-size: var(--fs-small, 0.75rem); color: var(--muted); font-weight: 600; }
+
+/* ---- Phone pattern C (design handoff section 7): FAB, bottom sheet, chip ribbon, fold-ups ---- */
+.fab { display: none; }
+dialog.fab-sheet {
+  position: fixed; inset: auto 0 0 0; width: 100%; max-width: none; max-height: 85dvh; margin: 0; padding: 0;
+  border: 0; border-radius: var(--radius-dialog) var(--radius-dialog) 0 0; overflow: hidden;
+  background: color-mix(in oklch, var(--surface) 97%, transparent); color: var(--ink);
+  -webkit-backdrop-filter: blur(var(--glass-blur, 14px)); backdrop-filter: blur(var(--glass-blur, 14px));
+}
+dialog.fab-sheet::backdrop { background: color-mix(in srgb, var(--c-backdrop) 55%, transparent); }
+.fab-sheet-in { display: flex; flex-direction: column; max-height: 85dvh; padding-bottom: env(safe-area-inset-bottom); }
+.fab-grip { flex: none; display: flex; justify-content: center; padding: 0.6rem 0 0.3rem; touch-action: none; cursor: grab; }
+.fab-grip > span { width: 2.5rem; height: 0.3rem; border-radius: 0.15rem; background: var(--line); }
+.fab-head { flex: none; display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; padding: 0 0.6rem 0 1.18rem; border-bottom: var(--rule) solid var(--line); }
+.fab-tabs { display: flex; gap: 0.25rem; }
+.fab-tab { min-height: 2.5rem; padding: 0 0.9rem; background: none; border: 0; border-bottom: 3px solid transparent; color: var(--muted); font: inherit; font-weight: var(--fw-semibold); cursor: pointer; }
+.fab-tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--m, var(--leaf)); }
+.fab-tab:focus-visible { outline: 2px solid var(--c-focus); outline-offset: -2px; }
+.fab-body { flex: 1; min-height: 0; overflow-y: auto; padding: 1rem 1.18rem 1.25rem; }
+.fab-choices { list-style: none; margin: 0; padding: 0; display: grid; gap: calc(0.5rem * var(--d)); }
+.fab-choices .fab-choice { display: flex; align-items: center; gap: 0.6rem; width: 100%; min-height: 2.75rem; justify-content: flex-start; background: var(--m-soft, var(--leaf-soft)); border-color: transparent; }
+.fab-checkin { display: flex; align-items: center; gap: 0.75rem; font-weight: var(--fw-semibold); }
+@keyframes fab-up { from { transform: translateY(100%); } to { transform: none; } }
+:root[data-xo-motion="full"] dialog.fab-sheet[open] { animation: fab-up 200ms ease-out; }
+@media (prefers-reduced-motion: reduce) { dialog.fab-sheet[open] { animation: none; } }
+
+@media (max-width: 39.99rem) {
+  .fab {
+    display: inline-flex; align-items: center; justify-content: center; position: fixed; z-index: 4;
+    right: 1rem; bottom: calc(3.53rem * var(--chrome) + env(safe-area-inset-bottom) + 1rem);
+    width: 3.5rem; height: 3.5rem; padding: 0; border: 0; border-radius: 50%;
+    background: var(--m, var(--leaf)); color: var(--paper); cursor: pointer;
+    box-shadow: 0 0.2rem 0.7rem color-mix(in oklch, var(--ink) 30%, transparent);
+  }
+  .fab .ico { width: 1.6rem; height: 1.6rem; }
+  .fab:focus-visible { outline: 3px solid var(--c-focus); outline-offset: 3px; }
+  .ribbon { display: flex; flex-wrap: nowrap; gap: 0.5rem; overflow-x: auto; scrollbar-width: none; padding: 0.1rem 0; }
+  .ribbon::-webkit-scrollbar { display: none; }
+  .ribbon > * { flex: none; white-space: nowrap; }
+  #view > .ribbon { margin-top: 0.75rem; }
+  .today-fold { margin-top: 0.75rem; background: var(--m-soft); border-color: transparent; scroll-margin-top: 4.5rem; }
+  .today-fold .sec-head { justify-content: flex-end; margin-bottom: 0.25rem; }
+  .today-fold .sec-head h2 { display: none; }
+  .today-fold .sec-head:not(:has(a, button)) { display: none; }
+  body[data-view="today"] #today-day { scroll-margin-top: 4.5rem; }
+}

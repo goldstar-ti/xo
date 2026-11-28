@@ -44,6 +44,21 @@ today:
     start_morning: Start the morning check-in
     start_evening: Start the evening check-in
     start_weekly: Start the weekly review
+  phone:
+    ribbon: Jump to a section
+    plan_heading: My plan
+    ribbon_day: The day
+    ribbon_three: Today’s three
+    ribbon_coming: Coming up
+    ribbon_plan: My plan
+  sheet:
+    fab: Add or check in
+    add_tab: Add
+    checkin_tab: Check in
+    add_task: New task
+    add_appointment: New appointment
+    add_bill: New bill
+    add_routine: New routine item
   three:
     heading: Today’s three
     all_tasks: All tasks
