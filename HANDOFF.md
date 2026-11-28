@@ -2,6 +2,16 @@
 
 ## Current state
 
+### Text styles, preview and compact run (2026-11-29)
+
+- Outcome: commits 625824b to HEAD on `main`. Step 7 (deploy, live seed, push) is next. Not pushed, not deployed.
+- Base size: body text is 13 px on a desktop and 16 px on a phone; Grow text with the window is off by default and saved looks move once onto design 2 (D-51, state version 2).
+- Text styles: one table of 19 kinds, each with its own size, weight, line spacing and letter spacing; All text shifts them together (D-52). Under 36rem each row is a summary that opens on tap.
+- Preview: the Appearance preview shows every styleable part in five sections (Text, Buttons and fields, Rows and status, Today, Frames and bars), with jump chips (2.53.0).
+- Compact spacing: padding, margins and gaps follow the Spacing setting, default 0.8, presets Compact 0.65, Regular 0.8, Comfortable 1, Large 1.2; saved looks at 1 move once to 0.8 (D-53, state version 3; 2.54.0, 2.54.1).
+- Demo data: `scripts/seed_demo.py`, run with `make seed-demo` and `make seed-demo-remove`; it overwrites check-ins and the plan (c3e6979).
+- Versions 2.51.0 to 2.54.1, decisions D-51 to D-53, `docs/design/type-roles.md` for the 19 roles.
+
 ### Design port run (2026-11-28, branch design-port)
 
 - Outcome: all steps A0 to B6e and C0 are committed on `design-port`. Draft PR #2 "XO design port" (https://github.com/goldstar-ti/xo/pull/2). Not merged, not deployed. Versions 2.29.0 to 2.50.0, decisions D-39 to D-50.
@@ -210,6 +220,8 @@
 18. `tests/e2e_look.py` line 304 (`Reset Colours: Buttons` not found) fails whenever it runs after the Web Awesome run of `tests/e2e.py`, which is the order `make test-e2e` uses, so the chain stops there. It fails the same way on `7230835`, before 2.20.0. It passes after the XO kit run.
 19. Ticking Appearance in the Widgets popover closes the popover. Cause not found; `tests/e2e_canvas.py` closes it only if still open.
 20. Seen in canvas screenshots (2026-11-27, 2.21.0): the icon picker opened from the New canvas Icon field sits over the popover's Cancel and Create buttons (no room to its right, so it drops below the field), and it has no X in its title bar as the design guide asks. Escape or a pick closes it. Both belong to `static/js/iconpicker.js` placement and chrome.
+21. Reload XO twice on each device (the new service worker takes over on the second load), then check body text against Notepad, the Text styles table at 5K and in the side pane, the preview, and the populated screens.
+22. To undo the made-up data: `make seed-demo-remove`.
 
 ## What worked
 

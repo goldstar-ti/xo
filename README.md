@@ -15,9 +15,13 @@ Version 1 covers:
 - **Duties**: court dates, court tasks, conditions with recurring reminders, a reporting record
 - **Check-ins**: morning, evening, and a weekly review built from the five questions in Concept 17. The body, "Today I…" and sleep choices are grouped and editable in Settings, Check-in choices
 - **My plan**: the Relapse Prevention Plan, one box at a time, and a plan card one tap from every screen
-- **Appearance**: Standard and Advanced views in six groups (Colour, Text, Layout, Effects, Screens, Share and reset). Standard has the common choices; Advanced adds 151 colour themes, 493 fonts, sizes for each kind of text, colours for every element, spacing, zoom, shape, texture, layout variants, widget and tab colours, scheduled looks and look codes. A "Look" button in the header opens the quick panel on any screen
+- **Appearance**: Standard and Advanced views in six groups (Colour, Text, Layout, Effects, Screens, Share and reset). Standard has the common choices; Advanced adds 151 colour themes, 493 fonts, a base size with presets, a Text styles table for each kind of text, colours for every element, spacing, zoom, shape, texture, layout variants, widget and tab colours, scheduled looks and look codes. A "Look" button in the header opens the quick panel on any screen
 
 On a wide window, Appearance and Settings open in a side pane beside the screen (`static/js/pane.js`). The canvas can start from a Bridge layout on very wide screens, and on a phone the screens share one round add button and a sheet.
+
+Body text is 13 px on a desktop and 16 px on a phone; every other size is a ratio to it. Grow text with the window is off by default. The Appearance preview shows every styleable part in five sections: Text, Buttons and fields, Rows and status, Today, and Frames and bars. Spacing (padding, margins and gaps) follows the Spacing setting, which defaults to 0.8 (presets Compact, Regular, Comfortable and Large).
+
+To fill XO with made-up data so every screen has something to show, run `make seed-demo` from the project folder; `make seed-demo-remove` takes it out again. The data runs from 61 days back to 30 days ahead, and every name is made up. Demo items carry a `demo-` id or `"demo": true`. The command overwrites check-ins and the plan, so run it only on a database where that is acceptable.
 
 Not built yet, specced in `docs/ROADMAP.md`: the workbook in daily sittings, outputs for named readers, and the life story.
 `CLAUDE.md` is the guide for working on the code with Claude Code.

@@ -6,9 +6,13 @@ Settings, Canvas, Tracker, Notes (in Markdown), and the full Appearance system (
 What follows are the next features, in build order: Records (the first smaller items), sections 1 to 3, then the Reporting register (4), GTD core (5), and sections 6 to 12 in the order set by D-18. Each is specced from decisions already made.
 Build one at a time, with tests, and keep each first version small. Each section gets its own plan session before building.
 
-## Built from the design port (2.29.0 to 2.50.0, D-39 to D-50)
+## Built from the design port (2.29.0 to 2.54.1, D-39 to D-53)
 
-- **Fluid desktop text** (D-39): the text size scales with the window width.
+- **Fluid desktop text** (D-39): the text size scales with the window width. Grow text is off by default (2.51.0, D-51); when on, it grows to 1.5 times the base at 5120 px wide.
+- **Base size and Text styles** (D-51, D-52): body text is 13 px on a desktop and 16 px on a phone, with size presets. Appearance, Text has one Text styles table: a row per kind of text (19 roles) with its own size, weight, line spacing and letter spacing, and All text shifts them together. Under 36rem each row is a summary that opens on tap.
+- **Appearance preview** (2.53.0): every styleable part in five sections (Text, Buttons and fields, Rows and status, Today, Frames and bars), built with the screen controls so the Kit choice restyles it.
+- **Compact spacing** (D-53): padding, margins and gaps follow the Spacing setting (default 0.8; Compact 0.65, Regular 0.8, Comfortable 1, Large 1.2). Tap targets stay 2.5rem.
+- **Made-up demo data** (`scripts/seed_demo.py`): `make seed-demo` fills XO from 61 days back to 30 days ahead, and `make seed-demo-remove` takes it out. It overwrites check-ins and the plan.
 - **Right-split pane** (D-40): Appearance and Settings open beside the screen; `static/js/pane.js`.
 - **Bridge widgets and starter layout** (D-44, D-49): 22 Bridge widgets in `static/js/bridgewidgets.js`, and a canvas starter layout of 17 widgets.
 - **Design handoff items 1 to 5** (`docs/design/xo-design-handoff.md`, section 8):
