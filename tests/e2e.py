@@ -69,6 +69,8 @@ with sync_playwright() as p:
     )
     # Headless Chromium reports notifications as denied; a real first visit has not been asked yet.
     ctx.add_init_script("Object.defineProperty(Notification, 'permission', { get: () => 'default' })")
+    # This test uses Settings and check-ins as full screens, so the right pane is off (see e2e_pane.py).
+    ctx.add_init_script("localStorage.setItem('xo-pane', JSON.stringify({ off: true }))")
     page = ctx.new_page()
     # A refused sign-in logs a 401 "Failed to load resource"; that one is expected below.
     page.on("console", lambda m: errors.append(m.text) if m.type == "error" and "401" not in m.text else None)

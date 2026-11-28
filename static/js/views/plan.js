@@ -111,5 +111,5 @@ export function planCardBody() {
 
 // The part you carry: one tap from anywhere.
 export function openPlanCard() {
-  openDialog(t('plan.card.title'), planCardBody(), { wide: true });
+  openDialog(t('plan.card.title'), planCardBody(), { wide: true, pane: true, key: 'plan-card' });
 }

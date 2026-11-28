@@ -4,6 +4,7 @@
 
 | Version | Date | Change |
 |---|---|---|
+| 2.31.0 | 2026-11-28 | A right-hand pane on wide screens (60rem and up): Settings, Appearance, check-ins, the Look panel and the plan card open as tabs beside the main screen, with a drag handle for its width. Phones keep full screens and dialogs. |
 | 2.30.0 | 2026-11-28 | Text grows with the window on wide screens (up to 28 px at the root), with a "Grow text with the window" option in Appearance, Text to keep it fixed. |
 | 2.29.0 | 2026-11-28 | Screens split into reusable parts for the canvas; no visible change. |
 | 2.28.0 | 2026-11-28 | Function switches for Today: the daily line, Next up, Today's three, The day, Coming up and the My plan nudge can each be switched on or off from the Modules tab. |

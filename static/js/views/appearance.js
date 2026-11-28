@@ -191,7 +191,7 @@ export function openLookPanel() {
   };
   const onLook = (e) => { if (!e.detail.quiet) draw(); };
   window.addEventListener('xo:look', onLook);
-  const dlg = openDialog(t('app.look'), body, { wide: true });
+  const dlg = openDialog(t('app.look'), body, { wide: true, pane: true, key: 'look' });
   dlg.addEventListener('close', () => window.removeEventListener('xo:look', onLook));
   draw();
 }

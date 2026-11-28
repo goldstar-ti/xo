@@ -35,6 +35,8 @@ with sync_playwright() as p:
         executable_path=os.environ.get("XO_CHROME", "/usr/bin/google-chrome") or None, args=["--no-sandbox"]
     )
     ctx = b.new_context(viewport={"width": 1280, "height": 900}, timezone_id="Australia/Perth", locale="en-AU")
+    # This test uses Settings and check-ins as full screens, so the right pane is off (see e2e_pane.py).
+    ctx.add_init_script("localStorage.setItem('xo-pane', JSON.stringify({ off: true }))")
     pg = ctx.new_page()
     pg.on("console", lambda m: errs.append(m.text) if m.type == "error" and "401" not in m.text else None)
     pg.on("pageerror", lambda e: errs.append(str(e)))

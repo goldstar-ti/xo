@@ -110,6 +110,8 @@ with sync_playwright() as p:
         locale="en-AU",
         reduced_motion="reduce",
     )
+    # This test uses Settings and check-ins as full screens, so the right pane is off (see e2e_pane.py).
+    ctx.add_init_script("localStorage.setItem('xo-pane', JSON.stringify({ off: true }))")
     pg = ctx.new_page()
     pg.on("console", lambda m: errors.append(m.text) if m.type == "error" and "401" not in m.text else None)
     pg.on("pageerror", lambda e: errors.append(str(e)))

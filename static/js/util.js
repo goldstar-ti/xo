@@ -5,6 +5,7 @@ import { openPopover } from './popover.js';
 import { icon, paintIcon, parseIcon } from './icons.js';
 import { openIconPicker } from './iconpicker.js';
 import { mdEditor, mdField } from './mdeditor.js';
+import { openTab, paneOn } from './pane.js';
 
 /** True when animation is off: the Motion setting says Reduce, or Follow device on a device that asks for less motion. */
 export const motionStill = () => document.documentElement.dataset.xoMotion === 'still';
@@ -103,7 +104,10 @@ export function toast(text, kind = '') {
 }
 
 // ---- dialogs ----
-export function openDialog(title, body, { wide = false, form = false } = {}) {
+// With pane: true on a wide window the body opens as a tab in the right pane (key names the tab) and the
+// handle returned has close() and addEventListener('close', fn) like a dialog.
+export function openDialog(title, body, { wide = false, form = false, pane = false, key } = {}) {
+  if (pane && paneOn()) return openTab({ key, title, kind: 'form', fill: (el) => put(el, body) });
   const dlg = h('dialog', { class: ['sheet', wide && 'wide', form && 'form-sheet'].filter(Boolean).join(' ') });
   const close = () => dlg.close();
   // A form sheet has Cancel on the left, the title in the middle and a spacer on the right; the others keep Close on the right.

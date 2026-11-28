@@ -20,6 +20,7 @@ import { installPalette, setScreenKeys } from './palette.js';
 import { CHROME, DEFAULT_ICONS, icon, paintIcon } from './icons.js';
 import { pickScreenIcon } from './iconpicker.js';
 import { isOn } from './modules.js';
+import { openTab, paneElement, paneOn, redrawPages } from './pane.js';
 
 const NAV = Object.entries(text('app.nav')); // [key, label] in the order the sidebar lists them
 const L = window.XOLook;
@@ -125,11 +126,35 @@ function route() {
   return { name: VIEWS[name] && isOn(name) ? name : visibleNav()[0], params };
 }
 
+// On a wide window Settings, Appearance and a check-in open as tabs in the right pane. The address bar is put
+// back to the main screen's hash, so the main view is never redrawn or left; a link to the same page again
+// brings its tab forward. Returns true when the route was opened in the pane.
+let mainHash = '#/today';
+function toPane({ name, params }) {
+  const type = params[0];
+  const check = name === 'checkin' && ['morning', 'evening', 'weekly'].includes(type);
+  if (!paneOn() || !(name === 'settings' || name === 'appearance' || check)) return false;
+  const day = /^\d{4}-\d{2}-\d{2}$/.test(params[1] || '') ? params[1] : '';
+  const key = check ? `page:checkin:${type}${day ? `:${day}` : ''}` : `page:${name}`;
+  const title = check ? t(`checkin.title.${type}`) : text('app.nav')[name];
+  openTab({ key, title, kind: 'page', fill: (el) => VIEWS[name].render(el, ...params) });
+  if (document.body.dataset.view) history.replaceState(null, '', mainHash);
+  return true;
+}
+
 function draw({ keepScroll = false, keepFocus = false } = {}) {
   const root = document.getElementById('view');
   if (!root) return;
   const focusKey = keepFocus && document.activeElement?.dataset?.fk;
-  const { name, params } = route();
+  let r = route();
+  if (toPane(r)) {
+    if (document.body.dataset.view) return;
+    history.replaceState(null, '', mainHash); // the first draw of the page: show Today behind the pane
+    r = route();
+  } else if (!(r.name === 'settings' || r.name === 'appearance' || (r.name === 'checkin' && r.params[0]))) {
+    mainHash = location.hash || '#/today';
+  }
+  const { name, params } = r;
   // A new screen fades in; a redraw of the same screen (a store change, a slider) does not.
   const enter = document.body.dataset.view !== name;
   document.body.dataset.view = name;
@@ -173,6 +198,7 @@ function shell() {
     h('div', { class: 'main' },
       h('header', { class: 'top' }, brand(), actions()),
       h('main', { id: 'view', tabindex: '-1' })),
+    paneElement(),
     h('nav', { class: 'tabs', 'aria-label': t('app.sections_aria'), 'data-tabs': tabs().join(',') }, tabs().map(navLink), navLink('more')),
   );
   syncNav();
@@ -202,6 +228,7 @@ window.addEventListener('xo:look', async (e) => {
   syncNav();
   if (e.detail.quiet) return;
   await ensureKit();
+  redrawPages();
   if (dialogOpen()) pending = true; else draw({ keepScroll: true, keepFocus: true });
 });
 
@@ -295,6 +322,8 @@ window.addEventListener('xo:signed-out', () => { if (document.getElementById('vi
 // Redraw list screens when something changes; wait if a dialog is open.
 store.onChange(() => {
   syncNav();
+  // Settings in the pane follows the data unless a field in it has focus; check-ins keep what is typed until saved.
+  redrawPages((tab) => tab.key === 'page:settings' && !tab.body.contains(document.activeElement));
   if (route().name !== document.body.dataset.view && document.getElementById('view')) { draw(); return; } // the screen's module was switched off
   if (!view?.live) return;
   if (dialogOpen()) pending = true; else draw({ keepScroll: true });

@@ -1,0 +1,16 @@
+# Pane: the right split pane on a wide screen, where Settings, Appearance, check-ins and forms open as tabs.
+#
+# How to edit this file
+# - Save the file and reload the page. There is no build and no restart.
+# - Change the words after a colon. Keep the keys (the words before a colon) as they are:
+#   the app looks the text up by key, and a missing key shows the key itself.
+# - Keep the indentation. It uses two spaces and never tabs.
+# - Put quote marks around any text that starts with a special character
+#   (" ' { [ * & ! % @ #) or that contains a colon followed by a space, and around times such as '09:00'.
+# - Write {name} where the app fills something in. Keep the same {name} in your wording.
+# - If a file has a mistake, the app keeps the last good version of that file and logs a note.
+#
+pane:
+  label: Side pane
+  resize: Drag to change the width of the side pane. Arrow keys work too.
+  close_tab: 'Close {title}'

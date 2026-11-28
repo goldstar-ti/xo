@@ -11,6 +11,7 @@ import { t, text } from '../text.js';
 import { customEditor } from '../customfields.js';
 import { checkinId, dayEntries } from './today.js';
 import { openPlanCard } from './plan.js';
+import { closeTabOf } from '../pane.js';
 
 const SIGNS = text('checkin.signs_chips');
 const FUEL = text('checkin.fuel_chips');
@@ -91,10 +92,12 @@ function saveBar(type, day, state) {
   const btn = button(t('checkin.save'), { variant: 'primary', class: 'big' });
   btn.addEventListener('click', async () => {
     btn.disabled = true;
+    const host = btn.closest('.pane-body'); // the pane tab holding this check-in, kept in case the save redraws it
     try {
       await store.save('checkin', checkinId(type, day), { ...state, type, at: new Date().toISOString() }, { day });
       toast(t('checkin.saved_toast'));
-      // On its own screen the check-in hands over to Today; as a canvas widget it stays put.
+      // In the pane the tab closes; on its own screen the check-in hands over to Today; as a canvas widget it stays put.
+      if (host && closeTabOf(host)) return;
       if (location.hash.startsWith('#/checkin')) location.hash = '#/today';
     } catch (err) { toast(err.message, 'bad'); btn.disabled = false; }
   });

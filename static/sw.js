@@ -1,6 +1,6 @@
 // Service worker: keeps the app shell available and shows reminders.
 // Classic script (no imports) so it works in every browser that supports push.
-const CACHE = 'xo-v36';
+const CACHE = 'xo-v37';
 const SHELL = [
   '/', '/app.css', '/tw.css', '/manifest.webmanifest', '/fonts/ahn-latin.woff2', '/icons/icon-192.png',
   '/js/boot.js', '/js/app.js', '/js/store.js', '/js/util.js', '/js/content.js', '/js/lookups.js', '/js/text.js', '/js/ui.js', '/js/kit.js', '/kit-wa.css', '/js/forms.js', '/js/tasks.js', '/js/taskdata.js', '/js/taskfields.js', '/js/palette.js', '/js/modules.js', '/js/keymap.js', '/js/customfields.js', '/js/cleanup.js', '/js/family-themes.js',
@@ -10,7 +10,7 @@ const SHELL = [
   '/js/views/tracker.js', '/js/tracker/model.js', '/js/tracker/list.js', '/js/tracker/detail.js', '/js/tracker/board.js',
   '/js/tracker/reports.js', '/js/tracker/projects.js', '/js/tracker/keys.js', '/js/tracker/widgets.js',
   '/js/markdown.js', '/js/mdeditor.js', '/js/views/notes.js', '/vendor/marked/marked.esm.js', '/js/voice.js',
-  '/js/pattern.js', '/vendor/geopattern/geopattern.js', '/js/icons.js', '/js/icon-core.js', '/js/iconpicker.js', '/js/popover.js',
+  '/js/pattern.js', '/vendor/geopattern/geopattern.js', '/js/icons.js', '/js/icon-core.js', '/js/iconpicker.js', '/js/popover.js', '/js/pane.js',
   '/vendor/easymde/easymde.min.js', '/vendor/easymde/easymde.min.css',
 ];
 
