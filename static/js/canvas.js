@@ -43,7 +43,7 @@ import { DEFAULT_ICONS, VALUE_RE, icon, iconButton, setIcon, setLabel } from './
 import { openPopover } from './popover.js';
 import { tabSet, tabStrip } from './tabs.js';
 import { t } from './text.js';
-import { button, checkbox, field, searchBox, textarea } from './ui.js';
+import { button, checkbox, field, menu as dropMenu, searchBox, segmented, textarea } from './ui.js';
 import { dialogOpen, h, motionStill, openForm, toast, uid } from './util.js';
 import { moduleOfWidget, widgetOn } from './modules.js';
 import { WIDGETS, cleanOpts, optsFor, typeOf } from './widgets.js';
@@ -52,12 +52,13 @@ const COLUMNS = 24;
 const CELL_PX = 28; // Two rows hold a 2.5rem title bar once the margins are taken off.
 const MARGIN_PX = 3;
 const ROLLED_H = 2;
-const MIN_W = 4;
+const MIN_W = 2; // The Bridge starter places single columns two grid columns wide.
 const FIT_MAX_ROWS = 60;
 const UNDO_MAX = 30;
 const SAVE_MS = 500;
 const ACTIVE_KEY = 'xo-canvas';
 const PANE_KEY = 'xo-canvas-pane';
+const MODE_KEY = 'xo-canvas-mode';
 const PHONE = '(max-width: 39.99rem)';
 
 // Starter layouts: widget types in reading order. A new canvas, and the Starter layout button, place one.
@@ -66,9 +67,46 @@ export const STARTERS = {
     'money', 'month', 'diary-list', 'countdown', 'obligations-list', 'routine-list', 'history', 'launcher', 'plancard', 'nudge'],
 };
 
+// The Bridge: nine columns left to right (docs/design/xo-design-handoff.md section 6), each about one phone wide. span is
+// in tracks: the 24 grid columns are twelve tracks of two, so Tasks, Diary and the last column take two tracks each and the
+// rest one. Workbook and Life story are parked (no data yet), so the last column holds Scratch pad, Timer and Notes.
+const BRIDGE_TRACKS = 12;
+const BRIDGE_MIN_PX = 3200; // a narrower board flows like the default starter; px, so the text size does not move it
+const BRIDGE_COLUMNS = [
+  { span: 1, types: ['now', 'next', 'line', 'dayline', 'three', 'coming'] },
+  { span: 2, types: ['tasks-list', 'quick'] },
+  { span: 2, types: ['diary-list', 'month', 'week'] },
+  { span: 1, types: ['routine-list', 'routine-week'] },
+  { span: 1, types: ['next-court', 'obligations-list', 'reports'] },
+  { span: 1, types: ['money', 'next-30', 'by-bill', 'bills-list', 'add-bill'] },
+  { span: 1, types: ['checkins-week', 'yesterday-evening', 'weekly-checkin', 'four-weeks', 'last-28'] },
+  { span: 1, types: ['plancard', 'write-next-box', 'boxes-to-write', 'in-my-own-words', 'who-to-call', 'nudge'] },
+  { span: 2, types: ['scratch', 'timer', 'notes'] },
+];
+STARTERS.bridge = BRIDGE_COLUMNS.flatMap((col) => col.types);
+
+// The Bridge in columns: each column's widgets stacked at the column's width. A module that is off leaves its widgets out.
+function bridgeColumns() {
+  const out = [];
+  const unit = COLUMNS / BRIDGE_TRACKS;
+  let x = 0;
+  for (const col of BRIDGE_COLUMNS) {
+    let y = 0;
+    for (const type of col.types) {
+      const def = WIDGETS[type];
+      if (!def || !widgetOn(type)) continue;
+      out.push({ id: type, type, x, y, w: col.span * unit, h: def.h });
+      y += def.h;
+    }
+    if (y) x += col.span * unit;
+  }
+  return out;
+}
+
 // Places a starter layout in tracks (columns of widgets) to suit the board's width in rem: six tracks on a 5K
 // screen, two on a small laptop. Wide widgets take two tracks. Returns [{ id, type, x, y, w, h }].
-export function starter(widthRem, name = 'default') {
+export function starter(widthRem, name = 'default', widthPx = widthRem * 16) {
+  if (name === 'bridge' && widthPx >= BRIDGE_MIN_PX) return bridgeColumns();
   const tracks = widthRem >= 160 ? 6 : widthRem >= 120 ? 4 : widthRem >= 80 ? 3 : 2;
   const tw = Math.floor(COLUMNS / tracks);
   const tops = Array(tracks).fill(0);
@@ -115,9 +153,9 @@ function freeId(c, type) {
 const copy = (v) => JSON.parse(JSON.stringify(v));
 
 // Replaces a canvas's widgets with a starter layout.
-function fillStarter(c, widthRem) {
+function fillStarter(c, widthRem, name = 'default', widthPx = widthRem * 16) {
   Object.assign(c, { items: {}, closed: {}, rolled: {}, opts: {}, phone: { order: [], hidden: [] } });
-  for (const g of starter(widthRem)) c.items[g.id] = { x: g.x, y: g.y, w: g.w, h: g.h };
+  for (const g of starter(widthRem, name, widthPx)) c.items[g.id] = { x: g.x, y: g.y, w: g.w, h: g.h };
 }
 
 // Placed ids for the phone's order and hidden lists: well formed and unique.
@@ -230,7 +268,9 @@ export async function mountCanvas(root) {
     .sort((a, b) => a[1].order - b[1].order));
   if (!canvases.size) {
     const first = blank(t('canvas.first_title'), 0);
-    fillStarter(first, window.innerWidth / (parseFloat(getComputedStyle(document.documentElement).fontSize) || 16));
+    // A very wide window (3840 px or more, whatever the text size) starts on the Bridge; narrower ones on the default.
+    const rem0 = window.innerWidth / (parseFloat(getComputedStyle(document.documentElement).fontSize) || 16);
+    fillStarter(first, rem0, window.innerWidth >= 3840 ? 'bridge' : 'default', window.innerWidth);
     canvases.set(`canvas:${uid()}`, first);
   }
   const saved = readLocal(ACTIVE_KEY, null);
@@ -258,18 +298,29 @@ export async function mountCanvas(root) {
     { 'aria-haspopup': 'dialog', 'aria-expanded': 'false' });
   const fitAllBtn = bar1('frame-corners', t('canvas.fit_all'), () => fitAll());
   const resetBtn = bar1('arrows-counter-clockwise', t('canvas.reset_layout'), () => resetLayout());
-  const starterBtn = bar1('layout', t('canvas.starter'), () => applyStarter());
+  const starterBtn = dropMenu({
+    label: t('canvas.starter'), icon: 'layout',
+    items: [
+      { label: t('canvas.starter_default'), run: () => applyStarter('default') },
+      { label: t('canvas.starter_bridge'), run: () => applyStarter('bridge') },
+    ],
+  });
   const arrangeBtn = bar1('arrows-down-up', t('canvas.arrange'), () => toggleArrange(), { 'aria-pressed': 'false' });
   const undoBtn = bar1('arrow-u-up-left', t('canvas.undo'), () => undo(), { 'aria-keyshortcuts': ariaKeys(keyFor('canvas.undo')) });
   const redoBtn = bar1('arrow-u-up-right', t('canvas.redo'), () => redo(),
     { 'aria-keyshortcuts': `${ariaKeys(keyFor('canvas.redo'))} ${ariaKeys(keyFor('canvas.redo_alt'))}`.trim() });
   const newBtn = bar1('plus', t('canvas.new'), () => openNew());
   const renameBtn = bar1('pencil-simple', t('canvas.rename'), () => openRename());
-  const leaveBtn = tool('', () => (zoomedId ? unzoom() : unfocus()));
+  const leaveBtn = tool('', () => (zoomedId ? leaveZoom() : unfocus()));
+  // Board shows the grid; Focus shows one widget filling the canvas: the one last clicked, or the first. Kept per device.
+  let mode = readLocal(MODE_KEY, 'board') === 'focus' ? 'focus' : 'board';
+  let lastId = null; // the widget last clicked, for Focus
+  const modeSeg = segmented(t('canvas.mode_label'), [['board', t('canvas.mode_board')], ['focus', t('canvas.mode_focus')]],
+    { value: mode, onchange: (v) => setMode(v) });
   const divider = h('span', { class: 'xo-bar-div', 'aria-hidden': 'true' });
-  const deskOnly = [widgetsBtn, fitAllBtn, resetBtn, starterBtn, undoBtn, redoBtn, divider];
+  const deskOnly = [modeSeg, widgetsBtn, fitAllBtn, resetBtn, starterBtn, undoBtn, redoBtn, divider];
   const toolbar = h('div', { class: 'xo-canvas-tools' },
-    leaveBtn, widgetsBtn, fitAllBtn, resetBtn, starterBtn, undoBtn, redoBtn, divider, arrangeBtn, newBtn, renameBtn);
+    leaveBtn, modeSeg, widgetsBtn, fitAllBtn, resetBtn, starterBtn, undoBtn, redoBtn, divider, arrangeBtn, newBtn, renameBtn);
   const empty = h('p', { class: 'xo-canvas-empty empty' }, t('canvas.empty'));
   const board = h('div', { class: 'xo-board', 'aria-label': t('canvas.board_aria'), role: 'region' });
   const bar = h('div', { class: 'xo-canvas-bar' }, strip.el, toolbar);
@@ -469,10 +520,10 @@ export async function mountCanvas(root) {
   // A screen drawn in a widget often opens with its own heading ("The day" in the day widget). Mark any that repeats
   // the widget's name so the Appearance option can hide it; the screen may redraw, so watch the body.
   function watchHeadings(id, body) {
-    const norm = (s) => String(s || '').replace(/\s+/g, ' ').trim().toLowerCase();
+    const norm = (s) => String(s || '').replace(/[\u2018\u2019\u02bc`]/g, "'").replace(/\s+/g, ' ').trim().toLowerCase();
     const mark = () => {
       const names = new Set([norm(nameOf(id)), norm(t(defOf(id).title))]);
-      for (const el of body.querySelectorAll('h1, h2')) el.classList.toggle('xo-dup-head', names.has(norm(el.textContent)));
+      for (const el of body.querySelectorAll('h1, h2, h3, .section-head')) el.classList.toggle('xo-dup-head', names.has(norm(el.textContent)));
     };
     mark();
     if (typeof MutationObserver !== 'function') return;
@@ -573,11 +624,11 @@ export async function mountCanvas(root) {
   }
 
   // The Starter layout button: the current canvas's widgets are replaced by the starter set. Undo puts them back.
-  function applyStarter() {
+  function applyStarter(name = 'default') {
     if (!grid) return;
     checkpoint('reset_layout');
     const rem = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
-    fillStarter(current(), (board.clientWidth || window.innerWidth) / rem);
+    fillStarter(current(), (board.clientWidth || window.innerWidth) / rem, name, board.clientWidth || window.innerWidth);
     for (const k of [...states.keys()]) if (k.startsWith(`${activeId}|`)) states.delete(k);
     focusRolled = null;
     focusId = null;
@@ -588,6 +639,7 @@ export async function mountCanvas(root) {
 
   function show() {
     teardown();
+    zoomedId = null;
     drawTabs();
     wrap.classList.remove('xo-zoom');
     board.classList.toggle('xo-board-list', phone.matches);
@@ -633,7 +685,30 @@ export async function mountCanvas(root) {
       grid.on('resizestart', () => checkpoint('resize'));
     }
     syncBar();
+    if (mode === 'focus' && grid) enterFocus();
   }
+
+  // ---- Board and Focus ----
+  function enterFocus() {
+    const ids = placed().sort(readingOrder);
+    const id = ids.includes(lastId) ? lastId : ids[0];
+    if (id) zoom(id, { move: false });
+  }
+  function setMode(next) {
+    mode = next === 'focus' ? 'focus' : 'board';
+    writeLocal(MODE_KEY, mode);
+    if (modeSeg.value !== mode) modeSeg.value = mode;
+    if (!grid) return;
+    if (mode === 'focus') enterFocus(); else if (zoomedId) unzoom();
+  }
+  // Leaving a zoom by its button or Esc also leaves Focus, so the Board / Focus control tells the truth.
+  function leaveZoom() {
+    unzoom();
+    if (mode === 'focus') setMode('board');
+  }
+  const noteLast = (e) => { const id = e.target.closest?.('[data-widget]')?.dataset.widget; if (id) lastId = id; };
+  board.addEventListener('pointerdown', noteLast, true);
+  board.addEventListener('focusin', noteLast);
 
   async function switchTo(id) {
     if (!canvases.has(id) || id === activeId) return;
@@ -783,14 +858,14 @@ export async function mountCanvas(root) {
     readGeometry();
   }
 
-  function zoom(id) {
+  function zoom(id, { move = true } = {}) {
     if (!grid) return;
     if (focusRolled) unfocus();
     zoomedId = id;
     wrap.classList.add('xo-zoom');
     board.querySelectorAll('.grid-stack-item').forEach((el) => el.classList.toggle('xo-w-zoomed', el.dataset.widget === id));
     syncBar();
-    itemEl(id)?.querySelector('.xo-w-more')?.focus();
+    if (move) itemEl(id)?.querySelector('.xo-w-more')?.focus();
   }
   function unzoom() {
     const was = zoomedId;
@@ -1012,7 +1087,7 @@ export async function mountCanvas(root) {
   // Esc leaves Zoom; Ctrl+Z undoes and Ctrl+Shift+Z or Ctrl+Y redoes, unless the focus is in a field or a dialog is open.
   function onDocKey(e) {
     if (dialogOpen() || menu) return;
-    if (e.key === 'Escape' && zoomedId) { e.preventDefault(); unzoom(); return; }
+    if (e.key === 'Escape' && zoomedId) { e.preventDefault(); leaveZoom(); return; }
     const typing = e.target.closest?.('input, textarea, select, [contenteditable], wa-input, wa-textarea');
     const act = matchKey('canvas', e);
     if (act === 'canvas.undo' && !typing && undoStack.length) {

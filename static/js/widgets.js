@@ -37,6 +37,7 @@ import * as trackerView from './views/tracker.js';
 import * as notesView from './views/notes.js';
 import * as trackerWidgets from './tracker/widgets.js';
 import { BRIDGE_WIDGETS } from './bridgewidgets.js';
+import { MORE_WIDGETS } from './morewidgets.js';
 
 export const WIDGETS = {};
 
@@ -207,8 +208,13 @@ registerWidget('tracker-board', { title: 'canvas.widgets.tracker-board', w: 16, 
 
 // The content widgets from the Bridge (static/js/bridgewidgets.js): each draws from a screen's own part and stays live.
 // The body gets the cw-body class (their styles) and is drawn again on a store change, a timer and a new day.
-for (const [id, def] of BRIDGE_WIDGETS) {
-  const { draw, tick, ...rest } = def;
+// An entry with its own render(body, ctx, { liveWidget }) (Timer, Scratch pad) keeps its own state and timers.
+for (const [id, def] of [...BRIDGE_WIDGETS, ...MORE_WIDGETS]) {
+  const { draw, tick, render: own, ...rest } = def;
+  if (own) {
+    registerWidget(id, { ...rest, title: `canvas.widgets.${id}`, render: (body, ctx) => own(body, ctx, { liveWidget }) });
+    continue;
+  }
   registerWidget(id, {
     ...rest,
     title: `canvas.widgets.${id}`,

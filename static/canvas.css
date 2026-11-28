@@ -272,3 +272,88 @@ html[data-w-head="none"] .xo-board-list .xo-w-head { display: none; }
 
 /* A screen's own heading inside a widget that repeats the widget's name. */
 html[data-w-inner="hide"] .xo-w-body .xo-dup-head { display: none; }
+
+/* ---- Board and Focus control: it hides with the other desktop-only bar items ---- */
+.xo-canvas-tools > [hidden] { display: none; }
+.xo-canvas-tools .xo-seg { margin-right: 0.5rem; }
+
+/* ---- Bridge widgets (static/js/morewidgets.js) ---- */
+.cw-now .cw-time { font-size: 3rem; }
+.cw-strip7 { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 0.25rem; margin-top: 0.75rem; }
+.cw-strip7 li { display: flex; flex-direction: column; align-items: center; gap: 0.1rem; padding: 0.3rem 0.1rem; border-top: 3px solid var(--line); min-width: 0; }
+.cw-strip7 li.is-today { border-top-color: var(--leaf); background: var(--leaf-soft); border-radius: 0 0 var(--radius) var(--radius); }
+.cw-s7-wd { font-size: 0.75rem; color: var(--muted); }
+.cw-s7-n { font-family: var(--font-num); font-variant-numeric: tabular-nums; font-weight: var(--fw-bold); }
+.cw-s7-dots { display: flex; gap: 0.15rem; min-height: 0.5rem; }
+.cw-s7-dots i { width: 0.4rem; height: 0.4rem; border-radius: 50%; background: var(--leaf); }
+
+.cw-rw li { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 0.5rem; border-top: var(--rule) solid var(--line); }
+.cw-rw li.cw-rw-head { border-top: 0; color: var(--muted); font-size: 0.75rem; }
+.cw-rw .row-main { display: flex; gap: 0.5rem; width: 100%; min-height: 2.5rem; margin: 0; padding: 0; border: 0; background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.cw-rw-days { display: grid; grid-template-columns: repeat(7, 1.1rem); gap: 0.2rem; align-items: center; justify-items: center; }
+.cw-rw-days i { width: 0.75rem; height: 0.75rem; border-radius: 50%; border: 2px solid var(--line); }
+.cw-rw-days i.on { background: var(--leaf); border-color: var(--leaf); }
+.cw-rw-days i.later { border-style: dashed; opacity: 0.6; }
+
+.cw-l28-row + .cw-l28-row { margin-top: 0.6rem; }
+.cw-l28-name { margin: 0 0 0.25rem; font-weight: var(--fw-semibold); display: flex; justify-content: space-between; gap: 0.5rem; }
+.cw-l28-name small { color: var(--muted); font-weight: normal; }
+.cw-strip28 { display: grid; grid-template-columns: repeat(28, minmax(0, 1fr)); gap: 2px; }
+.cw-strip28 i { display: block; aspect-ratio: 1; min-width: 0; border: 2px solid var(--line); border-radius: 2px; }
+.cw-strip28 i.done, .cw-4w i.done { background: var(--leaf); border-color: var(--leaf); }
+.cw-strip28 i.open, .cw-4w i.open { border-style: dashed; border-color: var(--muted); }
+
+.cw-4w li { display: grid; grid-template-columns: 4.5rem repeat(7, minmax(0, 1fr)); align-items: center; gap: 0.25rem; padding: 0.2rem 0; }
+.cw-4w li.cw-4w-head { color: var(--muted); font-size: 0.75rem; }
+.cw-4w li.cw-4w-head span { text-align: center; }
+.cw-4w-key { display: block; padding-top: 0.5rem; }
+.cw-4w-name { font-size: 0.8125rem; color: var(--muted); }
+.cw-4w-day { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.cw-4w-day.later { opacity: 0.5; }
+.cw-4w i { display: block; width: 100%; max-width: 1.25rem; height: 0.55rem; border: 2px solid var(--line); border-radius: 2px; }
+
+.cw-timer { display: flex; flex-direction: column; align-items: flex-start; gap: 0.6rem; }
+.cw-timer-time { margin: 0; font-family: var(--font-num); font-variant-numeric: tabular-nums; font-weight: var(--fw-bold); font-size: 3.5rem; line-height: 1; }
+
+.cw-court-when { display: flex; flex-direction: column; margin: 0 0 0.25rem; }
+.cw-court-when strong { font-size: 1.5rem; }
+.cw-court-when span { color: var(--muted); }
+.cw-court-row, .cw-todo .row-main, .cw-bars .row-main, .cw-bybill .row-main {
+  display: flex; flex-direction: column; align-items: flex-start; width: 100%; min-height: 2.5rem; margin: 0; padding: 0.2rem 0;
+  border: 0; background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer;
+}
+.cw-court-row small { color: var(--muted); }
+.cw-sub { margin: 0.75rem 0 0.25rem; font-size: 0.875rem; color: var(--muted); }
+.cw-todo li { border-top: var(--rule) solid var(--line); }
+
+.cw-calls li { padding: 0.45rem 0; border-top: var(--rule) solid var(--line); overflow-wrap: anywhere; }
+.cw-calls li:first-child { border-top: 0; }
+
+.cw-bars li { border-top: var(--rule) solid var(--line); }
+.cw-bar-head { display: flex; justify-content: space-between; gap: 0.5rem; width: 100%; }
+.cw-bar-head small { color: var(--muted); }
+.cw-bar-row { display: grid; grid-template-columns: minmax(0, 1fr) 5rem; align-items: center; gap: 0.5rem; width: 100%; }
+.cw-bar { display: block; height: 0.6rem; background: var(--paper); border-radius: var(--pill); overflow: hidden; }
+.cw-bar-fill { display: block; height: 100%; background: var(--leaf); }
+.cw-bar-amt { font-family: var(--font-num); font-variant-numeric: tabular-nums; text-align: right; }
+
+.cw-bybill { width: 100%; table-layout: fixed; border-collapse: collapse; }
+.cw-bybill col.n { width: 50%; }
+.cw-bybill col.d { width: 30%; }
+.cw-bybill col.a { width: 20%; }
+.cw-bybill th { text-align: left; font-size: 0.75rem; color: var(--muted); font-weight: var(--fw-semibold); padding: 0 0 0.25rem; }
+.cw-bybill td { border-top: var(--rule) solid var(--line); padding: 0; vertical-align: middle; }
+.cw-bybill td:not(:first-child) { font-size: 0.875rem; }
+.cw-bybill .amt { text-align: right; font-family: var(--font-num); font-variant-numeric: tabular-nums; }
+.cw-bybill tr.late td:nth-child(2) { color: var(--ochre); }
+
+.cw-start { display: flex; align-items: center; gap: 0.75rem; }
+.cw-start p { display: flex; flex-direction: column; margin: 0; min-width: 0; }
+.cw-start small { color: var(--muted); }
+
+.cw-answers-dl { display: grid; grid-template-columns: minmax(6rem, max-content) 1fr; gap: 0.2rem 0.75rem; margin: 0; }
+.cw-answers-dl dt { color: var(--muted); font-size: 0.875rem; }
+.cw-answers-dl dd { margin: 0; }
+@container (max-width: 22rem) { .cw-answers-dl { grid-template-columns: 1fr; } .cw-answers-dl dd { margin-bottom: 0.35rem; } }
+
+.cw-scratch { display: block; width: 100%; min-height: 8rem; resize: vertical; }

@@ -162,6 +162,15 @@ with sync_playwright() as p:
         page.wait_for_timeout(400)
         shot(page, "xo", "canvas", width)
 
+    # --- the Bridge starter on the canvas, xo kit, 5120 x 2160
+    page.set_viewport_size({"width": 5120, "height": 2160})
+    page.get_by_role("button", name="Starter layout", exact=True).click()
+    page.get_by_role("menuitem", name="Bridge (very wide screens)", exact=True).click()
+    page.wait_for_selector(".xo-board [data-widget='scratch']")
+    page.wait_for_timeout(1500)
+    shot(page, "xo", "bridge", "5120")
+    page.wait_for_timeout(700)
+
     # --- the pane on (no xo-pane value), xo kit only, at the two widest sizes
     pane_ctx = browser.new_context(viewport=SIZES["1920"], timezone_id=TZ, locale="en-AU", reduced_motion="reduce")
     pane_page = pane_ctx.new_page()
@@ -180,6 +189,14 @@ with sync_playwright() as p:
             pane_page.goto(f"{BASE}/#/{name}")
             pane_page.locator(".pane").wait_for(state="visible")
             shot(pane_page, "xo-pane", name, width)
+    # The Bridge with Appearance open in the side pane beside it.
+    pane_page.set_viewport_size({"width": 5120, "height": 2160})
+    pane_page.goto(f"{BASE}/#/canvas")
+    pane_page.wait_for_selector(".xo-canvas .xo-board [data-widget='scratch']", timeout=20000)
+    pane_page.goto(f"{BASE}/#/appearance")
+    pane_page.locator(".pane").wait_for(state="visible")
+    pane_page.wait_for_timeout(1500)
+    shot(pane_page, "xo", "bridge-pane", "5120")
     browser.close()
 
 print("files written:", len(written))

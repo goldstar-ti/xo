@@ -118,6 +118,14 @@ with sync_playwright() as p:
     expect(pg.locator(".xo-canvas-empty")).to_be_hidden()
     pg.screenshot(path=SHOTS / "canvas-starter.png")
 
+    # The side bar's dot: Appearance and Settings open in the side pane at this width.
+    # The link's name stays the same.
+    for name in ("Appearance", "Settings"):
+        link = pg.locator(".side").get_by_role("link", name=name, exact=True)
+        expect(link.locator(".nav-dot")).to_be_visible()
+        expect(link).to_have_attribute("title", re.compile("Opens in the side pane"))
+    expect(pg.locator(".side").get_by_role("link", name="Today", exact=True).locator(".nav-dot")).to_have_count(0)
+
     def clear_board():
         """Takes every widget off the board with its own close button."""
         while pg.locator(".xo-board [data-widget]").count():
@@ -135,6 +143,7 @@ with sync_playwright() as p:
     expect(pg.locator(".xo-canvas-empty")).to_be_visible()
     expect(pg.get_by_role("button", name="Undo")).to_be_disabled()
     pg.get_by_role("button", name="Starter layout", exact=True).click()
+    pg.get_by_role("menuitem", name="Default", exact=True).click()
     expect(pg.locator(".xo-board [data-widget]").first).to_be_attached()
     back_ids = board_ids(pg)
     assert back_ids == starter_ids, (back_ids, starter_ids)
@@ -256,8 +265,8 @@ with sync_playwright() as p:
     expect(w.get_by_text("No widget matches.")).to_be_visible()
     expect(w.locator(".xo-wlist li:visible")).to_have_count(0)
     w.get_by_role("searchbox", name="Find a widget").fill("bill")
-    # Bills and Bills list.
-    expect(w.locator(".xo-wlist li:visible")).to_have_count(2)
+    # Bills, Bills list, By bill and Add a bill.
+    expect(w.locator(".xo-wlist li:visible")).to_have_count(4)
     pg.get_by_role("button", name="Widgets", exact=True).click()
     expect(pop(pg)).to_have_count(0)
     assert node(pg, "bills")["h"] == 16
@@ -578,6 +587,94 @@ with sync_playwright() as p:
     expect(pg.locator(".xo-board [data-widget]")).to_have_count(0)
     pg.get_by_role("button", name="Redo", exact=True).click()
     expect(pg.locator(".xo-board [data-widget]")).to_have_count(len(before))
+
+    # The Bridge starter at 5120 x 2160: a new canvas, Starter layout > Bridge places nine columns of widgets,
+    # none of them showing an error. Timer, Scratch pad and the Board and Focus control are tried on it.
+    pg.set_viewport_size({"width": 5120, "height": 2160})
+    pg.get_by_role("button", name="New canvas").click()
+    pop(pg).locator("#f-title").fill("Bridge")
+    pop(pg).get_by_role("button", name="Create canvas").click()
+    expect(pg.locator(".xo-canvas-empty")).to_be_visible()
+    pg.get_by_role("button", name="Starter layout", exact=True).click()
+    pg.get_by_role("menuitem", name="Bridge (very wide screens)", exact=True).click()
+    expect(pg.locator(".xo-board [data-widget]").first).to_be_attached()
+    bridge_ids = board_ids(pg)
+    columns = [
+        ["now", "next", "line", "dayline", "three", "coming"],
+        ["tasks-list", "quick"],
+        ["diary-list", "month", "week"],
+        ["routine-list", "routine-week"],
+        ["next-court", "obligations-list", "reports"],
+        ["money", "next-30", "by-bill", "bills-list", "add-bill"],
+        ["checkins-week", "yesterday-evening", "weekly-checkin", "four-weeks", "last-28"],
+        ["plancard", "write-next-box", "boxes-to-write", "in-my-own-words", "who-to-call", "nudge"],
+        ["scratch", "timer", "notes"],
+    ]
+    assert sorted(w for col in columns for w in col) == bridge_ids, bridge_ids
+    xs = sorted({node(pg, col[0])["x"] for col in columns})
+    info = pg.evaluate(
+        "({ bw: document.querySelector('.xo-board').clientWidth, iw: innerWidth,"
+        " fs: getComputedStyle(document.documentElement).fontSize })"
+    )
+    assert len(xs) == 9, (xs, info, {w: node(pg, w) for w in bridge_ids})
+    for col in columns:
+        assert {node(pg, w)["x"] for w in col} == {node(pg, col[0])["x"]}, col
+    assert node(pg, "tasks-list")["w"] == 4 and node(pg, "diary-list")["w"] == 4 and node(pg, "now")["w"] == 2
+    pg.wait_for_timeout(800)
+    expect(pg.locator(".xo-w-body .empty", has_text="could not be shown")).to_have_count(0)
+    expect(pg.locator(".xo-w-body", has_text="could not be shown")).to_have_count(0)
+    # The duplicated heading inside Today's three is marked (curly or straight apostrophe); the Appearance option
+    # that hides it may have been changed earlier in this run.
+    expect(widget(pg, "three").locator(".sec-head h2")).to_have_class(re.compile(r"xo-dup-head"))
+    pg.screenshot(path=SHOTS / "canvas-bridge.png")
+
+    # Timer: Start, wait, Pause. The reading is not zero and not the full time, and it holds while paused.
+    timer = widget(pg, "timer")
+    expect(timer.locator(".cw-timer-time")).to_have_text("10:00")
+    timer.get_by_role("button", name="Start", exact=True).click()
+    pg.wait_for_timeout(2300)
+    timer.get_by_role("button", name="Pause", exact=True).click()
+    reading = timer.locator(".cw-timer-time").inner_text()
+    assert re.fullmatch(r"\d\d:\d\d", reading) and reading not in ("00:00", "10:00"), reading
+    pg.wait_for_timeout(1500)
+    assert timer.locator(".cw-timer-time").inner_text() == reading
+    timer.get_by_role("button", name="Reset", exact=True).click()
+    expect(timer.locator(".cw-timer-time")).to_have_text("10:00")
+
+    # Scratch pad: typed text is saved as a note and survives a reload.
+    area = widget(pg, "scratch").locator("textarea")
+    with pg.expect_response(lambda r: r.request.method == "PUT" and "scratch" in r.url):
+        area.fill("Remember the milk")
+
+    # Board and Focus: Focus shows the widget last clicked alone; Board brings the grid back.
+    # The choice is kept per device.
+    def shown():
+        return pg.evaluate(
+            "[...document.querySelectorAll('.xo-board [data-widget]')]"
+            ".filter((e) => e.offsetParent !== null).map((e) => e.dataset.widget)"
+        )
+
+    assert len(shown()) == len(bridge_ids), shown()
+    pg.locator(".xo-board [data-widget='month'] .xo-w-title").click()
+    pg.get_by_role("radio", name="Focus", exact=True).click()
+    assert shown() == ["month"], shown()
+    assert pg.evaluate("localStorage.getItem('xo-canvas-mode')") == '"focus"'
+    pg.get_by_role("radio", name="Board", exact=True).click()
+    assert len(shown()) == len(bridge_ids), shown()
+    assert pg.evaluate("localStorage.getItem('xo-canvas-mode')") == '"board"'
+    pg.get_by_role("radio", name="Focus", exact=True).click()
+    assert shown() == ["month"], shown()
+    pg.keyboard.press("Escape")
+    assert len(shown()) == len(bridge_ids), shown()
+    expect(pg.get_by_role("radio", name="Board", exact=True)).to_have_attribute("aria-checked", "true")
+
+    # The layout and the scratch text come back after a reload.
+    pg.wait_for_timeout(900)
+    pg.reload()
+    pg.wait_for_selector(".xo-canvas .xo-board [data-widget='scratch']", timeout=20000)
+    expect(widget(pg, "scratch").locator("textarea")).to_have_value("Remember the milk")
+    assert board_ids(pg) == bridge_ids
+    pg.set_viewport_size({"width": 1400, "height": 900})
 
     # tabSet on its own: panels built on first show and kept; Delete closes the focused tab.
     result = pg.evaluate("""async () => {

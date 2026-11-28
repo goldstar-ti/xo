@@ -64,6 +64,12 @@ canvas:
   fit_all: Fit all
   reset_layout: Reset layout
   starter: Starter layout
+  starter_default: Default
+  starter_bridge: Bridge (very wide screens)
+  mode_label: Canvas view
+  mode_board: Board
+  mode_focus: Focus
+  rail_pane: Opens in the side pane
   arrange: Arrange
   arrange_done: Done arranging
   arr_up: Move {name} up
@@ -180,6 +186,21 @@ canvas:
       ahead_14: 14 days
       ahead_30: 30 days
       ahead_60: 60 days
+    now:
+      seconds: Show seconds
+    timer:
+      minutes: Length
+      minutes_5: 5 minutes
+      minutes_10: 10 minutes
+      minutes_15: 15 minutes
+      minutes_25: 25 minutes
+      minutes_45: 45 minutes
+      minutes_60: 60 minutes
+    boxes-to-write:
+      count: Boxes listed
+      count_5: '5'
+      count_10: '10'
+      count_0: All
     money:
       count: Bills listed
       count_3: '3'
@@ -251,6 +272,23 @@ canvas:
     plancard: Plan card
     nudge: Plan progress
     launcher: Shortcuts
+    now: Now
+    routine-week: Routine this week
+    last-28: Last 28 days
+    four-weeks: Four weeks
+    timer: Timer
+    reports: Reports to the officer
+    next-court: Next court date
+    who-to-call: Who to call
+    next-30: Next 30 days
+    by-bill: By bill
+    add-bill: Add a bill
+    in-my-own-words: In my own words
+    yesterday-evening: Yesterday evening
+    weekly-checkin: Weekly check-in
+    write-next-box: Write the next box
+    boxes-to-write: Boxes still to write
+    scratch: Scratch pad
   # What each widget shows, one line each (for the widget picker and docs).
   about:
     clock: The time and the date, large.
@@ -275,6 +313,23 @@ canvas:
     plancard: 'Your plan card: warning signs, what you do instead, people and services.'
     nudge: How many plan boxes are filled, and the next one to write.
     launcher: Buttons for every add form and check-in.
+    now: The time, the date and the next seven days with a dot for each entry.
+    routine-week: Each routine with a dot for every day of this week you ticked it.
+    last-28: Morning and evening check-ins saved or not saved over the last 28 days.
+    four-weeks: The last four weeks of check-ins, a week to a row.
+    timer: A timer you start, pause and reset. It keeps no record and sends no notice.
+    reports: What you reported to your officer, newest first.
+    next-court: The next court date with the tasks you listed for court.
+    who-to-call: The people and numbers from your plan, as you wrote them.
+    next-30: Bills due in the next 30 days by date, each with a bar for its amount.
+    by-bill: Each open bill with its next due date and amount.
+    add-bill: One button to add a bill.
+    in-my-own-words: What you wrote in your plan, with what matters most to you first.
+    yesterday-evening: Your evening check-in answers from yesterday, to read.
+    weekly-checkin: Start the weekly review and see when you last did it.
+    write-next-box: The next empty box in your plan, with a button to open My plan.
+    boxes-to-write: The plan boxes that are still empty.
+    scratch: A text area for quick notes. It is saved as a note called Scratch pad.
   # Wording inside the widgets, by widget.
   cw:
     week:
@@ -324,6 +379,66 @@ canvas:
       open: Open
     nudge:
       complete: Every box in your plan has something in it.
+    now:
+      entries: '{n} entries'
+    routine-week:
+      ticked: '{n} of 7 days ticked'
+    last-28:
+      count: '{n} of 28'
+      row: '{title}: {n} of the last 28 days saved'
+      key: 'Filled: saved. Outlined: not saved. Dashed: today, not saved yet.'
+    four-weeks:
+      week: 'Week of {day}: {n} of 14 check-ins saved'
+      key: 'Top mark is the morning check-in, bottom mark is the evening one. Filled means saved.'
+    timer:
+      start: Start
+      pause: Pause
+      resume: Resume
+      reset: Reset
+      running: Running.
+      paused: Paused.
+      over: Time is up.
+    next-court:
+      empty: No court date ahead. Add the next one when you have it.
+      add: Add court date
+      todo: To do for court
+      todo_empty: Nothing to do for court.
+    who-to-call:
+      empty: Nobody is listed yet. Put names and numbers in My plan under My support team.
+      open: Open My plan
+    next-30:
+      empty: No bills due in the next 30 days.
+      total: due in the next 30 days, {n} in all
+    by-bill:
+      bill: Bill
+      due: Next due
+      amount: Amount
+    add-bill:
+      button: Add bill
+    own:
+      not_started: No plan version chosen yet.
+      empty: Nothing written in your plan yet.
+      open: Open My plan
+    yesterday-evening:
+      empty: No evening check-in saved for yesterday.
+      open: Write it now
+    weekly-checkin:
+      last: Last done {day}
+      never: Not done yet
+    write-next-box:
+      next: Next box
+      open: Open My plan
+    boxes:
+      complete: Every box in your plan has something in it.
+    boxes-to-write:
+      one: box still to write, of {total}
+      many: boxes still to write, of {total}
+      more: '{n} more'
+    scratch:
+      title: Scratch pad
+      label: Scratch pad text
+      placeholder: Jot something down.
+      saved: Saved as you type.
     launcher:
       appointment: Add appointment
       court: Add court date

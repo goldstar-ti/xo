@@ -30,10 +30,17 @@ const visibleNav = () => NAV.map(([k]) => k).filter(isOn); // the screens whose 
 const iconOf = (k) => L.prefs.icons[k] || DEFAULT_ICONS[k];
 const labelOf = (k) => (k === 'more' ? t('app.more') : text('app.nav')[k]);
 
+const PANE_NAV = ['appearance', 'settings'];
+
 // A screen's link: its icon and its name. Right-click changes the icon (Shift+right-click
 // keeps the browser's own menu).
 function navLink(k) {
   const a = h('a', { href: `#/${k}`, 'data-nav': k, style: k === 'more' ? null : `--concept: var(--concept-${k})` }, icon(iconOf(k)), h('span', { class: 'nav-label' }, labelOf(k)));
+  // Appearance and Settings open in the side pane on a wide window: a small dot says so (refreshSide shows or hides it).
+  if (PANE_NAV.includes(k)) {
+    a.style.position = 'relative';
+    a.append(h('span', { class: 'nav-dot', 'aria-hidden': 'true', style: 'display: none; position: absolute; top: 0.4rem; right: 0.5rem; width: 0.5rem; height: 0.5rem; border-radius: 50%; background: var(--leaf);' }));
+  }
   a.addEventListener('contextmenu', (e) => {
     if (e.shiftKey) return;
     e.preventDefault();
@@ -46,12 +53,17 @@ function navLink(k) {
 }
 
 // The side bar's state: collapsed to icons or open, its button's wording, and tooltips on icon-only links.
+window.addEventListener('resize', () => refreshSide());
 function refreshSide() {
   const collapsed = L.prefs.side === 'icons';
   document.querySelectorAll('[data-nav]').forEach((a) => {
     const ico = a.querySelector('.ico');
     if (ico && ico.dataset.icon !== iconOf(a.dataset.nav)) paintIcon(ico, iconOf(a.dataset.nav));
-    if (a.closest('.side') && collapsed) a.title = labelOf(a.dataset.nav); else a.removeAttribute('title');
+    const dot = a.querySelector('.nav-dot');
+    const inPane = !!dot && paneOn();
+    if (dot) dot.style.display = inPane ? 'block' : 'none';
+    const tip = [a.closest('.side') && collapsed ? labelOf(a.dataset.nav) : '', inPane ? t('canvas.rail_pane') : ''].filter(Boolean).join('. ');
+    if (tip) a.title = tip; else a.removeAttribute('title');
   });
   const btn = document.querySelector('.side-toggle');
   if (btn) {

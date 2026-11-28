@@ -22,7 +22,7 @@ import * as store from './store.js';
 export const MODULES = [
   {
     id: 'today',
-    widgets: ['today'],
+    widgets: ['today', 'now', 'timer'],
     // One function for each block on Today (BLOCKS in boot.js). The three block also needs tasks.three.
     functions: [{ id: 'line', widgets: ['line'] }, { id: 'next', widgets: ['next'] }, { id: 'three', widgets: ['three'] },
       { id: 'day', widgets: ['dayline'] }, { id: 'coming', widgets: ['coming'] }, { id: 'plan' },
@@ -46,13 +46,13 @@ export const MODULES = [
       { id: 'closeday' },
     ],
   },
-  { id: 'notes', widgets: ['notes'] },
-  { id: 'obligations', kinds: ['obligation'], remind: ['obligation'], widgets: ['obligations', 'obligations-list'] },
-  { id: 'routine', kinds: ['routine'], remind: ['routine'], widgets: ['routine', 'routine-list'] },
-  { id: 'bills', kinds: ['bill'], remind: ['bill_'], widgets: ['bills', 'bills-list', 'money'] },
+  { id: 'notes', widgets: ['notes', 'scratch'] },
+  { id: 'obligations', kinds: ['obligation'], remind: ['obligation'], widgets: ['obligations', 'obligations-list', 'next-court', 'reports'] },
+  { id: 'routine', kinds: ['routine'], remind: ['routine'], widgets: ['routine', 'routine-list', 'routine-week'] },
+  { id: 'bills', kinds: ['bill'], remind: ['bill_'], widgets: ['bills', 'bills-list', 'money', 'next-30', 'by-bill', 'add-bill'] },
   // The check-in reminders are computed from the settings item.
-  { id: 'checkin', kinds: ['settings'], remind: ['checkin_'], widgets: ['checkin', 'checkin-morning', 'checkin-evening', 'checkin-weekly', 'checkins-week', 'history', 'body'] },
-  { id: 'plan', widgets: ['plan', 'plancard', 'nudge'] },
+  { id: 'checkin', kinds: ['settings'], remind: ['checkin_'], widgets: ['checkin', 'checkin-morning', 'checkin-evening', 'checkin-weekly', 'checkins-week', 'history', 'body', 'last-28', 'four-weeks', 'yesterday-evening', 'weekly-checkin'] },
+  { id: 'plan', widgets: ['plan', 'plancard', 'nudge', 'write-next-box', 'boxes-to-write', 'in-my-own-words', 'who-to-call'] },
   { id: 'tracker', kinds: ['pm_item'], remind: ['pm_'], widgets: ['tracker', 'tracker-due', 'tracker-summary', 'tracker-board'] },
   { id: 'canvas' },
   { id: 'appearance', core: true, widgets: ['appearance'] },

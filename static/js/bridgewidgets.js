@@ -24,7 +24,7 @@ const CHECKINS = ['morning', 'evening', 'weekly'];
 const tool = (key, ico, label, run) => ({ key, ico, label, run });
 
 // Appointments, bills and tasks that fall on one day, for the week strip and the month calendar.
-function dayItems(day) {
+export function dayItems(day) {
   const out = [];
   for (const a of store.byKind('appointment'))
     if (a.data.date === day) out.push({ kind: a.data.court ? 'court' : 'appt', time: a.data.time, text: a.data.title, open: () => editAppointment(a) });
@@ -38,7 +38,7 @@ const itemRow = (it) => h('li', { class: `cw-ev k-${it.kind}` },
   button([it.time && h('span', { class: 'cw-ev-t' }, fmtTime(it.time)), h('span', {}, it.text)], { variant: 'row', class: 'row-main', onclick: it.open }));
 
 // A label for one answer in a saved check-in.
-function answerLabel(type, k) {
+export function answerLabel(type, k) {
   if (type === 'weekly') return WEEKLY_QUESTIONS.find((q) => q.k === k)?.q || k;
   return (text('canvas.cw.history.fields') || {})[k] || k;
 }
