@@ -752,10 +752,24 @@ with sync_playwright() as p:
     pg.reload()
     pg.wait_for_selector(".dayline")
     st = pg.evaluate("JSON.parse(localStorage.getItem('xo-look'))")
-    assert st["v"] == 2 and st["prefs"]["clock24"] is True, st
+    assert st["v"] == 3 and st["prefs"]["clock24"] is True and st["base"]["space"] == 0.8, st
     assert st["base"]["theme"] == "ink" and st["base"]["body"] == "gsflex" and st["base"]["head"] == "intertight", st
     assert st["base"]["fluid"] == "off" and st["base"]["base"] is None, st
     assert pg.evaluate("document.documentElement.dataset.fluid") == "off"
+    # D-53: a v2 look with the old default spacing 1 moves to 0.8 once; the theme is untouched; other spacing stays
+    for old, want in ((1, 0.8), (1.2, 1.2)):
+        pg.evaluate(
+            "(sp) => localStorage.setItem('xo-look', JSON.stringify("
+            "{ v: 2, base: { theme: 'foliage', c: XOLook.colourOf('foliage'), space: sp } }))",
+            old,
+        )
+        pg.reload()
+        pg.wait_for_selector(".dayline")
+        st = pg.evaluate("JSON.parse(localStorage.getItem('xo-look'))")
+        assert st["v"] == 3 and st["base"]["space"] == want and st["base"]["theme"] == "foliage", st
+        assert pg.evaluate("XOLook.active().look.space") == want
+    # a look code with space 1 keeps it
+    assert pg.evaluate("XOLook.decode(XOLook.encode({ ...XOLook.defaultLook(), space: 1 })).space") == 1
     # picking Foliage afterwards stays Foliage through a reload (the move runs once)
     fresh()
     tab("theme")

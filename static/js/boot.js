@@ -287,12 +287,16 @@
     raw = raw && typeof raw === 'object' ? raw : {};
     let base = cleanLook(raw.base);
     // Design 2 (D-51) moves saved looks onto Ink, the new fonts and the new base size once.
-    if (raw.base && raw.v !== 2) base = cleanLook({ ...base, theme: 'ink', c: colourOf('ink'), body: 'gsflex', head: 'intertight', fluid: 'off', base: null });
+    const from = raw.v || 1;
+    if (raw.base && from < 2) base = cleanLook({ ...base, theme: 'ink', c: colourOf('ink'), body: 'gsflex', head: 'intertight', fluid: 'off', base: null });
+    // Design 2 (D-53) moves saved looks with the old default spacing onto the tighter 0.8 once.
+    const tighten = (l) => (raw.base && from < 3 && l.space === 1 ? { ...l, space: 0.8 } : l);
+    base = tighten(base);
     return {
-      v: 2,
+      v: 3,
       base,
       scheduled: (Array.isArray(raw.scheduled) ? raw.scheduled : []).filter((s) => s && isTime(s.from) && isTime(s.to)).slice(0, 8)
-        .map((s) => ({ id: text(s.id, 40, String(Math.random()).slice(2)), name: text(s.name, 30, 'Scheduled').trim() || 'Scheduled', from: s.from, to: s.to, look: cleanLook(s.look) })),
+        .map((s) => ({ id: text(s.id, 40, String(Math.random()).slice(2)), name: text(s.name, 30, 'Scheduled').trim() || 'Scheduled', from: s.from, to: s.to, look: tighten(cleanLook(s.look)) })),
       myThemes: (Array.isArray(raw.myThemes) ? raw.myThemes : []).slice(0, 100).map((t) => {
         const l = cleanLook({ c: t && t.c, strength: t && t.strength, colours: t && t.colours });
         return { id: text(t && t.id, 40, String(Math.random()).slice(2)), name: text(t && t.name, 30, 'Mine').trim() || 'Mine', c: l.c, strength: l.strength, colours: l.colours };
@@ -305,7 +309,7 @@
   try {
     const stored = JSON.parse(localStorage.getItem('xo-look') || '{}');
     state = cleanState(stored);
-    if (stored && stored.base && stored.v !== 2) save();
+    if (stored && stored.base && (stored.v || 1) < 3) save();
   } catch (e) { state = cleanState({}); }
   let editing = null; // id of a scheduled look being edited outside its hours
   const undoStack = [];
