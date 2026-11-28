@@ -120,6 +120,8 @@ with sync_playwright() as p:
         ("diary", "diary", None),
         ("tasks", "tasks", None),
         ("bills", "bills", None),
+        ("duties", "obligations", None),
+        ("routine", "routine", None),
         ("checkin", "checkin/morning", None),
         ("plan", "plan", None),
         ("settings", "settings", None),

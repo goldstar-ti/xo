@@ -186,7 +186,7 @@ with sync_playwright() as p:
     fill_form(page, {"name": "Phone", "amount": "45", "due": today, "repeat": "monthly"})
     page.get_by_role("button", name="Add bill").click()
     fill_form(page, {"name": "Strata levy", "amount": "612.50", "due": tomorrow, "repeat": "quarterly"})
-    page.locator(".list li", has_text="Phone").get_by_role("button", name="Paid").click()
+    page.locator(".list li", has_text="Phone").get_by_role("checkbox").evaluate("el => el.click()")
     expect(page.locator(".list li", has_text="Phone")).to_contain_text("monthly")
     expect(page.locator(".figure")).to_contain_text("due in the next 30 days")
     page.screenshot(path=SHOTS / "04-bills.png", full_page=True)

@@ -5,7 +5,7 @@ import { calendarLink, editAppointment, editBill, editObligation, editReport, ed
 import { t, text } from '../text.js';
 import { icon } from '../icons.js';
 import { renderMarkdown } from '../markdown.js';
-import { button, callout, disclosure, linkRow, menu } from '../ui.js';
+import { button, callout, disclosure, linkRow, menu, tickBox } from '../ui.js';
 import { quickAdd, taskRow } from './tasks.js';
 import { addDays, daysBetween, fmtDay, fmtLong, fmtMoney, fmtTime, h, relDay, toast, today, put } from '../util.js';
 
@@ -13,7 +13,12 @@ const fail = (err) => toast(err.message, 'bad');
 const cap = (value) => value.charAt(0).toUpperCase() + value.slice(1);
 const head = (title, ...actions) => h('header', { class: 'page-head' }, h('h1', {}, title), h('div', { class: 'actions' }, actions));
 const addBtn = (label, onclick) => button([icon('tabler/plus'), label], { variant: 'ghost', class: 'small add-btn', onclick });
-const rowMain = (kids, onclick) => button(kids, { variant: 'row', class: 'row-main', onclick });
+// A whole-row link that opens a form: the href keeps it a real link, the click opens the form instead.
+const openRow = (props, open) => {
+  const row = linkRow(props);
+  row.addEventListener('click', (ev) => { ev.preventDefault(); open(); });
+  return row;
+};
 const sortAppts = (a, b) => (a.data.date + a.data.time).localeCompare(b.data.date + b.data.time);
 
 function apptRow(a) {
@@ -107,14 +112,13 @@ export function billsPart({ ahead = 0 } = {}) {
       const d = b.data;
       const late = d.due < day;
       const due = t('lists.bills.due', { when: relDay(d.due) }) + (daysBetween(day, d.due) > 6 ? '' : `, ${fmtDay(d.due)}`);
+      const sub = [late ? t('lists.bills.overdue_since', { day: fmtDay(d.due) }) : due,
+        d.autopay && t('lists.bills.paid_automatically'), d.repeat !== 'none' && d.repeat, ...customMeta('bill', d.custom)].filter(Boolean).join(', ');
+      const box = tickBox({ checked: false, label: t('lists.bills.mark_paid', { name: d.name }), onchange: () => payBill(b).catch((err) => { box.checked = false; fail(err); }) });
       return h('li', { class: late ? 'late' : '' },
-        rowMain([
-          h('span', {}, d.name),
-          h('small', {}, [late ? t('lists.bills.overdue_since', { day: fmtDay(d.due) }) : due,
-            d.autopay && t('lists.bills.paid_automatically'), d.repeat !== 'none' && d.repeat, ...customMeta('bill', d.custom)].filter(Boolean).join(', ')),
-        ], () => editBill(b)),
-        h('span', { class: 'amount' }, d.amount > 0 ? fmtMoney(d.amount) : ''),
-        button(t('lists.shared.paid'), { class: 'small', onclick: () => payBill(b).catch(fail) }));
+        box,
+        openRow({ title: d.name, sub, href: '#/bills' }, () => editBill(b)),
+        h('span', { class: 'amount' }, d.amount > 0 ? fmtMoney(d.amount) : ''));
     })) : h('p', { class: 'empty' }, t('lists.bills.empty')),
   ];
 }
@@ -138,6 +142,7 @@ export function obligationParts() {
   const reports = store.byKind('report').sort((a, b) => b.data.date.localeCompare(a.data.date));
   const when = (d) => d.schedule === 'daily' ? t('lists.obligations.every_day', { time: fmtTime(d.time) })
     : d.schedule === 'weekly' ? t('lists.obligations.every_weekday', { weekday: text('forms.weekdays')[String(Number(d.weekday))], time: fmtTime(d.time) }) : '';
+  const meta = (o) => [when(o.data), o.data.contact, ...customMeta('obligation', o.data.custom)].filter(Boolean).join('. ');
   return {
     court: h('section', {}, h('div', { class: 'sec-head' }, h('h2', {}, t('lists.obligations.court_heading')), addBtn(t('lists.obligations.court_add'), () => editAppointment(null, { court: true, prep: 45, travel: 45 }))),
       court.length ? apptGroups(court) : h('p', { class: 'empty' }, t('lists.obligations.court_empty'))),
@@ -146,17 +151,22 @@ export function obligationParts() {
       courtTasks.length ? h('ul', { class: 'list' }, courtTasks.map((task) => taskRow(task))) : h('p', { class: 'empty' }, t('lists.obligations.tasks_empty'))),
     conditions: h('section', {}, h('div', { class: 'sec-head' }, h('h2', {}, t('lists.obligations.conditions_heading')), addBtn(t('lists.obligations.conditions_add'), () => editObligation())),
       conditions.length ? h('ul', { class: 'list' }, conditions.map((o) => h('li', {},
-        rowMain([
-          h('span', {}, o.data.title),
-          o.data.detail && h('small', { class: 'md compact' }, renderMarkdown(o.data.detail)),
-          [when(o.data), o.data.contact, ...customMeta('obligation', o.data.custom)].filter(Boolean).length > 0 && h('small', {}, [when(o.data), o.data.contact, ...customMeta('obligation', o.data.custom)].filter(Boolean).join('. ')),
-        ], () => editObligation(o)))))
+        openRow({
+          title: o.data.title,
+          sub: [o.data.detail && h('small', { class: 'md compact' }, renderMarkdown(o.data.detail)),
+            meta(o) && h('small', {}, meta(o))],
+          href: '#/obligations',
+        }, () => editObligation(o)))))
         : h('p', { class: 'empty' }, t('lists.obligations.conditions_empty'))),
     reports: h('section', {}, h('div', { class: 'sec-head' }, h('h2', {}, t('lists.obligations.reports_heading')), addBtn(t('lists.obligations.reports_add'), () => editReport())),
       reports.length ? h('ul', { class: 'list timed' }, reports.map((r) => h('li', {},
         h('span', { class: 't' }, fmtDay(r.data.date)),
-        rowMain([h('span', { class: 'md compact' }, renderMarkdown(r.data.what)), r.data.who && h('small', {}, t('lists.obligations.told', { who: r.data.who })),
-          customMeta('report', r.data.custom).length > 0 && h('small', {}, customMeta('report', r.data.custom).join(', '))], () => editReport(r)))))
+        openRow({
+          title: h('span', { class: 'md compact' }, renderMarkdown(r.data.what)),
+          sub: [r.data.who && h('small', {}, t('lists.obligations.told', { who: r.data.who })),
+            customMeta('report', r.data.custom).length > 0 && h('small', {}, customMeta('report', r.data.custom).join(', '))],
+          href: '#/obligations',
+        }, () => editReport(r)))))
         : h('p', { class: 'empty' }, t('lists.obligations.reports_empty'))),
   };
 }

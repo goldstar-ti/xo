@@ -120,6 +120,7 @@ lists:
     overdue_since: 'Overdue since {day}'
     due: 'Due {when}'
     paid_automatically: paid automatically
+    mark_paid: 'Mark {name} paid'
     empty: No bills yet. Add the next one that arrives, with its due date.
   obligations:
     heading: Duties
