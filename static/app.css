@@ -1084,6 +1084,23 @@ dialog.fab-sheet::backdrop { background: color-mix(in srgb, var(--c-backdrop) 55
   .diary-fold { margin-top: 0.75rem; background: var(--m-soft); border-color: transparent; scroll-margin-top: 4.5rem; }
   .diary-fold .group { margin-top: 0.5rem; }
   .diary-copy p { margin: 0 0 0.75rem; }
+  .diary-add { flex-basis: 100%; justify-content: center; }
+  .duties-lead .md { margin-top: 0.5rem; }
+  .duties-lead .list { margin: 0; }
+  .duties-fold, .bills-fold { margin-top: 0.75rem; background: var(--m-soft); border-color: transparent; scroll-margin-top: 4.5rem; }
+  #duties-court { scroll-margin-top: 4.5rem; }
+  body[data-view="obligations"] #view > .callout { margin-top: 0.75rem; }
+  .duties-fold .sec-head { justify-content: flex-end; margin-bottom: 0.25rem; }
+  .duties-fold .sec-head h2 { display: none; }
+  .duties-fold .sec-head:not(:has(a, button)) { display: none; }
+  .duties-fold section { margin: 0; }
+  .bills-lead { margin-top: 0.75rem; padding: 0.75rem 1rem; background: var(--m-soft); border-radius: var(--radius); }
+  .bills-lead .figure { margin: 0 0 0.5rem; padding: 0; background: none; color: inherit; box-shadow: none; }
+  .bills-lead .list, .bills-fold .list { margin: 0; }
+  .list.bills.paid li { grid-template-columns: minmax(0, 1fr) auto; }
+  .bills-totals { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.6rem; }
+  .bills-totals li { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; }
+  .bills-totals strong { font-family: var(--font-num); font-variant-numeric: tabular-nums; }
   .ribbon-sep { display: flex; align-items: center; padding: 0 0.1rem 0 0.35rem; color: var(--muted); font-size: 0.8rem; }
   .tasks-lead { margin-top: 0.75rem; padding: 0.75rem 1rem; background: var(--m-soft); border-radius: var(--radius); }
   .tasks-lead-label { margin: 0 0 0.25rem; color: var(--muted); font-size: 0.8rem; font-weight: var(--fw-semibold); }

@@ -151,6 +151,25 @@ lists:
     paid_automatically: paid automatically
     mark_paid: 'Mark {name} paid'
     empty: No bills yet. Add the next one that arrives, with its due date.
+    phone:
+      ribbon: Filter bills
+      chip_week: Due this week
+      chip_month: Due this month
+      chip_hand: Paid by hand
+      chip_auto: Automatic
+      lead: Next bill
+      next: Next bill
+      filter_empty: No other bills match this filter.
+      fold_soon: Due soon
+      fold_later: Later
+      fold_paid: Paid recently
+      paid_on: 'Paid {day}'
+      fab: Add a bill or see totals
+      new_tab: New bill
+      totals_tab: Totals
+      total_7: Due in the next 7 days
+      total_30: Due in the next 30 days
+      total_hand: To pay by hand in the next 30 days
   obligations:
     heading: Duties
     note: These are your own notes. Your bail undertaking, your reporting contact and your lawyer are the authority on what applies. When unsure, ask before you act.
@@ -169,3 +188,15 @@ lists:
     reports_add: Add record
     reports_empty: Nothing recorded yet. Add a line each time you report something.
     told: 'Told: {who}'
+    phone:
+      ribbon: Jump to a section
+      chip_court: Court dates
+      chip_tasks: To do for court
+      chip_conditions: Conditions
+      chip_reports: Reporting record
+      lead: Next court date
+      later: Later court dates
+      fab: Add a court date, condition or record
+      court_tab: Court date
+      condition_tab: Condition
+      record_tab: Record

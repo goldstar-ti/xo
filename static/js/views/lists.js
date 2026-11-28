@@ -13,7 +13,7 @@ import { addDays, daysBetween, fmtDay, fmtLong, fmtMoney, fmtTime, h, hm, relDay
 const fail = (err) => toast(err.message, 'bad');
 const cap = (value) => value.charAt(0).toUpperCase() + value.slice(1);
 const head = (title, ...actions) => h('header', { class: 'page-head' }, h('h1', {}, title), h('div', { class: 'actions' }, actions));
-const addBtn = (label, onclick) => button([icon('tabler/plus'), label], { variant: 'ghost', class: 'small add-btn', onclick });
+const addBtn = (label, onclick, extra = '') => button([icon('tabler/plus'), label], { variant: 'ghost', class: `small add-btn ${extra}`.trim(), onclick });
 // A whole-row link that opens a form: the href keeps it a real link, the click opens the form instead.
 const openRow = (props, open) => {
   const row = linkRow(props);
@@ -70,9 +70,9 @@ const folds = {};
 let mode = 'agenda';
 let watching = null;
 
-function watchPhone(root, mq) {
+function watchPhone(root, mq, view, marker) {
   if (watching) watching.mq.removeEventListener('change', watching.fn);
-  const fn = () => { if (root.isConnected && root.querySelector('[data-diary]')) { root.replaceChildren(); diary.render(root); } };
+  const fn = () => { if (root.isConnected && root.querySelector(marker)) { root.replaceChildren(); view.render(root); } };
   mq.addEventListener('change', fn);
   watching = { mq, fn };
 }
@@ -129,8 +129,9 @@ function renderPhone(root) {
       h('div', { class: 'actions' },
         segmented(t('lists.diary.phone.view_aria'), [['agenda', t('lists.diary.phone.agenda')], ['week', t('lists.diary.phone.week')]], {
           value: mode, onchange: (v) => { mode = v; root.replaceChildren(); diary.render(root); },
-        }),
-        addBtn(t('lists.diary.add'), () => editAppointment()))),
+        })),
+      // On its own row so the switch keeps its full width.
+      addBtn(t('lists.diary.add'), () => editAppointment(), 'diary-add')),
     h('nav', { class: 'ribbon', 'aria-label': t('lists.diary.phone.ribbon') },
       buckets.map(([k, target]) => {
         const c = chip(t(`lists.diary.phone.chip_${k}`), { onclick: () => jump(`diary-day-${target}`), ...(target ? {} : { disabled: true }) });
@@ -168,7 +169,7 @@ export const diary = {
   render(root) {
     dropFab();
     const mq = window.matchMedia(PHONE);
-    watchPhone(root, mq);
+    watchPhone(root, mq, diary, '[data-diary]');
     if (mq.matches) return renderPhone(root);
     put(root,
       h('header', { class: 'page-head', 'data-diary': '' }, h('h1', {}, t('lists.diary.heading')), h('div', { class: 'actions' }, addBtn(t('lists.diary.add'), () => editAppointment()))),
@@ -207,33 +208,109 @@ export const routine = {
   },
 };
 
+const openBills = (day, ahead = 0) => store.byKind('bill').filter((b) => !b.data.finished && (!ahead || b.data.due <= addDays(day, ahead))).sort((a, b) => a.data.due.localeCompare(b.data.due));
+const sumOf = (list) => list.reduce((sum, b) => sum + (Number(b.data.amount) || 0), 0);
+
+function billRow(b, day) {
+  const d = b.data;
+  const late = d.due < day;
+  const due = t('lists.bills.due', { when: relDay(d.due) }) + (daysBetween(day, d.due) > 6 ? '' : `, ${fmtDay(d.due)}`);
+  const sub = [late ? t('lists.bills.overdue_since', { day: fmtDay(d.due) }) : due,
+    d.autopay && t('lists.bills.paid_automatically'), d.repeat !== 'none' && d.repeat, ...customMeta('bill', d.custom)].filter(Boolean).join(', ');
+  const box = tickBox({ checked: false, label: t('lists.bills.mark_paid', { name: d.name }), onchange: () => payBill(b).catch((err) => { box.checked = false; fail(err); }) });
+  return h('li', { class: late ? 'late' : '' },
+    box,
+    openRow({ title: d.name, sub, href: '#/bills' }, () => editBill(b)),
+    h('span', { class: 'amount' }, d.amount > 0 ? fmtMoney(d.amount) : ''));
+}
+
 /** The open bills: a due-in-30-days figure, then the list. ahead is a number of days; 0 shows every open bill. Returns an array of nodes. */
 export function billsPart({ ahead = 0 } = {}) {
   const day = today();
-  const open = store.byKind('bill').filter((b) => !b.data.finished && (!ahead || b.data.due <= addDays(day, ahead))).sort((a, b) => a.data.due.localeCompare(b.data.due));
-  const total = open.filter((b) => b.data.due <= addDays(day, 30)).reduce((sum, b) => sum + (Number(b.data.amount) || 0), 0);
+  const open = openBills(day, ahead);
+  const total = sumOf(open.filter((b) => b.data.due <= addDays(day, 30)));
   return [
     open.length > 0 && h('p', { class: 'figure' }, h('strong', {}, fmtMoney(total)), ' ', t('lists.bills.due_next_30')),
-    open.length ? h('ul', { class: 'list bills' }, open.map((b) => {
-      const d = b.data;
-      const late = d.due < day;
-      const due = t('lists.bills.due', { when: relDay(d.due) }) + (daysBetween(day, d.due) > 6 ? '' : `, ${fmtDay(d.due)}`);
-      const sub = [late ? t('lists.bills.overdue_since', { day: fmtDay(d.due) }) : due,
-        d.autopay && t('lists.bills.paid_automatically'), d.repeat !== 'none' && d.repeat, ...customMeta('bill', d.custom)].filter(Boolean).join(', ');
-      const box = tickBox({ checked: false, label: t('lists.bills.mark_paid', { name: d.name }), onchange: () => payBill(b).catch((err) => { box.checked = false; fail(err); }) });
-      return h('li', { class: late ? 'late' : '' },
-        box,
-        openRow({ title: d.name, sub, href: '#/bills' }, () => editBill(b)),
-        h('span', { class: 'amount' }, d.amount > 0 ? fmtMoney(d.amount) : ''));
-    })) : h('p', { class: 'empty' }, t('lists.bills.empty')),
+    open.length ? h('ul', { class: 'list bills' }, open.map((b) => billRow(b, day))) : h('p', { class: 'empty' }, t('lists.bills.empty')),
   ];
+}
+
+// Below 40rem Bills follows pattern C: no view switch; filter chips (Due this week, Due this month,
+// Paid by hand, Automatic; one at a time, each narrows the fold-ups); the next bill and the 30 day
+// total as the lead card; Due soon, Later and Paid recently folded up; a sheet with New bill and Totals.
+const billFolds = {};
+let billFilter = '';
+const BILL_FILTERS = {
+  week: (b, day) => b.data.due <= addDays(day, 6),
+  month: (b, day) => b.data.due.slice(0, 7) <= day.slice(0, 7),
+  hand: (b) => !b.data.autopay,
+  auto: (b) => !!b.data.autopay,
+};
+
+function renderBillsPhone(root) {
+  const day = today();
+  const open = openBills(day);
+  const lead = open[0] || null;
+  const keep = (b) => !billFilter || BILL_FILTERS[billFilter](b, day);
+  const rest = open.filter((b) => b !== lead && keep(b));
+  const soon = rest.filter((b) => b.data.due <= addDays(day, 6));
+  const later = rest.filter((b) => b.data.due > addDays(day, 6));
+  const since = addDays(day, -30);
+  const paid = !billFilter || billFilter === 'hand' || billFilter === 'auto'
+    ? store.byKind('bill').filter((b) => b.data.lastPaid && b.data.lastPaid >= since && keep(b)).sort((a, b) => b.data.lastPaid.localeCompare(a.data.lastPaid)) : [];
+  const total30 = sumOf(open.filter((b) => b.data.due <= addDays(day, 30)));
+  const total7 = sumOf(open.filter((b) => b.data.due <= addDays(day, 6)));
+  const totalHand = sumOf(open.filter((b) => b.data.due <= addDays(day, 30) && !b.data.autopay));
+  const sections = [
+    ['soon', soon, (list) => h('ul', { class: 'list bills' }, list.map((b) => billRow(b, day)))],
+    ['later', later, (list) => h('ul', { class: 'list bills' }, list.map((b) => billRow(b, day)))],
+    ['paid', paid, (list) => h('ul', { class: 'list bills paid' }, list.map((b) => h('li', {},
+      openRow({ title: b.data.name, sub: t('lists.bills.phone.paid_on', { day: fmtDay(b.data.lastPaid) }), href: '#/bills' }, () => editBill(b)),
+      h('span', { class: 'amount' }, b.data.amount > 0 ? fmtMoney(b.data.amount) : ''))))],
+  ].filter(([, list]) => list.length);
+  put(root,
+    h('header', { class: 'page-head', 'data-bills': '' }, h('h1', {}, t('lists.bills.heading'))),
+    h('nav', { class: 'ribbon', 'aria-label': t('lists.bills.phone.ribbon') },
+      Object.keys(BILL_FILTERS).map((k) => chip(t(`lists.bills.phone.chip_${k}`), {
+        pressed: billFilter === k, onclick: () => { billFilter = billFilter === k ? '' : k; root.replaceChildren(); bills.render(root); },
+      }))),
+    lead ? h('section', { class: 'bills-lead', 'aria-label': t('lists.bills.phone.lead') },
+      h('p', { class: 'figure' }, h('strong', {}, fmtMoney(total30)), ' ', t('lists.bills.due_next_30')),
+      h('p', { class: 'tasks-lead-label' }, t('lists.bills.phone.next')),
+      h('ul', { class: 'list bills' }, billRow(lead, day))) : h('p', { class: 'empty' }, t('lists.bills.empty')),
+    billFilter && !sections.length && h('p', { class: 'empty' }, t('lists.bills.phone.filter_empty')),
+    sections.map(([k, list, body], n) => {
+      const fold = disclosure(t(`lists.bills.phone.fold_${k}`), body(list), {
+        id: `bills-${k}`, badge: h('span', { class: 'meta' }, String(list.length)),
+        open: k in billFolds ? billFolds[k] : n === 0, onToggle: (o) => { if (o === (n === 0)) delete billFolds[k]; else billFolds[k] = o; },
+      });
+      fold.classList.add('bills-fold');
+      return fold;
+    }));
+  const choice = (iconName, label, run) => h('li', {}, button([icon(iconName), label], { variant: 'ghost', class: 'fab-choice', onclick: run }));
+  fabSheet({
+    label: t('lists.bills.phone.fab'),
+    icon: 'tabler/plus',
+    tabs: [
+      { key: 'new', label: t('lists.bills.phone.new_tab'), body: ({ close }) => h('ul', { class: 'fab-choices' },
+        choice('tabler/receipt', t('lists.bills.add'), () => { close(); editBill(); })) },
+      { key: 'totals', label: t('lists.bills.phone.totals_tab'), body: () => h('ul', { class: 'bills-totals' },
+        [[t('lists.bills.phone.total_7'), total7], [t('lists.bills.phone.total_30'), total30], [t('lists.bills.phone.total_hand'), totalHand]]
+          .map(([label, sum]) => h('li', {}, h('span', {}, label), h('strong', {}, fmtMoney(sum))))) },
+    ],
+  });
 }
 
 export const bills = {
   live: true,
+  leave: dropFab,
   render(root) {
+    dropFab();
+    const mq = window.matchMedia(PHONE);
+    watchPhone(root, mq, bills, '[data-bills]');
+    if (mq.matches) return renderBillsPhone(root);
     put(root,
-      head(t('lists.bills.heading'), addBtn(t('lists.bills.add'), () => editBill())),
+      h('header', { class: 'page-head', 'data-bills': '' }, h('h1', {}, t('lists.bills.heading')), h('div', { class: 'actions' }, addBtn(t('lists.bills.add'), () => editBill()))),
       billsPart(),
     );
   },
@@ -277,12 +354,77 @@ export function obligationParts() {
   };
 }
 
+// Below 40rem Duties follows pattern C: no view switch; chips that jump to Court dates, To do for court,
+// Conditions and Reporting record; the next court date as the lead card (later ones listed under it);
+// the other three sections folded up with the first open; a sheet with Court date, Condition and Record.
+const dutyFolds = {};
+
+function courtLead(court, day) {
+  const lead = nextAppt(court, day) || court[0];
+  const later = court.filter((a) => a !== lead);
+  const d = lead.data;
+  const tm = store.apptTimes(d);
+  const bits = [];
+  if (tm.ready < tm.leave) bits.push(t('lists.shared.get_ready', { time: fmtTime(tm.ready) }));
+  if (tm.leave < tm.start) bits.push(t('lists.shared.leave', { time: fmtTime(tm.leave) }));
+  const row = linkRow({ title: d.title, sub: [d.where, cap(bits.join(', '))].filter(Boolean).join('. '), href: '#/obligations' });
+  row.addEventListener('click', (ev) => { ev.preventDefault(); editAppointment(lead); });
+  return h('section', { class: 'diary-lead duties-lead', id: 'duties-court', 'aria-label': t('lists.obligations.phone.lead') },
+    h('p', { class: 'diary-lead-when' }, fmtTime(d.time), ' ', h('span', { class: 'meta' }, `${fmtLong(d.date)}, ${relDay(d.date)}`)),
+    row,
+    d.notes && h('div', { class: 'md compact' }, renderMarkdown(d.notes)),
+    later.length > 0 && h('p', { class: 'tasks-lead-label' }, t('lists.obligations.phone.later')),
+    later.length > 0 && h('ul', { class: 'list timed' }, later.map(apptRow)));
+}
+
+function renderDutiesPhone(root) {
+  const day = today();
+  const parts = obligationParts();
+  const court = store.byKind('appointment').filter((a) => a.data.court && a.data.date >= day).sort(sortAppts);
+  const folds = [['tasks', 'courtTasks', 'tasks_heading'], ['conditions', 'conditions', 'conditions_heading'], ['reports', 'reports', 'reports_heading']];
+  put(root,
+    h('header', { class: 'page-head', 'data-duties': '' }, h('h1', {}, t('lists.obligations.heading'))),
+    h('nav', { class: 'ribbon', 'aria-label': t('lists.obligations.phone.ribbon') },
+      [['court', 'duties-court', 'court_heading'], ...folds.map(([k, , head]) => [k, `duties-${k}`, head])].map(([k, id]) => {
+        const c = chip(t(`lists.obligations.phone.chip_${k}`), { onclick: () => jump(id) });
+        c.removeAttribute('aria-pressed');
+        return c;
+      })),
+    callout(t('lists.obligations.note'), { kind: 'neutral', icon: 'tabler/info-circle' }),
+    court.length ? courtLead(court, day) : h('p', { class: 'empty', id: 'duties-court' }, t('lists.obligations.court_empty')),
+    folds.map(([k, part, heading], n) => {
+      const fold = disclosure(t(`lists.obligations.${heading}`), parts[part], {
+        id: `duties-${k}`, open: k in dutyFolds ? dutyFolds[k] : n === 0, onToggle: (o) => { if (o === (n === 0)) delete dutyFolds[k]; else dutyFolds[k] = o; },
+      });
+      fold.classList.add('duties-fold');
+      return fold;
+    }));
+  const choice = (iconName, label, run) => h('li', {}, button([icon(iconName), label], { variant: 'ghost', class: 'fab-choice', onclick: run }));
+  fabSheet({
+    label: t('lists.obligations.phone.fab'),
+    icon: 'tabler/plus',
+    tabs: [
+      { key: 'court', label: t('lists.obligations.phone.court_tab'), body: ({ close }) => h('ul', { class: 'fab-choices' },
+        choice('tabler/gavel', t('lists.obligations.court_add'), () => { close(); editAppointment(null, { court: true, prep: 45, travel: 45 }); })) },
+      { key: 'condition', label: t('lists.obligations.phone.condition_tab'), body: ({ close }) => h('ul', { class: 'fab-choices' },
+        choice('tabler/list-check', t('lists.obligations.conditions_add'), () => { close(); editObligation(); })) },
+      { key: 'record', label: t('lists.obligations.phone.record_tab'), body: ({ close }) => h('ul', { class: 'fab-choices' },
+        choice('tabler/notebook', t('lists.obligations.reports_add'), () => { close(); editReport(); })) },
+    ],
+  });
+}
+
 export const obligations = {
   live: true,
+  leave: dropFab,
   render(root) {
+    dropFab();
+    const mq = window.matchMedia(PHONE);
+    watchPhone(root, mq, obligations, '[data-duties]');
+    if (mq.matches) return renderDutiesPhone(root);
     const parts = obligationParts();
     put(root,
-      head(t('lists.obligations.heading')),
+      h('header', { class: 'page-head', 'data-duties': '' }, h('h1', {}, t('lists.obligations.heading')), h('div', { class: 'actions' })),
       callout(t('lists.obligations.note'), { kind: 'neutral', icon: 'tabler/info-circle' }),
       parts.court, parts.courtTasks, parts.conditions, parts.reports,
     );

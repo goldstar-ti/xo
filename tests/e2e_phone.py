@@ -123,6 +123,11 @@ with sync_playwright() as p:
     expect(pg.locator(".page-head .add-btn")).to_be_visible()
     pg.set_viewport_size({"width": 390, "height": 844})
     expect(pg.locator(".fab")).to_be_visible()
+    # The Add appointment button is on its own row, so the Agenda or Week switch keeps its full width.
+    seg = pg.get_by_role("radio", name="Week").bounding_box()
+    assert seg and seg["x"] + seg["width"] <= 390, seg
+    add = pg.locator(".page-head .add-btn").bounding_box()
+    assert add["y"] > seg["y"] + seg["height"] - 1, (add, seg)
 
     # --- Tasks: view switch, filter ribbon, lead card, fold-ups, FAB and the two-tab New task sheet
     pg.goto(BASE + "/#/tasks")
@@ -163,6 +168,65 @@ with sync_playwright() as p:
     expect(pg.locator(".fab")).to_have_count(0)
     expect(pg.locator(".ribbon")).to_have_count(0)
     expect(pg.locator('[data-focus="task"]')).to_be_visible()
+    pg.set_viewport_size({"width": 390, "height": 844})
+    expect(pg.locator(".fab")).to_be_visible()
+
+    # --- Duties: ribbon of sections, next court date as the lead card, fold-ups, three-tab sheet
+    pg.goto(BASE + "/#/obligations")
+    pg.wait_for_selector("#duties-court")
+    expect(pg.locator(".ribbon")).to_contain_text("Court dates")
+    check_ribbon(pg)
+    expect(pg.locator("#view")).not_to_contain_text("lists.")  # no missing wording keys
+    assert pg.locator("details.duties-fold").count() == 3
+    assert pg.locator("details.duties-fold[open]").count() == 1  # only the first fold-up starts open
+    pg.locator(".ribbon").get_by_text("Reporting record").click()  # a chip opens its fold-up
+    expect(pg.locator("#duties-reports")).to_have_attribute("open", "")
+    expect(pg.get_by_role("radio")).to_have_count(0)  # no view switch
+    check_sheet(pg, ["Court date", "Condition", "Record"], "Record", ".fab-choices")
+    pg.locator(".fab").click()
+    pg.locator("dialog.fab-sheet").get_by_role("tab", name="Condition").click()
+    pg.locator("dialog.fab-sheet").get_by_role("button", name="Add condition").click()
+    expect(pg.locator("dialog.fab-sheet")).to_have_count(0)
+    form = pg.locator("dialog[open]")
+    expect(form).to_be_visible()
+    form.get_by_role("button", name="Cancel").click()
+    expect(form).to_have_count(0)
+    pg.set_viewport_size({"width": 1280, "height": 900})
+    expect(pg.locator(".fab")).to_have_count(0)
+    expect(pg.locator(".ribbon")).to_have_count(0)
+    expect(pg.get_by_role("heading", name="Court dates")).to_be_visible()
+    pg.set_viewport_size({"width": 390, "height": 844})
+    expect(pg.locator(".fab")).to_be_visible()
+
+    # --- Bills: filter ribbon, lead card with the 30 day total, fold-ups, New bill and Totals sheet
+    pg.goto(BASE + "/#/bills")
+    pg.wait_for_selector(".bills-lead, #view .empty")
+    for _ in range(2):  # two bills so the lead card and a fold-up both have one
+        pg.locator(".fab").click()
+        pg.locator("dialog.fab-sheet").get_by_role("button", name="Add bill").click()
+        form = pg.locator("dialog[open]")
+        form.locator("#f-name").fill(f"Phone bill {_}")
+        form.locator("#f-amount").fill("40")
+        form.get_by_role("button", name="Save").click()
+        expect(form).to_have_count(0)
+    expect(pg.locator(".bills-lead")).to_be_visible()
+    expect(pg.locator(".bills-lead")).to_contain_text("due in the next 30 days")
+    expect(pg.locator(".bills-lead .xo-tick, .bills-lead input[type=checkbox]").first).to_be_visible()
+    check_ribbon(pg)
+    expect(pg.locator(".ribbon")).to_contain_text("Paid by hand")
+    expect(pg.locator("#view")).not_to_contain_text("lists.")  # no missing wording keys
+    expect(pg.get_by_role("radio")).to_have_count(0)  # no view switch
+    # Only the first fold-up starts open.
+    assert pg.locator("details.bills-fold[open]").count() == 1, pg.locator("#view").inner_text()
+    pg.locator(".ribbon").get_by_role("button", name="Automatic").click()  # a filter chip is a toggle
+    expect(pg.locator(".ribbon").get_by_role("button", name="Automatic")).to_have_attribute("aria-pressed", "true")
+    pg.locator(".ribbon").get_by_role("button", name="Automatic").click()
+    expect(pg.locator(".ribbon").get_by_role("button", name="Automatic")).to_have_attribute("aria-pressed", "false")
+    check_sheet(pg, ["New bill", "Totals"], "Totals", ".bills-totals")
+    pg.set_viewport_size({"width": 1280, "height": 900})
+    expect(pg.locator(".fab")).to_have_count(0)
+    expect(pg.locator(".ribbon")).to_have_count(0)
+    expect(pg.locator(".page-head .add-btn")).to_be_visible()
     pg.set_viewport_size({"width": 390, "height": 844})
     expect(pg.locator(".fab")).to_be_visible()
 

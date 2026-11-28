@@ -120,6 +120,8 @@ with sync_playwright() as p:
             "prep": 20,
         },
     )
+    # Duties on the desktop layout here (the phone one is covered by tests/e2e_phone.py).
+    page.set_viewport_size({"width": 1280, "height": 1400})
     page.goto(f"{BASE}/#/obligations")
     page.get_by_role("button", name="Add court date").click()
     fill_form(
@@ -187,10 +189,13 @@ with sync_playwright() as p:
     page.set_viewport_size({"width": 412, "height": 915})
 
     # --- bills
+    # On the phone the Add bill button is in the round Add button's sheet.
     page.goto(f"{BASE}/#/bills")
-    page.get_by_role("button", name="Add bill").click()
+    page.locator(".fab").click()
+    page.locator("dialog.fab-sheet").get_by_role("button", name="Add bill").click()
     fill_form(page, {"name": "Phone", "amount": "45", "due": today, "repeat": "monthly"})
-    page.get_by_role("button", name="Add bill").click()
+    page.locator(".fab").click()
+    page.locator("dialog.fab-sheet").get_by_role("button", name="Add bill").click()
     fill_form(page, {"name": "Strata levy", "amount": "612.50", "due": tomorrow, "repeat": "quarterly"})
     page.locator(".list li", has_text="Phone").get_by_role("checkbox").evaluate("el => el.click()")
     expect(page.locator(".list li", has_text="Phone")).to_contain_text("monthly")
