@@ -136,6 +136,17 @@ with sync_playwright() as p:
     pg.evaluate("async () => (await import('/js/modules.js')).setSwitch('tasks.timeblocks', true)")
     assert reminders("task_block") > 0
     pg.evaluate("async () => (await (await import('/js/store.js')).remove('task-mod-test'))")
+
+    # Today blocks: Coming up off removes the block; its switch on the Modules tab is dimmed when Today is off
+    pg.evaluate("async () => (await import('/js/modules.js')).setSwitch('today.coming', false)")
+    pg.goto(BASE + "/#/today")
+    pg.wait_for_selector(".dayline")
+    expect(pg.locator("#view")).not_to_contain_text("Coming up")
+    expect(pg.locator("#view")).to_contain_text("The day")
+    pg.evaluate("async () => (await import('/js/modules.js')).setSwitch('today.coming', true)")
+    pg.reload()
+    pg.wait_for_selector(".dayline")
+    expect(pg.locator("#view")).to_contain_text("Coming up")
     pg.evaluate("async () => (await (await import('/js/store.js')).remove('bill-mod-test'))")
     b.close()
 print("errors:", errs or "none")

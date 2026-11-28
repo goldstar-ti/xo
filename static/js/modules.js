@@ -20,7 +20,12 @@
 import * as store from './store.js';
 
 export const MODULES = [
-  { id: 'today', widgets: ['today'] },
+  {
+    id: 'today',
+    widgets: ['today'],
+    // One function for each block on Today (BLOCKS in boot.js). The three block also needs tasks.three.
+    functions: [{ id: 'line' }, { id: 'next' }, { id: 'three' }, { id: 'day' }, { id: 'coming' }, { id: 'plan' }],
+  },
   { id: 'diary', kinds: ['appointment'], remind: ['appt_'], widgets: ['diary'] },
   {
     id: 'tasks',

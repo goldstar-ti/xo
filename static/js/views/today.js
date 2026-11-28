@@ -97,7 +97,7 @@ function nextUp(entries) {
 }
 
 function planNudge() {
-  if (!isOn('plan')) return null;
+  if (!isOn('plan') || !isOn('today.plan')) return null;
   const p = store.plan();
   if (!p.variant) return { text: t('today.nudge.not_started'), done: false };
   const boxes = PLAN[p.variant].flatMap((s) => s.boxes);
@@ -193,15 +193,15 @@ export function render(root) {
   const greeting = prefs.callMe && t(`today.greeting.${hour < 12 ? 'morning' : hour < 18 ? 'afternoon' : 'evening'}`, { name: prefs.callMe });
   // Blocks can be hidden and reordered in Appearance.
   const blocks = {
-    line: window.XOLook.active().look.line !== 'hidden' && h('p', { class: 'line' }, !missed && line.label && h('span', { class: 'line-label' }, `${line.label}: `), missed ? t('today.missed_line') : line.text),
-    next: h('section', { class: `next${up.urgent ? ' urgent' : ''}`, 'aria-label': t('today.next_up') },
+    line: isOn('today.line') && window.XOLook.active().look.line !== 'hidden' && h('p', { class: 'line' }, !missed && line.label && h('span', { class: 'line-label' }, `${line.label}: `), missed ? t('today.missed_line') : line.text),
+    next: isOn('today.next') && h('section', { class: `next${up.urgent ? ' urgent' : ''}`, 'aria-label': t('today.next_up') },
       h('p', { class: 'next-head' }, up.head),
       up.title && h('p', { class: 'next-title' }, up.title),
       up.sub && h('p', { class: 'next-sub' }, up.pin && [icon('tabler/map-pin'), ' '], up.sub)),
-    three: isOn('tasks.three') && h('section', { class: 'col-side' }, h('div', { class: 'sec-head' }, h('h2', {}, t('today.three.heading')), h('a', { href: '#/tasks' }, t('today.three.all_tasks'))), three),
-    day: h('section', { class: 'col-day' }, h('div', { class: 'sec-head' }, h('h2', {}, t('today.day.heading')), isOn('routine') && h('a', { href: '#/routine' }, t('today.day.edit_routine'))),
+    three: isOn('today.three') && isOn('tasks.three') && h('section', { class: 'col-side' }, h('div', { class: 'sec-head' }, h('h2', {}, t('today.three.heading')), h('a', { href: '#/tasks' }, t('today.three.all_tasks'))), three),
+    day: isOn('today.day') && h('section', { class: 'col-day' }, h('div', { class: 'sec-head' }, h('h2', {}, t('today.day.heading')), isOn('routine') && h('a', { href: '#/routine' }, t('today.day.edit_routine'))),
       h('ol', { class: 'dayline' }, rows)),
-    coming: h('section', { class: 'col-side' }, h('div', { class: 'sec-head' }, h('h2', {}, t('today.coming.heading'))),
+    coming: isOn('today.coming') && h('section', { class: 'col-side' }, h('div', { class: 'sec-head' }, h('h2', {}, t('today.coming.heading'))),
       coming.length
         ? h('ul', { class: 'list' }, coming.map((c) => {
             const late = daysBetween(day, c.day) < 0;

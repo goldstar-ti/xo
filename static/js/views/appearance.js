@@ -641,7 +641,7 @@ function build(lk, d) {
     sortList(p.blocks, { label: A('blocks'),
       render: (k) => (k === 'line'
         ? toggle(blockNames[k], { checked: look().line !== 'hidden', disabled: true, 'aria-label': t('appearance.behaviour.line_aria') })
-        : toggle(blockNames[k], { checked: !p.hidden.includes(k), 'data-fk': `blk:${k}`, onchange: (on) => L.change((s) => { s.prefs.hidden = on ? s.prefs.hidden.filter((x) => x !== k) : [...s.prefs.hidden, k]; }) })),
+        : toggle(blockNames[k], { checked: isOn(`today.${k}`) && !p.hidden.includes(k), disabled: !isOn(`today.${k}`) || null, 'data-fk': `blk:${k}`, onchange: (on) => L.change((s) => { s.prefs.hidden = on ? s.prefs.hidden.filter((x) => x !== k) : [...s.prefs.hidden, k]; }) })),
       onmove: (from, to, list) => L.change((s) => { s.prefs.blocks = list; }) })),
   { adv: true, changed: !same(p.blocks, L.BLOCKS) || p.hidden.length > 0 });
   defAcc('ident', 'screens', A('ident'), { reset: () => L.change((s, l) => { l.ident = { widgets: {}, tabs: {} }; }) });

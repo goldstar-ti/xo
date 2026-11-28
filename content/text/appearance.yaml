@@ -418,6 +418,24 @@ appearance:
     tint_hint: Tints the icons in the side bar and the bottom bar with each module's colour. The screen you are on keeps the accent colour.
     colour: Colour
     functions:
+      today.line:
+        name: Daily line
+        hint: The line of text at the top of Today.
+      today.next:
+        name: Next up
+        hint: The next thing to get ready for or leave for.
+      today.three:
+        name: Today's three
+        hint: The tasks you picked for the day. Picking is under Tasks.
+      today.day:
+        name: The day
+        hint: Your routine, duties, appointments and check-ins in time order.
+      today.coming:
+        name: Coming up
+        hint: Appointments, bills, tasks and tracker items due in the next week.
+      today.plan:
+        name: My plan nudge
+        hint: A reminder to finish your plan.
       tasks.three:
         name: Today's three
         hint: Pick up to three tasks for the day, on Tasks, Today and in the evening check-in.
